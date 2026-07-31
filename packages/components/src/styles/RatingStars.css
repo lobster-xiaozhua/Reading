@@ -1,0 +1,136 @@
+/* ============================================================
+ * RatingStars · 03 §6.4
+ * 半星图层裁剪；sm 12 / md 16 / lg 24；分布柱状图
+ * ============================================================ */
+
+.novel-rating__wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  vertical-align: middle;
+}
+
+/* ---------- 星星轨道（双层裁剪核心） ---------- */
+.novel-rating {
+  position: relative;
+  display: inline-flex;
+  line-height: 1;
+  /* 默认 currentColor 指向空星灰 */
+  color: var(--color-text-tertiary);
+}
+
+.novel-rating__layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.novel-rating__layer--empty {
+  color: var(--gray-5);
+}
+
+.novel-rating__layer--filled {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--color-brand);
+}
+
+.novel-rating__star {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* ---------- 尺寸（sm 12 / md 16 / lg 24，03 §6.4 规格） ---------- */
+.novel-rating--sm {
+  font-size: 12px;
+}
+.novel-rating--md {
+  font-size: 16px;
+}
+.novel-rating--lg {
+  font-size: 24px;
+}
+
+/* ---------- 交互态 ---------- */
+.novel-rating.is-interactive {
+  cursor: pointer;
+}
+.novel-rating.is-interactive:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-rating.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.novel-rating.is-disabled .novel-rating__layer--filled {
+  color: var(--gray-5);
+}
+
+/* ---------- 数字表达（无障碍双重表达） ---------- */
+.novel-rating__value {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  line-height: 1;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+.novel-rating--sm + .novel-rating__value,
+.novel-rating__wrap:has(.novel-rating--sm) .novel-rating__value {
+  font-size: var(--font-size-overline);
+}
+
+/* ---------- 评分分布柱状图 ---------- */
+.novel-rating__dist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  min-width: 180px;
+  margin-top: var(--space-2);
+}
+
+.novel-rating__dist-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.novel-rating__dist-label {
+  flex-shrink: 0;
+  width: 36px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+
+.novel-rating__dist-track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  overflow: hidden;
+}
+
+.novel-rating__dist-bar {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  /* brand-bg → brand-7 渐变（03 §6.4 规格） */
+  background: linear-gradient(90deg, var(--color-brand-bg) 0%, var(--color-brand) 100%);
+  transition: width var(--dur-normal) var(--ease-standard);
+}
+
+.novel-rating__dist-count {
+  flex-shrink: 0;
+  min-width: 32px;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-secondary);
+}

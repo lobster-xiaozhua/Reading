@@ -1,0 +1,202 @@
+/* ============================================================
+ * ChapterList · 03 §6.2
+ * 列表项 48px；当前章 brand 高亮 + 左竖条；VIP 暖橙；虚拟滚动
+ * ============================================================ */
+
+.novel-chapter-list {
+  font-family: var(--font-sans);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- 工具栏（排序切换） ---------- */
+.novel-chapter-list__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.novel-chapter-list__order-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.novel-chapter-list__order-btn:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
+.novel-chapter-list__order-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-chapter-list__count {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 视口 ---------- */
+.novel-chapter-list__viewport {
+  outline: none;
+}
+.novel-chapter-list__viewport::-webkit-scrollbar {
+  width: 6px;
+}
+.novel-chapter-list__viewport::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+/* ---------- 列表项（固定 48px） ---------- */
+.novel-chapter-list__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0 var(--space-4);
+  border: none;
+  border-left: 3px solid transparent;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+  box-sizing: border-box;
+}
+.novel-chapter-list__item:hover {
+  background: var(--color-bg-subtle);
+}
+.novel-chapter-list__item:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 当前阅读章：brand 文字 + 左侧 3px brand 竖条 */
+.novel-chapter-list__item.is-active {
+  color: var(--color-brand);
+  border-left-color: var(--color-brand);
+  background: var(--color-brand-bg);
+  font-weight: var(--font-weight-medium);
+}
+
+/* 已读弱化 */
+.novel-chapter-list__item.is-read {
+  color: var(--color-text-tertiary);
+}
+.novel-chapter-list__item.is-read.is-active {
+  color: var(--color-brand);
+}
+
+/* ---------- 章节序号 ---------- */
+.novel-chapter-list__index {
+  flex-shrink: 0;
+  width: 40px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+.novel-chapter-list__item.is-active .novel-chapter-list__index {
+  color: var(--color-brand);
+}
+
+/* ---------- 章节标题 ---------- */
+.novel-chapter-list__title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 20px;
+}
+
+/* ---------- VIP 标记（暖橙） ---------- */
+.novel-chapter-list__vip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  line-height: 14px;
+}
+
+/* ---------- 字数元信息 ---------- */
+.novel-chapter-list__meta {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+/* ---------- 加载更多 ---------- */
+.novel-chapter-list__load-more {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-3);
+}
+
+.novel-chapter-list__load-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.novel-chapter-list__load-more-btn:hover:not(:disabled) {
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+}
+.novel-chapter-list__load-more-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+.novel-chapter-list__load-more-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 加载 spinner ---------- */
+.novel-chapter-list__spinner {
+  animation: novel-chapter-list-spin var(--dur-normal) linear infinite;
+}
+
+@keyframes novel-chapter-list-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-chapter-list__spinner {
+    animation: none;
+  }
+}

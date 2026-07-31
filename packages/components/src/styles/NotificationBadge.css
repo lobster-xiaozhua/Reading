@@ -1,0 +1,140 @@
+/* ============================================================
+ * NotificationBadge · 03 §6.12
+ * 左侧 rose 红点 / 已读弱化 / hover 忽略 / 多条聚合
+ * ============================================================ */
+
+.novel-notify {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.novel-notify.is-clickable {
+  cursor: pointer;
+}
+.novel-notify.is-clickable:hover {
+  background: var(--color-bg-subtle);
+}
+.novel-notify.is-clickable:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 已读弱化 */
+.novel-notify.is-read {
+  background: var(--color-bg-subtle);
+}
+.novel-notify.is-read .novel-notify__title {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+.novel-notify.is-read .novel-notify__dot {
+  background: var(--color-text-tertiary);
+}
+
+/* ---------- 左侧红点（8px，未读 rose） ---------- */
+.novel-notify__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-rose);
+}
+
+/* ---------- 主体 ---------- */
+.novel-notify__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.novel-notify__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.novel-notify__title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 「更新 N 章」暖橙 */
+.novel-notify__count {
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-orange);
+}
+
+.novel-notify__time {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 忽略按钮（hover 显现） ---------- */
+.novel-notify__dismiss {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-notify:hover .novel-notify__dismiss {
+  opacity: 1;
+}
+.novel-notify__dismiss:hover {
+  background: var(--color-bg-elevated);
+  color: var(--color-text-secondary);
+}
+.novel-notify__dismiss:focus-visible {
+  outline: none;
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 聚合卡片 ---------- */
+.novel-notify--aggregate {
+  gap: var(--space-2);
+}
+.novel-notify__aggregate-text {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+.novel-notify__chevron {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-body);
+  line-height: 1;
+}

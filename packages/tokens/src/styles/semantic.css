@@ -42,6 +42,18 @@
   --color-accent-hover: var(--accent-8);
   --color-accent-active: var(--accent-9);
 
+  /* ---------- L2 Semantic · 强调暖橙（C 端营销色，03 §3.2.1） ---------- */
+  --color-accent-orange: var(--orange-3);
+  --color-accent-orange-hover: var(--orange-4);
+  --color-accent-orange-active: var(--orange-5);
+  --color-accent-orange-bg: var(--orange-1);
+
+  /* ---------- L2 Semantic · 玫红（C 端互动色，03 §3.2.2） ---------- */
+  --color-rose: var(--error-3);
+  --color-rose-light: #FF6B6B;
+  --color-rose-gradient: linear-gradient(135deg, var(--error-3) 0%, #FF6B6B 100%);
+  --color-rose-bg: var(--error-1);
+
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
   --color-feedback-success-bg: var(--success-1);
@@ -191,6 +203,15 @@
   --color-accent: var(--accent-6);
   --color-accent-hover: var(--accent-7);
   --color-accent-active: var(--accent-8);
+
+  /* 暖橙暗色提亮（03 §3.2.1：保证对比度） */
+  --color-accent-orange: var(--orange-4);
+  --color-accent-orange-hover: var(--orange-3);
+  --color-accent-orange-active: var(--orange-5);
+  --color-accent-orange-bg: rgba(240, 133, 40, 0.16);
+
+  /* 玫红暗色微调 */
+  --color-rose-bg: rgba(245, 34, 45, 0.16);
 
   --color-feedback-success: var(--success-2);
   --color-feedback-success-bg: rgba(82, 196, 26, 0.16);

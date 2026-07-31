@@ -44,6 +44,31 @@ export {
   type ContentStatusType,
 } from './ContentStatus.js';
 
+// P3 C 端基础组件
+export { RatingStars, type RatingStarsProps } from './RatingStars.js';
+export {
+  BookCard,
+  type Book,
+  type BookCardProps,
+  type BookCardVariant,
+  type BookCardSize,
+} from './BookCard.js';
+export { NotificationBadge, type NotificationBadgeProps } from './NotificationBadge.js';
+export {
+  ChapterList,
+  type Chapter,
+  type ChapterListProps,
+  type ChapterOrder,
+} from './ChapterList.js';
+export {
+  Bookshelf,
+  type BookshelfProps,
+  type BookshelfTab,
+  type BookshelfGroupBy,
+  type BookshelfSortBy,
+  type BookshelfViewMode,
+} from './Bookshelf.js';
+
 // P2.4 状态模式 Hook
 export {
   useAsyncState,

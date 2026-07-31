@@ -1,0 +1,248 @@
+/* ============================================================
+ * BookCard · 03 §6.1
+ * grid / list / horizontal 三变体；封面 3:4；hover scale(1.02)+sh-2
+ * ============================================================ */
+
+.novel-book-card {
+  display: flex;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-family: var(--font-sans);
+  transition: box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.novel-book-card.is-clickable {
+  cursor: pointer;
+}
+.novel-book-card.is-clickable:hover {
+  box-shadow: var(--sh-2);
+  border-color: var(--color-border-default);
+}
+.novel-book-card.is-clickable:focus-visible {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 封面（3:4 固定比例） ---------- */
+.novel-book-card__cover {
+  position: relative;
+  flex-shrink: 0;
+  aspect-ratio: 3 / 4;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.novel-book-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+.novel-book-card.is-clickable:hover .novel-book-card__cover img {
+  transform: scale(1.02);
+}
+.novel-book-card.is-clickable:active .novel-book-card__cover img {
+  transform: scale(0.98);
+}
+
+/* 封面兜底（无图或加载失败） */
+.novel-book-card__cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 「已加入」角标 */
+.novel-book-card__added {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  padding: 2px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  line-height: 14px;
+}
+
+/* 追更红点 */
+.novel-book-card__update-dot {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-rose);
+  box-shadow: 0 0 0 1.5px var(--color-bg-surface);
+}
+
+/* ---------- 信息区 ---------- */
+.novel-book-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.novel-book-card__title {
+  font-family: var(--font-serif);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.novel-book-card__author {
+  font-family: var(--font-sans);
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.novel-book-card__intro {
+  font-family: var(--font-sans);
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.novel-book-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+/* ---------- grid 变体：封面在上 ---------- */
+.novel-book-card--grid {
+  flex-direction: column;
+  padding: var(--space-3);
+  gap: var(--space-3);
+}
+.novel-book-card--grid .novel-book-card__cover {
+  width: 100%;
+}
+.novel-book-card--grid .novel-book-card__title {
+  font-size: var(--font-size-body);
+  line-height: 22px;
+}
+.novel-book-card--grid .novel-book-card__author {
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+}
+.novel-book-card--grid .novel-book-card__intro {
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+}
+
+/* ---------- list 变体：封面在左，信息详尽 ---------- */
+.novel-book-card--list {
+  flex-direction: row;
+  padding: var(--space-3);
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.novel-book-card--list .novel-book-card__title {
+  font-size: var(--font-size-h3);
+  line-height: 26px;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+.novel-book-card--list .novel-book-card__author {
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+}
+.novel-book-card--list .novel-book-card__intro {
+  font-size: var(--font-size-caption);
+  line-height: 22px;
+  margin-top: var(--space-1);
+}
+
+/* ---------- horizontal 变体：紧凑横滚 ---------- */
+.novel-book-card--horizontal {
+  flex-direction: row;
+  padding: var(--space-2);
+  gap: var(--space-2);
+  align-items: flex-start;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+}
+.novel-book-card--horizontal.is-clickable:hover {
+  box-shadow: none;
+  background: var(--color-bg-subtle);
+}
+.novel-book-card--horizontal .novel-book-card__title {
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* ---------- size 调整（影响 list/horizontal 封面宽度，grid 自适应） ---------- */
+.novel-book-card--sm .novel-book-card__info {
+  gap: 2px;
+}
+
+/* ---------- 骨架屏 ---------- */
+.novel-book-card.is-skeleton {
+  pointer-events: none;
+}
+.novel-book-card__cover--skeleton {
+  background: var(--color-bg-subtle);
+}
+.novel-book-card.is-skeleton .novel-book-card__cover--skeleton,
+.novel-book-card__skeleton-line {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: novel-skeleton-shimmer var(--dur-slow) var(--ease-standard) infinite;
+}
+.novel-book-card__skeleton-line {
+  height: 14px;
+  border-radius: var(--radius-sm);
+}
+.novel-book-card__skeleton-line--title {
+  width: 80%;
+  height: 18px;
+}
+.novel-book-card__skeleton-line--author {
+  width: 50%;
+}
+.novel-book-card__skeleton-line--short {
+  width: 30%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-book-card.is-skeleton .novel-book-card__cover--skeleton,
+  .novel-book-card__skeleton-line {
+    animation: none;
+  }
+}

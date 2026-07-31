@@ -30,6 +30,13 @@
   --accent-9: #1238A8;
   --accent-10: #0B2470;
 
+  /* ---------- L1 Primitive · 暖橙（C 端营销扩展色，03 §3.2.1） ---------- */
+  --orange-1: #FFF4E6;
+  --orange-2: #FFD9B3;
+  --orange-3: #E37318;
+  --orange-4: #F08528;
+  --orange-5: #C9640F;
+
   /* ---------- L1 Primitive · 功能色 ---------- */
   --success-1: #F6FFED;
   --success-2: #B7EB8F;

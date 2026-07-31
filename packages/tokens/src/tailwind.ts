@@ -22,6 +22,13 @@ const config: Config = {
         accent: 'var(--color-accent)',
         'accent-hover': 'var(--color-accent-hover)',
         'accent-active': 'var(--color-accent-active)',
+        'accent-orange': 'var(--color-accent-orange)',
+        'accent-orange-hover': 'var(--color-accent-orange-hover)',
+        'accent-orange-active': 'var(--color-accent-orange-active)',
+        'accent-orange-bg': 'var(--color-accent-orange-bg)',
+        rose: 'var(--color-rose)',
+        'rose-light': 'var(--color-rose-light)',
+        'rose-bg': 'var(--color-rose-bg)',
         bg: {
           page: 'var(--color-bg-page)',
           surface: 'var(--color-bg-surface)',

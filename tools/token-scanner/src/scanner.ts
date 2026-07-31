@@ -123,7 +123,8 @@ export function scan(opts: ScannerOptions): ScanResult {
         RAW_COLOR_RE.lastIndex = 0;
         while ((m = RAW_COLOR_RE.exec(line)) !== null) {
           // 允许出现在 var() 引用之外的注释行
-          if (line.trim().startsWith('//') || line.trim().startsWith('/*')) continue;
+          const trimmed = line.trim();
+          if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('*/')) continue;
           violations.push({
             file: relative(root, file),
             line: lineNo,
@@ -140,7 +141,8 @@ export function scan(opts: ScannerOptions): ScanResult {
         let m: RegExpExecArray | null;
         PX_RE.lastIndex = 0;
         while ((m = PX_RE.exec(line)) !== null) {
-          if (line.trim().startsWith('//') || line.trim().startsWith('/*')) continue;
+          const trimmed = line.trim();
+          if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('*/')) continue;
           const val = parseFloat(m[1]);
           // 允许 0px / hairline；允许字体大小（font-size: 16px 是 Tailwind 工具类已映射）
           // 简化：仅当数值在常见 spacing 区间且不在允许集合内时报错
