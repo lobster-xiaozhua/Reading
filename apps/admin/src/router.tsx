@@ -18,6 +18,8 @@ const WorkbenchPage = lazy(() => import('./pages/WorkbenchPage'));
 const NovelListPage = lazy(() => import('./pages/NovelListPage'));
 const NovelDetailPage = lazy(() => import('./pages/NovelDetailPage'));
 const NovelFormPage = lazy(() => import('./pages/NovelFormPage'));
+const ChapterListPage = lazy(() => import('./pages/ChapterListPage'));
+const AuditWorkbenchPage = lazy(() => import('./pages/AuditWorkbenchPage'));
 const UserListPage = lazy(() => import('./pages/UserListPage'));
 const SystemConfigPage = lazy(() => import('./pages/SystemConfigPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -54,8 +56,9 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       { path: 'novel/create', element: withSuspense(<NovelFormPage />) },
       { path: 'novel/:novelId', element: withSuspense(<NovelDetailPage />) },
       { path: 'novel/:novelId/edit', element: withSuspense(<NovelFormPage />) },
-      { path: 'chapter/:novelId', element: withSuspense(<NovelListPage />) },
-      { path: 'audit', element: withSuspense(<NovelListPage />) },
+      // 内容管理模块（P5 实例化）
+      { path: 'chapter/:novelId', element: withSuspense(<ChapterListPage />) },
+      { path: 'audit', element: withSuspense(<AuditWorkbenchPage />) },
       // 用户管理模块
       { path: 'user', element: withSuspense(<UserListPage />) },
       { path: 'author', element: withSuspense(<UserListPage />) },
