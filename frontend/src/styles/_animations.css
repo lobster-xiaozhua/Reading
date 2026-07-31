@@ -1,0 +1,145 @@
+/* ===== 骨架屏（Skeleton） ===== */
+.skeleton {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+.skeleton-cover {
+  height: 200px;
+  border-radius: 0;
+}
+.skeleton-body {
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  flex: 1;
+}
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+}
+.skeleton-line:nth-child(2) {
+  width: 60%;
+}
+.skeleton-line:nth-child(3) {
+  width: 40%;
+  height: 12px;
+}
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 12px var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.skeleton-row-cover {
+  width: 48px;
+  height: 64px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.skeleton-row-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skeleton-row-body .skeleton-line {
+  height: 14px;
+}
+.skeleton-row-body .skeleton-line:nth-child(2) {
+  width: 45%;
+  height: 12px;
+}
+
+/* ===== 页面入场动画（带交错延迟） ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+/* 页面离场 */
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+/* ===== 卡片入场动画（交错延迟） ===== */
+@keyframes cardFadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.book-card-modern {
+  animation: cardFadeUp 0.45s ease-out both;
+}
+
+.book-card-modern:nth-child(1) { animation-delay: 0ms; }
+.book-card-modern:nth-child(2) { animation-delay: 40ms; }
+.book-card-modern:nth-child(3) { animation-delay: 80ms; }
+.book-card-modern:nth-child(4) { animation-delay: 120ms; }
+.book-card-modern:nth-child(5) { animation-delay: 160ms; }
+.book-card-modern:nth-child(6) { animation-delay: 200ms; }
+.book-card-modern:nth-child(7) { animation-delay: 240ms; }
+.book-card-modern:nth-child(8) { animation-delay: 280ms; }
+.book-card-modern:nth-child(9) { animation-delay: 320ms; }
+.book-card-modern:nth-child(10) { animation-delay: 360ms; }
+.book-card-modern:nth-child(11) { animation-delay: 400ms; }
+.book-card-modern:nth-child(12) { animation-delay: 440ms; }
+
+/* ===== 列表视图行入场 ===== */
+.book-row-modern {
+  animation: cardFadeUp 0.35s ease-out both;
+}
+.book-row-modern:nth-child(1) { animation-delay: 0ms; }
+.book-row-modern:nth-child(2) { animation-delay: 30ms; }
+.book-row-modern:nth-child(3) { animation-delay: 60ms; }
+.book-row-modern:nth-child(4) { animation-delay: 90ms; }
+.book-row-modern:nth-child(5) { animation-delay: 120ms; }
+.book-row-modern:nth-child(6) { animation-delay: 150ms; }
+.book-row-modern:nth-child(7) { animation-delay: 180ms; }
+.book-row-modern:nth-child(8) { animation-delay: 210ms; }
+
+/* ===== 页面容器内元素交错入场 ===== */
+.page-enter .card,
+.page-enter .shelf-row,
+.page-enter .filter-section-modern,
+.page-enter .continue-banner,
+.page-enter .recent-strip,
+.page-enter .quick-tags,
+.page-enter .discover-toolbar {
+  animation: cardFadeUp 0.4s ease-out both;
+}
+.page-enter .card:nth-child(2) { animation-delay: 50ms; }
+.page-enter .card:nth-child(3) { animation-delay: 100ms; }
+.page-enter .card:nth-child(4) { animation-delay: 150ms; }
+.page-enter .card:nth-child(5) { animation-delay: 200ms; }
+
+/* ===== 夜间模式过渡 ===== */
+body, .card, .btn, input, .tag-chip {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* ===== 按钮点击反馈 ===== */
+.btn:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}

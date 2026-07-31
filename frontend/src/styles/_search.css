@@ -1,0 +1,65 @@
+/* ===== Search Results ===== */
+.search-tabs { display: flex; gap: 8px; margin-top: var(--spacing-md); flex-wrap: wrap; }
+.search-tab { padding: 8px 16px; border: 1px solid var(--border); background: var(--surface); color: var(--text-muted); border-radius: 20px; cursor: pointer; font-size: 14px; font-family: inherit; transition: all .2s; }
+.search-tab:hover:not(:disabled) { border-color: var(--accent); color: var(--text); }
+.search-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.search-tab:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ===== Search pagination ===== */
+.search-pagination { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 32px 0; flex-wrap: wrap; }
+.search-pagination-pages { display: flex; align-items: center; gap: 4px; }
+.search-pagination-page { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer; font-size: 13px; font-family: inherit; transition: all .15s; }
+.search-pagination-page:hover { border-color: var(--accent); }
+.search-pagination-page.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.search-pagination-ellipsis { color: var(--text-muted); font-size: 14px; padding: 0 4px; }
+.search-pagination-total { color: var(--text-muted); font-size: 13px; margin-left: 8px; }
+
+/* ===== Search Results 页面布局 ===== */
+.search-page { padding-top: var(--spacing-xxl); padding-bottom: var(--spacing-xxl); }
+.search-header { margin-bottom: var(--spacing-xl); }
+.search-h1 { font-size: 32px; }
+.search-keyword { color: var(--accent); font-weight: 600; }
+.search-count { color: var(--text-muted); font-size: 14px; margin-left: 8px; }
+
+/* ===== 加载与错误状态 ===== */
+.search-loading { padding: 60px 0; text-align: center; color: var(--text-muted); font-size: 15px; }
+.search-error { padding: 40px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-md); color: #ef4444; text-align: center; }
+.search-empty { padding: 80px 20px; text-align: center; color: var(--text-muted); }
+.search-empty-title { font-size: 20px; margin-bottom: 12px; color: var(--text); }
+.search-empty-link { color: var(--accent); font-weight: 600; }
+
+/* ===== 书籍结果 ===== */
+.search-section { margin-bottom: var(--spacing-xl); }
+.search-section-title { font-size: 20px; margin-bottom: var(--spacing-md); }
+.search-section-title .search-count { font-weight: 500; }
+.search-card-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.search-result-card { padding: var(--spacing-lg); }
+
+.search-result-row { display: flex; align-items: flex-start; gap: var(--spacing-md); flex-wrap: wrap; }
+.search-result-title { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; text-decoration: none; flex: 1; min-width: 200px; }
+.search-result-author { color: var(--text-muted); font-size: 14px; white-space: nowrap; }
+
+.search-result-meta { margin-top: var(--spacing-sm); display: flex; align-items: center; gap: var(--spacing-md); flex-wrap: wrap; }
+.search-result-match { color: var(--accent); font-size: 13px; font-weight: 600; }
+.search-result-btn { padding: 6px 14px; font-size: 13px; }
+
+.search-result-expanded { margin-top: var(--spacing-md); padding-top: var(--spacing-md); border-top: 1px solid var(--border-subtle); }
+.search-result-expanded h4 { font-size: 15px; font-weight: 600; margin-bottom: var(--spacing-sm); color: var(--text-muted); }
+
+.search-chapter-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.search-chapter-item { border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
+.search-chapter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.search-chapter-link { font-weight: 600; color: var(--text); text-decoration: none; flex: 1; }
+.search-chapter-btn { padding: 4px 12px; font-size: 12px; }
+
+.search-snippet-box { margin-top: 10px; padding: 12px; background: var(--bg); border-radius: var(--radius-sm); border: 1px dashed var(--border); }
+.search-snippet-label { font-size: 12px; color: var(--text-subtle); margin-bottom: 8px; }
+.search-snippet-text { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 6px; }
+.search-snippet-empty { font-size: 14px; color: var(--text-muted); }
+
+/* ===== 章节结果 ===== */
+.search-chapter-list-view { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.search-chapter-card { padding: var(--spacing-md) var(--spacing-lg); text-decoration: none; color: inherit; display: block; }
+.search-chapter-book { font-size: 13px; color: var(--text-subtle); margin-bottom: 4px; }
+.search-chapter-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.search-chapter-preview { font-size: 14px; color: var(--text-muted); line-height: 1.6; }

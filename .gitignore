@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+
+# 数据文件
+backend/data/covers/
+*.db
+*.sqlite3
+
+# 环境配置（含敏感信息）
+.env
+.env.local
+*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+logs/

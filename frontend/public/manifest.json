@@ -1,0 +1,78 @@
+{
+  "name": "云笈阁 · 在线书库",
+  "short_name": "云笈阁",
+  "description": "免费在线小说阅读网站，支持整本上传、离线阅读、阅读进度同步",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='35' fill='%23ffffff'/%3E%3Crect x='38' y='50' width='11' height='96' rx='3' fill='%233b82f6'/%3E%3Crect x='49' y='52' width='36' height='92' rx='2' fill='%23ffffff' stroke='%23dbe5f5' stroke-width='0.5'/%3E%3Crect x='87' y='52' width='36' height='92' rx='2' fill='%23f8faff' stroke='%23dbe5f5' stroke-width='0.5'/%3E%3Ctext x='145' y='115' text-anchor='middle' font-size='38' font-weight='700' font-family='sans-serif' fill='%231a202c'%3E云%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23ffffff'/%3E%3Crect x='108' y='130' width='28' height='260' rx='5' fill='%233b82f6'/%3E%3Crect x='136' y='134' width='96' height='252' rx='4' fill='%23ffffff' stroke='%23dbe5f5' stroke-width='0.8'/%3E%3Crect x='236' y='134' width='96' height='252' rx='4' fill='%23f8faff' stroke='%23dbe5f5' stroke-width='0.8'/%3E%3Ctext x='392' y='310' text-anchor='middle' font-size='100' font-weight='700' font-family='sans-serif' fill='%231a202c'%3E云%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1080 1920'%3E%3Crect width='1080' height='1920' fill='%230a0e17'/%3E%3Ctext x='540' y='960' text-anchor='middle' fill='%233b82f6' font-size='40' font-family='sans-serif'%3E云笈阁 · 阅读器%3C/text%3E%3C/svg%3E",
+      "sizes": "1080x1920",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "云笈阁阅读界面"
+    }
+  ],
+  "categories": ["books", "entertainment", "reading"],
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "display_override": ["window-controls-override", "minimal-ui", "standalone"],
+  "shortcuts": [
+    {
+      "name": "发现好书",
+      "short_name": "发现",
+      "description": "浏览书籍列表",
+      "url": "/",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "我的书架",
+      "short_name": "书架",
+      "description": "继续阅读和收藏的书籍",
+      "url": "/shelf",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "搜索全书库",
+      "short_name": "搜索",
+      "description": "搜索书名、作者或正文",
+      "url": "/search",
+      "icons": [{ "src": "/icons/icon.svg", "sizes": "any" }]
+    }
+  ]
+}

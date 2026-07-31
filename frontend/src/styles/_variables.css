@@ -1,0 +1,99 @@
+/* ===== 设计令牌（Design Tokens） ===== */
+/* 默认（亮色） */
+:root,
+[data-theme="light"] {
+  /* ---- 颜色 ---- */
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --surface-2: #f0f4ff;
+  --surface-3: #e8eef8;
+  --text: #1a202c;
+  --text-muted: #6b7280;
+  --text-subtle: #9ca3af;
+  --accent: #3b82f6;
+  --accent-soft: #dbeafe;
+  --accent-glow: rgba(59, 130, 246, 0.1);
+  --accent-warm: #6366f1;
+  --accent-ink: #1e293b;
+  --gold: #d4a853;
+  --border: #e2e8f0;
+  --border-subtle: #eef2f6;
+  --shadow: rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.1);
+
+  /* ---- 间距 ---- */
+  --spacing-unit: 4px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+
+  /* ---- 圆角 ---- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 999px;
+
+  /* ---- 字体 ---- */
+  --font-sans: "Inter", "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-serif: "Noto Serif SC", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* ---- 阴影 ---- */
+  --shadow-sm: 0 1px 3px var(--shadow);
+  --shadow-md: 0 4px 12px var(--shadow);
+  --shadow-lg: 0 12px 40px var(--shadow);
+
+  /* ---- 动效 ---- */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* ---- 阅读器 ---- */
+  --r-bg: #f5f7fa;
+  --r-text: #1a202c;
+  --r-muted: #6b7280;
+  --r-bar: rgba(255, 255, 255, 0.92);
+}
+
+/* 暗色 */
+[data-theme="dark"] {
+  /* ---- 颜色 ---- */
+  --bg: #0a0e17;
+  --surface: #0f1422;
+  --surface-2: #131a2e;
+  --surface-3: #1a2340;
+  --text: #e8e4dc;
+  --text-muted: #8a8796;
+  --text-subtle: #5a5766;
+  --accent: #3b82f6;
+  --accent-soft: #1e3a8a;
+  --accent-glow: rgba(59, 130, 246, 0.15);
+  --accent-warm: #818cf8;
+  --accent-ink: #e2e8f0;
+  --gold: #f59e0b;
+  --border: #1e2845;
+  --border-subtle: #141a30;
+  --shadow: rgba(0, 0, 0, 0.35);
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.45);
+
+  /* ---- 间距（继承亮色） ---- */
+  /* ---- 圆角（继承亮色） ---- */
+  /* ---- 字体（继承亮色） ---- */
+  /* ---- 阴影（已覆盖） ---- */
+  /* ---- 动效（继承亮色） ---- */
+
+  /* ---- 阅读器 ---- */
+  --r-bg: #0a0e17;
+  --r-text: #e8e4dc;
+  --r-muted: #8a8796;
+  --r-bar: rgba(10, 14, 23, 0.92);
+}

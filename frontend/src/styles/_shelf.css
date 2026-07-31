@@ -1,0 +1,57 @@
+/* ===== Shelf / Continue Banner ===== */
+.shelf-page { padding-top: var(--spacing-xxl); padding-bottom: var(--spacing-xxl); }
+.shelf-tabs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: var(--spacing-lg); }
+.shelf-clear { margin-left: auto; font-size: 13px; }
+.shelf-list { display: flex; flex-direction: column; gap: 10px; }
+.shelf-row {
+  display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md) var(--spacing-lg);
+  text-decoration: none; color: inherit;
+}
+.shelf-row:hover { border-color: var(--accent); }
+.shelf-row-main { flex: 1; min-width: 0; }
+.shelf-row-title { font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
+.shelf-row-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.shelf-row-progress { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-subtle); min-width: 100px; }
+.mini-progress { width: 72px; height: 4px; background: var(--surface-3); border-radius: 4px; overflow: hidden; }
+.mini-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #60a5fa); border-radius: 4px; }
+.shelf-card { position: relative; padding: 0; overflow: hidden; }
+.shelf-card-link { display: block; color: inherit; text-decoration: none; }
+.shelf-card .book-cover-modern { border-radius: var(--radius-md) var(--radius-md) 0 0; }
+.shelf-card .book-meta-modern { padding: var(--spacing-md); }
+.shelf-card-prog { font-size: 12px; color: var(--accent); margin-top: 6px; }
+.shelf-remove { width: calc(100% - 24px); margin: 0 12px 12px; font-size: 12px; }
+
+.continue-banner {
+  position: relative; overflow: hidden; margin-bottom: var(--spacing-lg);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--spacing-md);
+  background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, var(--surface) 55%, rgba(99,102,241,0.08) 100%);
+  border-color: rgba(59,130,246,0.35);
+  padding: var(--spacing-lg) var(--spacing-xl);
+}
+.continue-label {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 6px;
+}
+.continue-title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+.continue-sub { font-size: 13px; color: var(--text-muted); }
+.continue-banner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.continue-banner-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--border-subtle); }
+.continue-banner-bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), #818cf8); }
+
+.recent-strip { margin-bottom: var(--spacing-lg); }
+.recent-strip-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+.recent-strip-head h3 { font-size: 15px; font-weight: 600; color: var(--text-muted); }
+.recent-strip-head a { font-size: 13px; color: var(--accent); }
+.recent-strip-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.recent-chip {
+  flex: 0 0 auto; max-width: 180px; padding: 10px 14px; border-radius: var(--radius-sm);
+  background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: inherit;
+  transition: border-color .2s, transform .2s;
+}
+.recent-chip:hover { border-color: var(--accent); transform: translateY(-2px); }
+.recent-chip-title { display: block; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-chip-meta { font-size: 11px; color: var(--text-subtle); }
+
+@media (max-width: 720px) {
+  .continue-banner { padding: var(--spacing-md); }
+}

@@ -1,0 +1,12 @@
+fastapi>=0.110
+uvicorn>=0.29
+pydantic>=2.6
+psycopg2>=2.9
+meilisearch>=0.43
+python-multipart>=0.0.9
+python-dotenv>=1.0
+slowapi>=0.1.10
+structlog>=26.0
+python-jose[cryptography]>=3.5
+passlib>=1.7
+bcrypt>=5.0

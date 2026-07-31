@@ -1,0 +1,145 @@
+/* ===== 补充缺失类样式 ===== */
+.stat-item { color:var(--text-subtle); font-size:12px; font-weight:500; }
+.virtual-paragraphs { position:relative; width:100%; }
+.virtual-paragraphs p { margin:0; padding-bottom:16px; text-indent:2em; line-height:2; }
+
+/* UserBadge */
+.user-badge { font-size:13px; color:var(--text-muted); display:inline-flex; align-items:center; gap:8px; white-space:nowrap; }
+.btn-login-link { font-size:13px; text-decoration:none; }
+.btn-logout { font-size:12px; margin-left:4px; padding:2px 8px; }
+
+.hint { padding:40px 20px; text-align:center; color:var(--text-muted); font-size:15px; }
+.hint.error { color:#ef4444; }
+
+/* ===== 空状态（全局） ===== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+.empty-state.error { color: #ef4444; }
+.empty-icon { font-size: 48px; opacity: 0.6; }
+.empty-hint { font-size: 13px; color: var(--text-subtle); }
+.empty-spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===== 旧版 FilterBar 备用样式 ===== */
+.filter-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.filter-label { color:var(--text-muted); font-size:14px; white-space:nowrap; }
+
+/* ===== Login 页面 ===== */
+.login-page { padding-top: 80px; max-width: 400px; margin: 0 auto; }
+
+/* ===== PWA 离线指示器 ===== */
+body[data-offline="true"]::after {
+  content: "离线模式 · 仅可查看已缓存内容";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(245, 158, 11, 0.95);
+  color: #1a1a1a;
+  text-align: center;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
+}
+
+body[data-offline="true"] {
+  padding-top: 28px;
+}
+
+/* ===== SW 更新提示 ===== */
+.sw-update-banner {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  padding: 12px 20px;
+  box-shadow: var(--shadow-card-hover);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  animation: toast-in 0.3s ease;
+}
+.sw-update-banner button {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sw-update-banner button:hover {
+  background: #2563eb;
+}
+
+/* ===== Toast 通知系统 ===== */
+.toast-container {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+.toast {
+  pointer-events: auto;
+  background: rgba(15, 20, 34, 0.94);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-card);
+  animation: toast-in 0.25s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast-success {
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+.toast-error {
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+.toast-info {
+  border-color: var(--border);
+  color: var(--text);
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

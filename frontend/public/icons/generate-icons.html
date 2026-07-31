@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>云笈阁 · PWA 图标生成器</title>
+<style>
+  body { background: #f5f7fa; color: #1a202c; font-family: system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; gap: 20px; }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.03em; color: #1a202c; }
+  .info { max-width: 600px; text-align: center; font-size: 14px; color: #6b7280; line-height: 1.6; }
+  code { background: #e8eef8; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+  .sizes { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+  .icon-card { text-align: center; }
+  .icon-card canvas { border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .icon-card label { display: block; margin-top: 6px; font-size: 13px; color: #6b7280; }
+  .btn { padding: 10px 24px; border-radius: 8px; border: none; background: #3b82f6; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
+  .btn:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.3); }
+  .btn-secondary { background: #e8eef8; color: #1a202c; }
+  .btn-secondary:hover { background: #dbe5f5; transform: none; box-shadow: none; }
+  .tools { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  #status { color: #6b7280; font-size: 14px; min-height: 24px; }
+  a { color: #3b82f6; }
+</style>
+</head>
+<body>
+  <h1>📱 云笈阁 · PWA 图标生成器</h1>
+  <p class="info">
+    白色底色 + 蓝色书籍 + 云字品牌 logo。点击下方按钮生成所有尺寸 PNG 图标，下载后解压到 <code>public/icons/</code> 目录。
+  </p>
+
+  <div class="sizes" id="preview"></div>
+
+  <div class="tools">
+    <button class="btn" onclick="generateAll()">🔄 生成所有图标</button>
+    <button class="btn" onclick="downloadAll()">⬇ 下载全部（ZIP）</button>
+    <button class="btn btn-secondary" onclick="copyToClipboard()">📋 复制 data URI</button>
+  </div>
+
+  <div id="status"></div>
+
+  <script>
+    const SIZES = [48, 72, 96, 128, 144, 152, 192, 256, 384, 512];
+
+    function drawIcon(ctx, size) {
+      const s = size;
+      const p = s / 512;
+
+      // === 白色圆角背景 ===
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, s, s, s * 0.18);
+      ctx.fill();
+
+      // === 左上装饰蓝点 ===
+      const dotGlow = ctx.createRadialGradient(s * 0.2, s * 0.2, 0, s * 0.2, s * 0.2, s * 0.3);
+      dotGlow.addColorStop(0, 'rgba(59, 130, 246, 0.08)');
+      dotGlow.addColorStop(1, 'rgba(59, 130, 246, 0)');
+      ctx.fillStyle = dotGlow;
+      ctx.beginPath();
+      ctx.arc(s * 0.2, s * 0.2, s * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // === 阴影 ===
+      ctx.shadowColor = 'rgba(59, 130, 246, 0.12)';
+      ctx.shadowBlur = s * 0.025;
+      ctx.shadowOffsetY = s * 0.008;
+
+      // === 书脊 ===
+      ctx.fillStyle = '#3b82f6';
+      ctx.beginPath();
+      ctx.roundRect(s * 0.20, s * 0.26, s * 0.055, s * 0.50, s * 0.01);
+      ctx.fill();
+
+      // 左页
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.255, s * 0.268, s * 0.19, s * 0.485, s * 0.008);
+      ctx.fill();
+      ctx.strokeStyle = '#dbe5f5';
+      ctx.lineWidth = Math.max(0.5, s * 0.0015);
+      ctx.stroke();
+
+      // 左页文字
+      ctx.fillStyle = '#3b82f6';
+      ctx.globalAlpha = 0.25;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.285, s * 0.32, s * 0.13, s * 0.01, s * 0.005);
+      ctx.fill();
+      ctx.globalAlpha = 0.15;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.285, s * 0.36, s * 0.13, s * 0.01, s * 0.005);
+      ctx.fill();
+      ctx.globalAlpha = 0.1;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.285, s * 0.40, s * 0.09, s * 0.01, s * 0.005);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // 右页
+      ctx.fillStyle = '#f8faff';
+      ctx.shadowColor = 'rgba(59, 130, 246, 0.08)';
+      ctx.shadowBlur = s * 0.015;
+      ctx.shadowOffsetY = s * 0.004;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.455, s * 0.268, s * 0.19, s * 0.485, s * 0.008);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.strokeStyle = '#dbe5f5';
+      ctx.lineWidth = Math.max(0.5, s * 0.0015);
+      ctx.stroke();
+
+      // 右页文字
+      ctx.fillStyle = '#3b82f6';
+      ctx.globalAlpha = 0.2;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.485, s * 0.32, s * 0.13, s * 0.01, s * 0.005);
+      ctx.fill();
+      ctx.globalAlpha = 0.1;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.485, s * 0.36, s * 0.13, s * 0.01, s * 0.005);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // === 书签丝带 ===
+      ctx.fillStyle = '#3b82f6';
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(s * 0.38, s * 0.26);
+      ctx.lineTo(s * 0.38, s * 0.195);
+      ctx.lineTo(s * 0.41, s * 0.22);
+      ctx.lineTo(s * 0.44, s * 0.195);
+      ctx.lineTo(s * 0.44, s * 0.26);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // === 云字（右侧） ===
+      ctx.shadowColor = 'rgba(59, 130, 246, 0.1)';
+      ctx.shadowBlur = s * 0.008;
+      ctx.shadowOffsetY = s * 0.004;
+      ctx.fillStyle = '#1a202c';
+      ctx.font = `700 ${s * 0.2}px 'Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('云', s * 0.77, s * 0.60);
+
+      // NOVEL 副标题
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetY = 0;
+      ctx.fillStyle = '#3b82f6';
+      ctx.font = `500 ${s * 0.028}px 'Inter','system-ui',sans-serif`;
+      ctx.letterSpacing = '0.15em';
+      ctx.fillText('NOVEL', s * 0.77, s * 0.69);
+
+      // 底部装饰线
+      ctx.fillStyle = '#3b82f6';
+      ctx.globalAlpha = 0.12;
+      ctx.beginPath();
+      ctx.roundRect(s * 0.58, s * 0.725, s * 0.36, s * 0.004, s * 0.002);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // 生成所有尺寸
+    function generateAll() {
+      const container = document.getElementById('preview');
+      container.innerHTML = '';
+      const status = document.getElementById('status');
+      status.textContent = '';
+
+      SIZES.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        drawIcon(ctx, size);
+
+        const card = document.createElement('div');
+        card.className = 'icon-card';
+        const cvs = canvas.cloneNode(true);
+        const displaySize = Math.min(128, size);
+        cvs.width = displaySize;
+        cvs.height = displaySize;
+        const label = document.createElement('label');
+        label.textContent = `${size}x${size}`;
+        card.appendChild(cvs);
+        card.appendChild(label);
+        container.appendChild(card);
+
+        window._icons = window._icons || {};
+        window._icons[size] = canvas;
+      });
+
+      status.textContent = `✅ 已生成 ${SIZES.length} 个图标`;
+    }
+
+    // 下载所有图标为 ZIP
+    async function downloadAll() {
+      if (!window._icons || Object.keys(window._icons).length === 0) {
+        alert('请先生成图标！');
+        return;
+      }
+
+      const JSZip = window.JSZip || await import('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js');
+      const zip = new JSZip.default ? new JSZip.default() : new JSZip();
+      const icons = zip.folder('icons');
+
+      for (const [size, canvas] of Object.entries(window._icons)) {
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        icons.file(`icon-${size}x${size}.png`, blob);
+      }
+
+      // 生成 manifest 兼容的命名
+      for (const size of [192, 512]) {
+        const canvas = window._icons[size];
+        if (canvas) {
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          zip.file(`icon-${size}.png`, blob);
+        }
+      }
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'yunjige-icons.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+
+      document.getElementById('status').textContent = '✅ 下载完成！解压 icons/ 文件夹到 public/ 目录';
+    }
+
+    // 复制 192x192 的 data URI 到剪贴板
+    async function copyToClipboard() {
+      const canvas = window._icons?.[192];
+      if (!canvas) {
+        alert('请先生成图标！');
+        return;
+      }
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUri = reader.result;
+        navigator.clipboard.writeText(dataUri).then(() => {
+          document.getElementById('status').textContent = '✅ 192x192 data URI 已复制到剪贴板';
+        }).catch(() => {
+          prompt('复制以下 data URI（手动 Ctrl+C）：', dataUri);
+        });
+      };
+      reader.readAsDataURL(blob);
+    }
+
+    // roundRect polyfill
+    if (!CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (r > w / 2) r = w / 2;
+        if (r > h / 2) r = h / 2;
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.lineTo(x + w, y + h - r);
+        this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.lineTo(x + r, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.lineTo(x, y + r);
+        this.quadraticCurveTo(x, y, x + r, y);
+      };
+    }
+
+    // 页面加载时自动生成
+    generateAll();
+  </script>
+</body>
+</html>

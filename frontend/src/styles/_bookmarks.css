@@ -1,0 +1,125 @@
+/* ===== 书签夹页面 ===== */
+.bm-head-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.bm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.bm-search {
+  flex: 1;
+  min-width: 200px;
+}
+
+.bm-group-toggle {
+  display: flex;
+  gap: 4px;
+}
+
+.bm-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.bm-group-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bm-group-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-subtle);
+  background: var(--surface-2);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.bm-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bm-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  transition: border-color 0.2s;
+}
+
+.bm-item:hover {
+  border-color: var(--accent);
+}
+
+.bm-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.bm-item-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bm-item-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+}
+
+.bm-item-meta {
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+.bm-item-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  padding: 4px 8px;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--accent);
+}
+
+.bm-item-del {
+  font-size: 14px !important;
+  padding: 4px 8px !important;
+  color: var(--text-subtle) !important;
+  flex-shrink: 0;
+}
+
+.bm-item-del:hover {
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+@media (max-width: 640px) {
+  .bm-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bm-group-toggle {
+    align-self: flex-end;
+  }
+}
