@@ -65,6 +65,9 @@ importers:
       '@novel/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
+      '@novel/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@tanstack/react-query':
         specifier: ^5.51.0
         version: 5.101.4(react@19.2.8)

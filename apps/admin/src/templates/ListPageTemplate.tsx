@@ -86,7 +86,7 @@ export interface ListPageTemplateProps<T> {
  * - 5 状态变体统一渲染
  * - 筛选状态同步 URL
  */
-export function ListPageTemplate<T extends Record<string, unknown>>(props: ListPageTemplateProps<T>) {
+export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<T>) {
   const {
     title,
     breadcrumb,

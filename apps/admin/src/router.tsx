@@ -16,6 +16,8 @@ import { Spin } from 'antd';
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const WorkbenchPage = lazy(() => import('./pages/WorkbenchPage'));
 const NovelListPage = lazy(() => import('./pages/NovelListPage'));
+const NovelDetailPage = lazy(() => import('./pages/NovelDetailPage'));
+const NovelFormPage = lazy(() => import('./pages/NovelFormPage'));
 const UserListPage = lazy(() => import('./pages/UserListPage'));
 const SystemConfigPage = lazy(() => import('./pages/SystemConfigPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -47,9 +49,11 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     children: [
       { index: true, element: <Navigate to="/workbench" replace /> },
       { path: 'workbench', element: withSuspense(<WorkbenchPage />) },
-      // 内容管理模块（P4 阶段细化）
+      // 内容管理模块（P4 实例化）
       { path: 'novel', element: withSuspense(<NovelListPage />) },
-      { path: 'novel/:novelId', element: withSuspense(<NovelListPage />) },
+      { path: 'novel/create', element: withSuspense(<NovelFormPage />) },
+      { path: 'novel/:novelId', element: withSuspense(<NovelDetailPage />) },
+      { path: 'novel/:novelId/edit', element: withSuspense(<NovelFormPage />) },
       { path: 'chapter/:novelId', element: withSuspense(<NovelListPage />) },
       { path: 'audit', element: withSuspense(<NovelListPage />) },
       // 用户管理模块

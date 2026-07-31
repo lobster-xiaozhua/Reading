@@ -19,6 +19,7 @@
     "@novel/b-end": "workspace:*",
     "@novel/icons": "workspace:*",
     "@novel/tokens": "workspace:*",
+    "@novel/types": "workspace:*",
     "@tanstack/react-query": "^5.51.0",
     "antd": "^5.21.0",
     "dayjs": "^1.11.13",
