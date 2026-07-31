@@ -7,8 +7,10 @@
 
 import { forwardRef, type ComponentProps, type ComponentRef } from 'react';
 import { Skeleton, Table as AntTable } from 'antd';
+import type { TableProps } from 'antd';
 
-export type BTableProps = ComponentProps<typeof AntTable>;
+/** B 端表格 props（泛型，T 为行数据类型） */
+export type BTableProps<T = Record<string, unknown>> = TableProps<T> & ComponentProps<typeof AntTable>;
 
 /**
  * B 端表格。

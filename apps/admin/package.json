@@ -16,6 +16,7 @@
     "@ant-design/charts": "^2.2.0",
     "@ant-design/cssinjs": "^1.21.0",
     "@ant-design/icons": "^5.4.0",
+    "@novel/b-end": "workspace:*",
     "@novel/icons": "workspace:*",
     "@novel/tokens": "workspace:*",
     "@tanstack/react-query": "^5.51.0",
