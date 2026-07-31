@@ -1,0 +1,9 @@
+/* ============================================================
+ * Atlas Design System · Tokens Aggregator
+ * 一站式引入：primitive + semantic + reader-theme
+ * 用法：import '@novel/tokens/styles/tokens.css';
+ * ============================================================ */
+
+@import './primitive.css';
+@import './semantic.css';
+@import './reader-theme.css';

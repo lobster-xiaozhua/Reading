@@ -1,0 +1,41 @@
+/* ============================================================
+ * Atlas Design System · Reader Theme Tokens
+ * 4 阅读主题（日/夜/护眼/羊皮纸），切换时仅改 L2 Semantic 层。
+ * 触发：[data-reader-theme='day|night|sepia|parchment']
+ * Source: 01-前端底层设计.md §5.6 / 03-C端专项设计.md §3.4
+ * ============================================================ */
+
+/* 日间（默认，与系统浅色一致） */
+[data-reader-theme='day'] {
+  --novel-read-bg: var(--read-bg-day);
+  --novel-read-text: var(--read-text-day);
+  --novel-read-text-secondary: var(--read-text-secondary-day);
+}
+
+/* 夜间 */
+[data-reader-theme='night'] {
+  --novel-read-bg: var(--read-bg-night);
+  --novel-read-text: var(--read-text-night);
+  --novel-read-text-secondary: var(--read-text-secondary-night);
+}
+
+/* 护眼（sepia） */
+[data-reader-theme='sepia'] {
+  --novel-read-bg: var(--read-bg-sepia);
+  --novel-read-text: var(--read-text-sepia);
+  --novel-read-text-secondary: var(--read-text-secondary-sepia);
+}
+
+/* 羊皮纸（parchment） */
+[data-reader-theme='parchment'] {
+  --novel-read-bg: var(--read-bg-parchment);
+  --novel-read-text: var(--read-text-parchment);
+  --novel-read-text-secondary: var(--read-text-secondary-parchment);
+}
+
+/* 阅读主题切换强制 instant（90ms），避免色彩流动干扰阅读 */
+[data-reader-theme] {
+  transition:
+    background-color var(--dur-instant) var(--ease-standard),
+    color var(--dur-instant) var(--ease-standard);
+}

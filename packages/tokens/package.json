@@ -1,0 +1,60 @@
+{
+  "name": "@novel/tokens",
+  "version": "1.0.0",
+  "description": "Atlas Design System · Design Tokens（L1 Primitive → L2 Semantic → L3 Component 约定）",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js",
+      "require": "./dist/react.cjs"
+    },
+    "./styles/primitive.css": "./dist/styles/primitive.css",
+    "./styles/semantic.css": "./dist/styles/semantic.css",
+    "./styles/reader-theme.css": "./dist/styles/reader-theme.css",
+    "./styles/tokens.css": "./dist/styles/tokens.css",
+    "./tailwind": {
+      "types": "./dist/tailwind.d.ts",
+      "import": "./dist/tailwind.js",
+      "require": "./dist/tailwind.cjs"
+    },
+    "./dtcg.json": "./dist/dtcg.json"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.2.18",
+    "react": "^19.0.0",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.6.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "pnpm run build:css && pnpm run build:ts && pnpm run build:tailwind && pnpm run build:dtcg",
+    "build:css": "node scripts/build-css.mjs",
+    "build:ts": "tsc -p tsconfig.build.json",
+    "build:tailwind": "node scripts/build-tailwind.mjs",
+    "build:dtcg": "node scripts/build-dtcg.mjs",
+    "dev": "pnpm run build -- --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint placeholder'",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
+  }
+}

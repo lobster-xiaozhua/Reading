@@ -1,0 +1,21 @@
+{
+  "name": "@novel/tools-token-scanner",
+  "version": "1.0.0",
+  "description": "Atlas Design System · 令牌扫描器，CI 守门：阻断裸色值、非令牌间距、SVG 硬编码色值",
+  "type": "module",
+  "main": "./dist/scanner.cjs",
+  "bin": {
+    "token-scanner": "./dist/cli.cjs"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint placeholder'",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "typescript": "^5.6.0"
+  }
+}

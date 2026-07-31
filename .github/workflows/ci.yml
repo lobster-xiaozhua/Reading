@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  quality:
+    name: Lint · Typecheck · Token Scan · Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build tokens
+        run: pnpm --filter @novel/tokens run build
+
+      - name: Build token-scanner
+        run: pnpm --filter @novel/tools-token-scanner run build
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Token scan (守门)
+        run: pnpm run token-scan -- --root .
+
+      - name: Test
+        run: pnpm run test

@@ -1,0 +1,239 @@
+/* ============================================================
+ * Atlas Design System · L2 Semantic Tokens
+ * 按用途命名，引用 L1 Primitive，随主题切换。
+ * 组件层推荐引用本层（var(--color-*)）。
+ * Source: 01-前端底层设计.md §13.1
+ * ============================================================ */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- L2 Semantic · 文本 ---------- */
+  --color-text-primary: var(--gray-14);
+  --color-text-secondary: var(--gray-8);
+  --color-text-tertiary: var(--gray-6);
+  --color-text-disabled: var(--gray-5);
+  --color-text-inverse: var(--gray-1);
+  --color-text-link: var(--brand-7);
+  --color-text-link-hover: var(--brand-6);
+
+  /* ---------- L2 Semantic · 背景 ---------- */
+  --color-bg-page: var(--gray-1);
+  --color-bg-surface: #FFFFFF;
+  --color-bg-subtle: var(--gray-2);
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-mask: rgba(10, 11, 18, 0.45);
+
+  /* ---------- L2 Semantic · 边框 ---------- */
+  --color-border-default: var(--gray-4);
+  --color-border-subtle: var(--gray-3);
+  --color-border-focus: var(--brand-7);
+  --color-border-strong: var(--gray-6);
+
+  /* ---------- L2 Semantic · 品牌 ---------- */
+  --color-brand: var(--brand-7);
+  --color-brand-hover: var(--brand-8);
+  --color-brand-active: var(--brand-9);
+  --color-brand-bg: var(--brand-2);
+  --color-brand-border: var(--brand-3);
+
+  /* ---------- L2 Semantic · 强调（C 端 accent） ---------- */
+  --color-accent: var(--accent-7);
+  --color-accent-hover: var(--accent-8);
+  --color-accent-active: var(--accent-9);
+
+  /* ---------- L2 Semantic · 反馈 ---------- */
+  --color-feedback-success: var(--success-3);
+  --color-feedback-success-bg: var(--success-1);
+  --color-feedback-warning: var(--warning-3);
+  --color-feedback-warning-bg: var(--warning-1);
+  --color-feedback-error: var(--error-3);
+  --color-feedback-error-bg: var(--error-1);
+  --color-feedback-info: var(--info-3);
+  --color-feedback-info-bg: var(--info-1);
+
+  /* ---------- 字体 ---------- */
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  --font-size-display: 64px;
+  --font-size-h1: 40px;
+  --font-size-h2: 28px;
+  --font-size-h3: 20px;
+  --font-size-body: 16px;
+  --font-size-caption: 13px;
+  --font-size-overline: 11px;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.15;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.7;
+
+  /* ---------- 小说正文 ---------- */
+  --novel-font-family: var(--font-serif);
+  --novel-font-size: 18px;
+  --novel-line-height: 1.8;
+  --novel-paragraph-spacing: 1em;
+  --novel-text-color: var(--gray-11);
+  --novel-measure: 42ch;
+
+  /* ---------- 阅读主题（L2 Semantic，切换时仅改这一层） ---------- */
+  --novel-read-bg: var(--read-bg-day);
+  --novel-read-text: var(--read-text-day);
+  --novel-read-text-secondary: var(--read-text-secondary-day);
+
+  /* ---------- 阅读器交互区 ---------- */
+  --reader-tap-zone: 80px;
+  --reader-tap-center: 40%;
+  --reader-toolbar-height: 56px;
+  --reader-progress-height: 3px;
+  --reader-chapter-gap: var(--space-12);
+  --reader-paragraph-indent: 2em;
+  --reader-line-spacing-extra: 0.05em;
+
+  /* ---------- 间距（13 档，4px 基准） ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---------- 圆角（8 档） ---------- */
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ---------- 阴影（5 级） ---------- */
+  --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+  --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.10);
+  --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+  --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.16);
+
+  /* ---------- 动效 ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  --dur-instant: 90ms;
+  --dur-fast: 150ms;
+  --dur-normal: 240ms;
+  --dur-slow: 360ms;
+  --dur-deliberate: 540ms;
+
+  /* ---------- 层级 z-index（6 级） ---------- */
+  --z-index-base: 0;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1100;
+  --z-index-drawer: 1200;
+  --z-index-modal: 1300;
+  --z-index-toast: 1400;
+
+  /* ---------- 图标尺寸 ---------- */
+  --icon-size-xs: 12px;
+  --icon-size-sm: 14px;
+  --icon-size-md: 16px;
+  --icon-size-lg: 20px;
+  --icon-size-xl: 24px;
+  --icon-size-2xl: 32px;
+}
+
+/* ============================================================
+ * Dark Theme · 仅覆盖 L2 语义层与阴影
+ * 触发：[data-theme='dark']
+ * ============================================================ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-text-primary: var(--gray-1);
+  --color-text-secondary: var(--gray-5);
+  --color-text-tertiary: var(--gray-6);
+  --color-text-disabled: var(--gray-7);
+  --color-text-inverse: var(--gray-14);
+  --color-text-link: var(--brand-6);
+  --color-text-link-hover: var(--brand-5);
+
+  --color-bg-page: var(--gray-14);
+  --color-bg-surface: var(--gray-12);
+  --color-bg-subtle: var(--gray-11);
+  --color-bg-elevated: var(--gray-12);
+  --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+  --color-border-default: var(--gray-10);
+  --color-border-subtle: var(--gray-11);
+  --color-border-focus: var(--brand-6);
+  --color-border-strong: var(--gray-8);
+
+  --color-brand: var(--brand-6);
+  --color-brand-hover: var(--brand-7);
+  --color-brand-active: var(--brand-8);
+  --color-brand-bg: rgba(24, 144, 255, 0.16);
+  --color-brand-border: rgba(24, 144, 255, 0.32);
+  --color-accent: var(--accent-6);
+  --color-accent-hover: var(--accent-7);
+  --color-accent-active: var(--accent-8);
+
+  --color-feedback-success: var(--success-2);
+  --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
+  --color-feedback-warning: var(--warning-2);
+  --color-feedback-warning-bg: rgba(250, 173, 20, 0.16);
+  --color-feedback-error: var(--error-2);
+  --color-feedback-error-bg: rgba(245, 34, 45, 0.16);
+  --color-feedback-info: var(--info-2);
+  --color-feedback-info-bg: rgba(24, 144, 255, 0.16);
+
+  --novel-text-color: var(--gray-3);
+
+  /* 阅读主题：系统暗色时默认指向夜间主题 */
+  --novel-read-bg: var(--read-bg-night);
+  --novel-read-text: var(--read-text-night);
+  --novel-read-text-secondary: var(--read-text-secondary-night);
+
+  --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+  --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.44);
+  --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.48);
+  --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.52);
+  --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.56);
+}
+
+/* ---------- 高对比偏好（无障碍，03 §10） ---------- */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border-default: var(--gray-7);
+    --color-border-subtle: var(--gray-6);
+  }
+  [data-theme='dark'] {
+    --color-border-default: var(--gray-5);
+    --color-border-subtle: var(--gray-6);
+  }
+}
+
+/* ---------- 减弱动效（无障碍，01 §10.3） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast: 0ms;
+    --dur-normal: 0ms;
+    --dur-slow: 0ms;
+    --dur-deliberate: 0ms;
+  }
+}

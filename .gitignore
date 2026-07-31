@@ -1,0 +1,16 @@
+node_modules
+dist
+build
+.cache
+.turbo
+coverage
+*.log
+.DS_Store
+.env
+.env.local
+.idea
+.vscode/*
+!.vscode/settings.json
+packages/*/dist
+apps/*/dist
+tools/*/dist

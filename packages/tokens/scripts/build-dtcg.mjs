@@ -1,0 +1,173 @@
+// 生成 W3C DTCG JSON（2025.10 规范）
+// 每个 token 含 $type / $value；引用用 {group.token} 路径语法
+import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const outDir = join(__dirname, '..', 'dist');
+if (!existsSync(outDir)) mkdirSync(outDir, { recursive: true });
+
+const dtcg = {
+  $description: 'Atlas Design System · Design Tokens · W3C DTCG 2025.10',
+  $schema: 'https://design-tokens.org/schema.json',
+  color: {
+    brand: {
+      'brand-1': { $type: 'color', $value: '#F0F9FF', $description: '品牌最浅' },
+      'brand-2': { $type: 'color', $value: '#E6F7FF' },
+      'brand-3': { $type: 'color', $value: '#BAE7FF' },
+      'brand-4': { $type: 'color', $value: '#91D5FF' },
+      'brand-5': { $type: 'color', $value: '#69C0FF' },
+      'brand-6': { $type: 'color', $value: '#40A9FF' },
+      'brand-7': { $type: 'color', $value: '#1890FF', $description: '主品牌色基准，对应 Ant Design blue-6' },
+      'brand-8': { $type: 'color', $value: '#096DD9', $description: '品牌 hover' },
+      'brand-9': { $type: 'color', $value: '#0050B3', $description: '品牌 active' },
+      'brand-10': { $type: 'color', $value: '#003A8C' },
+    },
+    accent: {
+      'accent-7': { $type: 'color', $value: '#245BFF', $description: 'C 端强调色（钴蓝）' },
+      'accent-8': { $type: 'color', $value: '#1A47D9' },
+      'accent-9': { $type: 'color', $value: '#1238A8' },
+    },
+    success: {
+      'success-3': { $type: 'color', $value: '#52C41A', $description: '成功反馈' },
+      'success-1': { $type: 'color', $value: '#F6FFED', $description: '成功浅底' },
+    },
+    warning: {
+      'warning-3': { $type: 'color', $value: '#FAAD14', $description: '警告反馈' },
+      'warning-1': { $type: 'color', $value: '#FFFBE6', $description: '警告浅底' },
+    },
+    error: {
+      'error-3': { $type: 'color', $value: '#F5222D', $description: '错误/危险反馈' },
+      'error-1': { $type: 'color', $value: '#FFF1F0', $description: '错误浅底' },
+    },
+    info: {
+      'info-3': { $type: 'color', $value: '#1890FF', $description: '信息反馈' },
+      'info-1': { $type: 'color', $value: '#E6F7FF', $description: '信息浅底' },
+    },
+    gray: {
+      'gray-1': { $type: 'color', $value: '#F7F7F8', $description: '中性色最浅' },
+      'gray-2': { $type: 'color', $value: '#EDEDF0' },
+      'gray-3': { $type: 'color', $value: '#E2E2E7' },
+      'gray-4': { $type: 'color', $value: '#D3D3DA' },
+      'gray-5': { $type: 'color', $value: '#B8B8C1' },
+      'gray-6': { $type: 'color', $value: '#9999A5' },
+      'gray-7': { $type: 'color', $value: '#7A7A86', $description: '图标次级、次要说明' },
+      'gray-8': { $type: 'color', $value: '#5E5E6A' },
+      'gray-9': { $type: 'color', $value: '#45454F' },
+      'gray-10': { $type: 'color', $value: '#2F2F37' },
+      'gray-11': { $type: 'color', $value: '#1F1F25' },
+      'gray-12': { $type: 'color', $value: '#15151B' },
+      'gray-13': { $type: 'color', $value: '#0E0E13' },
+      'gray-14': { $type: 'color', $value: '#0A0B12', $description: '中性色最深' },
+    },
+    read: {
+      'bg-day': { $type: 'color', $value: '#FFFFFF', $description: '日间阅读背景' },
+      'bg-night': { $type: 'color', $value: '#1A1A1A', $description: '夜间阅读背景' },
+      'bg-sepia': { $type: 'color', $value: '#F5EDDC', $description: '护眼阅读背景' },
+      'bg-parchment': { $type: 'color', $value: '#F4ECD8', $description: '羊皮纸阅读背景' },
+      'text-day': { $type: 'color', $value: '#2A2B33' },
+      'text-night': { $type: 'color', $value: '#E0E0E0' },
+      'text-sepia': { $type: 'color', $value: '#5B4636' },
+      'text-parchment': { $type: 'color', $value: '#5B4636' },
+    },
+    semantic: {
+      'text-primary': { $type: 'color', $value: '{color.gray.gray-14}', $description: '主标题与正文主文字' },
+      'text-secondary': { $type: 'color', $value: '{color.gray.gray-8}' },
+      'text-tertiary': { $type: 'color', $value: '{color.gray.gray-6}' },
+      'text-disabled': { $type: 'color', $value: '{color.gray.gray-5}' },
+      'text-inverse': { $type: 'color', $value: '{color.gray.gray-1}' },
+      'text-link': { $type: 'color', $value: '{color.brand.brand-7}' },
+      'bg-page': { $type: 'color', $value: '{color.gray.gray-1}' },
+      'bg-surface': { $type: 'color', $value: '#FFFFFF' },
+      'bg-subtle': { $type: 'color', $value: '{color.gray.gray-2}' },
+      'border-default': { $type: 'color', $value: '{color.gray.gray-4}' },
+      'border-subtle': { $type: 'color', $value: '{color.gray.gray-3}' },
+      'border-focus': { $type: 'color', $value: '{color.brand.brand-7}' },
+      brand: { $type: 'color', $value: '{color.brand.brand-7}', $description: '品牌主色语义引用' },
+      'brand-hover': { $type: 'color', $value: '{color.brand.brand-8}' },
+      'brand-active': { $type: 'color', $value: '{color.brand.brand-9}' },
+      'brand-bg': { $type: 'color', $value: '{color.brand.brand-2}' },
+      accent: { $type: 'color', $value: '{color.accent.accent-7}', $description: 'C 端强调色语义引用' },
+      'feedback-success': { $type: 'color', $value: '{color.success.success-3}' },
+      'feedback-warning': { $type: 'color', $value: '{color.warning.warning-3}' },
+      'feedback-error': { $type: 'color', $value: '{color.error.error-3}' },
+      'feedback-info': { $type: 'color', $value: '{color.info.info-3}' },
+      'novel-read-bg': { $type: 'color', $value: '{color.read.bg-day}', $description: '阅读主题背景（随阅读主题切换）' },
+      'novel-read-text': { $type: 'color', $value: '{color.read.text-day}' },
+    },
+  },
+  dimension: {
+    space: {
+      'space-1': { $type: 'dimension', $value: '4px' },
+      'space-2': { $type: 'dimension', $value: '8px' },
+      'space-3': { $type: 'dimension', $value: '12px' },
+      'space-4': { $type: 'dimension', $value: '16px' },
+      'space-5': { $type: 'dimension', $value: '20px' },
+      'space-6': { $type: 'dimension', $value: '24px' },
+      'space-8': { $type: 'dimension', $value: '32px' },
+      'space-10': { $type: 'dimension', $value: '40px' },
+      'space-12': { $type: 'dimension', $value: '48px' },
+      'space-16': { $type: 'dimension', $value: '64px' },
+      'space-20': { $type: 'dimension', $value: '80px' },
+      'space-24': { $type: 'dimension', $value: '96px' },
+      'space-32': { $type: 'dimension', $value: '128px' },
+    },
+    radius: {
+      'radius-none': { $type: 'dimension', $value: '0' },
+      'radius-xs': { $type: 'dimension', $value: '2px' },
+      'radius-sm': { $type: 'dimension', $value: '4px' },
+      'radius-md': { $type: 'dimension', $value: '8px' },
+      'radius-lg': { $type: 'dimension', $value: '12px' },
+      'radius-xl': { $type: 'dimension', $value: '16px' },
+      'radius-2xl': { $type: 'dimension', $value: '24px' },
+      'radius-full': { $type: 'dimension', $value: '9999px' },
+    },
+    font: {
+      'size-display': { $type: 'dimension', $value: '64px' },
+      'size-h1': { $type: 'dimension', $value: '40px' },
+      'size-h2': { $type: 'dimension', $value: '28px' },
+      'size-h3': { $type: 'dimension', $value: '20px' },
+      'size-body': { $type: 'dimension', $value: '16px' },
+      'size-caption': { $type: 'dimension', $value: '13px' },
+      'size-overline': { $type: 'dimension', $value: '11px' },
+    },
+    reader: {
+      'tap-zone': { $type: 'dimension', $value: '80px' },
+      'tap-center': { $type: 'dimension', $value: '40%' },
+      'toolbar-height': { $type: 'dimension', $value: '56px' },
+      'progress-height': { $type: 'dimension', $value: '3px' },
+    },
+  },
+  shadow: {
+    'sh-1': { $type: 'shadow', $value: '0 1px 2px 0 rgba(0, 0, 0, 0.04)' },
+    'sh-2': { $type: 'shadow', $value: '0 2px 8px 0 rgba(0, 0, 0, 0.08)' },
+    'sh-3': { $type: 'shadow', $value: '0 4px 12px 0 rgba(0, 0, 0, 0.10)' },
+    'sh-4': { $type: 'shadow', $value: '0 8px 24px 0 rgba(0, 0, 0, 0.12)' },
+    'sh-5': { $type: 'shadow', $value: '0 16px 48px 0 rgba(0, 0, 0, 0.16)' },
+  },
+  duration: {
+    'dur-instant': { $type: 'duration', $value: '90ms', $description: 'Doherty 阈值，感知为即时' },
+    'dur-fast': { $type: 'duration', $value: '150ms' },
+    'dur-normal': { $type: 'duration', $value: '240ms' },
+    'dur-slow': { $type: 'duration', $value: '360ms' },
+    'dur-deliberate': { $type: 'duration', $value: '540ms' },
+  },
+  cubicBezier: {
+    'ease-standard': { $type: 'cubicBezier', $value: [0.4, 0, 0.2, 1] },
+    'ease-emphasized': { $type: 'cubicBezier', $value: [0.2, 0, 0, 1] },
+    'ease-decelerate': { $type: 'cubicBezier', $value: [0, 0, 0.2, 1] },
+    'ease-accelerate': { $type: 'cubicBezier', $value: [0.4, 0, 1, 1] },
+  },
+  zIndex: {
+    base: { $type: 'number', $value: 0 },
+    dropdown: { $type: 'number', $value: 1000 },
+    sticky: { $type: 'number', $value: 1100 },
+    drawer: { $type: 'number', $value: 1200 },
+    modal: { $type: 'number', $value: 1300 },
+    toast: { $type: 'number', $value: 1400 },
+  },
+};
+
+writeFileSync(join(outDir, 'dtcg.json'), JSON.stringify(dtcg, null, 2) + '\n', 'utf8');
+console.log('[tokens:dtcg] emitted dtcg.json');
