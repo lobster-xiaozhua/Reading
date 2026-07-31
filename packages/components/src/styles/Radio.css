@@ -1,0 +1,81 @@
+/* ============================================================
+ * Radio · 02 §1.12
+ * Radio.Group 单选组
+ * ============================================================ */
+
+.novel-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+.novel-radio__box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.novel-radio__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-inverse);
+  opacity: 0;
+  transform: scale(0.4);
+  transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+}
+
+.novel-radio.is-checked .novel-radio__box {
+  border-color: var(--color-brand);
+  background: var(--color-brand);
+}
+.novel-radio.is-checked .novel-radio__dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.novel-radio:hover:not(.is-disabled) .novel-radio__box {
+  border-color: var(--color-brand);
+}
+
+.novel-radio:focus-within .novel-radio__box {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-radio.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.novel-radio__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* ---------- Group ---------- */
+.novel-radio-group {
+  display: inline-flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+.novel-radio-group--vertical {
+  flex-direction: column;
+  gap: var(--space-3);
+}

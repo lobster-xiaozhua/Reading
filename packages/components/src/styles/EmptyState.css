@@ -1,0 +1,103 @@
+/* ============================================================
+ * EmptyState / Skeleton · 02 §1.14
+ * ============================================================ */
+
+.novel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.novel-empty__illustration {
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-tertiary);
+}
+
+.novel-empty__title {
+  margin-top: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.novel-empty__description {
+  margin-top: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+  line-height: var(--line-height-normal);
+  max-width: 320px;
+}
+
+.novel-empty__actions {
+  margin-top: var(--space-6);
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* ---------- Skeleton ---------- */
+.novel-skeleton {
+  width: 100%;
+}
+
+.novel-skeleton__line {
+  height: 14px;
+  margin-bottom: var(--space-2);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.novel-skeleton__line:last-child {
+  margin-bottom: 0;
+  width: 60%;
+}
+
+.novel-skeleton__avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--color-bg-subtle);
+  border-radius: 50%;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.novel-skeleton__row {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.novel-skeleton.is-active .novel-skeleton__line,
+.novel-skeleton.is-active .novel-skeleton__avatar {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: novel-skeleton-shimmer var(--dur-slow) var(--ease-standard) infinite;
+}
+
+@keyframes novel-skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-skeleton.is-active .novel-skeleton__line,
+  .novel-skeleton.is-active .novel-skeleton__avatar {
+    animation: none;
+  }
+}

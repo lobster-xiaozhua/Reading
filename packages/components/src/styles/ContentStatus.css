@@ -1,0 +1,60 @@
+/* ============================================================
+ * ContentStatus · 02 §1.17
+ * 5 种状态枚举 × 2 种尺寸；颜色映射强约束
+ * ============================================================ */
+
+.novel-content-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  border-radius: var(--radius-full);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ---------- 尺寸 ---------- */
+.novel-content-status--sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-overline);
+  height: 22px;
+}
+.novel-content-status--md {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-caption);
+  height: 24px;
+}
+
+/* ---------- 圆点 ---------- */
+.novel-content-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ---------- 状态色映射（强约束，禁止业务覆盖） ---------- */
+.novel-content-status--ongoing {
+  color: var(--color-feedback-success);
+  background: var(--color-feedback-success-bg);
+}
+.novel-content-status--completed {
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.novel-content-status--paused {
+  color: var(--color-feedback-warning);
+  background: var(--color-feedback-warning-bg);
+}
+.novel-content-status--reviewing {
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-subtle);
+}
+.novel-content-status--offline {
+  color: var(--color-feedback-error);
+  background: var(--color-feedback-error-bg);
+  /* 下架状态额外描边强调严重性 */
+  border: 1px solid var(--color-border-default);
+}

@@ -145,8 +145,20 @@ export function scan(opts: ScannerOptions): ScanResult {
           // 允许 0px / hairline；允许字体大小（font-size: 16px 是 Tailwind 工具类已映射）
           // 简化：仅当数值在常见 spacing 区间且不在允许集合内时报错
           if (val > 0 && val <= 200 && !ALLOWED_SPACING_PX.has(val)) {
-            // 跳过 font-size / line-height / width/height 中常见值（粗略白名单）
-            if (/(font-size|line-height|border-radius|width|height|min-width|max-width)/i.test(line)) continue;
+            // 跳过非间距用途的 px 值：
+            // - font-size / line-height / 字号相关
+            // - border-radius / width / height / min-width / max-width 尺寸
+            // - border / border-<side> / border-width 描边宽度（不属于间距令牌）
+            // - box-shadow 的偏移与 spread（视觉描边，非间距）
+            // - top/left/right/bottom 绝对定位偏移（组件内部几何，非布局间距）
+            // - transform 位移
+            if (
+              /(font-size|line-height|border-radius|border-width|width|height|min-width|max-width)/i.test(line) ||
+              /^\s*(border|border-(top|right|bottom|left|width))\s*:/i.test(line) ||
+              /box-shadow\s*:/i.test(line) ||
+              /^\s*(top|left|right|bottom)\s*:/i.test(line) ||
+              /transform\s*:/i.test(line)
+            ) continue;
             violations.push({
               file: relative(root, file),
               line: lineNo,

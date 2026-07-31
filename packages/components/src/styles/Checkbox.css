@@ -1,0 +1,87 @@
+/* ============================================================
+ * Checkbox · 02 §1.12
+ * 多选 + indeterminate 半选
+ * ============================================================ */
+
+.novel-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-primary);
+  user-select: none;
+}
+
+.novel-checkbox__box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface);
+  flex-shrink: 0;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.novel-checkbox__check {
+  width: 10px;
+  height: 10px;
+  color: var(--color-text-inverse);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+}
+
+.novel-checkbox__indeterminate {
+  width: 10px;
+  height: 2px;
+  background: var(--color-text-inverse);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+.novel-checkbox.is-checked .novel-checkbox__box {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+.novel-checkbox.is-checked .novel-checkbox__check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.novel-checkbox.is-indeterminate .novel-checkbox__box {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+.novel-checkbox.is-indeterminate .novel-checkbox__indeterminate {
+  opacity: 1;
+}
+
+.novel-checkbox:hover:not(.is-disabled) .novel-checkbox__box {
+  border-color: var(--color-brand);
+}
+
+.novel-checkbox:focus-within .novel-checkbox__box {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-checkbox.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.novel-checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}

@@ -1,0 +1,110 @@
+/* ============================================================
+ * Tabs · 02 §1.6
+ * line / card 两种样式；底部指示条；溢出滚动
+ * ============================================================ */
+
+.novel-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- 尺寸 ---------- */
+.novel-tabs--sm .novel-tabs__tab {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-overline);
+}
+.novel-tabs--md .novel-tabs__tab {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-caption);
+}
+.novel-tabs--lg .novel-tabs__tab {
+  padding: var(--space-4) var(--space-6);
+  font-size: var(--font-size-body);
+}
+
+/* ---------- 导航区 ---------- */
+.novel-tabs__nav {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.novel-tabs__nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Tab 项 ---------- */
+.novel-tabs__tab {
+  position: relative;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-standard);
+  flex-shrink: 0;
+}
+.novel-tabs__tab:hover:not(.is-disabled):not(.is-active) {
+  color: var(--color-text-primary);
+}
+.novel-tabs__tab:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+.novel-tabs__tab.is-active {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-semibold);
+}
+.novel-tabs__tab.is-disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ---------- line 样式：底部指示条 ---------- */
+.novel-tabs--line .novel-tabs__nav {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.novel-tabs__indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
+  transition: transform var(--dur-normal) var(--ease-standard),
+    width var(--dur-normal) var(--ease-standard);
+}
+
+/* ---------- card 样式 ---------- */
+.novel-tabs--card .novel-tabs__tab {
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: transparent;
+  margin-right: var(--space-1);
+}
+.novel-tabs--card .novel-tabs__tab.is-active {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+.novel-tabs--card .novel-tabs__nav {
+  border-bottom: 1px solid var(--color-border-subtle);
+  gap: var(--space-1);
+}
+
+/* ---------- 内容区 ---------- */
+.novel-tabs__content {
+  padding-top: var(--space-4);
+}
+
+/* ---------- 减弱动效 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .novel-tabs__indicator {
+    transition: none;
+  }
+}

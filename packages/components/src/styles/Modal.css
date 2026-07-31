@@ -1,0 +1,92 @@
+/* ============================================================
+ * Modal · 02 §1.4
+ * 遮罩 + 缩放渐显；Esc 关闭；focus trap（简化版）
+ * ============================================================ */
+
+.novel-modal__mask {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg-mask);
+  z-index: var(--z-index-modal);
+  opacity: 0;
+  transition: opacity var(--dur-normal) var(--ease-standard);
+}
+.novel-modal__mask.is-ready {
+  opacity: 1;
+}
+
+.novel-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.96);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sh-4);
+  z-index: calc(var(--z-index-modal) + 1);
+  opacity: 0;
+  transition:
+    opacity var(--dur-normal) var(--ease-standard),
+    transform var(--dur-normal) var(--ease-standard);
+  max-height: calc(100vh - var(--space-16) * 2);
+  display: flex;
+  flex-direction: column;
+}
+.novel-modal.is-ready {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.novel-modal__header {
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.novel-modal__close {
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  padding: var(--space-1);
+  display: inline-flex;
+  border-radius: var(--radius-sm);
+}
+.novel-modal__close:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-subtle);
+}
+
+.novel-modal__body {
+  padding: var(--space-6);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.novel-modal__footer {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-modal,
+  .novel-modal__mask {
+    transition: opacity var(--dur-instant) var(--ease-standard);
+  }
+  .novel-modal {
+    transform: translate(-50%, -50%);
+  }
+}

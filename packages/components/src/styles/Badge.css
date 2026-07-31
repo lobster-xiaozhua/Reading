@@ -1,0 +1,41 @@
+/* ============================================================
+ * Badge · 02 §1.7
+ * 计数 / 小红点 / 溢出 99+
+ * ============================================================ */
+
+.novel-badge {
+  position: relative;
+  display: inline-flex;
+}
+
+.novel-badge__count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(50%, -50%);
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  border-radius: var(--radius-full);
+  background: var(--color-feedback-error);
+  color: var(--color-text-inverse);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 16px;
+  text-align: center;
+  z-index: 1;
+}
+
+.novel-badge__dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-feedback-error);
+  box-shadow: 0 0 0 1.5px var(--color-bg-surface);
+  z-index: 1;
+}

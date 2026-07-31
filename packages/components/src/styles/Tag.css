@@ -1,0 +1,63 @@
+/* ============================================================
+ * Tag · 02 §1.7
+ * 5 语义色；可选关闭
+ * ============================================================ */
+
+.novel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.novel-tag--default {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+}
+.novel-tag--success {
+  background: var(--color-feedback-success-bg);
+  color: var(--color-feedback-success);
+}
+.novel-tag--warning {
+  background: var(--color-feedback-warning-bg);
+  color: var(--color-feedback-warning);
+}
+.novel-tag--error {
+  background: var(--color-feedback-error-bg);
+  color: var(--color-feedback-error);
+}
+.novel-tag--primary {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+}
+
+.novel-tag__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: var(--space-1);
+  margin-right: calc(var(--space-1) * -1);
+  border: none;
+  background: transparent;
+  color: currentColor;
+  opacity: 0.6;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+.novel-tag__close:hover {
+  opacity: 1;
+}
+.novel-tag__close:focus-visible {
+  outline: none;
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}

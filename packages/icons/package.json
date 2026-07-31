@@ -1,0 +1,36 @@
+{
+  "name": "@novel/icons",
+  "version": "1.0.0",
+  "description": "Atlas Design System · 图标库（60 通用 + 25 小说专用，currentColor 着色）",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "node scripts/build.mjs && tsc -p tsconfig.build.json",
+    "dev": "pnpm run build -- --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint placeholder'",
+    "test": "node --import tsx --test 'src/**/*.test.ts'"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/node": "^20",
+    "react": "^19.0.0",
+    "typescript": "^5.6.0"
+  }
+}

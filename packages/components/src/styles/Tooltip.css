@@ -1,0 +1,80 @@
+/* ============================================================
+ * Tooltip · 02 §1.8
+ * 纯文本提示；hover/focus 触发；dur-fast 渐显
+ * ============================================================ */
+
+.novel-tooltip {
+  max-width: 240px;
+  padding: var(--space-1) var(--space-2);
+  background: var(--gray-13);
+  color: var(--color-text-inverse);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  line-height: var(--line-height-normal);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--sh-2);
+  z-index: var(--z-index-dropdown);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.novel-tooltip.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.novel-tooltip--bottom {
+  transform: translateY(-4px);
+}
+.novel-tooltip--bottom.is-ready {
+  transform: translateY(0);
+}
+
+/* ============================================================
+ * Popover · 02 §1.8
+ * 富内容；hover/click 触发
+ * ============================================================ */
+
+.novel-popover {
+  max-width: 320px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-2);
+  z-index: var(--z-index-dropdown);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.novel-popover.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.novel-popover__header {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-primary);
+}
+
+.novel-popover__body {
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.novel-popover--bottom {
+  transform: translateY(-4px);
+}
+.novel-popover--bottom.is-ready {
+  transform: translateY(0);
+}

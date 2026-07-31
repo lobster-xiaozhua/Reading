@@ -1,0 +1,54 @@
+/* ============================================================
+ * Atlas Design System · 通用组件入口
+ * 用法：import { Button, Input, ... } from '@novel/components'
+ * 样式：import '@novel/components/styles.css'
+ * ============================================================ */
+
+// P2.1 原子层
+export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button.js';
+export { Input, type InputProps, type InputSize, type InputStatus } from './Input.js';
+export { Tag, type TagProps, type TagColor } from './Tag.js';
+export { Badge, type BadgeProps } from './Badge.js';
+export { Avatar, type AvatarProps, type AvatarSize, type AvatarShape } from './Avatar.js';
+export { Switch, type SwitchProps, type SwitchSize } from './Switch.js';
+export { Checkbox, type CheckboxProps } from './Checkbox.js';
+export { RadioGroup, type RadioGroupProps, type RadioOption } from './Radio.js';
+
+// P2.2 反馈层
+export { Tooltip, type TooltipProps } from './Tooltip.js';
+export { Popover, type PopoverProps } from './Popover.js';
+export { Dropdown, type DropdownProps, type DropdownItem } from './Dropdown.js';
+export {
+  Alert,
+  type AlertProps,
+  type AlertType,
+  FeedbackProvider,
+  useFeedback,
+  createMessageApi,
+  createNotificationApi,
+} from './Alert.js';
+export { EmptyState, type EmptyStateProps, Skeleton, type SkeletonProps } from './EmptyState.js';
+
+// P2.3 容器层
+export { Modal, type ModalProps } from './Modal.js';
+export { Drawer, type DrawerProps, type DrawerPlacement } from './Drawer.js';
+export { Tabs, type TabsProps, type TabItem, type TabsType, type TabsSize } from './Tabs.js';
+export { Pagination, type PaginationProps } from './Pagination.js';
+export { Select, type SelectProps, type SelectOption } from './Select.js';
+
+// P2.4 业务原子层
+export { BookMeta, type BookMetaProps } from './BookMeta.js';
+export {
+  ContentStatus,
+  type ContentStatusProps,
+  type ContentStatusType,
+} from './ContentStatus.js';
+
+// P2.4 状态模式 Hook
+export {
+  useAsyncState,
+  type AsyncState,
+  type AsyncStatus,
+  type UseAsyncStateOptions,
+  type UseAsyncStateReturn,
+} from './useAsyncState.js';

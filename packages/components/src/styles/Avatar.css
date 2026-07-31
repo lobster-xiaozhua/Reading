@@ -1,0 +1,48 @@
+/* ============================================================
+ * Avatar · 02 §1.10
+ * 图片 / 首字兜底；3 尺寸；2 形状
+ * ============================================================ */
+
+.novel-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.novel-avatar--sm {
+  width: 24px;
+  height: 24px;
+  font-size: var(--font-size-overline);
+}
+.novel-avatar--md {
+  width: 32px;
+  height: 32px;
+  font-size: var(--font-size-caption);
+}
+.novel-avatar--lg {
+  width: 48px;
+  height: 48px;
+  font-size: var(--font-size-body);
+}
+
+.novel-avatar--circle {
+  border-radius: var(--radius-full);
+}
+.novel-avatar--square {
+  border-radius: var(--radius-md);
+}
+
+.novel-avatar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

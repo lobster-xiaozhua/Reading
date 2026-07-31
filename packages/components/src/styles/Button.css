@@ -1,0 +1,143 @@
+/* ============================================================
+ * Button · 02 §1.1
+ * 5 变体 × 3 尺寸；令牌消费；focus-visible + loading
+ * ============================================================ */
+
+.novel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.novel-btn:focus-visible {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--sh-1), 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-btn:active {
+  transform: translateY(1px);
+}
+
+/* ---------- 尺寸 ---------- */
+.novel-btn--sm {
+  height: 24px;
+  padding: 0 var(--space-3);
+  font-size: var(--font-size-overline);
+}
+.novel-btn--md {
+  height: 32px;
+  padding: 0 var(--space-4);
+  font-size: var(--font-size-caption);
+}
+.novel-btn--lg {
+  height: 40px;
+  padding: 0 var(--space-6);
+  font-size: var(--font-size-body);
+}
+
+/* ---------- 变体 ---------- */
+.novel-btn--primary {
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+}
+.novel-btn--primary:hover {
+  background: var(--color-brand-hover);
+}
+.novel-btn--primary:active {
+  background: var(--color-brand-active);
+}
+
+.novel-btn--secondary {
+  background: var(--color-bg-surface);
+  color: var(--color-brand);
+  border-color: var(--color-border-default);
+}
+.novel-btn--secondary:hover {
+  border-color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.novel-btn--secondary:active {
+  background: var(--color-brand-bg);
+  border-color: var(--color-brand-active);
+}
+
+.novel-btn--ghost {
+  background: transparent;
+  color: var(--color-text-primary);
+}
+.novel-btn--ghost:hover {
+  background: var(--color-bg-subtle);
+}
+.novel-btn--ghost:active {
+  background: var(--color-bg-subtle);
+}
+
+.novel-btn--danger {
+  background: var(--color-feedback-error);
+  color: var(--color-text-inverse);
+}
+.novel-btn--danger:hover {
+  background: var(--color-feedback-error);
+  filter: brightness(1.08);
+}
+.novel-btn--danger:active {
+  filter: brightness(0.92);
+}
+
+.novel-btn--link {
+  background: transparent;
+  color: var(--color-text-link);
+  height: auto;
+  padding: 0;
+  border-color: transparent;
+}
+.novel-btn--link:hover {
+  color: var(--color-text-link-hover);
+  text-decoration: underline;
+}
+.novel-btn--link:focus-visible {
+  box-shadow: none;
+  text-decoration: underline;
+}
+
+/* ---------- 禁用 ---------- */
+.novel-btn:disabled,
+.novel-btn.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---------- 加载态 ---------- */
+.novel-btn.is-loading {
+  cursor: progress;
+  pointer-events: none;
+}
+.novel-btn__spin {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: novel-btn-spin 0.6s linear infinite;
+}
+@keyframes novel-btn-spin {
+  to { transform: rotate(360deg); }
+}

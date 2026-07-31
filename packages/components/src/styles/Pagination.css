@@ -1,0 +1,108 @@
+/* ============================================================
+ * Pagination · 02 §1.15
+ * ============================================================ */
+
+.novel-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+
+.novel-pagination__total {
+  color: var(--color-text-tertiary);
+}
+
+.novel-pagination__list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.novel-pagination__item {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+.novel-pagination__item:hover:not(.is-active):not(:disabled) {
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.novel-pagination__item:focus-visible {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--sh-1);
+}
+.novel-pagination__item.is-active {
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-medium);
+  cursor: default;
+}
+.novel-pagination__item:disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+
+.novel-pagination__ellipsis {
+  min-width: 32px;
+  letter-spacing: 2px;
+  cursor: default;
+}
+.novel-pagination__ellipsis:hover {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.novel-pagination__nav {
+  padding: 0 var(--space-2);
+}
+
+.novel-pagination__jumper {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-tertiary);
+}
+.novel-pagination__jumper-input {
+  width: 48px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  text-align: center;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.novel-pagination__jumper-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+}
+/* 隐藏 number 输入框的箭头 */
+.novel-pagination__jumper-input::-webkit-outer-spin-button,
+.novel-pagination__jumper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.novel-pagination__jumper-input {
+  -moz-appearance: textfield;
+}

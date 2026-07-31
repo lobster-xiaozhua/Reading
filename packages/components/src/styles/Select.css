@@ -1,0 +1,233 @@
+/* ============================================================
+ * Select · 02 §1.3
+ * 单选 / 多选 / 搜索；远程 loading
+ * ============================================================ */
+
+.novel-select {
+  display: inline-flex;
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+/* ---------- 尺寸 ---------- */
+.novel-select--sm .novel-select__selector {
+  height: 24px;
+  font-size: var(--font-size-overline);
+}
+.novel-select--md .novel-select__selector {
+  height: 32px;
+  font-size: var(--font-size-caption);
+}
+.novel-select--lg .novel-select__selector {
+  height: 40px;
+  font-size: var(--font-size-body);
+}
+
+/* ---------- 选择器表面 ---------- */
+.novel-select__selector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-width: 160px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-select__selector:hover:not(:disabled) {
+  border-color: var(--color-brand);
+}
+.novel-select__selector:focus-visible {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+.novel-select.is-open .novel-select__selector {
+  border-color: var(--color-border-focus);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+.novel-select.is-disabled .novel-select__selector {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-bg-subtle);
+}
+
+.novel-select__surface {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.novel-select__placeholder {
+  color: var(--color-text-tertiary);
+}
+.novel-select__value {
+  color: var(--color-text-primary);
+}
+.novel-select__suffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ---------- 多选 Tag ---------- */
+.novel-select__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1) 0;
+}
+.novel-select--sm .novel-select__tags,
+.novel-select--md .novel-select__tags {
+  /* 让多选 selector 自适应高度 */
+  align-items: center;
+}
+.novel-select__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  height: 22px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-overline);
+  line-height: 1;
+}
+.novel-select__tag-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  padding: 0;
+}
+.novel-select__tag-close:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-elevated);
+}
+
+/* ---------- Spin ---------- */
+.novel-select__spin {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--color-text-tertiary);
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: novel-select-spin 0.6s linear infinite;
+}
+@keyframes novel-select-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- 下拉面板 ---------- */
+.novel-select__dropdown {
+  min-width: 160px;
+  max-height: 320px;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: var(--z-index-dropdown);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+.novel-select__dropdown.is-ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.novel-select__search {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.novel-select__search-input {
+  width: 100%;
+  height: 28px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-caption);
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.novel-select__search-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+}
+
+.novel-select__options {
+  overflow-y: auto;
+  max-height: 256px;
+  padding: var(--space-1);
+}
+
+.novel-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.novel-select__option:hover:not(.is-disabled) {
+  background: var(--color-bg-subtle);
+}
+.novel-select__option.is-selected {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-medium);
+}
+.novel-select__option.is-disabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.novel-select__option-check {
+  display: inline-flex;
+  color: var(--color-brand);
+}
+
+.novel-select__loading,
+.novel-select__empty {
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-select__dropdown,
+  .novel-select__spin {
+    transition: none;
+    animation-duration: 0s;
+  }
+}

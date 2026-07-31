@@ -1,0 +1,117 @@
+/* ============================================================
+ * Input · 02 §1.2
+ * 受控单行输入；3 尺寸；3 校验态；prefix 容器
+ * ============================================================ */
+
+.novel-input {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    background-color var(--dur-fast) var(--ease-standard);
+}
+
+.novel-input:hover {
+  border-color: var(--color-border-strong);
+}
+
+.novel-input:focus-within {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--sh-1);
+}
+
+.novel-input__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1;
+}
+.novel-input__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.novel-input__prefix,
+.novel-input__suffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+/* ---------- 尺寸 ---------- */
+.novel-input--sm {
+  height: 24px;
+  font-size: var(--font-size-overline);
+  border-radius: var(--radius-sm);
+}
+.novel-input--sm .novel-input__prefix,
+.novel-input--sm .novel-input__suffix {
+  padding: 0 var(--space-2);
+}
+.novel-input--sm .novel-input__input {
+  padding: 0 var(--space-2);
+}
+
+.novel-input--md {
+  height: 32px;
+  font-size: var(--font-size-caption);
+}
+.novel-input--md .novel-input__prefix,
+.novel-input--md .novel-input__suffix {
+  padding: 0 var(--space-3);
+}
+.novel-input--md .novel-input__input {
+  padding: 0 var(--space-3);
+}
+
+.novel-input--lg {
+  height: 40px;
+  font-size: var(--font-size-body);
+}
+.novel-input--lg .novel-input__prefix,
+.novel-input--lg .novel-input__suffix {
+  padding: 0 var(--space-3);
+}
+.novel-input--lg .novel-input__input {
+  padding: 0 var(--space-4);
+}
+
+/* ---------- 校验态 ---------- */
+.novel-input--error {
+  border-color: var(--color-feedback-error);
+}
+.novel-input--error:focus-within {
+  box-shadow: 0 0 0 2px var(--color-feedback-error-bg);
+}
+.novel-input--warning {
+  border-color: var(--color-feedback-warning);
+}
+.novel-input--warning:focus-within {
+  box-shadow: 0 0 0 2px var(--color-feedback-warning-bg);
+}
+
+/* ---------- 禁用 ---------- */
+.novel-input.is-disabled {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.novel-input.is-disabled .novel-input__input {
+  cursor: not-allowed;
+}
+.novel-input.is-disabled:hover {
+  border-color: var(--color-border-subtle);
+}

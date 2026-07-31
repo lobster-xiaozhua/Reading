@@ -1,0 +1,96 @@
+/* ============================================================
+ * BookMeta · 02 §1.16
+ * detailed / compact 变体；书名 serif，统计数字 mono
+ * ============================================================ */
+
+.book-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  min-width: 0;
+}
+
+.book-meta--compact {
+  gap: var(--space-1);
+}
+
+/* ---------- 书名行 ---------- */
+.book-meta__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.book-meta__title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h3);
+  line-height: 28px;
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.book-meta__title[role='button'] {
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.book-meta__title[role='button']:hover {
+  color: var(--color-brand);
+}
+.book-meta__title[role='button']:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.book-meta--compact .book-meta__title {
+  font-size: var(--font-size-caption);
+  line-height: 22px;
+}
+
+/* ---------- 作者行 ---------- */
+.book-meta__author {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 统计行 ---------- */
+.book-meta__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  line-height: 20px;
+  color: var(--color-text-tertiary);
+  flex-wrap: wrap;
+}
+.book-meta--compact .book-meta__stats {
+  font-size: var(--font-size-overline);
+  line-height: 18px;
+}
+.book-meta__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.book-meta__stats-separator {
+  color: var(--color-text-tertiary);
+  font-family: var(--font-sans);
+}
+
+/* ---------- 标签行 ---------- */
+.book-meta__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
