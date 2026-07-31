@@ -1,0 +1,28 @@
+{
+  "name": "@novel/types",
+  "version": "0.1.0",
+  "description": "Atlas Design System · 跨端共享类型包（C/B 端 Novel/Chapter 基础类型 + 枚举，避免双源真相）",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsc -p tsconfig.build.json --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo 'lint placeholder'",
+    "test": "echo 'no tests'"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  }
+}

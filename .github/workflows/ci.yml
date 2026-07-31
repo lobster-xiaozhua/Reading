@@ -34,6 +34,9 @@ jobs:
       - name: Build components
         run: pnpm --filter @novel/components run build
 
+      - name: Build shared types
+        run: pnpm --filter @novel/types run build
+
       - name: Build token-scanner
         run: pnpm --filter @novel/tools-token-scanner run build
 
