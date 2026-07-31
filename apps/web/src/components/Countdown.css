@@ -1,0 +1,32 @@
+.novel-countdown {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+.novel-countdown__icon {
+  font-size: 11px;
+}
+.novel-countdown.is-urgent {
+  background: var(--color-rose-bg);
+  color: var(--color-rose);
+  animation: novel-countdown-pulse var(--dur-normal) ease-in-out infinite;
+}
+
+@keyframes novel-countdown-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-countdown.is-urgent {
+    animation: none;
+  }
+}

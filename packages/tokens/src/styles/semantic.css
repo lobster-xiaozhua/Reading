@@ -54,6 +54,17 @@
   --color-rose-gradient: linear-gradient(135deg, var(--error-3) 0%, #FF6B6B 100%);
   --color-rose-bg: var(--error-1);
 
+  /* ---------- L2 Semantic · 排行榜 Top3 奖牌色（03 §6.3 排行榜） ---------- */
+  --color-rank-gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+  --color-rank-silver-gradient: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+  --color-rank-bronze-gradient: linear-gradient(135deg, #CD7F32, #A06030);
+
+  /* ---------- L2 Semantic · 遮罩 / 覆盖层（轮播图、卡片悬浮控件） ---------- */
+  --color-overlay-gradient: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.72) 100%);
+  --color-overlay-medium: rgba(0, 0, 0, 0.4);
+  --color-overlay-strong: rgba(0, 0, 0, 0.6);
+  --color-overlay-dot: rgba(255, 255, 255, 0.5);
+
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
   --color-feedback-success-bg: var(--success-1);

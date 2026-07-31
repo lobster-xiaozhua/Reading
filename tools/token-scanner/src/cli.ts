@@ -28,7 +28,7 @@ function parseArgs(argv: string[]): { root: string; ignore: string[] } {
 
 const { root, ignore } = parseArgs(process.argv);
 
-// 默认豁免：令牌定义文件、第三方依赖、构建产物、scanner 自身源码、测试 fixture
+// 默认豁免：令牌定义文件、第三方依赖、构建产物、scanner 自身源码、测试 fixture、Mock 数据
 const defaultIgnore = [
   'node_modules',
   'dist',
@@ -43,6 +43,8 @@ const defaultIgnore = [
   '**/*.test.ts',
   '**/*.test.tsx',
   '**/*.spec.ts',
+  // P5 Mock 数据：封面占位图色值由 hue 动态生成，属数据而非样式；P6 接真实 API 后移除
+  'apps/web/src/api/mockData.ts',
 ];
 
 const result = scan({

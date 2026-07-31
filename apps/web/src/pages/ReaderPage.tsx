@@ -1,0 +1,231 @@
+/* ============================================================
+ * P5-3 · 阅读器页
+ * 路由 /read/:bookId/:chapterId?
+ * 接入 useReaderCache（±2 预加载 / LRU 5）+ useReaderSettings
+ * 章节切换 / 上下章 / 目录抽屉 / 阅读进度记录
+ * ============================================================ */
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  ChapterList,
+  Drawer,
+  EmptyState,
+  Reader,
+  Skeleton,
+  useAsyncState,
+  useReaderCache,
+  useReaderSettings,
+  type CachedChapter,
+  type Chapter,
+  type ChapterRef,
+} from '@novel/components';
+import { fetcher } from '@/api/fetcher';
+import type { ChapterContent, ChapterSummary } from '@/api/types';
+import { useHistoryStore } from '@/stores/historyStore';
+import './ReaderPage.css';
+
+/** 把章节正文段落转为 HTML（首段为章节标题，跳过） */
+function chapterToHtml(ch: ChapterContent): string {
+  return ch.paragraphs
+    .slice(1) // 首段是章节标题，Reader 已单独渲染
+    .map((p) => `<p>${escapeHtml(p)}</p>`)
+    .join('');
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+export default function ReaderPage() {
+  const { bookId = '', chapterId } = useParams();
+  const navigate = useNavigate();
+  const recordReading = useHistoryStore((s) => s.recordReading);
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [chapterPercent, setChapterPercent] = useState(0);
+
+  const { settings, updateAll } = useReaderSettings();
+
+  /* ---------- 章节目录 ---------- */
+  const chaptersState = useAsyncState<ChapterSummary[]>(
+    () => fetcher.getChapters(bookId),
+    { deps: [bookId], initial: [] as ChapterSummary[], loadingDelay: 200 },
+  );
+  const chapters = chaptersState.data ?? [];
+
+  const chapterRefs: ChapterRef[] = useMemo(
+    () => chapters.map((c) => ({ id: c.id })),
+    [chapters],
+  );
+
+  /* ---------- 章节获取器（适配 useReaderCache） ---------- */
+  const chapterFetcher = useCallback(
+    async (id: string): Promise<CachedChapter> => {
+      const ch = await fetcher.getChapter(bookId, id);
+      if (!ch) throw new Error('章节不存在');
+      return {
+        id: ch.id,
+        title: ch.title,
+        content: chapterToHtml(ch),
+      };
+    },
+    [bookId],
+  );
+
+  const cache = useReaderCache({
+    fetcher: chapterFetcher,
+    chapters: chapterRefs,
+    maxCache: 5,
+    preloadRadius: 2,
+  });
+
+  /* ---------- 初始章节定位 ---------- */
+  useEffect(() => {
+    if (chapters.length === 0) return;
+    const target = chapterId && chapters.some((c) => c.id === chapterId)
+      ? chapterId
+      : chapters[0].id;
+    cache.goto(target);
+    // 仅在首次或路由参数变化时定位；cache.goto 内部已做去重
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterId, chapters.length]);
+
+  /* ---------- 阅读历史记录 ---------- */
+  useEffect(() => {
+    if (!cache.current || cache.currentIndex < 0) return;
+    const ch = chapters[cache.currentIndex];
+    if (!ch) return;
+    recordReading({
+      bookId,
+      chapterId: ch.id,
+      chapterIndex: ch.index,
+      chapterTitle: ch.title,
+      percent: chapterPercent,
+      readAt: Date.now(),
+    });
+  }, [cache.current?.id, bookId, chapters, cache.currentIndex, chapterPercent, recordReading, cache.current]);
+
+  /* ---------- 导航 ---------- */
+  const handlePrev = useCallback(() => {
+    if (cache.prevId) {
+      navigate(`/read/${bookId}/${cache.prevId}`, { replace: true });
+      cache.goto(cache.prevId);
+      setChapterPercent(0);
+    }
+  }, [cache, bookId, navigate]);
+
+  const handleNext = useCallback(() => {
+    if (cache.nextId) {
+      navigate(`/read/${bookId}/${cache.nextId}`, { replace: true });
+      cache.goto(cache.nextId);
+      setChapterPercent(0);
+    }
+  }, [cache, bookId, navigate]);
+
+  const handleSeek = useCallback(
+    (chapterNum: number) => {
+      const target = chapters[chapterNum - 1];
+      if (target) {
+        navigate(`/read/${bookId}/${target.id}`, { replace: true });
+        cache.goto(target.id);
+        setChapterPercent(0);
+      }
+    },
+    [chapters, bookId, navigate, cache],
+  );
+
+  const handleBack = useCallback(() => {
+    navigate(`/book/${bookId}`);
+  }, [bookId, navigate]);
+
+  const handleSelectChapter = useCallback(
+    (ch: Chapter) => {
+      setCatalogOpen(false);
+      navigate(`/read/${bookId}/${ch.id}`, { replace: true });
+      cache.goto(ch.id);
+      setChapterPercent(0);
+    },
+    [bookId, navigate, cache],
+  );
+
+  /* ---------- 目录章节项 ---------- */
+  const catalogChapters: Chapter[] = useMemo(
+    () =>
+      chapters.map((c) => ({
+        id: c.id,
+        title: c.title,
+        wordCount: c.wordCount,
+        isVip: c.isVip,
+        updateTime: c.publishedAt,
+        read: c.index < cache.currentIndex + 1,
+      })),
+    [chapters, cache.currentIndex],
+  );
+
+  /* ---------- 加载中 ---------- */
+  if (chaptersState.loading && chapters.length === 0) {
+    return (
+      <div className="reader-page__loading" role="status">
+        <Skeleton rows={8} />
+      </div>
+    );
+  }
+
+  if (chapters.length === 0) {
+    return (
+      <div className="reader-page__empty container-page">
+        <EmptyState
+          title="暂无章节"
+          description="该书可能还在筹备中"
+          action={
+            <button type="button" className="reader-page__back-btn" onClick={handleBack}>
+              返回详情
+            </button>
+          }
+        />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Reader
+        chapter={cache.current}
+        loading={cache.loading}
+        error={cache.error}
+        currentIndex={cache.currentIndex >= 0 ? cache.currentIndex + 1 : undefined}
+        totalChapters={chapters.length}
+        chapterPercent={chapterPercent}
+        settings={settings}
+        onSettingsChange={updateAll}
+        onPrev={cache.prevId ? handlePrev : undefined}
+        onNext={cache.nextId ? handleNext : undefined}
+        onSeek={handleSeek}
+        onCatalog={() => setCatalogOpen(true)}
+        onBack={handleBack}
+        onProgress={setChapterPercent}
+        className="reader-page"
+      />
+
+      {/* 目录抽屉 */}
+      <Drawer
+        open={catalogOpen}
+        onClose={() => setCatalogOpen(false)}
+        placement="right"
+        title="目录"
+        width={380}
+      >
+        <ChapterList
+          chapters={catalogChapters}
+          order="asc"
+          activeId={cache.current?.id}
+          onSelect={handleSelectChapter}
+          virtual={chapters.length > 500}
+          viewportHeight={Math.min(600, typeof window !== 'undefined' ? window.innerHeight - 160 : 600)}
+        />
+      </Drawer>
+    </>
+  );
+}

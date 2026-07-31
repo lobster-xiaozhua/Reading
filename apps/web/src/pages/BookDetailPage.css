@@ -1,0 +1,332 @@
+.book-detail {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-10);
+}
+
+/* ---------- 面包屑 ---------- */
+.book-detail__breadcrumb ol {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+.book-detail__breadcrumb a {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+.book-detail__breadcrumb a:hover {
+  color: var(--color-brand);
+}
+.book-detail__breadcrumb [aria-current='page'] {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+/* ---------- 顶部 Hero ---------- */
+.book-detail__hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-6);
+  padding-bottom: var(--space-8);
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--space-8);
+}
+.book-detail__cover {
+  position: relative;
+  width: 160px;
+  height: 214px;
+  margin: 0 auto;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--sh-3);
+}
+.book-detail__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.book-detail__flag {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+}
+.book-detail__flag--vip {
+  background: var(--color-accent-orange);
+}
+.book-detail__flag--free {
+  background: var(--color-feedback-success);
+}
+.book-detail__meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.book-detail__stats {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.book-detail__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.book-detail__stat-value {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-accent-orange);
+  line-height: 1.2;
+}
+.book-detail__stat-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+.book-detail__actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.book-detail__read-btn {
+  min-width: 140px;
+}
+.book-detail__last-read {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-brand-bg);
+  border-radius: var(--radius-md);
+}
+
+/* ---------- 区块标题 ---------- */
+.book-detail__section-title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  position: relative;
+  padding-left: var(--space-3);
+}
+.book-detail__section-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--color-brand);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- 简介 ---------- */
+.book-detail__intro {
+  margin-bottom: var(--space-8);
+}
+.book-detail__intro-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-text-secondary);
+}
+
+/* ---------- 评分 ---------- */
+.book-detail__rating {
+  margin-bottom: var(--space-8);
+}
+
+/* ---------- Tab 区 ---------- */
+.book-detail__tabs {
+  margin-bottom: var(--space-8);
+}
+.book-detail__chapters {
+  max-height: 600px;
+}
+
+/* ---------- 评论 ---------- */
+.book-detail__comments {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.book-detail__comment {
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.book-detail__comment:last-child {
+  border-bottom: none;
+}
+.book-detail__comment-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+.book-detail__comment-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.book-detail__comment-avatar--sm {
+  width: 28px;
+  height: 28px;
+}
+.book-detail__comment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.book-detail__comment-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+.book-detail__comment-name--author {
+  margin-left: var(--space-2);
+  padding: 1px var(--space-2);
+  background: var(--color-accent-orange);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+}
+.book-detail__comment-time {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+.book-detail__comment-rating {
+  color: var(--color-accent-orange);
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+.book-detail__comment-rating-empty {
+  color: var(--color-border-default);
+}
+.book-detail__comment-content {
+  margin: 0 0 var(--space-2);
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+}
+.book-detail__comment-footer {
+  display: flex;
+  gap: var(--space-4);
+}
+.book-detail__comment-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.book-detail__comment-like:hover {
+  color: var(--color-rose);
+  background: var(--color-bg-subtle);
+}
+.book-detail__replies {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+}
+.book-detail__reply {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+.book-detail__reply p {
+  margin: 2px 0 0;
+}
+
+/* ---------- 打赏占位 ---------- */
+.book-detail__reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+.book-detail__reward-illustration {
+  color: var(--color-accent-orange);
+  opacity: 0.6;
+}
+.book-detail__reward-text {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+.book-detail__reward-hint {
+  margin: 0 0 var(--space-4);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+.book-detail__reward-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+.book-detail__reward-preset {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ---------- 相关推荐 ---------- */
+.book-detail__related-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+/* ---------- 响应式 ---------- */
+@media (min-width: 768px) {
+  .book-detail__hero {
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-8);
+  }
+  .book-detail__cover {
+    width: 200px;
+    height: 268px;
+    margin: 0;
+  }
+  .book-detail__related-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .book-detail__related-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

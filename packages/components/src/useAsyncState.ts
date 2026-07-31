@@ -21,6 +21,10 @@ export interface UseAsyncStateOptions {
   loadingDelay?: number;
   /** 是否在挂载时自动执行，默认 true */
   immediate?: boolean;
+  /** 依赖项；任一变化时自动重新执行（类似 useEffect deps） */
+  deps?: unknown[];
+  /** 初始 data 值（避免首屏 null 闪烁，常用于空数组） */
+  initial?: unknown;
 }
 
 export interface UseAsyncStateReturn<T> extends AsyncState<T> {
@@ -32,6 +36,8 @@ export interface UseAsyncStateReturn<T> extends AsyncState<T> {
   setData: (data: T | null | ((prev: T | null) => T | null)) => void;
   /** 当前是否有进行中的请求 */
   isLoading: boolean;
+  /** isLoading 别名，便于 JSX 简写 */
+  loading: boolean;
 }
 
 /**
@@ -44,10 +50,10 @@ export function useAsyncState<T>(
   asyncFn: (...args: unknown[]) => Promise<T>,
   options: UseAsyncStateOptions = {},
 ): UseAsyncStateReturn<T> {
-  const { loadingDelay = 1000, immediate = true } = options;
+  const { loadingDelay = 1000, immediate = true, deps = [], initial } = options;
   const [state, setState] = useState<AsyncState<T>>({
     status: 'idle',
-    data: null,
+    data: (initial as T | undefined) ?? null,
     error: null,
     loaded: false,
   });
@@ -131,15 +137,20 @@ export function useAsyncState<T>(
     }));
   }, []);
 
-  // 自动执行
+  // 自动执行：首次挂载 + deps 变化时重新执行
   const immediateRef = useRef(immediate);
-  const ranRef = useRef(false);
+  const firstRunRef = useRef(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const depsKey = JSON.stringify(deps);
   useEffect(() => {
-    if (immediateRef.current && !ranRef.current) {
-      ranRef.current = true;
-      run();
+    if (!immediateRef.current) return;
+    // 首次或依赖变化均触发；run 内部已做并发去重
+    if (firstRunRef.current) {
+      firstRunRef.current = false;
     }
-  }, [run]);
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [depsKey, run]);
 
   return {
     ...state,
@@ -147,5 +158,6 @@ export function useAsyncState<T>(
     reset,
     setData,
     isLoading: state.status === 'loading',
+    loading: state.status === 'loading',
   };
 }

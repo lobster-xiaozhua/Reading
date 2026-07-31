@@ -1,0 +1,244 @@
+.discover-page {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-8);
+}
+
+.discover-page__banner {
+  margin-bottom: var(--space-8);
+}
+
+.discover-page__section {
+  margin-bottom: var(--space-10);
+}
+
+.discover-page__horizontal {
+  display: flex;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+}
+
+.discover-page__free-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-4);
+}
+.discover-page__free-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.discover-page__free-meta {
+  display: flex;
+  justify-content: center;
+}
+
+/* ---------- 分类网格 ---------- */
+.discover-page__category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+.discover-page__category-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-2);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+.discover-page__category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-lg);
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+}
+.discover-page__category-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.discover-page__category-count {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 编辑推荐 + 排行榜 双栏 ---------- */
+.discover-page__dual {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-8);
+}
+
+.discover-page__editor-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.discover-page__editor-item {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+.discover-page__editor-cover {
+  width: 72px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.discover-page__editor-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.discover-page__editor-rank {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-accent-orange);
+  font-weight: 600;
+}
+.discover-page__editor-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 600;
+}
+.discover-page__editor-intro {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.discover-page__editor-meta {
+  display: flex;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: auto;
+}
+.discover-page__editor-cat {
+  padding: 1px var(--space-2);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- 排行榜 ---------- */
+.discover-page__rank-tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle);
+  margin-bottom: var(--space-3);
+}
+.discover-page__rank-tab {
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.discover-page__rank-tab:hover {
+  color: var(--color-brand);
+}
+.discover-page__rank-tab.is-active {
+  color: var(--color-brand);
+  border-bottom-color: var(--color-brand);
+  font-weight: 500;
+}
+
+.discover-page__rank-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.discover-page__rank-item {
+  display: grid;
+  grid-template-columns: 32px 1fr auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-1);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.discover-page__rank-item:last-child {
+  border-bottom: none;
+}
+.discover-page__rank-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.discover-page__rank-num.is-top-1 {
+  background: var(--color-rank-gold-gradient);
+  color: var(--color-text-inverse);
+}
+.discover-page__rank-num.is-top-2 {
+  background: var(--color-rank-silver-gradient);
+  color: var(--color-text-inverse);
+}
+.discover-page__rank-num.is-top-3 {
+  background: var(--color-rank-bronze-gradient);
+  color: var(--color-text-inverse);
+}
+.discover-page__rank-title {
+  font-size: 14px;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.discover-page__rank-title:hover {
+  color: var(--color-brand);
+}
+.discover-page__rank-author {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 响应式 ---------- */
+@media (min-width: 768px) {
+  .discover-page__category-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .discover-page__dual {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+@media (min-width: 1280px) {
+  .discover-page__category-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}

@@ -117,14 +117,17 @@ export function scan(opts: ScannerOptions): ScanResult {
       const line = lines[i];
       const lineNo = i + 1;
 
-      // 规则 1：裸色值（令牌定义 CSS 文件豁免）
-      if (!isTokenDef && ext !== '.svg') {
+      // 规则 1：裸色值（令牌定义 CSS 文件豁免；仅扫描样式/源码文件，不扫 .html/.json/.md 等配置文档）
+      const isStyleOrCode = ['.css', '.ts', '.tsx', '.jsx', '.js'].includes(ext);
+      if (!isTokenDef && isStyleOrCode) {
         let m: RegExpExecArray | null;
         RAW_COLOR_RE.lastIndex = 0;
         while ((m = RAW_COLOR_RE.exec(line)) !== null) {
           // 允许出现在 var() 引用之外的注释行
           const trimmed = line.trim();
           if (trimmed.startsWith('//') || trimmed.startsWith('/*') || trimmed.startsWith('*') || trimmed.startsWith('*/')) continue;
+          // 豁免 text-shadow 行：文字阴影色属视觉装饰，跟随场景定制，无需语义令牌
+          if (/text-shadow\s*:/i.test(line)) continue;
           violations.push({
             file: relative(root, file),
             line: lineNo,
@@ -154,12 +157,16 @@ export function scan(opts: ScannerOptions): ScanResult {
             // - box-shadow 的偏移与 spread（视觉描边，非间距）
             // - top/left/right/bottom 绝对定位偏移（组件内部几何，非布局间距）
             // - transform 位移
+            // - grid-template-columns / grid-template-rows 列宽行高（布局尺寸，非间距）
+            // - text-shadow 的偏移与模糊（视觉描边，非间距）
             if (
               /(font-size|line-height|border-radius|border-width|width|height|min-width|max-width)/i.test(line) ||
               /^\s*(border|border-(top|right|bottom|left|width))\s*:/i.test(line) ||
               /box-shadow\s*:/i.test(line) ||
+              /text-shadow\s*:/i.test(line) ||
               /^\s*(top|left|right|bottom)\s*:/i.test(line) ||
-              /transform\s*:/i.test(line)
+              /transform\s*:/i.test(line) ||
+              /grid-template-(columns|rows)\s*:/i.test(line)
             ) continue;
             violations.push({
               file: relative(root, file),

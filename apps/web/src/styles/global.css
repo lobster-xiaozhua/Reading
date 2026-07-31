@@ -1,0 +1,106 @@
+@import '@novel/tokens/styles/tokens.css';
+@import '@novel/components/styles.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--color-text-link-hover);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  font-family: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* 可访问性：跳过到主内容 */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: var(--z-index-toast);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-3);
+}
+.skip-link:focus {
+  left: var(--space-4);
+  top: var(--space-4);
+}
+
+/* 全局工具类：响应式容器 */
+.container-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+@media (min-width: 768px) {
+  .container-page {
+    padding: 0 var(--space-6);
+  }
+}
+@media (min-width: 1280px) {
+  .container-page {
+    padding: 0 var(--space-8);
+  }
+}
+
+/* 横向滚动条隐藏 */
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* 卡片悬浮微缩放（C 端温度感） */
+.hover-rise {
+  transition: transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.hover-rise:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hover-rise:hover {
+    transform: none;
+  }
+}

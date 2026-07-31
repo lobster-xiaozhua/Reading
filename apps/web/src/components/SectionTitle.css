@@ -1,0 +1,36 @@
+.novel-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+.novel-section-title__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.novel-section-title__text {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.novel-section-title__sub {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.novel-section-title__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.novel-section-title__more:hover {
+  color: var(--color-brand);
+}

@@ -1,0 +1,23 @@
+.reader-page__loading {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+  background: var(--read-bg-day, var(--color-bg-page));
+}
+.reader-page__empty {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reader-page__back-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  cursor: pointer;
+}
+.reader-page__back-btn:hover {
+  background: var(--color-brand-hover);
+}
