@@ -95,6 +95,14 @@ export const tokens = {
       textSecondarySepia: '#8C7355',
       textSecondaryParchment: '#8C7355',
     },
+    chart: {
+      chart1: '#1890FF',  // 主序列，对齐 brand-7
+      chart2: '#52C41A',  // 对齐 success-3
+      chart3: '#FAAD14',  // 对齐 warning-3（暗色 #8AA2B8）
+      chart4: '#F5222D',  // 对齐 error-3
+      chart5: '#722ED1',  // 紫色序列
+      chart6: '#13C2C2',  // 青色序列
+    },
     semantic: {
       textPrimary: 'var(--gray-14)',
       textSecondary: 'var(--gray-8)',
@@ -136,6 +144,13 @@ export const tokens = {
       feedbackErrorBg: 'var(--error-1)',
       feedbackInfo: 'var(--info-3)',
       feedbackInfoBg: 'var(--info-1)',
+      // 图表色板 L2 语义（02 §4.1 / 04 §7.1）
+      chart1: 'var(--chart-1)',
+      chart2: 'var(--chart-2)',
+      chart3: 'var(--chart-3)',
+      chart4: 'var(--chart-4)',
+      chart5: 'var(--chart-5)',
+      chart6: 'var(--chart-6)',
     },
   },
   font: {

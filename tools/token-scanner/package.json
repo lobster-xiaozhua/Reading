@@ -1,15 +1,17 @@
 {
   "name": "@novel/tools-token-scanner",
-  "version": "1.0.0",
-  "description": "Atlas Design System · 令牌扫描器，CI 守门：阻断裸色值、非令牌间距、SVG 硬编码色值",
+  "version": "1.1.0",
+  "description": "Atlas Design System · 令牌扫描器 + B 端导入审计，CI 守门：阻断裸色值、非令牌间距、SVG 硬编码色值、违规导入 @novel/components 基础组件",
   "type": "module",
   "main": "./dist/scanner.cjs",
   "bin": {
-    "token-scanner": "./dist/cli.cjs"
+    "token-scanner": "./dist/cli.cjs",
+    "import-audit": "./dist/import-audit.cjs"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/cli.js",
+    "audit": "node dist/import-audit.js --root apps/admin",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint placeholder'",
     "test": "node --import tsx --test 'src/**/*.test.ts'"

@@ -43,6 +43,11 @@ const defaultIgnore = [
   '**/*.test.ts',
   '**/*.test.tsx',
   '**/*.spec.ts',
+  // Story 文件属演示文档，含大量 "H1 · 38px" 这类说明文本会被误判为间距值
+  '**/*.stories.ts',
+  '**/*.stories.tsx',
+  // public/ 下的静态资源（favicon 等）：浏览器标签页/OS 表面渲染，无主题上下文，需固定色值
+  '**/public/**',
   // P5 Mock 数据：封面占位图色值由 hue 动态生成，属数据而非样式；P6 接真实 API 后移除
   'apps/web/src/api/mockData.ts',
 ];

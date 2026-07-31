@@ -60,6 +60,15 @@ const config: Config = {
         'error-bg': 'var(--color-feedback-error-bg)',
         info: 'var(--color-feedback-info)',
         'info-bg': 'var(--color-feedback-info-bg)',
+        // 图表色板（02 §4.1 / 04 §7.1）
+        chart: {
+          1: 'var(--color-chart-1)',
+          2: 'var(--color-chart-2)',
+          3: 'var(--color-chart-3)',
+          4: 'var(--color-chart-4)',
+          5: 'var(--color-chart-5)',
+          6: 'var(--color-chart-6)',
+        },
       },
       fontFamily: {
         sans: 'var(--font-sans)',
