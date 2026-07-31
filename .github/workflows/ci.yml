@@ -28,6 +28,12 @@ jobs:
       - name: Build tokens
         run: pnpm --filter @novel/tokens run build
 
+      - name: Build icons
+        run: pnpm --filter @novel/icons run build
+
+      - name: Build components
+        run: pnpm --filter @novel/components run build
+
       - name: Build token-scanner
         run: pnpm --filter @novel/tools-token-scanner run build
 

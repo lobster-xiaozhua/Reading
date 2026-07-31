@@ -8,7 +8,7 @@
 
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
-import { AdminLayout } from './layouts/AdminLayout';
+import { BEndLayout } from './layouts/BEndLayout';
 import { RequireAuth } from './router/RequireAuth';
 import { Spin } from 'antd';
 
@@ -41,7 +41,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     path: '/',
     element: (
       <RequireAuth>
-        <AdminLayout />
+        <BEndLayout />
       </RequireAuth>
     ),
     children: [
