@@ -1,0 +1,207 @@
+/* ============================================================
+ * BookRecommend · P6 §5
+ * 横滑卡：scroll-snap x mandatory；隐藏滚动条；换一批旋转 360
+ * ============================================================ */
+
+.novel-recommend {
+  font-family: var(--font-sans);
+}
+
+/* ---------- 标题行 ---------- */
+.novel-recommend__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.novel-recommend__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.novel-recommend__refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-recommend__refresh:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-subtle);
+}
+.novel-recommend__refresh:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 换一批图标：点击旋转 360deg */
+.novel-recommend__refresh-icon.is-spinning {
+  animation: novel-recommend-spin var(--dur-fast) var(--ease-standard);
+}
+@keyframes novel-recommend-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 横滑容器 ---------- */
+.novel-recommend__scroll {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: var(--space-2) var(--space-4);
+  scrollbar-width: none;
+}
+.novel-recommend__scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- 单张书卡 ---------- */
+.novel-recommend__card {
+  flex-shrink: 0;
+  width: 100px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.novel-recommend__card.is-clickable {
+  cursor: pointer;
+}
+.novel-recommend__card.is-clickable:focus-visible {
+  outline: none;
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 封面 100×133 (3:4) */
+.novel-recommend__cover {
+  position: relative;
+  width: 100px;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-subtle);
+}
+.novel-recommend__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+.novel-recommend__card.is-clickable:hover .novel-recommend__cover img {
+  transform: scale(1.04);
+}
+
+.novel-recommend__cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* 匹配度标签：暖橙文字 + 暖橙底 */
+.novel-recommend__match {
+  position: absolute;
+  left: var(--space-1);
+  bottom: var(--space-1);
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  line-height: 14px;
+}
+
+/* 书名：单行省略 */
+.novel-recommend__name {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 评分 */
+.novel-recommend__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+.novel-recommend__star {
+  color: var(--color-accent-orange);
+  line-height: 1;
+}
+
+/* ---------- 骨架屏 ---------- */
+.novel-recommend__card.is-skeleton {
+  pointer-events: none;
+}
+.novel-recommend__cover--skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: novel-skeleton-shimmer var(--dur-slow) var(--ease-standard) infinite;
+}
+.novel-recommend__skeleton-line {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: novel-skeleton-shimmer var(--dur-slow) var(--ease-standard) infinite;
+}
+.novel-recommend__skeleton-line--name {
+  height: 12px;
+  width: 90%;
+}
+.novel-recommend__skeleton-line--rating {
+  height: 10px;
+  width: 50%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-recommend__refresh-icon.is-spinning,
+  .novel-recommend__cover--skeleton,
+  .novel-recommend__skeleton-line {
+    animation: none;
+  }
+}

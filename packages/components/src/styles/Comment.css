@@ -1,0 +1,143 @@
+/* ============================================================
+ * Comment · P6 §3
+ * 楼中楼：头像 32px + 昵称 + 内容(行高1.7) + 操作栏；replies 竖线缩进
+ * ============================================================ */
+
+.novel-comment {
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+.novel-comment__node {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.novel-comment__avatar {
+  flex-shrink: 0;
+}
+
+.novel-comment__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- 头部：昵称 + 评分 ---------- */
+.novel-comment__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.novel-comment__name {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* ---------- 内容 ---------- */
+.novel-comment__content {
+  margin-top: var(--space-1);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+  word-break: break-word;
+}
+
+/* ---------- 操作栏 ---------- */
+.novel-comment__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+.novel-comment__time {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+
+.novel-comment__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.novel-comment__action:hover {
+  color: var(--color-text-secondary);
+}
+.novel-comment__action:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-comment__like-count {
+  font-family: var(--font-mono);
+}
+
+/* 已点赞：红心 rose + 数字加粗 */
+.novel-comment__action.is-liked {
+  color: var(--color-rose);
+}
+.novel-comment__action.is-liked .novel-comment__like-count {
+  font-weight: var(--font-weight-bold);
+}
+
+/* ---------- 软删除占位 ---------- */
+.novel-comment__deleted {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-style: italic;
+  color: var(--color-text-tertiary);
+  padding: var(--space-1) 0;
+}
+
+/* ---------- 楼中楼：缩进 + 左侧 2px 竖线 ---------- */
+.novel-comment__reply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.novel-comment__replies {
+  margin-left: var(--space-4);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.novel-comment__expand {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-link);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.novel-comment__expand:hover {
+  color: var(--color-text-link-hover);
+}
+.novel-comment__expand:focus-visible {
+  outline: none;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}

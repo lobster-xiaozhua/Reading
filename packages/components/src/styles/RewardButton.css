@@ -1,0 +1,142 @@
+/* ============================================================
+ * RewardButton · P6 §4
+ * 月票/打赏：rose-gradient；推荐：rose 实色
+ * hover 提亮+sh-2；active scale 0.92；粒子飞出
+ * ============================================================ */
+
+.novel-reward__wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--font-sans);
+}
+
+.novel-reward {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-6);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  overflow: visible;
+  transition: box-shadow var(--dur-fast) var(--ease-standard),
+    filter var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+/* 月票 / 打赏：rose 渐变 */
+.novel-reward--gradient {
+  background: var(--color-rose-gradient);
+}
+/* 推荐票：rose 实色 */
+.novel-reward--solid {
+  background: var(--color-rose);
+}
+
+/* hover：渐变提亮 + sh-2 */
+.novel-reward:not(.is-disabled):not(:disabled):hover {
+  filter: brightness(1.08);
+  box-shadow: var(--sh-2);
+}
+/* active：spring 弹性缩放 0.92→1 */
+.novel-reward:not(.is-disabled):not(:disabled):active {
+  transform: scale(0.92);
+  transition: transform var(--dur-instant) var(--ease-standard);
+}
+.novel-reward:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg), var(--sh-2);
+}
+
+/* 次数用尽：subtle 底 + tertiary 文字 */
+.novel-reward.is-disabled {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+}
+
+/* loading 态：微弱透明 + 进度光标 */
+.novel-reward.is-loading {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+.novel-reward__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* spinner 替换图标 */
+.novel-reward__spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-text-inverse);
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  animation: novel-reward-spin var(--dur-normal) linear infinite;
+}
+@keyframes novel-reward-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- 剩余次数 ---------- */
+.novel-reward__remaining {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 粒子飞出（rose 小圆点向上飞出淡出） ---------- */
+.novel-reward__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.novel-reward__particle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  margin-top: -3px;
+  border-radius: var(--radius-full);
+  background: var(--color-rose);
+  opacity: 0;
+  animation: novel-reward-particle var(--dur-slow) var(--ease-standard) forwards;
+  animation-delay: calc(var(--i, 0) * 30ms);
+}
+@keyframes novel-reward-particle {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc((var(--i, 0) - 2.5) * 8px), -40px) scale(0.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-reward__particle,
+  .novel-reward__spinner {
+    animation: none;
+  }
+}

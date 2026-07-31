@@ -4,17 +4,28 @@
  * ============================================================ */
 import type {
   Banner,
+  Badge,
   BookList,
   BookSummary,
   Category,
   ChapterContent,
   ChapterSummary,
   Comment,
+  FollowItem,
+  HeatmapCell,
+  PaymentMethodItem,
+  PreferenceItem,
+  RankItem,
   RatingDistribution,
   ReadingHistoryItem,
+  ReadingStatOverview,
+  RecommendBook,
   RewardRecord,
+  Review,
   Tag,
+  Topic,
   UserProfile,
+  VipPlan,
 } from './types';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -303,3 +314,184 @@ export const HOT_SEARCHES = ['雪中悍刀行', '诡秘之主', '修仙', '系�
 
 /** 搜索历史（localStorage 持久化） */
 export const SEARCH_HISTORY_KEY = 'atlas-search-history';
+
+/* ============================================================
+ * P6 · 扩展 Mock 数据
+ * ============================================================ */
+
+/** 排行榜（4 榜各 10 条，含排名变化） */
+function buildRanking(sortFn: (a: BookSummary, b: BookSummary) => number): RankItem[] {
+  const sorted = [...BOOKS].sort(sortFn).slice(0, 10);
+  return sorted.map((book, i) => ({
+    book,
+    rank: i + 1,
+    // 模拟排名变化：偶数项上升、奇数项持平或下降、个别新上榜
+    prevRank: i % 4 === 0 ? i + 2 : i % 4 === 1 ? 0 : i + 1,
+  }));
+}
+
+export const RANKINGS: Record<'hot' | 'follow' | 'ticket' | 'new', RankItem[]> = {
+  hot: buildRanking((a, b) => b.clickCount - a.clickCount),
+  follow: buildRanking((a, b) => b.followCount - a.followCount),
+  ticket: buildRanking((a, b) => b.ratingCount - a.ratingCount),
+  new: buildRanking((a, b) => b.lastUpdated - a.lastUpdated),
+};
+
+/** 推荐书籍（含匹配度） */
+export const RECOMMENDATIONS: RecommendBook[] = BOOKS.slice(0, 10).map((book, i) => ({
+  book,
+  matchScore: 96 - i * 4 + (i % 2),
+}));
+
+/** 热门话题 */
+export const TOPICS: Topic[] = [
+  { id: 't-1', name: '年度最佳玄幻', count: 3280 },
+  { id: 't-2', name: '追更党集合', count: 2150 },
+  { id: 't-3', name: '完结好书推荐', count: 1860 },
+  { id: 't-4', name: '新书试读', count: 1420 },
+  { id: 't-5', name: '角色人气榜', count: 980 },
+  { id: 't-6', name: '作者访谈', count: 760 },
+  { id: 't-7', name: '世界观解析', count: 540 },
+];
+
+/** 书评流 */
+const REVIEW_CONTENTS = [
+  '一口气追完，世界观宏大，人物群像刻画入木三分，强推！',
+  '作者文笔老练，伏笔千里，看到后面才发现前面的细节都在铺垫。',
+  '前百章略慢热，但坚持下来后面渐入佳境，越写越精彩。',
+  '主角不圣母不双标，行事果断，是我近年看过最爽的修仙文。',
+  '感情线处理得很好，不突兀不注水，水到渠成。',
+  '设定新颖，跳出传统套路，每一章都有惊喜。',
+];
+const REVIEW_NICKNAMES = ['江湖夜雨', '书海泛舟', '夜半钟声', '执剑天涯', '墨染流年', '清风明月', '醉里挑灯', '云中漫步'];
+
+export const REVIEWS: Review[] = BOOKS.slice(0, 12).map((book, i) => ({
+  id: `rv-${i + 1}`,
+  user: {
+    id: `u-rv-${i}`,
+    nickname: REVIEW_NICKNAMES[i % REVIEW_NICKNAMES.length],
+    avatar: cover(REVIEW_NICKNAMES[i % REVIEW_NICKNAMES.length].slice(0, 1), (i * 40) % 360),
+  },
+  book: { id: book.id, title: book.title, cover: book.cover },
+  rating: 4 + (i % 2),
+  content: REVIEW_CONTENTS[i % REVIEW_CONTENTS.length],
+  likes: 30 + i * 17,
+  replies: 2 + (i % 5),
+  liked: i % 3 === 0,
+  createdAt: now - i * DAY * 2,
+}));
+
+/** 阅读统计概览 */
+export const READING_STAT_OVERVIEW: ReadingStatOverview = {
+  weeklyDuration: 750, // 分钟
+  totalWords: 8640000,
+  streakDays: 128,
+};
+
+/** 阅读热力图（53 周 × 7 日 = 371 格） */
+export const HEATMAP: HeatmapCell[] = (() => {
+  const cells: HeatmapCell[] = [];
+  // 从一年前开始
+  const start = new Date(now - 52 * 7 * DAY);
+  start.setHours(0, 0, 0, 0);
+  for (let i = 0; i < 53 * 7; i++) {
+    const d = new Date(start.getTime() + i * DAY);
+    // 模拟：约 65% 的日子有阅读，周末阅读更久
+    const day = d.getDay();
+    const hasReading = Math.random() > 0.35 || day === 0 || day === 6;
+    const base = day === 0 || day === 6 ? 60 : 30;
+    cells.push({
+      date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      duration: hasReading ? Math.round(base + Math.random() * 60) : 0,
+    });
+  }
+  return cells;
+})();
+
+/** 阅读偏好分布 */
+export const PREFERENCES: PreferenceItem[] = [
+  { category: '玄幻', percent: 32, words: 2764800 },
+  { category: '武侠', percent: 22, words: 1900800 },
+  { category: '悬疑', percent: 18, words: 1555200 },
+  { category: '科幻', percent: 14, words: 1209600 },
+  { category: '其他', percent: 14, words: 1209600 },
+];
+
+/** 成就徽章 */
+export const BADGES: Badge[] = [
+  { id: 'b-1', name: '初入江湖', desc: '阅读第一本书', icon: '🌱', unlocked: true },
+  { id: 'b-2', name: '百章达人', desc: '累计阅读 100 章', icon: '📖', unlocked: true },
+  { id: 'b-3', name: '百万字 reader', desc: '累计阅读 100 万字', icon: '✨', unlocked: true },
+  { id: 'b-4', name: '连读 30 天', desc: '连续阅读 30 天', icon: '🔥', unlocked: true },
+  { id: 'b-5', name: '追更先锋', desc: '追更 10 本连载', icon: '⚡', unlocked: true },
+  { id: 'b-6', name: '书评达人', desc: '发表 50 条书评', icon: '✍', unlocked: true },
+  { id: 'b-7', name: '月票王者', desc: '累计投月票 100 张', icon: '👑', unlocked: false },
+  { id: 'b-8', name: '全勤读者', desc: '连续阅读 365 天', icon: '🏆', unlocked: false },
+  { id: 'b-9', name: '千章大佬', desc: '累计阅读 1000 章', icon: '💎', unlocked: false },
+  { id: 'b-10', name: '收藏家', desc: '书架收藏 100 本', icon: '📚', unlocked: false },
+];
+
+/** VIP 套餐 */
+export const VIP_PLANS: VipPlan[] = [
+  {
+    id: 'plan-month',
+    name: '月卡',
+    pricePerMonth: 18,
+    originalPrice: 18,
+    totalPrice: 18,
+    discount: '',
+  },
+  {
+    id: 'plan-quarter',
+    name: '季卡',
+    pricePerMonth: 15,
+    originalPrice: 18,
+    totalPrice: 45,
+    discount: '省 9 元',
+    recommended: true,
+  },
+  {
+    id: 'plan-year',
+    name: '年卡',
+    pricePerMonth: 12,
+    originalPrice: 18,
+    totalPrice: 144,
+    discount: '省 72 元',
+  },
+  {
+    id: 'plan-year-expired',
+    name: '年卡（已过期套餐）',
+    pricePerMonth: 10,
+    originalPrice: 18,
+    totalPrice: 120,
+    discount: '限时活动已结束',
+    expired: true,
+  },
+];
+
+/** 支付方式 */
+export const PAYMENT_METHODS: PaymentMethodItem[] = [
+  { id: 'wechat', name: '微信支付', icon: '💚' },
+  { id: 'alipay', name: '支付宝', icon: '💙' },
+  { id: 'apple', name: '苹果内购', icon: '🍎' },
+];
+
+/** 追更列表 */
+export const FOLLOW_LIST: FollowItem[] = BOOKS.slice(0, 12).map((book, i) => {
+  const chapters = CHAPTERS[book.id] ?? [];
+  const latest = chapters[chapters.length - 1];
+  const finished = book.status === 'completed';
+  // 模拟：约 1/3 有更新、1/3 无更新、1/6 已完结
+  const status: FollowItem['status'] = finished ? 'done' : i % 3 === 0 ? 'updated' : 'none';
+  return {
+    bookId: book.id,
+    cover: book.cover,
+    title: book.title,
+    latestChapterTitle: latest?.title ?? '暂无章节',
+    latestTime: now - i * 4 * 3600 * 1000,
+    status,
+    unreadCount: status === 'updated' ? (i % 5) + 1 : 0,
+    finished,
+  };
+});
+

@@ -16,23 +16,45 @@ import {
   REWARD_RECORDS,
   TAGS,
   HOT_SEARCHES,
+  RANKINGS,
+  RECOMMENDATIONS,
+  TOPICS,
+  REVIEWS,
+  READING_STAT_OVERVIEW,
+  HEATMAP,
+  PREFERENCES,
+  BADGES,
+  VIP_PLANS,
+  PAYMENT_METHODS,
+  FOLLOW_LIST,
 } from './mockData';
 import type {
   Banner,
+  Badge,
   BookList,
   BookSummary,
   Category,
   ChapterContent,
   ChapterSummary,
   Comment,
+  FollowItem,
+  HeatmapCell,
+  PaymentMethodItem,
   PagedResult,
+  PreferenceItem,
+  RankItem,
   RatingDistribution,
   ReadingHistoryItem,
+  ReadingStatOverview,
+  RecommendBook,
   RewardRecord,
+  Review,
   SearchSuggestion,
   SortKey,
   Tag,
+  Topic,
   UserProfile,
+  VipPlan,
 } from './types';
 
 /** 模拟网络延迟 */
@@ -184,6 +206,56 @@ export const fetcher = {
 
   async getRewardRecords(): Promise<RewardRecord[]> {
     return delay(REWARD_RECORDS, 150);
+  },
+
+  /* ---------- P6 · 扩展接口 ---------- */
+  async getRankings(type: 'hot' | 'follow' | 'ticket' | 'new'): Promise<RankItem[]> {
+    return delay(RANKINGS[type], 200);
+  },
+
+  async getRecommendations(): Promise<RecommendBook[]> {
+    // 模拟"换一批"：每次打乱顺序
+    const shuffled = [...RECOMMENDATIONS].sort(() => Math.random() - 0.5);
+    return delay(shuffled, 200);
+  },
+
+  async getTopics(): Promise<Topic[]> {
+    return delay(TOPICS, 150);
+  },
+
+  async getReviews(page = 1, pageSize = 10): Promise<PagedResult<Review>> {
+    const total = REVIEWS.length;
+    const start = (page - 1) * pageSize;
+    const items = REVIEWS.slice(start, start + pageSize);
+    return delay({ items, total, page, pageSize, hasMore: start + pageSize < total }, 200);
+  },
+
+  async getReadingStatOverview(): Promise<ReadingStatOverview> {
+    return delay(READING_STAT_OVERVIEW, 200);
+  },
+
+  async getHeatmap(): Promise<HeatmapCell[]> {
+    return delay(HEATMAP, 200);
+  },
+
+  async getPreferences(): Promise<PreferenceItem[]> {
+    return delay(PREFERENCES, 200);
+  },
+
+  async getBadges(): Promise<Badge[]> {
+    return delay(BADGES, 200);
+  },
+
+  async getVipPlans(): Promise<VipPlan[]> {
+    return delay(VIP_PLANS, 150);
+  },
+
+  async getPaymentMethods(): Promise<PaymentMethodItem[]> {
+    return delay(PAYMENT_METHODS, 100);
+  },
+
+  async getFollowList(): Promise<FollowItem[]> {
+    return delay(FOLLOW_LIST, 200);
   },
 };
 

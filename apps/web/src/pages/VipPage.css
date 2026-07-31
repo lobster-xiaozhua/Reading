@@ -1,0 +1,381 @@
+/* ============================================================
+ * P5-8 · VIP 订阅页样式
+ * 暖橙主调（accent-orange）· BEM · 令牌消费
+ * ============================================================ */
+
+.vip-page {
+  padding-top: var(--space-4);
+  padding-bottom: var(--space-10);
+}
+
+/* ---------- 返回按钮 ---------- */
+.vip-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.vip-page__back:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-subtle);
+}
+
+/* ---------- 已是 VIP 提示条 ---------- */
+.vip-page__vip-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-feedback-success-bg);
+  border: 1px solid var(--color-feedback-success);
+  border-radius: var(--radius-md);
+}
+.vip-page__vip-banner-text {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-feedback-success);
+}
+.vip-page__renew-btn {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-feedback-success);
+  background: transparent;
+  color: var(--color-feedback-success);
+  font-size: var(--font-size-caption);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.vip-page__renew-btn:hover {
+  background: var(--color-feedback-success-bg);
+}
+
+/* ---------- 1. VIP 权益卡 ---------- */
+.vip-page__benefit {
+  position: relative;
+  margin-bottom: var(--space-6);
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--color-accent-orange-bg), var(--color-bg-surface));
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.vip-page__benefit-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.vip-page__benefit-star {
+  color: var(--color-accent-orange);
+  font-size: var(--font-size-h3);
+  line-height: 1;
+}
+.vip-page__benefit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+.vip-page__benefit-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+}
+.vip-page__benefit-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--color-feedback-success-bg);
+  color: var(--color-feedback-success);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* ---------- 通用 section ---------- */
+.vip-page__section {
+  margin-bottom: var(--space-6);
+}
+.vip-page__section-title {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+/* ---------- 2. 套餐选择 ---------- */
+.vip-page__plans {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+.vip-page__plans--loading {
+  padding: var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+.vip-page__plan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.vip-page__plan:hover:not(.is-expired):not(:disabled) {
+  border-color: var(--color-accent-orange);
+  box-shadow: var(--sh-1);
+}
+/* 选中态：accent-orange 2px 边框 + 底纹 + 右上角勾选 */
+.vip-page__plan.is-selected {
+  border: 2px solid var(--color-accent-orange);
+  background: var(--color-accent-orange-bg);
+}
+/* 不可用：虚线边框 + 弱化 */
+.vip-page__plan.is-expired {
+  border: 1px dashed var(--color-border-default);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.vip-page__plan:disabled {
+  cursor: not-allowed;
+}
+/* 推荐角标留出顶部空间 */
+.vip-page__plan.is-recommended {
+  padding-top: var(--space-8);
+}
+.vip-page__plan-badge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-sm);
+}
+.vip-page__plan-name {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+.vip-page__plan.is-expired .vip-page__plan-name {
+  color: var(--color-text-tertiary);
+}
+.vip-page__plan-price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  font-family: var(--font-mono);
+  color: var(--color-text-primary);
+}
+.vip-page__plan-currency {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+}
+.vip-page__plan-num {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+}
+.vip-page__plan-unit {
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+.vip-page__plan.is-expired .vip-page__plan-num {
+  color: var(--color-text-tertiary);
+}
+.vip-page__plan-original {
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+  text-decoration: line-through;
+}
+.vip-page__plan-discount {
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-feedback-success);
+}
+.vip-page__plan.is-expired .vip-page__plan-discount {
+  color: var(--color-text-tertiary);
+}
+.vip-page__plan-expired-tag {
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+}
+/* 选中勾选圆（右上角） */
+.vip-page__plan-check {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-orange);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* ---------- 3. 支付方式 ---------- */
+.vip-page__payments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.vip-page__payment {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.vip-page__payment:hover {
+  border-color: var(--color-accent-orange);
+}
+.vip-page__payment.is-selected {
+  border-color: var(--color-accent-orange);
+  background: var(--color-accent-orange-bg);
+}
+.vip-page__payment-icon {
+  font-size: var(--font-size-h3);
+  line-height: 1;
+}
+.vip-page__payment-name {
+  flex: 1;
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+}
+.vip-page__payment-dot {
+  flex-shrink: 0;
+  width: var(--space-5);
+  height: var(--space-5);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--color-border-default);
+  background: transparent;
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.vip-page__payment.is-selected .vip-page__payment-dot {
+  border-color: var(--color-accent-orange);
+  background: var(--color-accent-orange);
+  box-shadow: inset 0 0 0 3px var(--color-bg-surface);
+}
+
+/* ---------- 4. 底部提交栏 ---------- */
+.vip-page__submit-spacer {
+  height: var(--space-16);
+}
+.vip-page__submit-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  background: var(--color-bg-surface);
+  border-top: 1px solid var(--color-border-default);
+  box-shadow: var(--sh-2);
+  z-index: var(--z-index-sticky);
+}
+.vip-page__total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.vip-page__total-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.vip-page__total-label {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+}
+.vip-page__total-num {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+.vip-page__total-plan {
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+}
+.vip-page__submit-btn {
+  flex-shrink: 0;
+  padding: var(--space-3) var(--space-6);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-orange);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.vip-page__submit-btn:hover {
+  background: var(--color-accent-orange-hover);
+}
+.vip-page__submit-btn:active {
+  background: var(--color-accent-orange-active);
+}
+
+/* ---------- 响应式 ---------- */
+@media (min-width: 768px) {
+  .vip-page__benefit-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vip-page__plans {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

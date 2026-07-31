@@ -105,6 +105,13 @@ export {
   type UseReaderCacheReturn,
 } from './useReaderCache.js';
 
+// P6 C 端扩展组件
+export { RankingBoard, type RankingBoardProps, type RankItemType } from './RankingBoard.js';
+export { TagCloud, type TagCloudProps, type TagCloudTag } from './TagCloud.js';
+export { Comment, type CommentProps, type CommentData } from './Comment.js';
+export { RewardButton, type RewardButtonProps, type RewardType } from './RewardButton.js';
+export { BookRecommend, type BookRecommendProps, type RecommendBookItem } from './BookRecommend.js';
+
 // P2.4 状态模式 Hook
 export {
   useAsyncState,

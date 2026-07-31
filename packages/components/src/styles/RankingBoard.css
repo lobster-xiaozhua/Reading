@@ -1,0 +1,272 @@
+/* ============================================================
+ * RankingBoard · P6 §1
+ * 4 Tab + 行高 56px + TOP1-3 奖牌 + 排名变化 + 切 Tab 淡入
+ * ============================================================ */
+
+.novel-ranking {
+  font-family: var(--font-sans);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* ---------- Tab 条 ---------- */
+.novel-ranking__tabs {
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-subtle);
+}
+
+.novel-ranking__tab {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.novel-ranking__tab:hover {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+.novel-ranking__tab.is-active {
+  background: var(--color-bg-surface);
+  color: var(--color-brand);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: var(--sh-1);
+}
+.novel-ranking__tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 列表（切 Tab 淡入） ---------- */
+.novel-ranking__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  animation: novel-ranking-fade-in var(--dur-normal) var(--ease-standard);
+}
+
+@keyframes novel-ranking-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- 行 ---------- */
+.novel-ranking__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 56px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.novel-ranking__row:last-child {
+  border-bottom: none;
+}
+.novel-ranking__row.is-clickable {
+  cursor: pointer;
+}
+.novel-ranking__row.is-clickable:hover {
+  background: var(--color-bg-subtle);
+}
+.novel-ranking__row.is-clickable:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 左：序号 / 奖牌 ---------- */
+.novel-ranking__rank {
+  flex-shrink: 0;
+  width: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.novel-ranking__num {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+}
+
+.novel-ranking__medal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-inverse);
+}
+.novel-ranking__medal--gold {
+  background: var(--color-rank-gold-gradient);
+}
+.novel-ranking__medal--silver {
+  background: var(--color-rank-silver-gradient);
+}
+.novel-ranking__medal--bronze {
+  background: var(--color-rank-bronze-gradient);
+}
+
+/* ---------- 中：书名 / 作者 ---------- */
+.novel-ranking__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.novel-ranking__title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.novel-ranking__row.is-top .novel-ranking__title {
+  font-weight: var(--font-weight-semibold);
+}
+
+.novel-ranking__author {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 右：评分 + 排名变化 ---------- */
+.novel-ranking__meta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.novel-ranking__score {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+}
+.novel-ranking__star {
+  color: var(--color-accent-orange);
+  line-height: 1;
+}
+.novel-ranking__score-num {
+  font-weight: var(--font-weight-medium);
+}
+
+.novel-ranking__trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 28px;
+  justify-content: flex-end;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+}
+.novel-ranking__trend--up {
+  color: var(--color-feedback-success);
+}
+.novel-ranking__trend--down {
+  color: var(--color-rose);
+}
+.novel-ranking__trend--flat {
+  color: var(--color-text-tertiary);
+}
+.novel-ranking__trend--new {
+  padding: 1px var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-semibold);
+  line-height: 14px;
+}
+
+/* ---------- 空状态 ---------- */
+.novel-ranking__empty {
+  list-style: none;
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+}
+
+/* ---------- 骨架屏 ---------- */
+.novel-ranking__row.is-skeleton {
+  pointer-events: none;
+}
+.novel-ranking__skeleton-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+}
+.novel-ranking__skeleton-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.novel-ranking__skeleton-line {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-subtle) 0%,
+    var(--color-bg-elevated) 50%,
+    var(--color-bg-subtle) 100%
+  );
+  background-size: 200% 100%;
+  animation: novel-skeleton-shimmer var(--dur-slow) var(--ease-standard) infinite;
+}
+.novel-ranking__skeleton-line--title {
+  height: 14px;
+  width: 70%;
+}
+.novel-ranking__skeleton-line--sub {
+  height: 12px;
+  width: 40%;
+}
+.novel-ranking__skeleton-line--score {
+  height: 14px;
+  width: 36px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-ranking__list {
+    animation: none;
+  }
+  .novel-ranking__skeleton-line {
+    animation: none;
+  }
+}

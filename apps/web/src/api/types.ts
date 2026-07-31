@@ -173,3 +173,105 @@ export interface Banner {
   cover: string;
   accent: string;
 }
+
+/* ============================================================
+ * P6 · 扩展数据模型
+ * ============================================================ */
+
+/** 排行榜项（含排名变化） */
+export interface RankItem {
+  book: BookSummary;
+  rank: number;
+  prevRank: number;
+}
+
+/** 推荐书籍（含匹配度） */
+export interface RecommendBook {
+  book: BookSummary;
+  matchScore: number;
+}
+
+/** 话题 */
+export interface Topic {
+  id: string;
+  name: string;
+  count: number;
+}
+
+/** 书评 */
+export interface Review {
+  id: string;
+  user: { id: string; nickname: string; avatar: string };
+  book: { id: string; title: string; cover: string };
+  rating: number;
+  content: string;
+  images?: string[];
+  likes: number;
+  replies: number;
+  liked?: boolean;
+  createdAt: number;
+}
+
+/** 阅读统计概览 */
+export interface ReadingStatOverview {
+  weeklyDuration: number;
+  totalWords: number;
+  streakDays: number;
+}
+
+/** 热力图格子 */
+export interface HeatmapCell {
+  date: string;
+  duration: number;
+}
+
+/** 阅读偏好项 */
+export interface PreferenceItem {
+  category: string;
+  percent: number;
+  words: number;
+}
+
+/** 徽章 */
+export interface Badge {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+  unlocked: boolean;
+}
+
+/** VIP 套餐 */
+export interface VipPlan {
+  id: string;
+  name: string;
+  pricePerMonth: number;
+  originalPrice: number;
+  totalPrice: number;
+  discount: string;
+  expired?: boolean;
+  recommended?: boolean;
+}
+
+/** 支付方式 */
+export interface PaymentMethodItem {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+/** 追更项状态 */
+export type FollowStatus = 'updated' | 'none' | 'done';
+
+/** 追更项 */
+export interface FollowItem {
+  bookId: string;
+  cover: string;
+  title: string;
+  latestChapterTitle: string;
+  latestTime: number;
+  status: FollowStatus;
+  unreadCount: number;
+  finished: boolean;
+}
+

@@ -1,0 +1,144 @@
+/* ============================================================
+ * TagCloud · P6 §2
+ * cloud：pill 自适应字号；list：行式 name + count
+ * ============================================================ */
+
+.novel-tagcloud {
+  font-family: var(--font-sans);
+}
+
+.novel-tagcloud ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ---------- cloud 变体 ---------- */
+.novel-tagcloud__cloud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.novel-tagcloud__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+/* 字号分档（count 越大字越大） */
+.novel-tagcloud__pill--sm {
+  font-size: var(--font-size-caption);
+}
+.novel-tagcloud__pill--md {
+  font-size: var(--font-size-body);
+}
+.novel-tagcloud__pill--xl {
+  font-size: var(--font-size-h3);
+}
+
+.novel-tagcloud__pill:hover {
+  background: var(--color-bg-surface);
+  box-shadow: var(--sh-1);
+}
+
+/* 热门 TOP3：brand 加粗 */
+.novel-tagcloud__pill.is-hot {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-bold);
+}
+.novel-tagcloud__hot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent-orange-bg);
+  color: var(--color-accent-orange);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  line-height: 16px;
+}
+
+/* 选中：brand-bg + brand 文字 + brand 边框 */
+.novel-tagcloud__pill.is-selected {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+  font-weight: var(--font-weight-semibold);
+}
+.novel-tagcloud__pill.is-selected:hover {
+  background: var(--color-brand-bg);
+}
+.novel-tagcloud__pill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-tagcloud__count {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  opacity: 0.8;
+}
+
+/* ---------- list 变体 ---------- */
+.novel-tagcloud__listview {
+  display: flex;
+  flex-direction: column;
+}
+
+.novel-tagcloud__item {
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+.novel-tagcloud__item:last-child {
+  border-bottom: none;
+}
+.novel-tagcloud__item.is-selected {
+  background: var(--color-brand-bg);
+}
+
+.novel-tagcloud__item-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.novel-tagcloud__item-btn:hover {
+  background: var(--color-bg-subtle);
+}
+.novel-tagcloud__item.is-selected .novel-tagcloud__item-btn {
+  color: var(--color-brand);
+  font-weight: var(--font-weight-medium);
+}
+.novel-tagcloud__item-btn:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-brand-bg);
+}
+
+.novel-tagcloud__listview .novel-tagcloud__count {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+  opacity: 1;
+}

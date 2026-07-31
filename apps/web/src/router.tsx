@@ -11,6 +11,9 @@ const ReaderPage = lazy(() => import('./pages/ReaderPage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const ReadingStatsPage = lazy(() => import('./pages/ReadingStatsPage'));
+const VipPage = lazy(() => import('./pages/VipPage'));
+const FollowPage = lazy(() => import('./pages/FollowPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const withSuspense = (node: React.ReactNode) => (
@@ -27,6 +30,9 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       { path: 'category', element: withSuspense(<CategoryPage />) },
       { path: 'search', element: withSuspense(<SearchPage />) },
       { path: 'profile', element: withSuspense(<ProfilePage />) },
+      { path: 'stats', element: withSuspense(<ReadingStatsPage />) },
+      { path: 'vip', element: withSuspense(<VipPage />) },
+      { path: 'follow', element: withSuspense(<FollowPage />) },
     ],
   },
   // 阅读器独立全屏布局，不带 NavBar/Footer
