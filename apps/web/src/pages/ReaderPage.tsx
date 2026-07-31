@@ -22,6 +22,9 @@ import {
 import { fetcher } from '@/api/fetcher';
 import type { ChapterContent, ChapterSummary } from '@/api/types';
 import { useHistoryStore } from '@/stores/historyStore';
+import { useOfflineCache } from '@/hooks/useOfflineCache';
+import { useAdaptivePreloadRadius } from '@/hooks/useNetworkStatus';
+import { markChapterStart, markChapterEnd } from '@/utils/perf';
 import './ReaderPage.css';
 
 /** 把章节正文段落转为 HTML（首段为章节标题，跳过） */
@@ -48,6 +51,11 @@ export default function ReaderPage() {
 
   const { settings, updateAll } = useReaderSettings();
 
+  /* P7-6 离线缓存：章节正文 Cache-first（IndexedDB） */
+  const offlineCache = useOfflineCache();
+  /* P7-8 弱网降级：预加载半径收缩 */
+  const preloadRadius = useAdaptivePreloadRadius(2);
+
   /* ---------- 章节目录 ---------- */
   const chaptersState = useAsyncState<ChapterSummary[]>(
     () => fetcher.getChapters(bookId),
@@ -60,26 +68,40 @@ export default function ReaderPage() {
     [chapters],
   );
 
-  /* ---------- 章节获取器（适配 useReaderCache） ---------- */
+  /* ---------- 章节获取器：先查 IDB 离线缓存，未命中请求网络并回写 ---------- */
   const chapterFetcher = useCallback(
     async (id: string): Promise<CachedChapter> => {
+      // P7-6 Cache-first：离线命中直接返回
+      const cached = await offlineCache.getChapter(bookId, id);
+      if (cached) {
+        return { id: cached.chapterId, title: cached.title, content: cached.content };
+      }
       const ch = await fetcher.getChapter(bookId, id);
       if (!ch) throw new Error('章节不存在');
-      return {
-        id: ch.id,
-        title: ch.title,
-        content: chapterToHtml(ch),
-      };
+      const html = chapterToHtml(ch);
+      // 回写离线缓存（不阻塞返回）
+      void offlineCache.putChapter(bookId, ch.id, ch.title, html);
+      return { id: ch.id, title: ch.title, content: html };
     },
-    [bookId],
+    [bookId, offlineCache],
   );
 
   const cache = useReaderCache({
     fetcher: chapterFetcher,
     chapters: chapterRefs,
     maxCache: 5,
-    preloadRadius: 2,
+    preloadRadius,
   });
+
+  /* P8-perf 章节切换耗时埋点：current 变化时 mark start/end */
+  useEffect(() => {
+    const current = cache.current;
+    if (!current) return;
+    markChapterStart(current.id);
+    return () => {
+      markChapterEnd(current.id);
+    };
+  }, [cache.current?.id]);
 
   /* ---------- 初始章节定位 ---------- */
   useEffect(() => {

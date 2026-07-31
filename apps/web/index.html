@@ -3,13 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#1890FF" />
     <meta name="description" content="Atlas 小说阅读 · 沉浸阅读体验" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- P7-5 首屏优化：preconnect 提前建立 CDN 连接 -->
+    <link rel="preconnect" href="https://picsum.photos" crossorigin />
+    <link rel="dns-prefetch" href="https://picsum.photos" />
+
+    <!-- P7-5 字体子集：仅加载中文字体子集（unicode-range 限定常用 3500 字） -->
+    <link
+      rel="preload"
+      href="/fonts/atlas-serif-subset.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <title>Atlas 小说阅读</title>
+
+    <!-- P7-5 关键 CSS 内联：首屏 Above-the-Fold 样式（ NavBar/容器/骨架色） -->
+    <style>
+      /* 仅渲染阻塞最小集，主体样式仍由打包后的 CSS 接管 */
+      html, body { margin: 0; padding: 0; background: #F7F8FA; color: #1F2329; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+      #root { min-height: 100vh; }
+      .container-page { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; box-sizing: border-box; }
+      .app-shell-skeleton { display: flex; flex-direction: column; min-height: 100vh; }
+      .app-shell-skeleton__nav { height: 56px; background: #FFFFFF; border-bottom: 1px solid #E5E6EB; }
+      .app-shell-skeleton__body { flex: 1; padding: 24px 16px; }
+      .app-shell-skeleton__line { height: 16px; background: #F2F3F5; border-radius: 4px; margin-bottom: 12px; }
+      .app-shell-skeleton__line--w60 { width: 60%; }
+      .app-shell-skeleton__line--w40 { width: 40%; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- P7-5 首屏骨架：在 React 水合前展示，避免白屏 -->
+      <div class="app-shell-skeleton">
+        <div class="app-shell-skeleton__nav"></div>
+        <div class="app-shell-skeleton__body">
+          <div class="app-shell-skeleton__line"></div>
+          <div class="app-shell-skeleton__line app-shell-skeleton__line--w60"></div>
+          <div class="app-shell-skeleton__line app-shell-skeleton__line--w40"></div>
+          <div class="app-shell-skeleton__line"></div>
+          <div class="app-shell-skeleton__line app-shell-skeleton__line--w60"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

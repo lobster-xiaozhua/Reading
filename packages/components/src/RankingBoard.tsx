@@ -40,7 +40,9 @@ const TAB_LABEL: Record<RankBoardType, string> = {
   new: '新书榜',
 };
 
-/** 排名变化：上升/下降/新上榜/持平 */
+/** 排名变化：上升/下降/新上榜/持平
+ * P8-A6 色觉障碍友好：颜色之外提供「升/降」文字 + 方向箭头双重表达，
+ * 避免仅靠绿/红区分升降 */
 function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
   if (prevRank === 0) {
     return (
@@ -52,7 +54,8 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
   if (prevRank === rank) {
     return (
       <span className="novel-ranking__trend novel-ranking__trend--flat" aria-label="排名持平">
-        —
+        <span aria-hidden>—</span>
+        <span className="sr-only">持平</span>
       </span>
     );
   }
@@ -63,6 +66,7 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
         <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M12 19V5M5 12l7-7 7 7" />
         </svg>
+        <span className="novel-ranking__trend-label" aria-hidden>升</span>
         {delta}
       </span>
     );
@@ -73,6 +77,7 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
       <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M12 5v14M19 12l-7 7-7-7" />
       </svg>
+      <span className="novel-ranking__trend-label" aria-hidden>降</span>
       {delta}
     </span>
   );

@@ -69,11 +69,18 @@
   max-width: 756px;
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
+  /* P7-7 安全区：顶部状态栏 + 底部 Home Indicator 让位 */
+  padding-top: calc(var(--space-8) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
   box-sizing: border-box;
+  /* P8-A4 字号无上限：最大 24px 时段落不溢出，自动换行 */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 @media (min-width: 768px) {
   .novel-reader__inner {
-    padding: var(--space-12) var(--space-8);
+    padding-left: var(--space-8);
+    padding-right: var(--space-8);
   }
 }
 
@@ -352,4 +359,30 @@
 [data-theme='dark'] .novel-reader__topbar,
 [data-theme='dark'] .novel-reader__bottombar {
   background: var(--color-bg-elevated);
+}
+
+/* ---------- P8-A5 高对比模式：阅读器描边增强 ---------- */
+@media (prefers-contrast: more) {
+  .novel-reader__topbar,
+  .novel-reader__bottombar {
+    border-color: var(--novel-read-text);
+    border-width: 2px;
+  }
+  .novel-reader__chapter-end {
+    border-top-color: var(--novel-read-text);
+    border-top-width: 2px;
+  }
+  .novel-reader__nav-btn {
+    border-width: 2px;
+    border-color: var(--novel-read-text);
+  }
+}
+
+/* ---------- P8-A4 字号最大档（24px）响应式收窄行宽 ---------- */
+@media (max-width: 480px) {
+  /* 小屏 + 大字号时收紧正文内边距，避免溢出 */
+  .novel-reader__inner {
+    padding-left: var(--space-3);
+    padding-right: var(--space-3);
+  }
 }

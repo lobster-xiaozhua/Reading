@@ -1,5 +1,6 @@
 /* 工具类：BEM 风格变体辅助 */
-.novel-utils-sr-only {
+.novel-utils-sr-only,
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -9,6 +10,17 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* P8-A8 屏幕阅读器：焦点时恢复可见（跳转链接/出现位置） */
+.sr-only-focusable:focus,
+.sr-only-focusable:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
 }
 
 /* 减弱动效时禁用所有过渡 */

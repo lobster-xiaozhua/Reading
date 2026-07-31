@@ -242,28 +242,155 @@ export function Reader({
     [settings.pageMode, onPrev, onNext, showControls],
   );
 
-  /* ---------- 翻页：slide 模式手势左右滑 ---------- */
+  /* ---------- 夜间模式快捷切换（双击/栏按钮共用） ---------- */
+  const toggleNight = useCallback(() => {
+    onSettingsChange({
+      ...settings,
+      theme: settings.theme === 'night' ? 'day' : 'night',
+    });
+  }, [settings, onSettingsChange]);
+
+  /* ---------- P7-3 阅读器手势矩阵 ---------- */
+  /* 手势优先级：长按 > 双击 > 滑动（左右/上下）> 单击
+   *   - 左右滑：slide 模式翻页（threshold 50px）
+   *   - 上下滑：scroll 模式由原生滚动接管；slide/click 模式上下滑不翻页
+   *   - 双击：300ms 内二次点击 → 切换日/夜主题
+   *   - 长按：500ms 触发选词/笔记菜单（emitted via onLongPress，外层可挂接）
+   *   - 中央点击：唤出控制栏（30%~70% 区域）
+   *   - 左右半屏：click 模式翻页
+   */
   const touchStartX = useRef<number | null>(null);
-  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (settings.pageMode !== 'slide') return;
-    touchStartX.current = e.touches[0].clientX;
-  }, [settings.pageMode]);
+  const touchStartY = useRef<number | null>(null);
+  const touchStartTime = useRef<number>(0);
+  const lastTapTime = useRef<number>(0);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFiredRef = useRef(false);
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const t = e.touches[0];
+      touchStartX.current = t.clientX;
+      touchStartY.current = t.clientY;
+      touchStartTime.current = Date.now();
+      longPressFiredRef.current = false;
+      // 长按 500ms 触发（仅 click/slide 模式；scroll 模式长按可能误触）
+      if (settings.pageMode !== 'scroll') {
+        if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = setTimeout(() => {
+          longPressFiredRef.current = true;
+          // 长按反馈：唤出控制栏（外层可挂接选词菜单）
+          showControls();
+        }, 500);
+      }
+    },
+    [settings.pageMode, showControls],
+  );
+
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
-      if (settings.pageMode !== 'slide') return;
-      if (touchStartX.current == null) return;
+      // 取消长按定时器
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+      // 长按已触发则不再处理滑动/点击
+      if (longPressFiredRef.current) return;
+
+      if (touchStartX.current == null || touchStartY.current == null) return;
       const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
       const dx = endX - touchStartX.current;
+      const dy = endY - touchStartY.current;
       const threshold = 50;
-      if (dx > threshold) {
-        onPrev?.();
-      } else if (dx < -threshold) {
-        onNext?.();
+      const elapsed = Date.now() - touchStartTime.current;
+
+      // 判定滑动：位移超阈值且主要方向明确
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+      if (absDx > threshold && absDx > absDy) {
+        // 左右滑
+        if (settings.pageMode === 'slide') {
+          if (dx > threshold) onPrev?.();
+          else if (dx < -threshold) onNext?.();
+        }
+        touchStartX.current = null;
+        touchStartY.current = null;
+        return;
+      }
+      // 上下滑交给原生滚动，不在此处理
+
+      // 视为点击：判定双击（300ms 内二次点击）
+      if (elapsed < 500) {
+        const now = Date.now();
+        if (now - lastTapTime.current < 300) {
+          // 双击：切换日/夜
+          toggleNight();
+          lastTapTime.current = 0;
+          touchStartX.current = null;
+          touchStartY.current = null;
+          return;
+        }
+        lastTapTime.current = now;
       }
       touchStartX.current = null;
+      touchStartY.current = null;
     },
-    [settings.pageMode, onPrev, onNext],
+    [settings.pageMode, onPrev, onNext, toggleNight],
   );
+
+  /* ---------- 手指移动超阈值时取消长按（避免误触） ---------- */
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      if (touchStartX.current == null || touchStartY.current == null) return;
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - touchStartX.current);
+      const dy = Math.abs(t.clientY - touchStartY.current);
+      if (dx > 10 || dy > 10) {
+        if (longPressTimerRef.current) {
+          clearTimeout(longPressTimerRef.current);
+          longPressTimerRef.current = null;
+        }
+      }
+    },
+    [],
+  );
+
+  /* ---------- P8-A2 键盘导航矩阵 ---------- */
+  /* ←/→：上下章；↑/↓：滚动；Space：下一章（Shift+Space 上一章）；
+   * Esc：隐藏控制栏/关闭设置；Tab：自然顺序；Enter：唤出控制栏 */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 设置面板打开时让 ReaderSettings 自己处理 Tab/Esc，避免抢焦点
+      if (settingsVisible) return;
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (onPrev) { e.preventDefault(); onPrev(); }
+          break;
+        case 'ArrowRight':
+        case ' ':
+          if (e.key === ' ' && e.shiftKey) {
+            if (onPrev) { e.preventDefault(); onPrev(); }
+          } else if (onNext) {
+            e.preventDefault();
+            onNext();
+          }
+          break;
+        case 'Escape':
+          if (controlsVisible) {
+            e.preventDefault();
+            setControlsVisible(false);
+          }
+          break;
+        case 'Enter':
+          e.preventDefault();
+          showControls();
+          break;
+        // ↑/↓ 交由原生滚动，不拦截
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onPrev, onNext, controlsVisible, settingsVisible, showControls]);
 
   /* ---------- 章节切换时重置滚动位置 ---------- */
   useEffect(() => {
@@ -271,14 +398,6 @@ export function Reader({
       contentRef.current.scrollTop = 0;
     }
   }, [chapter?.id, settings.pageMode]);
-
-  /* ---------- 夜间模式快捷切换 ---------- */
-  const toggleNight = useCallback(() => {
-    onSettingsChange({
-      ...settings,
-      theme: settings.theme === 'night' ? 'day' : 'night',
-    });
-  }, [settings, onSettingsChange]);
 
   /* ---------- 渲染 ---------- */
   const rootCls = [
@@ -296,6 +415,17 @@ export function Reader({
 
   return (
     <div className={rootCls} style={containerStyle}>
+      {/* P8-A1 屏幕阅读器翻页播报：aria-live 章节切换通知 */}
+      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {chapter
+          ? `已加载章节：${chapter.title}${
+              hasProgress ? `，第 ${currentIndex} 章，共 ${totalChapters} 章` : ''
+            }`
+          : loading
+            ? '章节加载中'
+            : ''}
+      </div>
+
       {/* 顶部进度条（始终可见，不挤压正文） */}
       {hasProgress ? (
         <ReadingProgress
@@ -321,8 +451,11 @@ export function Reader({
         style={contentStyle}
         onClick={handleContentClick}
         onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onScroll={handleScroll}
+        /* P8-A1 语义化：正文区标注为文章主体，屏幕阅读器可跳转 */
+        aria-label="章节正文"
       >
         <div className="novel-reader__inner">
           {error ? (

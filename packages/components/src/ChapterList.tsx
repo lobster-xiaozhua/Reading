@@ -266,9 +266,9 @@ function ChapterItem({
       <span className="novel-chapter-list__index">{index + 1}</span>
       <span className="novel-chapter-list__title">{chapter.title}</span>
       {showVip && chapter.isVip ? (
-        <span className="novel-chapter-list__vip">
+        <span className="novel-chapter-list__vip" aria-label="VIP 章节，需要 VIP 会员">
           <LockIcon />
-          <span>VIP</span>
+          <span aria-hidden>VIP</span>
         </span>
       ) : null}
       {chapter.wordCount != null ? (
