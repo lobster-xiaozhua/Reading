@@ -187,6 +187,9 @@ importers:
 
   packages/b-end:
     dependencies:
+      '@ant-design/charts':
+        specifier: ^2.6.7
+        version: 2.6.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@novel/icons':
         specifier: workspace:*
         version: link:../icons

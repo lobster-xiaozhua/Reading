@@ -2,15 +2,16 @@
  * P4-2 · 运营工作台
  * 基于 DashboardTemplate 实例化
  * 欢迎条 + KPI ×4 + 趋势 Tab + 内容概览 ×3 + 快捷操作
- * 趋势图 slot 由 P7 注入（当前占位）
+ * P7 已接入真实趋势图（BLineChart）
  * Source: 04 §5.2 / P4-2
  * ============================================================ */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Empty } from 'antd';
 import { DashboardTemplate } from '@/templates/DashboardTemplate';
 import type { DashboardStatus, KpiItem, OverviewSection, QuickAction } from '@/templates/DashboardTemplate';
+import { BLineChart } from '@novel/b-end';
+import { fetchWorkbenchTrend, type TrendRange, type WorkbenchTrendItem } from '@/api/chart-api';
 
 export default function WorkbenchPage() {
   const navigate = useNavigate();
@@ -18,6 +19,9 @@ export default function WorkbenchPage() {
   const [kpis, setKpis] = useState<KpiItem[]>([]);
   const [overviews, setOverviews] = useState<OverviewSection[]>([]);
   const [todoCount, setTodoCount] = useState(0);
+  const [trendRange, setTrendRange] = useState<TrendRange>(30);
+  const [trendData, setTrendData] = useState<WorkbenchTrendItem[]>([]);
+  const [trendMetric, setTrendMetric] = useState<'newNovels' | 'newReaders' | 'monthlyTickets'>('newReaders');
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -66,17 +70,64 @@ export default function WorkbenchPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // P7 趋势图数据加载
+  const loadTrend = useCallback(async (range: TrendRange) => {
+    const data = await fetchWorkbenchTrend(range);
+    setTrendData(data);
+  }, []);
+
+  useEffect(() => {
+    loadTrend(trendRange);
+  }, [trendRange, loadTrend]);
+
   const quickActions: QuickAction[] = [
     { key: 'newNovel', label: '新建作品', onClick: () => navigate('/novel/create') },
     { key: 'novelList', label: '作品管理', onClick: () => navigate('/novel') },
     { key: 'audit', label: '内容审核', onClick: () => navigate('/audit') },
-    { key: 'user', label: '用户管理', onClick: () => navigate('/user') },
+    { key: 'charts', label: '数据看板', onClick: () => navigate('/charts') },
   ];
 
-  // P7 图表未注入前用占位（趋势图 slot）
-  const chartPlaceholder = (
-    <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Empty description="趋势图表（P7-基础图表注入后显示）" />
+  // P7 趋势图：多指标切换
+  const metricLabel: Record<typeof trendMetric, string> = {
+    newNovels: '新增作品',
+    newReaders: '新增读者',
+    monthlyTickets: '月票',
+  };
+
+  const chart = (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
+        <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-body, 14px)' }}>
+          {metricLabel[trendMetric]}趋势
+        </span>
+        <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+          {(['newNovels', 'newReaders', 'monthlyTickets'] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setTrendMetric(m)}
+              style={{
+                padding: '4px 12px',
+                fontSize: 12,
+                border: `1px solid ${trendMetric === m ? 'var(--color-brand)' : 'var(--color-border)'}`,
+                borderRadius: 'var(--radius-sm, 4px)',
+                background: trendMetric === m ? 'var(--color-brand-bg)' : 'transparent',
+                color: trendMetric === m ? 'var(--color-brand)' : 'var(--color-text-secondary)',
+                cursor: 'pointer',
+              }}
+            >
+              {metricLabel[m]}
+            </button>
+          ))}
+        </div>
+      </div>
+      <BLineChart
+        data={trendData as never}
+        xField="date"
+        yField={trendMetric}
+        height={300}
+        smooth
+        showLegend={false}
+      />
     </div>
   );
 
@@ -85,9 +136,9 @@ export default function WorkbenchPage() {
       status={status}
       todoCount={todoCount}
       kpis={kpis}
-      chart={chartPlaceholder}
-      onRangeChange={() => {
-        // P7 接入后按 range 请求趋势数据
+      chart={chart}
+      onRangeChange={(range: number) => {
+        if (range === 7 || range === 30 || range === 90) setTrendRange(range);
       }}
       overviews={overviews}
       quickActions={quickActions}

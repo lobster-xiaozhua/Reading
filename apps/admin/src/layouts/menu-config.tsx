@@ -13,6 +13,7 @@ import {
   SolutionOutlined,
   SafetyOutlined,
   SettingOutlined,
+  BarChartOutlined,
 } from '@ant-design/icons';
 import type { Permission } from '@/api/types';
 
@@ -63,6 +64,12 @@ export const menuConfig: MenuItem[] = [
         path: '/audit',
         icon: <AuditOutlined />,
         permissions: ['audit.list'],
+      },
+      {
+        key: 'charts',
+        label: '数据看板',
+        path: '/charts',
+        icon: <BarChartOutlined />,
       },
     ],
   },

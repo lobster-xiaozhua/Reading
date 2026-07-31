@@ -106,3 +106,47 @@ export type {
   ShareParams,
   GuaranteeShareParams,
 } from './data-model/vip-pricing.js';
+
+/* ---------- P7 · 数据可视化（6 基础 + 5 业务） ---------- */
+export { BLineChart } from './charts/BLineChart.js';
+export type { BLineChartProps } from './charts/BLineChart.js';
+
+export { BColumnChart } from './charts/BColumnChart.js';
+export type { BColumnChartProps } from './charts/BColumnChart.js';
+
+export { BPieChart } from './charts/BPieChart.js';
+export type { BPieChartProps } from './charts/BPieChart.js';
+
+export { BAreaChart } from './charts/BAreaChart.js';
+export type { BAreaChartProps } from './charts/BAreaChart.js';
+
+export { BHeatmap } from './charts/BHeatmap.js';
+export type { BHeatmapProps } from './charts/BHeatmap.js';
+
+export { BGauge } from './charts/BGauge.js';
+export type { BGaugeProps } from './charts/BGauge.js';
+
+// 共享工具
+export {
+  CHART_DEFAULT_HEIGHT,
+  getChartColors,
+  isDarkMode,
+  ChartWrapper,
+} from './charts/shared.js';
+export type { ChartWrapperProps } from './charts/shared.js';
+
+// P7-7~11 小说专用图表
+export { WordCountGrowthChart } from './charts/business/WordCountGrowthChart.js';
+export type { WordCountGrowthChartProps, WordCountGrowthDatum } from './charts/business/WordCountGrowthChart.js';
+
+export { ReadingHeatmap } from './charts/business/ReadingHeatmap.js';
+export type { ReadingHeatmapProps, ReadingHeatmapDatum } from './charts/business/ReadingHeatmap.js';
+
+export { ReadingFunnel } from './charts/business/ReadingFunnel.js';
+export type { ReadingFunnelProps, FunnelStage } from './charts/business/ReadingFunnel.js';
+
+export { RankingTrendChart } from './charts/business/RankingTrendChart.js';
+export type { RankingTrendChartProps, RankingTrendDatum } from './charts/business/RankingTrendChart.js';
+
+export { CategoryDistributionChart } from './charts/business/CategoryDistributionChart.js';
+export type { CategoryDistributionChartProps, CategoryDatum } from './charts/business/CategoryDistributionChart.js';
