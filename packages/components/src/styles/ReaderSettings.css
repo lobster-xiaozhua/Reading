@@ -1,0 +1,245 @@
+/* ============================================================
+ * ReaderSettings · 03 §6.13
+ * 半屏面板：底部滑入 dur-normal 240ms ease-out
+ * 遮罩半透明 text-primary 45%；字号滑块 + 分段控件 + 主题色块
+ * ============================================================ */
+
+.novel-reader-settings {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 50vh;
+  padding: var(--space-6) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-none) var(--radius-none);
+  box-shadow: var(--sh-3);
+  transform: translateY(100%);
+  transition: transform var(--dur-normal) var(--ease-decelerate);
+  z-index: var(--z-index-modal);
+  outline: none;
+  overflow-y: auto;
+}
+.novel-reader-settings.is-visible {
+  transform: translateY(0);
+}
+
+/* 遮罩 */
+.novel-reader-settings__overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-text-primary);
+  opacity: 0.45;
+  z-index: var(--z-index-modal);
+}
+
+/* 拖拽手柄（视觉提示可下滑关闭） */
+.novel-reader-settings__handle {
+  width: 32px;
+  height: 4px;
+  margin: 0 auto var(--space-4);
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+/* 主体 */
+.novel-reader-settings__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+/* ---------- 行 ---------- */
+.novel-reader-settings__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.novel-reader-settings__row-label {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+.novel-reader-settings__row-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* ---------- 字号三件式 ---------- */
+.novel-reader-settings__font-size {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+.novel-reader-settings__step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-reader-settings__step-btn:hover:not(:disabled) {
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+  background: var(--color-brand-bg);
+}
+.novel-reader-settings__step-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.novel-reader-settings__step-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 滑块 */
+.novel-reader-settings__slider {
+  flex: 1;
+  height: 4px;
+  appearance: none;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-full);
+  outline: none;
+  cursor: pointer;
+}
+.novel-reader-settings__slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  border: 2px solid var(--color-bg-surface);
+  box-shadow: var(--sh-1);
+  cursor: grab;
+}
+.novel-reader-settings__slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+.novel-reader-settings__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-brand);
+  border: 2px solid var(--color-bg-surface);
+  box-shadow: var(--sh-1);
+  cursor: grab;
+}
+.novel-reader-settings__slider:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  border-radius: var(--radius-sm);
+}
+
+/* 当前值 */
+.novel-reader-settings__value {
+  flex-shrink: 0;
+  min-width: 3em;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-body);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ---------- 分段控件（行距/字体/翻页） ---------- */
+.novel-reader-settings__segmented {
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+}
+.novel-reader-settings__segment {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+.novel-reader-settings__segment:hover {
+  color: var(--color-text-primary);
+}
+.novel-reader-settings__segment.is-active {
+  border: 2px solid var(--color-brand);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  padding: calc(var(--space-2) - 1px) calc(var(--space-4) - 1px);
+}
+.novel-reader-settings__segment:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 主题色块（四选一） ---------- */
+.novel-reader-settings__themes {
+  display: flex;
+  gap: var(--space-3);
+}
+.novel-reader-settings__theme-swatch {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: var(--space-1);
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-reader-settings__theme-swatch.is-active {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+}
+.novel-reader-settings__theme-swatch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+}
+.novel-reader-settings__theme-label {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ---------- H5 适配：行布局更紧凑 ---------- */
+@media (max-width: 479px) {
+  .novel-reader-settings {
+    padding: var(--space-4) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  }
+  .novel-reader-settings__themes {
+    gap: var(--space-2);
+  }
+  .novel-reader-settings__theme-swatch {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+/* ---------- 减弱动效 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .novel-reader-settings {
+    transition: none;
+  }
+}

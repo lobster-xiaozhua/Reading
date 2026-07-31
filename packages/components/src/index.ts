@@ -69,6 +69,42 @@ export {
   type BookshelfViewMode,
 } from './Bookshelf.js';
 
+// P4 C 端阅读器
+export {
+  Reader,
+  type ReaderProps,
+  type ReaderChapter,
+} from './Reader.js';
+export {
+  ReaderSettings,
+  type ReaderSettingsProps,
+} from './ReaderSettings.js';
+export {
+  ReadingProgress,
+  type ReadingProgressProps,
+} from './ReadingProgress.js';
+export {
+  useReaderSettings,
+  type ReaderSettings as ReaderSettingsValue,
+  type ReaderFontSize,
+  type ReaderLineHeight,
+  type ReaderFontFamily,
+  type ReaderTheme,
+  type ReaderPageMode,
+  DEFAULT_READER_SETTINGS,
+  LINE_HEIGHT_VALUE,
+  FONT_FAMILY_VAR,
+  THEME_VARS,
+} from './useReaderSettings.js';
+export {
+  useReaderCache,
+  type CachedChapter,
+  type ChapterFetcher,
+  type ChapterRef,
+  type UseReaderCacheOptions,
+  type UseReaderCacheReturn,
+} from './useReaderCache.js';
+
 // P2.4 状态模式 Hook
 export {
   useAsyncState,

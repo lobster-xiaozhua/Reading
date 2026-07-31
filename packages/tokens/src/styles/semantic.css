@@ -108,6 +108,18 @@
   --reader-paragraph-indent: 2em;
   --reader-line-spacing-extra: 0.05em;
 
+  /* ---------- 阅读器字体族（L2，由 ReaderSettings 切换；03 §4.6） ---------- */
+  --reader-font-family: var(--font-serif);
+  --reader-font-family-serif: 'Noto Serif SC', serif;
+  --reader-font-family-song: 'SimSun', 'Noto Serif SC', serif;
+  --reader-font-family-hei: 'SimHei', 'Noto Sans SC', sans-serif;
+  --reader-font-family-kai: 'KaiTi', 'Noto Serif SC', serif;
+
+  /* ---------- 阅读器行距分档（03 §6.13 ReaderSettings） ---------- */
+  --reader-line-height-compact: 1.5;
+  --reader-line-height-standard: 1.8;
+  --reader-line-height-loose: 2.1;
+
   /* ---------- 间距（13 档，4px 基准） ---------- */
   --space-1: 4px;
   --space-2: 8px;

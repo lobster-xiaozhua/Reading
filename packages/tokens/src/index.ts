@@ -182,6 +182,16 @@ export const tokens = {
     chapterGap: 'var(--space-12)',
     paragraphIndent: '2em',
     lineSpacingExtra: '0.05em',
+    // 字体族（03 §4.6）
+    fontFamily: 'var(--font-serif)',
+    fontFamilySerif: "'Noto Serif SC', serif",
+    fontFamilySong: "'SimSun', 'Noto Serif SC', serif",
+    fontFamilyHei: "'SimHei', 'Noto Sans SC', sans-serif",
+    fontFamilyKai: "'KaiTi', 'Noto Serif SC', serif",
+    // 行距分档（03 §6.13）
+    lineHeightCompact: '1.5',
+    lineHeightStandard: '1.8',
+    lineHeightLoose: '2.1',
   },
   space: {
     space1: '4px',

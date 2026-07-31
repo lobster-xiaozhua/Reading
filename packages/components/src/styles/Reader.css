@@ -1,0 +1,355 @@
+/* ============================================================
+ * Reader · 03 §5.3 / §6.3
+ * 容器：全屏沉浸；正文 756px 居中；控制栏浮层闲置 3s 淡出
+ * 翻页：slide transform / scroll 原生 / click 淡入
+ * ============================================================ */
+
+.novel-reader {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+/* ---------- 章节加载条（顶部 2px，不遮挡正文） ---------- */
+.novel-reader__loading-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-brand-bg);
+  overflow: hidden;
+  z-index: var(--z-index-sticky);
+}
+.novel-reader__loading-bar-fill {
+  width: 40%;
+  height: 100%;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
+  animation: novel-reader-loading var(--dur-slow) var(--ease-standard) infinite;
+}
+@keyframes novel-reader-loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .novel-reader__loading-bar-fill {
+    animation: none;
+    width: 100%;
+    opacity: 0.6;
+  }
+}
+
+/* ---------- 正文区 ---------- */
+.novel-reader__content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+/* 自定义细滚动条 */
+.novel-reader__content::-webkit-scrollbar {
+  width: 4px;
+}
+.novel-reader__content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.novel-reader__content::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+/* 正文内层：居中 + 最大行宽 756px */
+.novel-reader__inner {
+  max-width: 756px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+  box-sizing: border-box;
+}
+@media (min-width: 768px) {
+  .novel-reader__inner {
+    padding: var(--space-12) var(--space-8);
+  }
+}
+
+/* 章节标题 */
+.novel-reader__chapter-title {
+  margin: 0 0 var(--space-6);
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  color: var(--novel-read-text);
+  text-align: center;
+}
+
+/* 正文段落 */
+.novel-reader__article-body {
+  color: var(--novel-read-text);
+}
+.novel-reader__article-body p {
+  margin: 0 0 1em;
+  text-indent: 2em;
+  text-align: justify;
+  word-break: break-word;
+}
+.novel-reader__article-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* 章末操作区 */
+.novel-reader__chapter-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-12);
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--color-border-subtle);
+}
+.novel-reader__nav-btn {
+  min-width: 160px;
+  padding: var(--space-2) var(--space-6);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--novel-read-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-reader__nav-btn:hover:not(:disabled) {
+  border-color: var(--color-brand-border);
+  color: var(--color-brand);
+}
+.novel-reader__nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.novel-reader__nav-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+.novel-reader__nav-btn--primary {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-text-inverse);
+}
+.novel-reader__nav-btn--primary:hover:not(:disabled) {
+  background: var(--color-brand-hover);
+  border-color: var(--color-brand-hover);
+  color: var(--color-text-inverse);
+}
+
+/* 加载占位 */
+.novel-reader__placeholder {
+  height: 60vh;
+}
+
+/* 错误态 */
+.novel-reader__error {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+  color: var(--color-feedback-error);
+  font-family: var(--font-sans);
+}
+.novel-reader__error-detail {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-caption);
+  color: var(--novel-read-text-secondary);
+}
+
+/* ---------- 点击翻页：左右半屏点击区（不可见，仅命中） ---------- */
+.novel-reader__tap-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 30%;
+  z-index: 1;
+  /* 不可见但可点击 */
+  background: transparent;
+}
+.novel-reader__tap-zone--left {
+  left: 0;
+}
+.novel-reader__tap-zone--right {
+  right: 0;
+}
+
+/* ---------- 顶部栏（浮层） ---------- */
+.novel-reader__topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--reader-toolbar-height);
+  padding: 0 var(--space-3);
+  background: var(--novel-read-bg);
+  border-bottom: 1px solid var(--color-border-subtle);
+  z-index: var(--z-index-sticky);
+  opacity: 0;
+  transform: translateY(-100%);
+  transition: opacity var(--dur-normal) var(--ease-standard),
+    transform var(--dur-normal) var(--ease-standard);
+  pointer-events: none;
+}
+.novel-reader.is-controls-visible .novel-reader__topbar {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.novel-reader__topbar-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-caption);
+  color: var(--novel-read-text);
+  text-align: center;
+}
+.novel-reader__topbar-right {
+  display: inline-flex;
+  align-items: center;
+  min-width: 36px;
+}
+
+/* ---------- 底部控制栏（浮层） ---------- */
+.novel-reader__bottombar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: var(--space-1);
+  height: var(--reader-toolbar-height);
+  padding: 0 var(--space-2) env(safe-area-inset-bottom, 0px);
+  background: var(--novel-read-bg);
+  border-top: 1px solid var(--color-border-subtle);
+  z-index: var(--z-index-sticky);
+  opacity: 0;
+  transform: translateY(100%);
+  transition: opacity var(--dur-normal) var(--ease-standard),
+    transform var(--dur-normal) var(--ease-standard);
+  pointer-events: none;
+}
+.novel-reader.is-controls-visible .novel-reader__bottombar {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 控制栏按钮 */
+.novel-reader__bar-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  background: transparent;
+  color: var(--novel-read-text);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-overline);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-reader__bar-btn:hover:not(:disabled) {
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.novel-reader__bar-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.novel-reader__bar-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* 顶部栏图标按钮 */
+.novel-reader__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--novel-read-text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+.novel-reader__icon-btn:hover {
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.novel-reader__icon-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+
+/* ---------- 翻页动画（slide/click） ---------- */
+/* slide 模式：章节切换时正文淡入位移 */
+.novel-reader--slide .novel-reader__inner {
+  animation: novel-reader-slide-in var(--dur-normal) var(--ease-standard);
+}
+@keyframes novel-reader-slide-in {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* click 模式：章节切换淡入淡出 */
+.novel-reader--click .novel-reader__inner {
+  animation: novel-reader-fade-in var(--dur-normal) var(--ease-standard);
+}
+@keyframes novel-reader-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-reader--slide .novel-reader__inner,
+  .novel-reader--click .novel-reader__inner {
+    animation: none;
+  }
+  .novel-reader__topbar,
+  .novel-reader__bottombar {
+    transition: opacity var(--dur-fast) var(--ease-standard);
+    transform: none;
+  }
+}
+
+/* ---------- 响应式：xs/sm 全屏沉浸 ---------- */
+@media (max-width: 767px) {
+  .novel-reader__inner {
+    max-width: 100%;
+    padding: var(--space-6) var(--space-3);
+  }
+  .novel-reader__chapter-title {
+    font-size: var(--font-size-body);
+  }
+}
+
+/* ---------- 暗色模式：顶部/底部栏背景增强 ---------- */
+[data-theme='dark'] .novel-reader__topbar,
+[data-theme='dark'] .novel-reader__bottombar {
+  background: var(--color-bg-elevated);
+}
