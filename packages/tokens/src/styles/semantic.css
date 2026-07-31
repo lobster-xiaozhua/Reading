@@ -190,6 +190,14 @@
   --icon-size-lg: 20px;
   --icon-size-xl: 24px;
   --icon-size-2xl: 32px;
+
+  /* ---------- L2 Semantic · 图表色板（02 §4.1 / 04 §7.1） ---------- */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);  /* 暗色提亮为 #8AA2B8（见下方 dark 块，P9-D3） */
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
 }
 
 /* ============================================================
@@ -251,6 +259,9 @@
   --novel-read-bg: var(--read-bg-night);
   --novel-read-text: var(--read-text-night);
   --novel-read-text-secondary: var(--read-text-secondary-night);
+
+  /* 图表色板暗色覆盖：chart-3 提亮保证对比度（P9-D3 / 04 §7.1） */
+  --color-chart-3: #8AA2B8;
 
   --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
   --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.44);

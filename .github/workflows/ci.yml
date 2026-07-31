@@ -8,7 +8,7 @@ on:
 
 jobs:
   quality:
-    name: Lint · Typecheck · Token Scan · Test
+    name: Lint · Typecheck · Token Scan · Import Audit · Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,8 +28,20 @@ jobs:
       - name: Build tokens
         run: pnpm --filter @novel/tokens run build
 
+      - name: Build icons
+        run: pnpm --filter @novel/icons run build
+
+      - name: Build components
+        run: pnpm --filter @novel/components run build
+
+      - name: Build shared types
+        run: pnpm --filter @novel/types run build
+
       - name: Build token-scanner
         run: pnpm --filter @novel/tools-token-scanner run build
+
+      - name: Build b-end package
+        run: pnpm --filter @novel/b-end run build
 
       - name: Typecheck
         run: pnpm run typecheck
@@ -37,5 +49,9 @@ jobs:
       - name: Token scan (守门)
         run: pnpm run token-scan -- --root .
 
+      - name: Import audit (B-end 守门，审查 #1)
+        run: node tools/token-scanner/dist/import-audit.js --root apps/admin
+
       - name: Test
         run: pnpm run test
+

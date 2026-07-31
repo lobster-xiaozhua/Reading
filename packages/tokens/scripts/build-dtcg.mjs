@@ -71,6 +71,14 @@ const dtcg = {
       'text-sepia': { $type: 'color', $value: '#5B4636' },
       'text-parchment': { $type: 'color', $value: '#5B4636' },
     },
+    chart: {
+      'chart-1': { $type: 'color', $value: '#1890FF', $description: '图表主序列，对齐 brand-7（02 §4.1 / 04 §7.1）' },
+      'chart-2': { $type: 'color', $value: '#52C41A', $description: '图表序列 2，对齐 success-3' },
+      'chart-3': { $type: 'color', $value: '#FAAD14', $description: '图表序列 3，对齐 warning-3（暗色 #8AA2B8）' },
+      'chart-4': { $type: 'color', $value: '#F5222D', $description: '图表序列 4，对齐 error-3' },
+      'chart-5': { $type: 'color', $value: '#722ED1', $description: '图表序列 5，紫色' },
+      'chart-6': { $type: 'color', $value: '#13C2C2', $description: '图表序列 6，青色' },
+    },
     semantic: {
       'text-primary': { $type: 'color', $value: '{color.gray.gray-14}', $description: '主标题与正文主文字' },
       'text-secondary': { $type: 'color', $value: '{color.gray.gray-8}' },

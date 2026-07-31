@@ -93,4 +93,12 @@
   --read-text-secondary-night: #888888;
   --read-text-secondary-sepia: #8C7355;
   --read-text-secondary-parchment: #8C7355;
+
+  /* ---------- L1 Primitive · 图表色板（独立于 UI 语义色，02 §4.1 / 04 §7.1） ---------- */
+  --chart-1: #1890FF;  /* 主序列，对齐 brand-7 */
+  --chart-2: #52C41A;  /* 对齐 success-3 */
+  --chart-3: #FAAD14;  /* 对齐 warning-3 */
+  --chart-4: #F5222D;  /* 对齐 error-3 */
+  --chart-5: #722ED1;  /* 紫色序列 */
+  --chart-6: #13C2C2;  /* 青色序列 */
 }
