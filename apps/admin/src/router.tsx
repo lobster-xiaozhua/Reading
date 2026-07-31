@@ -10,6 +10,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import { BEndLayout } from './layouts/BEndLayout';
 import { RequireAuth } from './router/RequireAuth';
+import { RequirePermission } from './router/RequirePermission';
 import { Spin } from 'antd';
 
 // 路由级代码分割
@@ -20,6 +21,7 @@ const NovelDetailPage = lazy(() => import('./pages/NovelDetailPage'));
 const NovelFormPage = lazy(() => import('./pages/NovelFormPage'));
 const ChapterListPage = lazy(() => import('./pages/ChapterListPage'));
 const AuditWorkbenchPage = lazy(() => import('./pages/AuditWorkbenchPage'));
+const PermissionPage = lazy(() => import('./pages/PermissionPage'));
 const UserListPage = lazy(() => import('./pages/UserListPage'));
 const SystemConfigPage = lazy(() => import('./pages/SystemConfigPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -59,10 +61,14 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       // 内容管理模块（P5 实例化）
       { path: 'chapter/:novelId', element: withSuspense(<ChapterListPage />) },
       { path: 'audit', element: withSuspense(<AuditWorkbenchPage />) },
-      // 用户管理模块
+      // 用户管理模块（P6 接入权限分配页 + 页面级守卫）
       { path: 'user', element: withSuspense(<UserListPage />) },
       { path: 'author', element: withSuspense(<UserListPage />) },
-      { path: 'permission', element: withSuspense(<UserListPage />) },
+      { path: 'permission', element: withSuspense(
+        <RequirePermission permissions={['permission.assign']}>
+          <PermissionPage />
+        </RequirePermission>,
+      ) },
       // 系统设置模块
       { path: 'system', element: withSuspense(<SystemConfigPage />) },
     ],

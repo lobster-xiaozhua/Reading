@@ -113,9 +113,15 @@ export default function LoginPage() {
         </Form>
 
         <div style={{ marginTop: 'var(--space-6)', textAlign: 'center' }}>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            演示账号：admin / admin123
+          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 'var(--space-2)' }}>
+            演示账号（P6 多角色）：
           </Text>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
+            <span>admin / admin123（超级管理员）</span>
+            <span>content / content123（内容管理员）</span>
+            <span>auditor / auditor123（审核员）</span>
+            <span>operation / operation123（运营管理员）</span>
+          </div>
         </div>
       </Card>
     </div>
