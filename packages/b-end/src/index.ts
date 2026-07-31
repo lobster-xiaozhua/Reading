@@ -107,6 +107,29 @@ export type {
   GuaranteeShareParams,
 } from './data-model/vip-pricing.js';
 
+/* ---------- P8-1 · 敏感词过滤策略 ---------- */
+export {
+  scanText,
+  shouldBlockSave,
+  hasRequireAudit,
+  getFilterAction,
+  splitContentBySensitive,
+  LEVEL_POLICY,
+  SENSITIVE_LEVEL_META,
+} from './data-model/sensitive-filter.js';
+export type {
+  SensitiveHit,
+  FilterAction,
+  ContentSegment,
+} from './data-model/sensitive-filter.js';
+export type { SensitiveWord, SensitiveLevel } from './chapter-editor/sensitive-decorations.js';
+
+/* ---------- P8-2 · 稿费管理 ---------- */
+export { BRoyaltyDetail, defaultRoyaltyColumns } from './royalty/BRoyaltyDetail.js';
+export type { BRoyaltyDetailProps, RoyaltyDetailRow } from './royalty/BRoyaltyDetail.js';
+export { SettlementFlow, DEFAULT_SETTLEMENT_FLOW } from './royalty/SettlementFlow.js';
+export type { SettlementFlowProps, SettlementFlowNode, FlowNodeStatus } from './royalty/SettlementFlow.js';
+
 /* ---------- P7 · 数据可视化（6 基础 + 5 业务） ---------- */
 export { BLineChart } from './charts/BLineChart.js';
 export type { BLineChartProps } from './charts/BLineChart.js';

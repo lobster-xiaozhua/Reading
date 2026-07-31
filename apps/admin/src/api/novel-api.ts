@@ -3,7 +3,8 @@
  * 数据模型对齐 @novel/types BNovelDetail
  * ============================================================ */
 
-import type { BNovelDetail, BNovelStatus } from '@novel/types';
+import type { BNovelDetail, BNovelStatus, OfflineReason } from '@novel/types';
+import { canTransitionNovel } from '@novel/b-end';
 
 /** 列表查询参数 */
 export interface NovelListParams {
@@ -154,22 +155,148 @@ export async function submitNovel(values: NovelFormValues): Promise<{ success: b
   return { success: true, id: values.id ?? `novel-${String(MOCK_NOVELS.length).padStart(4, '0')}` };
 }
 
-/** 批量操作 */
-export async function batchOperate(ids: string[], action: 'publish' | 'offline' | 'delete'): Promise<{ success: boolean }> {
+/** 批量操作（保留向后兼容，内部接入状态机校验） */
+export async function batchOperate(ids: string[], action: 'publish' | 'offline' | 'delete'): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
   await delay(400);
   if (action === 'delete') {
     ids.forEach((id) => {
       const idx = MOCK_NOVELS.findIndex((n) => n.id === id);
       if (idx >= 0) MOCK_NOVELS.splice(idx, 1);
     });
-  } else {
-    ids.forEach((id) => {
-      const novel = MOCK_NOVELS.find((n) => n.id === id);
-      if (novel) {
-        novel.status = action === 'publish' ? 'published' : 'offline';
-        novel.lastUpdated = Date.now();
-      }
-    });
+    return { success: true };
   }
-  return { success: true };
+  // publish/offline 接入状态机校验（P8-3）
+  const targetStatus: BNovelStatus = action === 'publish' ? 'published' : 'offline';
+  const failed: { id: string; reason: string }[] = [];
+  ids.forEach((id) => {
+    const novel = MOCK_NOVELS.find((n) => n.id === id);
+    if (!novel) {
+      failed.push({ id, reason: '作品不存在' });
+      return;
+    }
+    if (!canTransitionNovel(novel.status, targetStatus)) {
+      failed.push({ id, reason: `当前状态「${novel.status}」不可转换到「${targetStatus}」` });
+      return;
+    }
+    novel.status = targetStatus;
+    novel.lastUpdated = Date.now();
+    if (targetStatus === 'published') {
+      novel.publishedAt = novel.publishedAt ?? Date.now();
+      novel.shelvedAt = null;
+      novel.reason = undefined;
+    } else {
+      novel.shelvedAt = Date.now();
+    }
+  });
+  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+}
+
+/* ---------- P8-3 · 上下架流程（状态机强校验 + 下架原因） ---------- */
+
+/** 下架原因选项（P8-3-4） */
+export const OFFLINE_REASON_OPTIONS: { label: string; value: OfflineReason; color: string }[] = [
+  { label: '违规内容', value: 'violation', color: 'error' },
+  { label: '版权问题', value: 'copyright', color: 'error' },
+  { label: '作者请求', value: 'author-request', color: 'warning' },
+  { label: '运营调整', value: 'operation-adjust', color: 'warning' },
+];
+
+/** 下架原因标签映射（P8-3-4 令牌） */
+export const OFFLINE_REASON_LABEL: Record<OfflineReason, { text: string; color: string }> = {
+  violation: { text: '违规内容', color: 'error' },
+  copyright: { text: '版权问题', color: 'error' },
+  'author-request': { text: '作者请求', color: 'warning' },
+  'operation-adjust': { text: '运营调整', color: 'warning' },
+};
+
+/** 提交审核：draft → pending（P8-3-1） */
+export async function submitForAudit(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
+  await delay(400);
+  const failed: { id: string; reason: string }[] = [];
+  ids.forEach((id) => {
+    const novel = MOCK_NOVELS.find((n) => n.id === id);
+    if (!novel) {
+      failed.push({ id, reason: '作品不存在' });
+      return;
+    }
+    if (!canTransitionNovel(novel.status, 'pending')) {
+      failed.push({ id, reason: `当前状态「${novel.status}」不可提交审核（仅草稿可提交）` });
+      return;
+    }
+    novel.status = 'pending';
+    novel.lastUpdated = Date.now();
+  });
+  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+}
+
+/** 审核通过上架：pending → published（P8-3-1） */
+export async function approveNovel(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
+  await delay(400);
+  const failed: { id: string; reason: string }[] = [];
+  ids.forEach((id) => {
+    const novel = MOCK_NOVELS.find((n) => n.id === id);
+    if (!novel) {
+      failed.push({ id, reason: '作品不存在' });
+      return;
+    }
+    if (!canTransitionNovel(novel.status, 'published')) {
+      failed.push({ id, reason: `当前状态「${novel.status}」不可上架（仅待审核可上架）` });
+      return;
+    }
+    novel.status = 'published';
+    novel.publishedAt = novel.publishedAt ?? Date.now();
+    novel.shelvedAt = null;
+    novel.reason = undefined;
+    novel.lastUpdated = Date.now();
+  });
+  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+}
+
+/** 下架并记录原因：published → offline（P8-3-2） */
+export async function shelveNovel(
+  ids: string[],
+  reason: OfflineReason,
+  comment?: string,
+): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
+  await delay(400);
+  const failed: { id: string; reason: string }[] = [];
+  const reasonLabel = OFFLINE_REASON_LABEL[reason].text;
+  ids.forEach((id) => {
+    const novel = MOCK_NOVELS.find((n) => n.id === id);
+    if (!novel) {
+      failed.push({ id, reason: '作品不存在' });
+      return;
+    }
+    if (!canTransitionNovel(novel.status, 'offline')) {
+      failed.push({ id, reason: `当前状态「${novel.status}」不可下架` });
+      return;
+    }
+    novel.status = 'offline';
+    novel.shelvedAt = Date.now();
+    novel.reason = comment ? `${reasonLabel}：${comment}` : reasonLabel;
+    novel.lastUpdated = Date.now();
+  });
+  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+}
+
+/** 恢复上架：offline → published（P8-3-2） */
+export async function reshelveNovel(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
+  await delay(400);
+  const failed: { id: string; reason: string }[] = [];
+  ids.forEach((id) => {
+    const novel = MOCK_NOVELS.find((n) => n.id === id);
+    if (!novel) {
+      failed.push({ id, reason: '作品不存在' });
+      return;
+    }
+    if (!canTransitionNovel(novel.status, 'published')) {
+      failed.push({ id, reason: `当前状态「${novel.status}」不可恢复上架` });
+      return;
+    }
+    novel.status = 'published';
+    novel.shelvedAt = null;
+    novel.reason = undefined;
+    novel.lastUpdated = Date.now();
+  });
+  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
 }

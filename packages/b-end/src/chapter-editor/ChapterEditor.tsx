@@ -29,6 +29,7 @@ import { EditorCore } from './EditorCore.js';
 import { useAutoSave } from './useAutoSave.js';
 import type { SensitiveWord } from './sensitive-decorations.js';
 import { countPureWords, countWithPunctuation } from '../data-model/word-count.js';
+import { scanText, type SensitiveHit } from '../data-model/sensitive-filter.js';
 
 /** 编辑模式 */
 export type ChapterEditorMode = 'create' | 'draft' | 'published';
@@ -52,6 +53,8 @@ export interface ChapterEditorProps {
   sensitiveCheck?: boolean;
   /** 敏感词列表（sensitiveCheck=true 时生效） */
   sensitiveWords?: SensitiveWord[];
+  /** 敏感词命中回调（sensitiveCheck=true 时随内容变更节流上报，P8-1-4） */
+  onSensitiveHit?: (hits: SensitiveHit[]) => void;
   /** 占位提示 */
   placeholder?: string;
   /** 根容器 className */
@@ -108,6 +111,7 @@ export function ChapterEditor(props: ChapterEditorProps) {
     onWordCountChange,
     sensitiveCheck = false,
     sensitiveWords,
+    onSensitiveHit,
     placeholder,
     className,
   } = props;
@@ -179,6 +183,25 @@ export function ChapterEditor(props: ChapterEditorProps) {
   useEffect(() => {
     onWordCountChange?.(wordCount);
   }, [wordCount, onWordCountChange]);
+
+  // P8-1-4 敏感词命中回调（节流 300ms，与装饰插件一致）
+  const sensitiveHitsRef = useRef<SensitiveHit[]>([]);
+  const lastScanAtRef = useRef(0);
+  useEffect(() => {
+    if (!sensitiveCheck || effectiveSensitiveWords.length === 0) {
+      if (sensitiveHitsRef.current.length > 0) {
+        sensitiveHitsRef.current = [];
+        onSensitiveHit?.([]);
+      }
+      return;
+    }
+    const now = Date.now();
+    if (now - lastScanAtRef.current < 300) return;
+    lastScanAtRef.current = now;
+    const hits = scanText(value, effectiveSensitiveWords);
+    sensitiveHitsRef.current = hits;
+    onSensitiveHit?.(hits);
+  }, [value, sensitiveCheck, effectiveSensitiveWords, onSensitiveHit]);
 
   // 切换章节（mode/value 重置）时重置 published 确认标记
   useEffect(() => {

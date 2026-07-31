@@ -22,6 +22,7 @@ const NovelFormPage = lazy(() => import('./pages/NovelFormPage'));
 const ChapterListPage = lazy(() => import('./pages/ChapterListPage'));
 const AuditWorkbenchPage = lazy(() => import('./pages/AuditWorkbenchPage'));
 const ChartsShowcasePage = lazy(() => import('./pages/ChartsShowcasePage'));
+const RoyaltyPage = lazy(() => import('./pages/RoyaltyPage'));
 const PermissionPage = lazy(() => import('./pages/PermissionPage'));
 const UserListPage = lazy(() => import('./pages/UserListPage'));
 const SystemConfigPage = lazy(() => import('./pages/SystemConfigPage'));
@@ -64,6 +65,8 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       { path: 'audit', element: withSuspense(<AuditWorkbenchPage />) },
       // P7 · 数据可视化看板
       { path: 'charts', element: withSuspense(<ChartsShowcasePage />) },
+      // P8-2 · 稿费管理
+      { path: 'royalty', element: withSuspense(<RoyaltyPage />) },
       // 用户管理模块（P6 接入权限分配页 + 页面级守卫）
       { path: 'user', element: withSuspense(<UserListPage />) },
       { path: 'author', element: withSuspense(<UserListPage />) },

@@ -14,6 +14,7 @@ import {
   SafetyOutlined,
   SettingOutlined,
   BarChartOutlined,
+  DollarOutlined,
 } from '@ant-design/icons';
 import type { Permission } from '@/api/types';
 
@@ -107,6 +108,12 @@ export const menuConfig: MenuItem[] = [
     path: '/system',
     icon: <SettingOutlined />,
     permissions: ['system.config'],
+  },
+  {
+    key: 'royalty',
+    label: '稿费管理',
+    path: '/royalty',
+    icon: <DollarOutlined />,
   },
 ];
 

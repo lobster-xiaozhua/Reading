@@ -27,6 +27,8 @@ export interface SensitiveWord {
   text: string;
   /** 分级：1 严禁 / 2 警告 / 3 提示 */
   level: SensitiveLevel;
+  /** 处理建议（可选，P8-1 统一模型） */
+  suggestion?: string;
 }
 
 /** 插件 state：装饰集合 + 上次全量匹配时间戳 */
@@ -127,7 +129,7 @@ export function createSensitivePlugin(words: SensitiveWord[]) {
   // 预处理：过滤空词，转小写缓存
   const normalized: SensitiveWord[] = (words ?? [])
     .filter((w) => w && w.text)
-    .map((w) => ({ text: w.text, level: w.level }));
+    .map((w) => ({ text: w.text, level: w.level, suggestion: w.suggestion }));
 
   return Extension.create({
     name: 'sensitiveDecorations',
