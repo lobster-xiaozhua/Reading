@@ -1,0 +1,131 @@
+"""Redis 客户端与缓存键规范（§10.2）。"""
+
+import redis.asyncio as redis
+
+from app.core.config import settings
+
+
+class CacheKeys:
+    """集中管理缓存键，避免散落字符串导致拼写错误。"""
+
+    # C 端
+    BANNERS = "c:banners"
+    HOT_BOOKS = "c:books:hot"
+    FREE_LIMITED = "c:books:free-limited"
+    EDITOR_PICKS = "c:books:editor-picks"
+    CATEGORIES = "c:categories"
+    TAGS = "c:tags"
+    HOT_SEARCHES = "c:search:hot"
+
+    @staticmethod
+    def book(book_id: int) -> str:
+        return f"c:book:{book_id}"
+
+    @staticmethod
+    def book_chapters(book_id: int) -> str:
+        return f"c:book:{book_id}:chapters"
+
+    @staticmethod
+    def book_rating(book_id: int) -> str:
+        return f"c:book:{book_id}:rating"
+
+    @staticmethod
+    def book_click(book_id: int) -> str:
+        return f"book:click:{book_id}"
+
+    @staticmethod
+    def chapter_nav(chapter_id: int) -> str:
+        return f"chapter:nav:{chapter_id}"
+
+    @staticmethod
+    def rank(rank_type: str) -> str:
+        return f"rank:{rank_type}"
+
+    @staticmethod
+    def search_suggestion(keyword: str) -> str:
+        return f"c:search:sug:{hash(keyword)}"
+
+    @staticmethod
+    def heatmap(reader_id: int) -> str:
+        return f"c:me:heatmap:{reader_id}"
+
+    @staticmethod
+    def books_list(category: str, sort: str, status: str, page: int) -> str:
+        return f"c:books:list:{category}:{sort}:{status}:{page}"
+
+    # B 端
+    WORKBENCH_KPI = "b:workbench:kpi"
+
+    @staticmethod
+    def b_novel(novel_id: int) -> str:
+        return f"b:novel:{novel_id}"
+
+    # 鉴权
+    @staticmethod
+    def access_token(token: str) -> str:
+        return f"auth:access:{token}"
+
+    @staticmethod
+    def refresh_token(token: str) -> str:
+        return f"auth:refresh:{token}"
+
+    # 阅读进度
+    @staticmethod
+    def progress(reader_id: int) -> str:
+        return f"progress:{reader_id}"
+
+    # 登录失败
+    @staticmethod
+    def login_fail(username: str) -> str:
+        return f"login:fail:{username}"
+
+    # 敏感词库
+    @staticmethod
+    def sensitive_lib(version: str) -> str:
+        return f"sensitive:lib:{version}"
+
+
+# 全局 Redis 客户端（懒初始化，便于测试替换）
+_redis_client: redis.Redis | None = None
+
+
+async def get_redis() -> redis.Redis:
+    """获取全局 Redis 客户端。
+
+    生产环境连接真实 Redis；当 ``redis_fallback=True`` 且连接失败时，
+    返回内存模拟客户端（仅限开发/测试），保证应用可启动。
+    """
+    global _redis_client
+    if _redis_client is not None:
+        return _redis_client
+
+    if settings.redis_fallback:
+        try:
+            client = redis.from_url(
+                settings.redis_url, decode_responses=True
+            )
+            await client.ping()
+            _redis_client = client
+        except Exception:
+            # 降级到 fakeredis（测试期可用）
+            try:
+                import fakeredis.aioredis as fakeredis_aio  # type: ignore[import-not-found]
+
+                _redis_client = fakeredis_aio.FakeRedis(decode_responses=True)
+            except ImportError:
+                raise
+    else:
+        _redis_client = redis.from_url(settings.redis_url, decode_responses=True)
+
+    return _redis_client
+
+
+async def get_redis_client() -> redis.Redis:
+    """FastAPI 依赖：提供 Redis 客户端。"""
+    return await get_redis()
+
+
+def reset_redis() -> None:
+    """重置全局客户端（测试用）。"""
+    global _redis_client
+    _redis_client = None

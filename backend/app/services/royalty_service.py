@@ -1,0 +1,137 @@
+"""B 端稿费管理服务（§8.6）。
+
+提供稿费列表、批量结算、标记提现。
+结算状态流转走 ``RoyaltyStateMachine`` 校验。
+"""
+
+import logging
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.royalty import RoyaltyDetail
+from app.models.user import Author
+from app.repositories.royalty_repo import RoyaltyRepository
+from app.schemas.common import BatchOperateResult
+from app.schemas.royalty import (
+    RoyaltyDetailItem,
+    RoyaltyListResponse,
+    RoyaltyStats,
+)
+from app.utils.state_machine import RoyaltyStateMachine
+
+logger = logging.getLogger(__name__)
+
+
+class RoyaltyService:
+    """B 端稿费管理服务。"""
+
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+        self.repo = RoyaltyRepository(session)
+
+    # ── 稿费列表 ─────────────────────────────────────────
+    async def list_royalties(
+        self,
+        month: str | None = None,
+        status: str = "all",
+        author_name: str | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> RoyaltyListResponse:
+        details, _ = await self.repo.list_for_b_end(
+            month=month,
+            status=status,
+            author_name=author_name,
+            page=page,
+            page_size=page_size,
+        )
+        # 补全作者名
+        author_ids = list({d.author_id for d in details if d.author_id})
+        author_map = await self._get_author_map(author_ids)
+
+        items: list[RoyaltyDetailItem] = []
+        for d in details:
+            items.append(
+                RoyaltyDetailItem(
+                    id=str(d.id),
+                    month=d.month,
+                    novel_id=str(d.novel_id),
+                    author_id=str(d.author_id),
+                    author_name=author_map.get(d.author_id, ""),
+                    chapter_count=d.chapter_count,
+                    word_count=d.word_count,
+                    contract_type=d.contract_type,
+                    rate=float(d.rate) if d.rate else None,
+                    subscription_revenue=float(d.subscription_revenue),
+                    amount=float(d.amount),
+                    status=d.status,
+                    settled_at=d.settled_at or None,
+                    withdrawn_at=d.withdrawn_at or None,
+                )
+            )
+
+        # 统计汇总（基于当前查询结果集）
+        stats = self._calc_stats(items)
+        return RoyaltyListResponse(items=items, stats=stats)
+
+    # ── 批量结算 ─────────────────────────────────────────
+    async def batch_settle(self, ids: list[int]) -> BatchOperateResult:
+        # 预校验状态
+        await self._assert_status(ids, "pending")
+        affected = await self.repo.batch_settle(ids)
+        await self.session.commit()
+        return BatchOperateResult(success=True, affected=affected)
+
+    # ── 标记提现 ─────────────────────────────────────────
+    async def mark_withdrawn(self, ids: list[int]) -> BatchOperateResult:
+        await self._assert_status(ids, "settled")
+        affected = await self.repo.mark_withdrawn(ids)
+        await self.session.commit()
+        return BatchOperateResult(success=True, affected=affected)
+
+    # ── 内部工具 ─────────────────────────────────────────
+    async def _get_author_map(self, author_ids: list[int]) -> dict[int, str]:
+        if not author_ids:
+            return {}
+        stmt = select(Author.id, Author.pen_name).where(Author.id.in_(author_ids))
+        rows = (await self.session.execute(stmt)).all()
+        return {r[0]: r[1] for r in rows}
+
+    async def _assert_status(self, ids: list[int], expected: str) -> None:
+        if not ids:
+            return
+        stmt = select(RoyaltyDetail.id, RoyaltyDetail.status).where(
+            RoyaltyDetail.id.in_(ids)
+        )
+        rows = (await self.session.execute(stmt)).all()
+        for _rid, status in rows:
+            if status != expected:
+                RoyaltyStateMachine.assert_transition(status, expected)
+
+    @staticmethod
+    def _calc_stats(items: list[RoyaltyDetailItem]) -> RoyaltyStats:
+        """基于结果集实时聚合统计。"""
+        pending_count = settled_count = withdrawn_count = 0
+        pending_amount = settled_amount = withdrawn_amount = 0.0
+        monthly_total = 0.0
+        for item in items:
+            monthly_total += item.amount
+            if item.status == "pending":
+                pending_count += 1
+                pending_amount += item.amount
+            elif item.status == "settled":
+                settled_count += 1
+                settled_amount += item.amount
+            elif item.status == "withdrawn":
+                withdrawn_count += 1
+                withdrawn_amount += item.amount
+        return RoyaltyStats(
+            pending_count=pending_count,
+            pending_amount=pending_amount,
+            settled_count=settled_count,
+            settled_amount=settled_amount,
+            withdrawn_count=withdrawn_count,
+            withdrawn_amount=withdrawn_amount,
+            monthly_total=monthly_total,
+        )
