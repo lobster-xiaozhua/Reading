@@ -55,3 +55,32 @@ jobs:
       - name: Test
         run: pnpm run test
 
+  backend:
+    name: Backend Lint · Import · Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ruff lint
+        run: ruff check app/ tests/
+
+      - name: Import check
+        run: python -c "import app.main"
+
+      - name: Pytest
+        run: python -m pytest tests/ -v --tb=short
+
+
