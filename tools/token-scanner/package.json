@@ -14,7 +14,7 @@
     "audit": "node dist/import-audit.js --root apps/admin",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint placeholder'",
-    "test": "node --import tsx --test 'src/**/*.test.ts'"
+    "test": "node --import tsx --test src/__tests__/"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",

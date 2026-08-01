@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { tokens } from '../index.js';
+import { tokens } from '../index';
 
 test('tokens 对象包含完整的 L1 Primitive 色阶', () => {
   assert.equal(tokens.color.brand.brand7, '#1890FF', '主品牌色应为 #1890FF');

@@ -55,6 +55,6 @@
     "dev": "pnpm run build -- --watch",
     "typecheck": "tsc --noEmit",
     "lint": "echo 'lint placeholder'",
-    "test": "node --import tsx --test 'src/**/*.test.ts'"
+    "test": "node --import tsx --test src/__tests__/"
   }
 }
