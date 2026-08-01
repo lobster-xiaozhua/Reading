@@ -4,6 +4,7 @@
 """
 
 import logging
+import time
 from collections import defaultdict
 from datetime import date, timedelta
 
@@ -35,7 +36,7 @@ class ChartService:
     # ── 工作台趋势 ─────────────────────────────────────────
     async def get_workbench_trend(self, days: int = 7) -> list[TrendPoint]:
         start = date.today() - timedelta(days=days)
-        start_ts = int(start.strftime("%s")) * 1000
+        start_ts = int(time.mktime(start.timetuple())) * 1000
         # 作品新增趋势
         novel_stmt = (
             select(Novel.created_at)
@@ -61,7 +62,8 @@ class ChartService:
 
     # ── 字数增长 ─────────────────────────────────────────
     async def get_word_count_growth(self, days: int = 30) -> WordCountTrend:
-        start_ts = int((date.today() - timedelta(days=days)).strftime("%s")) * 1000
+        start_date = date.today() - timedelta(days=days)
+        start_ts = int(time.mktime(start_date.timetuple())) * 1000
         stmt = (
             select(Chapter.published_at, Chapter.word_count)
             .where(

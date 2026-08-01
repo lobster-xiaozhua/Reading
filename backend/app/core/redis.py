@@ -16,6 +16,7 @@ class CacheKeys:
     CATEGORIES = "c:categories"
     TAGS = "c:tags"
     HOT_SEARCHES = "c:search:hot"
+    SEARCH_HOT_ZSET = "c:search:hot:zset"
 
     @staticmethod
     def book(book_id: int) -> str:

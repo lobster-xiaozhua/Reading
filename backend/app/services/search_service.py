@@ -95,7 +95,7 @@ class SearchService:
 
         # 从 ZSet 取 Top N
         try:
-            hot = await self.redis.zrevrange("search:hot", 0, limit - 1)
+            hot = await self.redis.zrevrange(CacheKeys.SEARCH_HOT_ZSET, 0, limit - 1)
             result = [h for h in hot if h]
         except Exception:
             result = []
@@ -127,7 +127,7 @@ class SearchService:
 
     async def _record_search(self, keyword: str) -> None:
         try:
-            await self.redis.zincrby("search:hot", 1.0, keyword)
+            await self.redis.zincrby(CacheKeys.SEARCH_HOT_ZSET, 1.0, keyword)
         except Exception:
             logger.debug("搜索词频记录失败 keyword=%s", keyword, exc_info=True)
 

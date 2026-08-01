@@ -5,6 +5,7 @@ KPI 走 Redis 计数器，趋势走按日聚合查询。
 """
 
 import logging
+import time
 from datetime import date, timedelta
 
 import redis.asyncio as redis
@@ -61,7 +62,8 @@ class WorkbenchService:
 
     # ── 字数趋势 ─────────────────────────────────────────
     async def get_word_count_trend(self, days: int = 30) -> WordCountTrend:
-        start_ts = int((date.today() - timedelta(days=days)).strftime("%s")) * 1000
+        start_date = date.today() - timedelta(days=days)
+        start_ts = int(time.mktime(start_date.timetuple())) * 1000
         stmt = (
             select(Chapter.published_at, Chapter.word_count)
             .where(

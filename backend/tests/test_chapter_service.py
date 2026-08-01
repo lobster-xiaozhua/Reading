@@ -54,6 +54,50 @@ class TestWordCount:
         _total, pure, _punct = _count_words("<p>测试文本</p>")
         assert pure == 4
 
+    def test_with_punctuation(self):
+        """含标点符号的文本：纯文字 < 含标点字数。"""
+        total, pure, punct = _count_words("你好，世界！Hello, World!")
+        # 纯文字：你好世界HelloWorld = 4 + 10 = 14
+        assert pure == 14
+        # 含标点：所有非空白字符
+        assert punct > pure
+        # 总字数与含标点字数一致（当前实现）
+        assert total == punct
+
+    def test_with_whitespace(self):
+        """含空白字符的文本：空白不计入字数。"""
+        total, pure, punct = _count_words("  你好 世界  hello  world  ")
+        # 纯文字：你好世界helloworld = 4 + 10 = 14
+        assert pure == 14
+        # 含标点（非空白字符）：14
+        assert punct == 14
+        # 总字数与含标点字数一致
+        assert total == punct
+
+    def test_mixed_html_and_punctuation(self):
+        """混合 HTML 标签与标点的文本。"""
+        total, pure, punct = _count_words(
+            '<p class="intro">这是<strong>第一段</strong>，包含标点符号！</p>'
+        )
+        # 纯文字：这是第一段包含标点符号 = 11
+        assert pure == 11
+        # 含标点：去除 HTML 和空白后的字符数 > 纯文字
+        assert punct > pure
+        assert total == punct
+
+    def test_only_punctuation(self):
+        """只有标点符号的文本：纯文字为 0。"""
+        total, pure, punct = _count_words("，。！？；：")
+        assert pure == 0
+        assert punct == 6
+        assert total == punct
+
+    def test_numbers_counted_as_pure(self):
+        """数字计入纯文字字数。"""
+        _total, pure, _punct = _count_words("第123章")
+        # 第 + 123 + 章 = 1 + 3 + 1 = 5
+        assert pure == 5
+
 
 class TestChapterServiceList:
     async def test_list_chapters(self, svc, db_session):

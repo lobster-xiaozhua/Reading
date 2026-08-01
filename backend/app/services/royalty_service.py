@@ -99,15 +99,28 @@ class RoyaltyService:
         return {r[0]: r[1] for r in rows}
 
     async def _assert_status(self, ids: list[int], expected: str) -> None:
+        """预校验：所有记录必须处于 expected 状态，否则抛出业务异常。
+
+        Args:
+            ids: 稿费记录 ID 列表
+            expected: 期望的状态
+
+        Raises:
+            BizError: 存在状态不符合预期的记录
+        """
         if not ids:
             return
         stmt = select(RoyaltyDetail.id, RoyaltyDetail.status).where(
             RoyaltyDetail.id.in_(ids)
         )
         rows = (await self.session.execute(stmt)).all()
-        for _rid, status in rows:
-            if status != expected:
-                RoyaltyStateMachine.assert_transition(status, expected)
+        invalid_ids = [str(rid) for rid, status in rows if status != expected]
+        if invalid_ids:
+            from app.core.exceptions import BizError, ErrorCode
+            raise BizError(
+                ErrorCode.NOVEL_STATUS_INVALID,
+                f"记录 {', '.join(invalid_ids)} 状态不是 {expected}，无法执行操作",
+            )
 
     @staticmethod
     def _calc_stats(items: list[RoyaltyDetailItem]) -> RoyaltyStats:
