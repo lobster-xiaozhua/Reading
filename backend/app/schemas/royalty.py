@@ -10,6 +10,7 @@ class RoyaltyDetailItem(CamelModel):
     id: str
     month: str
     novel_id: str
+    novel_title: str = ""
     author_id: str
     author_name: str = ""
     chapter_count: int

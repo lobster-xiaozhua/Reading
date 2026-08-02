@@ -1,9 +1,11 @@
 /* ============================================================
- * P5-2 · 内容审核 Mock API（P6/P8 接真实 API 后替换）
+ * B 端内容审核 API：对接后端 /api/v1/b/audits 真实接口
+ * 响应统一 { code, message, data, traceId }，由 http 客户端解包
  * 待审队列 + 敏感词清单 + 审核历史 + 提交审核结果
  * Source: 04 §5.6 / P5-2
  * ============================================================ */
 
+import { http } from './http';
 import type { AuditLevel, AuditResult, RejectReason } from '@novel/types';
 
 /** 敏感词等级 */
@@ -70,6 +72,38 @@ export interface AuditQueueStats {
   byLevel: Record<AuditLevel, number>;
 }
 
+/** 后端审核队列条目 */
+interface BackendAuditItem {
+  id: string;
+  targetType?: string;
+  targetId?: string;
+  level: AuditLevel;
+  status?: string;
+  targetTitle?: string;
+  chapterTitle?: string;
+  novelTitle?: string;
+  author?: string;
+  content?: string;
+  wordCount?: number;
+  sensitiveHits?: SensitiveHit[];
+  submittedAt?: number;
+  processedAt?: number;
+}
+
+interface BackendAuditQueue {
+  list: BackendAuditItem[];
+  stats: AuditQueueStats;
+}
+
+interface BackendHistoryItem {
+  id: string;
+  operatorName: string;
+  result: string;
+  comment: string;
+  rejectReason: string;
+  createdAt: number;
+}
+
 /** 审核级别选项 */
 export const AUDIT_LEVEL_OPTIONS: { label: string; value: AuditLevel | 'all' }[] = [
   { label: '全部', value: 'all' },
@@ -117,91 +151,18 @@ export const REJECT_REASON_OPTIONS: { label: string; value: RejectReason }[] = [
   { label: '其他', value: 'other' },
 ];
 
-/** 章节正文片段（含敏感词） */
-const SAMPLE_CONTENTS = [
-  '夜色如墨，少年独自立于山巅，望着远方那道冲天剑光，眼中闪过一丝决然。他握紧手中长刀，向那神秘组织发起最后的冲锋。血液染红了青石板路，但他心中的信念从未动摇。',
-  '酒楼之中，少年翻看着手中的秘籍，眉头紧锁。这其中的奥妙，远超他的想象。正当他沉思之际，楼下突然传来一阵喧嚣，似乎有人在推销什么违禁药品，让他眉头一皱。',
-  '城外百里，敌军压境，少年立于城墙之上，望着那黑压压的一片。他知道，这一战避无可避。剑光一闪，第一波进攻被击退，但他的心中却隐隐感到一丝不安。',
-  '皇宫深处，那位神秘的贵妃正与一名黑衣人密谋。"这件事，必须在天亮前办妥。"她低声说道。黑衣人点头，转身消失在夜色之中，留下贵妃独自凝视着那杯毒酒。',
-  '突破的瞬间，丹田中那枚金丹开始缓缓转动。少年强忍着经脉中的剧痛，引导体内灵力汇聚。这一刻，他仿佛听到了大道的回响，师父的话再次回响在耳畔。',
-];
-
-/** 敏感词池 */
-const SENSITIVE_WORDS: { text: string; level: SensitiveLevel; suggestion: string }[] = [
-  { text: '神秘组织', level: 1, suggestion: '涉政敏感词，建议替换为「帮派」或「门派」' },
-  { text: '违禁药品', level: 1, suggestion: '涉政敏感词，建议删除或替换为「丹药」' },
-  { text: '毒酒', level: 2, suggestion: '暴力元素，建议弱化描写' },
-  { text: '血液染红', level: 2, suggestion: '暴力描写，建议改为「汗水湿透」' },
-  { text: '敌军压境', level: 3, suggestion: '可人工判断，建议保留但留意上下文' },
-];
-
-/** 生成 mock 待审队列 */
-let MOCK_QUEUE: AuditItem[] = [];
-let HISTORY_MAP: Map<string, AuditHistoryEntry[]> = new Map();
-let TODAY_PROCESSED = 0;
-
-function initQueue() {
-  if (MOCK_QUEUE.length > 0) return;
-  const now = Date.now();
-  const levels: AuditLevel[] = ['first', 'second', 'final'];
-  const novelTitles = ['斗破苍穹', '凡人修仙传', '遮天', '诡秘之主', '大奉打更人'];
-  const authors = ['天蚕土豆', '忘语', '辰东', '爱潜水的乌贼', '卖报小郎君'];
-
-  MOCK_QUEUE = Array.from({ length: 12 }).map((_, i) => {
-    const content = SAMPLE_CONTENTS[i % SAMPLE_CONTENTS.length];
-    // 注入敏感词命中
-    const hits: SensitiveHit[] = [];
-    let modifiedContent = content;
-    const wordsToInject = SENSITIVE_WORDS.slice(i % 3, (i % 3) + 2);
-    wordsToInsert: for (const sw of wordsToInject) {
-      const offset = (i * 7 + sw.text.length) % Math.max(1, modifiedContent.length - sw.text.length);
-      modifiedContent =
-        modifiedContent.slice(0, offset) + sw.text + modifiedContent.slice(offset);
-      hits.push({
-        text: sw.text,
-        level: sw.level,
-        offset,
-        suggestion: sw.suggestion,
-      });
-    }
-    return {
-      id: `audit-${String(i + 1).padStart(4, '0')}`,
-      chapterTitle: `第 ${i + 100} 章 ${['风云再起', '暗流涌动', '决战之巅', '归隐山林', '重返巅峰'][i % 5]}`,
-      novelTitle: novelTitles[i % novelTitles.length],
-      author: authors[i % authors.length],
-      level: levels[i % 3],
-      submittedAt: now - i * 1800000,
-      content: modifiedContent,
-      sensitiveHits: hits.sort((a, b) => a.offset - b.offset),
-      wordCount: content.length,
-    };
-  });
-
-  // 预填审核历史
-  MOCK_QUEUE.slice(0, 5).forEach((item, i) => {
-    HISTORY_MAP.set(item.id, [
-      {
-        id: `hist-${item.id}-1`,
-        time: new Date(now - i * 3600000 - 1800000).toLocaleString('zh-CN'),
-        operator: '系统',
-        result: 'approve',
-        comment: '初审通过，进入复审。',
-      },
-      ...(i % 3 === 0
-        ? [{
-            id: `hist-${item.id}-2`,
-            time: new Date(now - i * 3600000 - 900000).toLocaleString('zh-CN'),
-            operator: '审核员B',
-            result: 'revise' as AuditResult,
-            comment: '请作者确认第 3 段细节描写。',
-          }]
-        : []),
-    ]);
-  });
-}
-
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+function mapItem(raw: BackendAuditItem): AuditItem {
+  return {
+    id: String(raw.id ?? ''),
+    chapterTitle: raw.chapterTitle || raw.targetTitle || '',
+    novelTitle: raw.novelTitle || '',
+    author: raw.author || '',
+    level: raw.level ?? 'first',
+    submittedAt: Number(raw.submittedAt ?? 0),
+    content: raw.content ?? '',
+    sensitiveHits: raw.sensitiveHits ?? [],
+    wordCount: Number(raw.wordCount ?? 0),
+  };
 }
 
 /** 拉取待审队列 */
@@ -209,52 +170,38 @@ export async function fetchAuditQueue(level: AuditLevel | 'all' = 'all'): Promis
   list: AuditItem[];
   stats: AuditQueueStats;
 }> {
-  await delay(300);
-  initQueue();
-  const list = level === 'all' ? [...MOCK_QUEUE] : MOCK_QUEUE.filter((i) => i.level === level);
-  const byLevel: Record<AuditLevel, number> = { first: 0, second: 0, final: 0 };
-  MOCK_QUEUE.forEach((i) => { byLevel[i.level]++; });
+  const data = await http.get<BackendAuditQueue>('/audits/queue', { level });
   return {
-    list,
-    stats: {
-      pendingCount: MOCK_QUEUE.length,
-      todayProcessed: TODAY_PROCESSED,
-      byLevel,
-    },
+    list: (data.list ?? []).map(mapItem),
+    stats: data.stats ?? { pendingCount: 0, todayProcessed: 0, byLevel: { first: 0, second: 0, final: 0 } },
   };
 }
 
 /** 拉取审核历史 */
 export async function fetchAuditHistory(itemId: string): Promise<AuditHistoryEntry[]> {
-  await delay(150);
-  return HISTORY_MAP.get(itemId) ?? [];
+  const data = await http.get<BackendHistoryItem[]>(`/audits/${itemId}/history`);
+  return (data ?? []).map((h) => ({
+    id: String(h.id),
+    time: h.createdAt ? new Date(h.createdAt).toLocaleString('zh-CN') : '',
+    operator: h.operatorName,
+    result: h.result as AuditResult,
+    comment: h.comment || undefined,
+    rejectReason: (h.rejectReason as RejectReason) || undefined,
+  }));
 }
 
 /** 提交审核结果 */
 export async function submitAudit(params: AuditSubmitParams): Promise<{ success: boolean; nextId?: string }> {
-  await delay(500);
-  initQueue();
-  const removedIds = new Set(params.ids);
-  MOCK_QUEUE = MOCK_QUEUE.filter((i) => !removedIds.has(i.id));
-  TODAY_PROCESSED += params.ids.length;
-
-  // 记录历史（针对每条）
-  params.ids.forEach((id) => {
-    const history = HISTORY_MAP.get(id) ?? [];
-    history.push({
-      id: `hist-${id}-${Date.now()}`,
-      time: new Date().toLocaleString('zh-CN'),
-      operator: '当前管理员',
+  const data = await http.post<{ success: boolean; nextId?: string | null; failed?: { id: string; reason: string }[] }>(
+    '/audits/submit',
+    {
+      ids: params.ids,
       result: params.result,
       comment: params.comment,
-      rejectReason: params.rejectReason,
-    });
-    HISTORY_MAP.set(id, history);
-  });
-
-  // 返回下一条待审 ID（连续处理）
-  const next = MOCK_QUEUE[0];
-  return { success: true, nextId: next?.id };
+      rejectReason: params.rejectReason ?? null,
+    },
+  );
+  return { success: data.success, nextId: data.nextId ?? undefined };
 }
 
 /**

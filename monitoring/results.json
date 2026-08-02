@@ -1,0 +1,1654 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/workspace/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config=monitoring/playwright.config.ts"
+    ],
+    "configFile": "/workspace/monitoring/playwright.config.ts",
+    "rootDir": "/workspace/monitoring/checks",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "backend",
+        "name": "backend",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/health*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "api-b-end",
+        "name": "api-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "api-c-end",
+        "name": "api-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "pages-b-end",
+        "name": "pages-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "pages-c-end",
+        "name": "pages-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "business-flow",
+        "name": "business-flow",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/business-flow*.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "./results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "health.ts",
+      "file": "health.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "后端健康巡检",
+          "file": "health.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "/health 端点正常",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 77,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:41.089Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-419fe9591d03d9c3f6cf",
+              "file": "health.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "C 端 API 根路径可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 39,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:41.241Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-5016253b2af0ee532a05",
+              "file": "health.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "B 端 API 根路径可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 22,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:41.300Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-2f5e504a87d2971bdb01",
+              "file": "health.ts",
+              "line": 21,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "api.b-end.ts",
+      "file": "api.b-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "B 端 API 巡检",
+          "file": "api.b-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "作品列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 59,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:41.949Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-42ee0a80c48b85746898",
+              "file": "api.b-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "作品分类接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 35,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.069Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-4e8f852aca7ee7552beb",
+              "file": "api.b-end.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "工作台 KPI 接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.125Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-fef55ed37091cfc8a590",
+              "file": "api.b-end.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "工作台趋势接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.167Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-d8efdfca51365f53b083",
+              "file": "api.b-end.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "审核队列接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.214Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-3957edab43a5143654bb",
+              "file": "api.b-end.ts",
+              "line": 35,
+              "column": 7
+            },
+            {
+              "title": "用户列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.247Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-3b738dfbd9055cb9fb6f",
+              "file": "api.b-end.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "角色列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 18,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.277Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-dde2a36e97a21775bdde",
+              "file": "api.b-end.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "系统配置接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.307Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-bfa6a1bae794f28033bf",
+              "file": "api.b-end.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "稿费列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 37,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.335Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-81adc74f019d734b6c01",
+              "file": "api.b-end.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "敏感词库接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.385Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-76191b232121bbe60dff",
+              "file": "api.b-end.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "图表数据接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.410Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-ae40f6bcb6ef5f08618c",
+              "file": "api.b-end.ts",
+              "line": 69,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "api.c-end.ts",
+      "file": "api.c-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "C 端 API 巡检",
+          "file": "api.c-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "书籍列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 57,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:42.991Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-8abc08dda4043bc482ec",
+              "file": "api.c-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "分类页书籍接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 36,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.091Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-c6afd2c98e8b1c80491c",
+              "file": "api.c-end.ts",
+              "line": 15,
+              "column": 7
+            },
+            {
+              "title": "书籍详情接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 31,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.152Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-fedbcddd7b4869983a0a",
+              "file": "api.c-end.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "书籍章节列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 23,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.199Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-414393959b096ea46e88",
+              "file": "api.c-end.ts",
+              "line": 27,
+              "column": 7
+            },
+            {
+              "title": "书籍章节内容接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 17,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.240Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-fc52fbfd6de38d94eb74",
+              "file": "api.c-end.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "书籍评论接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.272Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-5090ab581d4e1b2330d6",
+              "file": "api.c-end.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "书籍评分分布接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 16,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.305Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-99f83de0cf74758bc7fe",
+              "file": "api.c-end.ts",
+              "line": 44,
+              "column": 7
+            },
+            {
+              "title": "相关推荐接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 14,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.333Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-29387ec41ed4b8fdcf9e",
+              "file": "api.c-end.ts",
+              "line": 49,
+              "column": 7
+            },
+            {
+              "title": "发现页接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.359Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-987e7a83a8e65caa9ad4",
+              "file": "api.c-end.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "热搜接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.390Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-64d56b7c1a2098d520d6",
+              "file": "api.c-end.ts",
+              "line": 61,
+              "column": 7
+            },
+            {
+              "title": "搜索接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 11,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.413Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-1faf733c2d8c774383b7",
+              "file": "api.c-end.ts",
+              "line": 66,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "pages.b-end.ts",
+      "file": "pages.b-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "B 端页面巡检",
+          "file": "pages.b-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "登录页正常渲染",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-b-end",
+                  "projectName": "pages-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1948,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:43.977Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce4407a4950a14a66aba-d9b8b4519895e4fadece",
+              "file": "pages.b-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "404 页面正常渲染",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-b-end",
+                  "projectName": "pages-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1460,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:46.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce4407a4950a14a66aba-a599a6b1e1a41d21aa47",
+              "file": "pages.b-end.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "控制台无重大错误",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-b-end",
+                  "projectName": "pages-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1206,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:47.692Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ce4407a4950a14a66aba-b39c71278ee4a6059366",
+              "file": "pages.b-end.ts",
+              "line": 16,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "pages.c-end.ts",
+      "file": "pages.c-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "C 端页面巡检",
+          "file": "pages.c-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "首页发现页正常渲染",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1619,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:49.552Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-c95ae7638d98ae15de67",
+              "file": "pages.c-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "登录页正常渲染",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1362,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:51.328Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-47d1139e1fefb176662e",
+              "file": "pages.c-end.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "书籍详情页可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1055,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:52.706Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-6d486721a5104e9152f3",
+              "file": "pages.c-end.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "分类页可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1015,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:53.781Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-9675cd3f20822c915bcf",
+              "file": "pages.c-end.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "搜索页可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1051,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:54.825Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-5b44aba447c6c9c61176",
+              "file": "pages.c-end.ts",
+              "line": 26,
+              "column": 7
+            },
+            {
+              "title": "404 页面正常渲染",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 858,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:55.891Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-bba50986d5f1f79580a5",
+              "file": "pages.c-end.ts",
+              "line": 31,
+              "column": 7
+            },
+            {
+              "title": "控制台无重大错误",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "pages-c-end",
+                  "projectName": "pages-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 941,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:56.767Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "3a0c0f0cd1a971495dd8-42cf0b852820b7dabc6c",
+              "file": "pages.c-end.ts",
+              "line": 36,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "business-flow.ts",
+      "file": "business-flow.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "业务链路巡检",
+          "file": "business-flow.ts",
+          "line": 7,
+          "column": 6,
+          "specs": [
+            {
+              "title": "完整链路: 健康检查 → C 端书籍列表 → 书籍详情 → 章节",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 107,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:58.486Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-52fff0c9a215b6946413",
+              "file": "business-flow.ts",
+              "line": 8,
+              "column": 7
+            },
+            {
+              "title": "完整链路: B 端作品列表 → 工作台 → 系统配置",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 38,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:58.647Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-cfe88632182c55cc760a",
+              "file": "business-flow.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "C 端阅读全流程: 首页 → 书籍详情 → 阅读页",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2684,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:20:58.717Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-f3d705da5b8fbfcd53c5",
+              "file": "business-flow.ts",
+              "line": 49,
+              "column": 7
+            },
+            {
+              "title": "B 端完整操作: 登录页 → 作品管理 → 章节管理",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2930,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:21:01.521Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-8c6985affd865cbd290f",
+              "file": "business-flow.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "B 端管理功能: 审核 → 用户 → 角色权限",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13811,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:21:04.471Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-b0d8d53098d10d285848",
+              "file": "business-flow.ts",
+              "line": 71,
+              "column": 7
+            },
+            {
+              "title": "C 端用户路径: 搜索 → 分类 → 个人中心",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "business-flow",
+                  "projectName": "business-flow",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6310,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-02T13:21:19.276Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "61ce14ef57ce14d0b85e-cc8bac669e297b4a4b29",
+              "file": "business-flow.ts",
+              "line": 82,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-02T13:20:40.393Z",
+    "duration": 46842.687999999995,
+    "expected": 41,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

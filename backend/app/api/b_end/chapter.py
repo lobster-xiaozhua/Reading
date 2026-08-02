@@ -25,23 +25,23 @@ router = APIRouter()
 @router.get("/novels/{novel_id}/chapters")
 async def list_chapters(
     request: Request,
-    novel_id: str,
+    novel_id: int,
     _admin=Depends(require_permission("chapter.list")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.list_chapters(int(novel_id)))
+    return ok(request, await svc.list_chapters(novel_id))
 
 
 @router.get("/chapters/{chapter_id}")
 async def get_chapter_detail(
     request: Request,
-    chapter_id: str,
+    chapter_id: int,
     _admin=Depends(require_permission("chapter.list")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.get_detail(int(chapter_id)))
+    return ok(request, await svc.get_detail(chapter_id))
 
 
 @router.post("/chapters")
@@ -58,37 +58,37 @@ async def create_chapter(
 @router.patch("/chapters/{chapter_id}")
 async def update_chapter(
     request: Request,
-    chapter_id: str,
+    chapter_id: int,
     body: ChapterUpdateBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.update_chapter(int(chapter_id), body))
+    return ok(request, await svc.update_chapter(chapter_id, body))
 
 
 @router.post("/novels/{novel_id}/chapters/reorder")
 async def reorder_chapters(
     request: Request,
-    novel_id: str,
+    novel_id: int,
     body: ChapterReorderBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.reorder_chapters(int(novel_id), body))
+    return ok(request, await svc.reorder_chapters(novel_id, body))
 
 
 @router.post("/chapters/{chapter_id}/transition")
 async def transition_chapter(
     request: Request,
-    chapter_id: str,
+    chapter_id: int,
     body: ChapterTransitionBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.transition(int(chapter_id), body))
+    return ok(request, await svc.transition(chapter_id, body))
 
 
 @router.post("/chapters/batch-operate")
@@ -105,10 +105,10 @@ async def batch_operate_chapters(
 @router.delete("/chapters/{chapter_id}")
 async def delete_chapter(
     request: Request,
-    chapter_id: str,
+    chapter_id: int,
     title_match: str = Query("", description="已发布章节需标题匹配"),
     _admin=Depends(require_permission("chapter.delete")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.delete_chapter(int(chapter_id), title_match))
+    return ok(request, await svc.delete_chapter(chapter_id, title_match))

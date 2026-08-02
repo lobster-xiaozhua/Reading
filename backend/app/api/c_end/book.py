@@ -43,68 +43,70 @@ async def get_category_books(
 @router.get("/books/{book_id}")
 async def get_book(
     request: Request,
-    book_id: str,
+    book_id: int,
     db: AsyncSession = Depends(get_db),
 ):
     svc = BookService(db, await get_redis_client())
-    return ok(request, await svc.get_book(int(book_id)))
+    return ok(request, await svc.get_book(book_id))
 
 
 @router.get("/books/{book_id}/chapters")
 async def get_chapters(
     request: Request,
-    book_id: str,
+    book_id: int,
     db: AsyncSession = Depends(get_db),
 ):
     svc = BookService(db, await get_redis_client())
-    return ok(request, await svc.get_chapters(int(book_id)))
+    return ok(request, await svc.get_chapters(book_id))
 
 
 @router.get("/books/{book_id}/chapters/{chapter_id}")
 async def get_chapter(
     request: Request,
-    book_id: str,
-    chapter_id: str,
+    book_id: int,
+    chapter_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     """获取章节正文，VIP 章节需校验读者会员状态。"""
+    import time
+    from app.models.user import Reader
+    reader = await db.get(Reader, reader_id)
+    reader_vip = bool(reader and reader.is_vip and reader.vip_expire_at > int(time.time() * 1000))
     svc = BookService(db, await get_redis_client())
-    # 简化：查询读者是否 VIP（demo 环境默认非 VIP）
-    reader_vip = False
     return ok(
         request,
-        await svc.get_chapter(int(book_id), int(chapter_id), reader_vip=reader_vip),
+        await svc.get_chapter(book_id, chapter_id, reader_vip=reader_vip),
     )
 
 
 @router.get("/books/{book_id}/related")
 async def get_related_books(
     request: Request,
-    book_id: str,
+    book_id: int,
     limit: int = Query(6, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
 ):
     svc = BookService(db, await get_redis_client())
-    return ok(request, await svc.get_related_books(int(book_id), limit))
+    return ok(request, await svc.get_related_books(book_id, limit))
 
 
 @router.get("/books/{book_id}/comments")
 async def get_comments(
     request: Request,
-    book_id: str,
+    book_id: int,
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     svc = BookService(db, await get_redis_client())
-    return ok(request, await svc.get_comments(int(book_id), limit))
+    return ok(request, await svc.get_comments(book_id, limit))
 
 
 @router.get("/books/{book_id}/rating-distribution")
 async def get_rating_distribution(
     request: Request,
-    book_id: str,
+    book_id: int,
     db: AsyncSession = Depends(get_db),
 ):
     svc = BookService(db, await get_redis_client())
-    return ok(request, await svc.get_rating_distribution(int(book_id)))
+    return ok(request, await svc.get_rating_distribution(book_id))

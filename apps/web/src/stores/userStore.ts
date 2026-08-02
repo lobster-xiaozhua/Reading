@@ -31,17 +31,36 @@ export const useUserStore = create<UserState>()(
 
       loadUser: async () => {
         set({ loading: true });
-        const user = await fetcher.getCurrentUser();
-        set({ user, loading: false });
+        try {
+          const [user, shelf] = await Promise.all([
+            fetcher.getCurrentUser(),
+            fetcher.getBookshelf('all'),
+          ]);
+          set({
+            user,
+            bookshelfIds: shelf.map((b) => b.id),
+            loading: false,
+          });
+        } catch {
+          set({ loading: false });
+        }
       },
 
-      toggleBookshelf: (bookId) => {
+      toggleBookshelf: async (bookId) => {
         const ids = get().bookshelfIds;
-        set({
-          bookshelfIds: ids.includes(bookId)
-            ? ids.filter((id) => id !== bookId)
-            : [...ids, bookId],
-        });
+        const adding = !ids.includes(bookId);
+        try {
+          if (adding) {
+            await fetcher.addToBookshelf(bookId);
+          } else {
+            await fetcher.removeFromBookshelf(bookId);
+          }
+          set({
+            bookshelfIds: adding ? [...ids, bookId] : ids.filter((id) => id !== bookId),
+          });
+        } catch {
+          // 同步失败保持原状态
+        }
       },
 
       isInBookshelf: (bookId) => get().bookshelfIds.includes(bookId),

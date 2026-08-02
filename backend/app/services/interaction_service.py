@@ -117,10 +117,12 @@ class InteractionService:
         await self.session.commit()
         return str(comment.id)
 
-    async def like_comment(self, comment_id: int) -> bool:
+    async def like_comment(self, comment_id: int, reader_id: int) -> bool:
         comment = await self.session.get(CommentModel, comment_id)
         if not comment:
             raise NotFoundError("评论不存在")
+        if comment.reader_id == reader_id:
+            return True
         comment.likes += 1
         await self.session.commit()
         return True

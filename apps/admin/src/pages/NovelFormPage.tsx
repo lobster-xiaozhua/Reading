@@ -6,41 +6,21 @@
  * Source: 04 §5.4 / P4-4
  * ============================================================ */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Input, Select, Radio, Switch, InputNumber, Tree, Upload, Card, App } from 'antd';
-import type { UploadFile } from 'antd';
+import type { UploadFile, TreeDataNode } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import type { BNovelStatus } from '@novel/types';
 import { FormPageTemplate } from '@/templates/FormPageTemplate';
 import type { FormPageStatus } from '@/templates/FormPageTemplate';
 import { fetchNovelDetail, submitNovel, NOVEL_CATEGORIES } from '@/api/novel-api';
 import type { NovelFormValues } from '@/api/novel-api';
+import { http } from '@/api/http';
 
 const { TextArea } = Input;
 
-/** VIP 章节树 mock 数据 */
-const VIP_CHAPTER_TREE = [
-  {
-    title: '第一卷',
-    key: 'vol-1',
-    children: [
-      { title: '第 1 章 开篇', key: 'ch-1' },
-      { title: '第 2 章 起步', key: 'ch-2' },
-      { title: '第 3 章 机遇', key: 'ch-3' },
-    ],
-  },
-  {
-    title: '第二卷',
-    key: 'vol-2',
-    children: [
-      { title: '第 4 章 转折', key: 'ch-4' },
-      { title: '第 5 章 突破', key: 'ch-5' },
-    ],
-  },
-];
-
-const CATEGORY_CASCADER = NOVEL_CATEGORIES.filter((c) => c.value !== 'all').map((c) => ({
+const CATEGORY_OPTIONS = NOVEL_CATEGORIES.filter((c) => c.value !== 'all').map((c) => ({
   value: c.value,
   label: c.label,
 }));
@@ -49,10 +29,29 @@ export default function NovelFormPage() {
   const { novelId } = useParams<{ novelId: string }>();
   const navigate = useNavigate();
   const { message } = App.useApp();
-  const [form] = Form.useForm<NovelFormValues>();
-  const [status, setStatus] = useState<FormPageStatus>('loading');
+  const [form] = Form.useForm();
+  const [status, setStatus] = useState<FormPageStatus>('editing');
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [chapterTree, setChapterTree] = useState<TreeDataNode[]>([]);
   const isEdit = Boolean(novelId);
+
+  const loadChapters = useCallback(async (id: string) => {
+    try {
+      const data = await http.get<{ index: number; title: string }[]>(`/novels/${id}/chapters`);
+      if (data && data.length > 0) {
+        setChapterTree([{
+          title: '全部章节',
+          key: 'all',
+          children: data.map((ch: { index: number; title: string }) => ({
+            title: `第 ${ch.index} 章 ${ch.title}`,
+            key: `ch-${ch.index}`,
+          })),
+        }]);
+      }
+    } catch {
+      // 章节加载失败不影响表单
+    }
+  }, []);
 
   useEffect(() => {
     if (!isEdit) {
@@ -64,6 +63,7 @@ export default function NovelFormPage() {
     (async () => {
       try {
         const data = await fetchNovelDetail(novelId!);
+        await loadChapters(novelId!);
         if (cancelled || !data) {
           setStatus('editing');
           return;
@@ -122,7 +122,13 @@ export default function NovelFormPage() {
       message.error('封面图片不能超过 2MB');
       return Upload.LIST_IGNORE;
     }
-    return false; // 阻止自动上传，手动控制
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const dataUrl = e.target?.result as string;
+      form.setFieldValue('cover', dataUrl);
+    };
+    reader.readAsDataURL(file);
+    return false;
   };
 
   return (
@@ -172,7 +178,7 @@ export default function NovelFormPage() {
           label="分类"
           rules={[{ required: true, message: '请选择分类' }]}
         >
-          <Select options={CATEGORY_CASCADER} placeholder="请选择作品分类" />
+          <Select options={CATEGORY_OPTIONS} placeholder="请选择作品分类" />
         </Form.Item>
 
         <Form.Item name="tags" label="标签">
@@ -241,12 +247,13 @@ export default function NovelFormPage() {
           <InputNumber min={0} max={9999} step={10} style={{ width: 200 }} />
         </Form.Item>
 
-        <Form.Item name="vipChapters" label="VIP 章节">
+        <Form.Item name="vipChapters" label="VIP 章节" getValueFromEvent={(checkedKeys) => checkedKeys as string[]}>
           <Tree
             checkable
             defaultExpandAll
-            treeData={VIP_CHAPTER_TREE}
+            treeData={chapterTree.length > 0 ? chapterTree : [{ title: '暂无章节（保存后可在章节管理中设置）', key: 'empty', disableCheckbox: true, selectable: false }]}
             style={{ maxHeight: 300, overflowY: 'auto' }}
+            onCheck={(checked) => form.setFieldValue('vipChapters', checked as string[])}
           />
         </Form.Item>
       </Card>

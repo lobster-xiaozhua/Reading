@@ -22,6 +22,7 @@ import {
   OFFLINE_REASON_OPTIONS,
   NOVEL_CATEGORIES,
 } from '@/api/novel-api';
+import { http } from '@/api/http';
 import { useAuthStore } from '@/stores/authStore';
 
 const CATEGORY_LABEL = Object.fromEntries(NOVEL_CATEGORIES.map((c) => [c.value, c.label]));
@@ -29,7 +30,7 @@ const CATEGORY_LABEL = Object.fromEntries(NOVEL_CATEGORIES.map((c) => [c.value, 
 export default function NovelDetailPage() {
   const { novelId } = useParams<{ novelId: string }>();
   const navigate = useNavigate();
-  const { modal } = App.useApp();
+  const { modal, message } = App.useApp();
   const hasPermission = useAuthStore((s) => s.hasPermission);
 
   const [status, setStatus] = useState<DetailCardStatus>('loading');
@@ -39,28 +40,40 @@ export default function NovelDetailPage() {
   const [shelveReason, setShelveReason] = useState<OfflineReason>('operation-adjust');
   const [shelveComment, setShelveComment] = useState('');
   const [shelveSubmitting, setShelveSubmitting] = useState(false);
-  const { message } = App.useApp();
-  const [auditHistory] = useState<AuditHistoryItem[]>([
-    { time: '2026-07-30 14:30', operator: '审核员A', result: 'approve', comment: '内容合规，予以通过。' },
-    { time: '2026-07-28 10:15', operator: '审核员B', result: 'revise', comment: '第 5 章存在敏感表述，请修改后重新提交。' },
-    { time: '2026-07-25 09:00', operator: '系统', result: 'approve', comment: '初审通过，进入复审。' },
-  ]);
-  const [comments] = useState<CommentItem[]>([
-    { id: '1', user: '读者甲', content: '剧情紧凑，期待后续更新！', time: '2 小时前', likes: 128 },
-    { id: '2', user: '读者乙', content: '主角设定很新颖，支持作者。', time: '5 小时前', likes: 86 },
-    { id: '3', user: '读者丙', content: '这一章写得太精彩了。', time: '1 天前', likes: 52 },
-  ]);
+  
+  const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
+  const [comments, setComments] = useState<CommentItem[]>([]);
+  const [novelStats, setNovelStats] = useState<{
+    readCount: number; favCount: number; ticketCount: number;
+    rating: number; completionRate: number;
+  } | null>(null);
 
   const loadDetail = useCallback(async () => {
     if (!novelId) return;
     setStatus('loading');
     try {
-      const data = await fetchNovelDetail(novelId);
+      const [data, stats, auditData, commentData] = await Promise.all([
+        fetchNovelDetail(novelId),
+        http.get<{
+          readCount: number; favCount: number; ticketCount: number;
+          rating: number; completionRate: number;
+        }>(`/novels/${novelId}/stats`).catch(() => null),
+        http.get<{ id: string; operatorName: string; result: string; comment: string; createdAt: number }[]>(`/novels/${novelId}/audit-history`).then((items) => items.map((item) => ({
+        time: item.createdAt ? new Date(item.createdAt).toLocaleString('zh-CN') : '未知',
+        operator: item.operatorName,
+        result: item.result as 'approve' | 'revise' | 'reject',
+        comment: item.comment,
+      }))).catch(() => [] as AuditHistoryItem[]),
+        http.get<CommentItem[]>(`/novels/${novelId}/comments`).catch(() => []),
+      ]);
       if (!data) {
         setStatus('not-found');
         return;
       }
       setNovel(data);
+      setNovelStats(stats);
+      setAuditHistory(auditData);
+      setComments(commentData);
       setStatus(data.status === 'offline' ? 'offline' : 'ready');
     } catch {
       setStatus('not-found');
@@ -71,7 +84,7 @@ export default function NovelDetailPage() {
     loadDetail();
   }, [loadDetail]);
 
-  const canEdit = hasPermission('novel.edit' as never);
+  const canEdit = hasPermission('novel.edit');
 
   // P8-3 按状态机分流的工作流操作
   const handleWorkflowAction = () => {
@@ -213,22 +226,22 @@ export default function NovelDetailPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <span style={{ color: 'var(--color-text-secondary)' }}>阅读量</span>
-        <strong>{(novel.wordCount * 12).toLocaleString()}</strong>
+        <strong>{(novelStats?.readCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <span style={{ color: 'var(--color-text-secondary)' }}>收藏数</span>
-        <strong>{(novel.wordCount / 100).toLocaleString()}</strong>
+        <strong>{(novelStats?.favCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <span style={{ color: 'var(--color-text-secondary)' }}>月票</span>
-        <strong>{(novel.wordCount / 50).toLocaleString()}</strong>
+        <strong>{(novelStats?.ticketCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
         <span style={{ color: 'var(--color-text-secondary)' }}>评分</span>
-        <strong>4.{novel.wordCount % 9}</strong>
+        <strong>{novelStats?.rating ? novelStats.rating.toFixed(1) : '-'}</strong>
       </div>
       <div style={{ textAlign: 'center', marginTop: 'var(--space-2)' }}>
-        <Progress type="circle" percent={68 + (novel.wordCount % 20)} size={100} />
+        <Progress type="circle" percent={novelStats?.completionRate ?? 0} size={100} />
         <div style={{ marginTop: 'var(--space-2)', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
           完读率
         </div>

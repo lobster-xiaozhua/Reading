@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { SiderMenu } from './SiderMenu';
 import { HeaderBar } from './HeaderBar';
 import { MultiTabs } from './MultiTabs';
@@ -18,6 +19,23 @@ const { Content } = Layout;
 
 export function BEndLayout() {
   const [collapsed, setCollapsed] = useState(false);
+
+  useHotkeys('/', (e) => {
+    e.preventDefault();
+    const input = document.querySelector<HTMLInputElement>('[data-search-input]');
+    input?.focus();
+  });
+
+  useHotkeys('ctrl+s', (e) => {
+    e.preventDefault();
+    const saveBtn = document.querySelector<HTMLButtonElement>('[data-save-btn]');
+    saveBtn?.click();
+  });
+
+  useHotkeys('escape', () => {
+    const closeBtn = document.querySelector<HTMLElement>('[data-drawer-close], .ant-modal-close');
+    closeBtn?.click();
+  });
 
   return (
     <div className="bend-shell">

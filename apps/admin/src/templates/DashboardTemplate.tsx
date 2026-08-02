@@ -12,7 +12,7 @@ import { BStatisticCard } from '@novel/b-end';
 import type { StatisticTrend } from '@novel/b-end';
 import { useAuthStore } from '@/stores/authStore';
 
-export type DashboardStatus = 'loading' | 'ready' | 'empty' | 'chart-error';
+export type DashboardStatus = 'loading' | 'ready' | 'empty' | 'error' | 'chart-error';
 
 export interface KpiItem {
   key: string;
@@ -136,7 +136,6 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
               trend={kpi.trend}
               trendText={kpi.trendText}
               trendLabel={kpi.trendLabel}
-              loading={isLoading}
             />
           ))
         )}

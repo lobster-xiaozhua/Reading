@@ -9,6 +9,7 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.novel import Novel
 from app.models.royalty import RoyaltyDetail
 from app.models.user import Author
 from app.repositories.royalty_repo import RoyaltyRepository
@@ -18,7 +19,6 @@ from app.schemas.royalty import (
     RoyaltyListResponse,
     RoyaltyStats,
 )
-from app.utils.state_machine import RoyaltyStateMachine
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,9 @@ class RoyaltyService:
         # 补全作者名
         author_ids = list({d.author_id for d in details if d.author_id})
         author_map = await self._get_author_map(author_ids)
+        # 补全作品标题
+        novel_ids = list({d.novel_id for d in details if d.novel_id})
+        novel_map = await self._get_novel_map(novel_ids)
 
         items: list[RoyaltyDetailItem] = []
         for d in details:
@@ -57,6 +60,7 @@ class RoyaltyService:
                     id=str(d.id),
                     month=d.month,
                     novel_id=str(d.novel_id),
+                    novel_title=novel_map.get(d.novel_id, ""),
                     author_id=str(d.author_id),
                     author_name=author_map.get(d.author_id, ""),
                     chapter_count=d.chapter_count,
@@ -95,6 +99,13 @@ class RoyaltyService:
         if not author_ids:
             return {}
         stmt = select(Author.id, Author.pen_name).where(Author.id.in_(author_ids))
+        rows = (await self.session.execute(stmt)).all()
+        return {r[0]: r[1] for r in rows}
+
+    async def _get_novel_map(self, novel_ids: list[int]) -> dict[int, str]:
+        if not novel_ids:
+            return {}
+        stmt = select(Novel.id, Novel.title).where(Novel.id.in_(novel_ids))
         rows = (await self.session.execute(stmt)).all()
         return {r[0]: r[1] for r in rows}
 

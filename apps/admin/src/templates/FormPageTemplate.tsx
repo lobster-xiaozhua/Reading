@@ -5,7 +5,6 @@
  * Source: 04 §5.4（表单页所有断点保持 720px 居中，不随屏幕拉伸）
  * ============================================================ */
 
-import { useRef } from 'react';
 import { Form, Button, Space, Result, Skeleton, Affix } from 'antd';
 import type { FormInstance } from 'antd';
 import { CheckOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
@@ -77,8 +76,6 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
     children,
   } = props;
 
-  const errorScrollRef = useRef<HTMLDivElement>(null);
-
   // 提交成功态
   if (status === 'success') {
     return (
@@ -109,7 +106,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
   const isLoading = status === 'loading';
 
   return (
-    <div className="b-form-page" ref={errorScrollRef}>
+    <div className="b-form-page">
       <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
 
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
@@ -165,6 +162,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                   htmlType="submit"
                   icon={<CheckOutlined />}
                   loading={isSubmitting}
+                  data-save-btn
                 >
                   {submitText}
                 </Button>

@@ -1,11 +1,12 @@
 /* ============================================================
- * P8-2 · 稿费管理 Mock API
+ * P8-2 · 稿费管理 API：对接后端 /royalties 真实接口
  * - 签约模式：buyout 买断 / share 分成 / guarantee-share 保底+分成
  * - 字数口径：含标点字数（与 word-count.ts 对齐，04 §6.21）
  * - 结算状态：pending 待结算 → settled 已结算 → withdrawn 已提现
  * Source: 04 §13.2 / P8-2-1~5
  * ============================================================ */
 
+import { http, ApiError } from './http';
 import type { ContractType, SettlementStatus } from '@novel/types';
 
 /** 稿费明细行（P8-2-4） */
@@ -117,65 +118,39 @@ export const CONTRACT_TYPE_LABEL: Record<ContractType, string> = {
 };
 
 /** 生成 mock 稿费明细 */
-function generateMockDetails(): RoyaltyDetail[] {
-  const novels = [
-    { id: 'n1', title: '斗破苍穹', author: '天蚕土豆', contractType: 'buyout' as ContractType, rate: 50 },
-    { id: 'n2', title: '凡人修仙传', author: '忘语', contractType: 'share' as ContractType, rate: 0.6 },
-    { id: 'n3', title: '遮天', author: '辰东', contractType: 'guarantee-share' as ContractType, rate: 0.5 },
-    { id: 'n4', title: '诡秘之主', author: '爱潜水的乌贼', contractType: 'share' as ContractType, rate: 0.7 },
-    { id: 'n5', title: '大奉打更人', author: '卖报小郎君', contractType: 'buyout' as ContractType, rate: 45 },
-  ];
-  const statuses: SettlementStatus[] = ['pending', 'settled', 'withdrawn'];
-  const now = Date.now();
-  const list: RoyaltyDetail[] = [];
-  let idx = 0;
-  // 最近 3 个月
-  for (let m = 0; m < 3; m++) {
-    const monthDate = new Date();
-    monthDate.setMonth(monthDate.getMonth() - m);
-    const month = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}`;
-    novels.forEach((n) => {
-      const chapterCount = 20 + ((idx * 7) % 15);
-      const wordCount = chapterCount * (2000 + ((idx * 13) % 800));
-      let amount: number;
-      const subscriptionRevenue = 8000 + ((idx * 311) % 6000);
-      if (n.contractType === 'buyout') {
-        amount = Math.ceil(wordCount / 1000) * n.rate;
-      } else if (n.contractType === 'share') {
-        amount = Math.round(subscriptionRevenue * n.rate);
-      } else {
-        // guarantee-share: max(保底, 订阅×分成)
-        const guarantee = 5000;
-        amount = Math.max(guarantee, Math.round(subscriptionRevenue * n.rate));
-      }
-      // 当前月多 pending，往月多 settled/withdrawn
-      const status: SettlementStatus = m === 0 ? statuses[idx % 2] : statuses[(idx % 2) + 1];
-      list.push({
-        id: `roy-${month}-${n.id}`,
-        month,
-        novelId: n.id,
-        novelTitle: n.title,
-        author: n.author,
-        chapterCount,
-        wordCount,
-        contractType: n.contractType,
-        rate: n.rate,
-        subscriptionRevenue: n.contractType !== 'buyout' ? subscriptionRevenue : undefined,
-        amount,
-        status,
-        settledAt: status !== 'pending' ? now - idx * 86400000 : undefined,
-        withdrawnAt: status === 'withdrawn' ? now - idx * 43200000 : undefined,
-      });
-      idx++;
-    });
-  }
-  return list;
+
+interface BackendRoyaltyItem {
+  id: string;
+  month: string;
+  novelId: string;
+  novelTitle?: string;
+  authorId: string;
+  authorName: string;
+  chapterCount: number;
+  wordCount: number;
+  contractType: string;
+  rate: number | null;
+  subscriptionRevenue: number;
+  amount: number;
+  status: string;
+  settledAt: number | null;
+  withdrawnAt: number | null;
 }
 
-let MOCK_DETAILS: RoyaltyDetail[] = generateMockDetails();
+interface BackendRoyaltyStats {
+  pendingCount: number;
+  pendingAmount: number;
+  settledCount: number;
+  settledAmount: number;
+  withdrawnCount: number;
+  withdrawnAmount: number;
+  monthlyTotal: number;
+}
 
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+interface BackendRoyaltyList {
+  list: BackendRoyaltyItem[];
+  total: number;
+  stats: BackendRoyaltyStats;
 }
 
 export interface RoyaltyListParams {
@@ -192,57 +167,67 @@ export interface RoyaltyListResponse {
   stats: RoyaltyStats;
 }
 
+function mapItem(raw: BackendRoyaltyItem): RoyaltyDetail {
+  return {
+    id: raw.id,
+    month: raw.month,
+    novelId: raw.novelId,
+    novelTitle: raw.novelTitle || `作品 ${raw.novelId}`,
+    author: raw.authorName,
+    chapterCount: raw.chapterCount,
+    wordCount: raw.wordCount,
+    contractType: raw.contractType as ContractType,
+    rate: raw.rate ?? 0,
+    subscriptionRevenue: raw.contractType !== 'buyout' ? raw.subscriptionRevenue : undefined,
+    amount: raw.amount,
+    status: raw.status as SettlementStatus,
+    settledAt: raw.settledAt ?? undefined,
+    withdrawnAt: raw.withdrawnAt ?? undefined,
+  };
+}
+
 /** 拉取稿费明细列表 */
 export async function fetchRoyaltyList(params: RoyaltyListParams = {}): Promise<RoyaltyListResponse> {
-  await delay(300);
   const { month, status = 'all', author, page = 1, pageSize = 20 } = params;
-  let filtered = MOCK_DETAILS;
-  if (month) filtered = filtered.filter((r) => r.month === month);
-  if (status !== 'all') filtered = filtered.filter((r) => r.status === status);
-  if (author) filtered = filtered.filter((r) => r.author.includes(author) || r.novelTitle.includes(author));
-
-  const monthlyTotal = filtered.reduce((s, r) => s + r.amount, 0);
-  const pendingTotal = filtered.filter((r) => r.status === 'pending').reduce((s, r) => s + r.amount, 0);
-  const settledTotal = filtered.filter((r) => r.status === 'settled').reduce((s, r) => s + r.amount, 0);
-  const withdrawnTotal = filtered.filter((r) => r.status === 'withdrawn').reduce((s, r) => s + r.amount, 0);
-  const authorSet = new Set(filtered.map((r) => r.author));
-
-  const start = (page - 1) * pageSize;
-  const list = filtered.slice(start, start + pageSize);
-
+  const data = await http.get<BackendRoyaltyList>('/royalties', {
+    month: month ?? '',
+    status,
+    author_name: author ?? '',
+    page,
+    page_size: pageSize,
+  });
+  const list = (data.list ?? []).map(mapItem);
+  const s = data.stats;
   return {
     list,
-    total: filtered.length,
+    total: data.total ?? list.length,
     stats: {
-      monthlyTotal,
-      pendingTotal,
-      settledTotal,
-      withdrawnTotal,
-      authorCount: authorSet.size,
+      monthlyTotal: s?.monthlyTotal ?? 0,
+      pendingTotal: s?.pendingAmount ?? 0,
+      settledTotal: s?.settledAmount ?? 0,
+      withdrawnTotal: s?.withdrawnAmount ?? 0,
+      authorCount: new Set(list.map((r) => r.author)).size,
     },
   };
 }
 
 /** 批量结算 */
 export async function batchSettle(ids: string[]): Promise<{ success: boolean }> {
-  await delay(400);
-  const idSet = new Set(ids);
-  MOCK_DETAILS = MOCK_DETAILS.map((r) =>
-    idSet.has(r.id) && r.status === 'pending'
-      ? { ...r, status: 'settled' as SettlementStatus, settledAt: Date.now() }
-      : r,
-  );
-  return { success: true };
+  try {
+    await http.post('/royalties/batch-settle', { ids: ids.map(Number) });
+    return { success: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { success: false };
+    return { success: false };
+  }
 }
 
 /** 标记已提现 */
 export async function markWithdrawn(ids: string[]): Promise<{ success: boolean }> {
-  await delay(400);
-  const idSet = new Set(ids);
-  MOCK_DETAILS = MOCK_DETAILS.map((r) =>
-    idSet.has(r.id) && r.status === 'settled'
-      ? { ...r, status: 'withdrawn' as SettlementStatus, withdrawnAt: Date.now() }
-      : r,
-  );
-  return { success: true };
+  try {
+    await http.post('/royalties/mark-withdrawn', { ids: ids.map(Number) });
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
 }

@@ -1,36 +1,11 @@
 /* ============================================================
- * P5 · Mock fetcher 接口
- * 模拟网络延迟，所有页面通过此层调用，后续可平替为真实 API
+ * C 端 fetcher：对接后端 /api/v1/c 真实接口
+ * 统一响应体 { code, message, data, traceId }，由 http 客户端解包
  * ============================================================ */
-import {
-  BANNERS,
-  BOOKS,
-  BOOK_LISTS,
-  CATEGORIES,
-  CHAPTERS,
-  COMMENTS,
-  CURRENT_USER,
-  getChapterContent,
-  getRatingDistribution,
-  READING_HISTORY,
-  REWARD_RECORDS,
-  TAGS,
-  HOT_SEARCHES,
-  RANKINGS,
-  RECOMMENDATIONS,
-  TOPICS,
-  REVIEWS,
-  READING_STAT_OVERVIEW,
-  HEATMAP,
-  PREFERENCES,
-  BADGES,
-  VIP_PLANS,
-  PAYMENT_METHODS,
-  FOLLOW_LIST,
-} from './mockData';
+import { http, ApiError } from './http';
 import type {
-  Banner,
   Badge,
+  Banner,
   BookList,
   BookSummary,
   Category,
@@ -39,8 +14,8 @@ import type {
   Comment,
   FollowItem,
   HeatmapCell,
-  PaymentMethodItem,
   PagedResult,
+  PaymentMethodItem,
   PreferenceItem,
   RankItem,
   RatingDistribution,
@@ -57,75 +32,115 @@ import type {
   VipPlan,
 } from './types';
 
-/** 模拟网络延迟 */
-function delay<T>(data: T, ms = 200): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(data), ms));
+/** 后端 /books/{id}/chapters 返回的章节项（bookId 驼峰） */
+interface ChapterListItem {
+  id: string;
+  bookId: string;
+  index: number;
+  title: string;
+  wordCount: number;
+  isVip: boolean;
+  publishedAt: number;
+}
+
+/** 后端书架项：book + 进度 */
+interface BookshelfItem {
+  book: BookSummary;
+  addedAt: number;
+  lastReadChapterIndex: number;
+  percent: number;
+}
+
+/** 后端评论（user.nickname 可能为空串） */
+interface BackendComment extends Comment {}
+
+function toChapterSummary(c: ChapterListItem): ChapterSummary {
+  return { ...c };
+}
+
+function toPaged<T>(items: T[], total: number, page: number, pageSize: number): PagedResult<T> {
+  return { items, total, page, pageSize, hasMore: page * pageSize < total };
 }
 
 export const fetcher = {
+  /* ---------- 读者鉴权 ---------- */
+  auth: {
+    async login(username: string, password: string) {
+      return http.post<{ token: string; user: { id: string; username: string; nickname: string } }>('/auth/login', { username, password });
+    },
+    async register(username: string, password: string, nickname?: string) {
+      return http.post<{ token: string; user: { id: string; username: string; nickname: string } }>('/auth/register', { username, password, nickname: nickname ?? '' });
+    },
+    async getMe() {
+      return http.get<{ id: string; username: string; nickname: string; avatar: string }>('/auth/me');
+    },
+  },
   /* ---------- 发现页 ---------- */
   async getBanners(): Promise<Banner[]> {
-    return delay(BANNERS, 100);
+    return http.get<Banner[]>('/banners');
   },
 
   async getHotBooks(): Promise<BookSummary[]> {
-    return delay(BOOKS.filter((b) => b.flags.includes('hot')), 150);
+    return http.get<BookSummary[]>('/books/hot', { limit: 10 });
   },
 
   async getFreeLimitedBooks(): Promise<BookSummary[]> {
-    return delay(BOOKS.filter((b) => b.flags.includes('free-limited')), 150);
+    return http.get<BookSummary[]>('/books/free-limited', { limit: 10 });
   },
 
   async getEditorPicks(): Promise<BookSummary[]> {
-    return delay(BOOKS.filter((b) => b.flags.includes('editor-pick')), 150);
+    const items = await http.get<RecommendBook[]>('/books/editor-picks', { limit: 10 });
+    return items.map((r) => r.book);
   },
 
   async getRanking(type: 'hot' | 'follow' | 'ticket' | 'new'): Promise<BookSummary[]> {
-    const sorted = [...BOOKS];
-    if (type === 'hot') sorted.sort((a, b) => b.clickCount - a.clickCount);
-    else if (type === 'follow') sorted.sort((a, b) => b.followCount - a.followCount);
-    else if (type === 'ticket') sorted.sort((a, b) => b.ratingCount - a.ratingCount);
-    else sorted.sort((a, b) => b.lastUpdated - a.lastUpdated);
-    return delay(sorted.slice(0, 10), 200);
+    const items = await http.get<RankItem[]>(`/rankings/${type}`, { limit: 10 });
+    return items.map((r) => r.book);
   },
 
   async getCategories(): Promise<Category[]> {
-    return delay(CATEGORIES, 100);
+    return http.get<Category[]>('/categories');
   },
 
   /* ---------- 详情页 ---------- */
   async getBook(bookId: string): Promise<BookSummary | null> {
-    const book = BOOKS.find((b) => b.id === bookId) ?? null;
-    return delay(book, 150);
+    try {
+      return await http.get<BookSummary>(`/books/${bookId}`);
+    } catch (err) {
+      if (err instanceof ApiError) return null;
+      throw err;
+    }
   },
 
   async getChapters(bookId: string): Promise<ChapterSummary[]> {
-    return delay(CHAPTERS[bookId] ?? [], 200);
+    const items = await http.get<ChapterListItem[]>(`/books/${bookId}/chapters`);
+    return items.map(toChapterSummary);
   },
 
   async getChapter(bookId: string, chapterId: string): Promise<ChapterContent | null> {
-    const ch = getChapterContent(bookId, chapterId);
-    return delay(ch, 250);
+    try {
+      return await http.get<ChapterContent>(`/books/${bookId}/chapters/${chapterId}`);
+    } catch (err) {
+      if (err instanceof ApiError) return null;
+      throw err;
+    }
   },
 
   async getRelatedBooks(bookId: string): Promise<BookSummary[]> {
-    const book = BOOKS.find((b) => b.id === bookId);
-    if (!book) return delay([], 100);
-    const related = BOOKS.filter((b) => b.id !== bookId && b.category === book.category).slice(0, 6);
-    return delay(related, 200);
+    return http.get<BookSummary[]>(`/books/${bookId}/related`, { limit: 6 });
   },
 
   async getComments(bookId: string): Promise<Comment[]> {
-    return delay(COMMENTS.filter((c) => c.bookId === bookId), 200);
+    return http.get<BackendComment[]>(`/books/${bookId}/comments`, { limit: 50 });
   },
 
   async getRatingDistribution(bookId: string): Promise<RatingDistribution> {
-    return delay(getRatingDistribution(bookId), 150);
+    return http.get<RatingDistribution>(`/books/${bookId}/rating-distribution`);
   },
 
   /* ---------- 分类页 ---------- */
   async getTags(): Promise<Tag[]> {
-    return delay(TAGS, 100);
+    return http.get<Tag[]>('/tags');
   },
 
   async getCategoryBooks(params: {
@@ -137,125 +152,163 @@ export const fetcher = {
     pageSize?: number;
   }): Promise<PagedResult<BookSummary>> {
     const { category, tags = [], sort = 'hot', status, page = 1, pageSize = 12 } = params;
-    let list = [...BOOKS];
-    if (category && category !== 'all') list = list.filter((b) => b.category === category);
-    if (tags.length > 0) list = list.filter((b) => tags.every((t) => b.tags.includes(t)));
-    if (status) list = list.filter((b) => b.status === status);
-    if (sort === 'hot') list.sort((a, b) => b.clickCount - a.clickCount);
-    else if (sort === 'follow') list.sort((a, b) => b.followCount - a.followCount);
-    else if (sort === 'latest') list.sort((a, b) => b.lastUpdated - a.lastUpdated);
-    else if (sort === 'completed') list = list.filter((b) => b.status === 'completed');
-    const total = list.length;
-    const start = (page - 1) * pageSize;
-    const items = list.slice(start, start + pageSize);
-    return delay({ items, total, page, pageSize, hasMore: start + pageSize < total }, 250);
+
+    // 后端不支持 tag 过滤：带 tag 时扩大拉取并前端二次过滤
+    if (tags.length > 0) {
+      const data = await http.get<BookSummary[]>('/books', {
+        category,
+        sort,
+        status,
+        page: 1,
+        page_size: 100,
+      });
+      const filtered = data.filter((b) => tags.every((t) => b.tags.includes(t)));
+      const total = filtered.length;
+      const start = (page - 1) * pageSize;
+      return toPaged(filtered.slice(start, start + pageSize), total, page, pageSize);
+    }
+
+    const data = await http.get<PagedResult<BookSummary>>('/books', {
+      category,
+      sort,
+      status,
+      page,
+      page_size: pageSize,
+    });
+    return data;
   },
 
   /* ---------- 搜索页 ---------- */
   async searchSuggestions(keyword: string): Promise<SearchSuggestion[]> {
-    if (!keyword.trim()) return delay([], 50);
-    const k = keyword.trim();
-    const sugs: SearchSuggestion[] = [];
-    BOOKS.forEach((b) => {
-      if (b.title.includes(k)) sugs.push({ type: 'book', text: b.title, bookId: b.id });
-      if (b.author.includes(k) && !sugs.some((s) => s.type === 'author' && s.text === b.author)) {
-        sugs.push({ type: 'author', text: b.author });
-      }
-    });
-    TAGS.forEach((t) => {
-      if (t.name.includes(k)) sugs.push({ type: 'tag', text: t.name });
-    });
-    return delay(sugs.slice(0, 8), 120);
+    if (!keyword.trim()) return [];
+    return http.get<SearchSuggestion[]>('/search/suggestions', { keyword: keyword.trim() });
   },
 
   async searchBooks(keyword: string, page = 1, pageSize = 10): Promise<PagedResult<BookSummary>> {
-    const k = keyword.trim();
-    if (!k) return delay({ items: [], total: 0, page, pageSize, hasMore: false }, 100);
-    const list = BOOKS.filter(
-      (b) => b.title.includes(k) || b.author.includes(k) || b.tags.some((t) => t.includes(k)),
-    );
-    const total = list.length;
-    const start = (page - 1) * pageSize;
-    return delay({ items: list.slice(start, start + pageSize), total, page, pageSize, hasMore: start + pageSize < total }, 200);
+    if (!keyword.trim()) return toPaged([], 0, page, pageSize);
+    return http.get<PagedResult<BookSummary>>('/search/books', {
+      keyword: keyword.trim(),
+      page,
+      page_size: pageSize,
+    });
   },
 
   async getHotSearches(): Promise<string[]> {
-    return delay(HOT_SEARCHES, 50);
+    return http.get<string[]>('/search/hot', { limit: 10 });
   },
 
   /* ---------- 个人中心 ---------- */
   async getCurrentUser(): Promise<UserProfile> {
-    return delay(CURRENT_USER, 100);
+    return http.get<UserProfile>('/me');
   },
 
   async getBookshelf(_tab: 'all' | 'ongoing' | 'completed' | 'recent'): Promise<BookSummary[]> {
-    let list = BOOKS.slice(0, 12);
-    if (_tab === 'ongoing') list = list.filter((b) => b.status === 'ongoing');
-    else if (_tab === 'completed') list = list.filter((b) => b.status === 'completed');
-    else if (_tab === 'recent') list = list.slice().sort((a, b) => b.lastUpdated - a.lastUpdated);
-    return delay(list, 200);
+    const items = await http.get<BookshelfItem[]>('/me/bookshelf', { tab: _tab });
+    return items.map((i) => i.book);
   },
 
   async getReadingHistory(): Promise<ReadingHistoryItem[]> {
-    return delay(READING_HISTORY, 200);
+    return http.get<ReadingHistoryItem[]>('/me/reading-history', { limit: 50 });
   },
 
   async getBookLists(): Promise<BookList[]> {
-    return delay(BOOK_LISTS, 150);
+    return http.get<BookList[]>('/book-lists', { limit: 10 });
   },
 
   async getRewardRecords(): Promise<RewardRecord[]> {
-    return delay(REWARD_RECORDS, 150);
+    return http.get<RewardRecord[]>('/me/rewards', { limit: 50 });
   },
 
   /* ---------- P6 · 扩展接口 ---------- */
   async getRankings(type: 'hot' | 'follow' | 'ticket' | 'new'): Promise<RankItem[]> {
-    return delay(RANKINGS[type], 200);
+    return http.get<RankItem[]>(`/rankings/${type}`, { limit: 50 });
   },
 
   async getRecommendations(): Promise<RecommendBook[]> {
-    // 模拟"换一批"：每次打乱顺序
-    const shuffled = [...RECOMMENDATIONS].sort(() => Math.random() - 0.5);
-    return delay(shuffled, 200);
+    return http.get<RecommendBook[]>('/recommendations', { limit: 10 });
   },
 
   async getTopics(): Promise<Topic[]> {
-    return delay(TOPICS, 150);
+    return http.get<Topic[]>('/topics', { limit: 20 });
   },
 
   async getReviews(page = 1, pageSize = 10): Promise<PagedResult<Review>> {
-    const total = REVIEWS.length;
+    const all = await http.get<Review[]>('/reviews', { limit: 100 });
+    const total = all.length;
     const start = (page - 1) * pageSize;
-    const items = REVIEWS.slice(start, start + pageSize);
-    return delay({ items, total, page, pageSize, hasMore: start + pageSize < total }, 200);
+    return toPaged(all.slice(start, start + pageSize), total, page, pageSize);
   },
 
   async getReadingStatOverview(): Promise<ReadingStatOverview> {
-    return delay(READING_STAT_OVERVIEW, 200);
+    return http.get<ReadingStatOverview>('/me/stats/overview');
   },
 
   async getHeatmap(): Promise<HeatmapCell[]> {
-    return delay(HEATMAP, 200);
+    return http.get<HeatmapCell[]>('/me/stats/heatmap', { days: 365 });
   },
 
   async getPreferences(): Promise<PreferenceItem[]> {
-    return delay(PREFERENCES, 200);
+    return http.get<PreferenceItem[]>('/me/stats/preferences');
   },
 
   async getBadges(): Promise<Badge[]> {
-    return delay(BADGES, 200);
+    return http.get<Badge[]>('/me/badges');
   },
 
   async getVipPlans(): Promise<VipPlan[]> {
-    return delay(VIP_PLANS, 150);
+    return http.get<VipPlan[]>('/vip/plans');
   },
 
   async getPaymentMethods(): Promise<PaymentMethodItem[]> {
-    return delay(PAYMENT_METHODS, 100);
+    return http.get<PaymentMethodItem[]>('/payment/methods');
   },
 
   async getFollowList(): Promise<FollowItem[]> {
-    return delay(FOLLOW_LIST, 200);
+    return http.get<FollowItem[]>('/me/follows');
+  },
+
+  /* ---------- 写操作（互动） ---------- */
+  async addToBookshelf(bookId: string): Promise<void> {
+    await http.post(`/me/bookshelf/${bookId}`);
+  },
+
+  async removeFromBookshelf(bookId: string): Promise<void> {
+    await http.del(`/me/bookshelf/${bookId}`);
+  },
+
+  async reportReadingProgress(payload: {
+    novelId?: string;
+    chapterId?: string | null;
+    chapterIndex?: number | null;
+    percent?: number;
+  }): Promise<void> {
+    const { novelId, chapterId, chapterIndex, percent } = payload;
+    const query = novelId ? `?novel_id=${novelId}` : '';
+    await http.post(`/me/reading-progress${query}`, {
+      chapter_id: chapterId,
+      chapter_index: chapterIndex,
+      percent,
+    });
+  },
+
+  async createComment(bookId: string, content: string, rating?: number): Promise<void> {
+    await http.post(`/books/${bookId}/comments`, { content, rating: rating ?? 0 });
+  },
+
+  async likeComment(commentId: string): Promise<void> {
+    await http.post(`/comments/${commentId}/like`);
+  },
+
+  async createReward(
+    bookId: string,
+    type: 'ticket' | 'recommend' | 'tip',
+    amount: number,
+  ): Promise<void> {
+    await http.post(`/books/${bookId}/rewards`, { type, amount });
+  },
+
+  async submitRating(bookId: string, rating: number): Promise<void> {
+    await http.post(`/books/${bookId}/rating`, { rating });
   },
 };
 

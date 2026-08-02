@@ -2,9 +2,10 @@
 
 from fastapi import APIRouter
 
-from app.api.c_end import book, discovery, interaction, search, user_center
+from app.api.c_end import auth, book, discovery, interaction, search, user_center
 
 router = APIRouter()
+router.include_router(auth.router)
 router.include_router(discovery.router, tags=["发现页"])
 router.include_router(book.router, tags=["书籍"])
 router.include_router(search.router, tags=["搜索"])

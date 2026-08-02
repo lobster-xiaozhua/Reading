@@ -14,3 +14,5 @@ coverage
 packages/*/dist
 apps/*/dist
 tools/*/dist
+*.tsbuildinfo
+test-results/

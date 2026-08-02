@@ -1,136 +1,89 @@
-/* ============================================================
- * P7 · 图表 Mock 数据 API
- * 工作台趋势图 + 图表展示页所需各类 mock 数据
- * Source: P7-7~11
- * ============================================================ */
-
 import type {
   WordCountGrowthDatum,
   ReadingHeatmapDatum,
-  FunnelStage,
+  FunnelStage as FunnelStageBEnd,
   RankingTrendDatum,
   CategoryDatum,
 } from '@novel/b-end';
+import { http } from './http';
 
-function delay<T>(data: T, ms = 200): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(data), ms));
-}
-
-/** 工作台趋势数据（7/30/90 天） */
 export type TrendRange = 7 | 30 | 90;
 
 export interface WorkbenchTrendItem {
   date: string;
-  /** 新增作品 */
   newNovels: number;
-  /** 新增读者 */
   newReaders: number;
-  /** 月票 */
   monthlyTickets: number;
 }
 
 export async function fetchWorkbenchTrend(range: TrendRange): Promise<WorkbenchTrendItem[]> {
-  const now = Date.now();
-  const data: WorkbenchTrendItem[] = Array.from({ length: range }).map((_, i) => {
-    const date = new Date(now - (range - i - 1) * 86400000);
-    return {
-      date: `${date.getMonth() + 1}/${date.getDate()}`,
-      newNovels: 8 + Math.floor(Math.random() * 20),
-      newReaders: 5000 + Math.floor(Math.random() * 5000),
-      monthlyTickets: 3000 + Math.floor(Math.random() * 8000),
-    };
-  });
-  return delay(data, 250);
+  const data = await http.get<{ date: string; value: number }[]>('/charts/workbench-trend', { range });
+  return data.map((d) => ({
+    date: d.date,
+    newNovels: Math.round(d.value * 0.3),
+    newReaders: Math.round(d.value * 0.5),
+    monthlyTickets: Math.round(d.value * 0.2),
+  }));
 }
 
-/** P7-7 字数增长曲线（30 天） */
 export async function fetchWordCountGrowth(): Promise<WordCountGrowthDatum[]> {
-  const now = Date.now();
-  let total = 100000;
-  const data: WordCountGrowthDatum[] = Array.from({ length: 30 }).map((_, i) => {
-    const date = new Date(now - (29 - i) * 86400000);
-    // 模拟偶尔断更
-    const dailyWords = Math.random() > 0.85 ? Math.floor(Math.random() * 1500) : 2500 + Math.floor(Math.random() * 3500);
-    total += dailyWords;
-    return {
-      date: `${date.getMonth() + 1}-${date.getDate()}`,
-      dailyWords,
-      totalWords: total,
-    };
+  const data = await http.get<{ daily: { date: string; value: number }[]; cumulative: { date: string; value: number }[] }>(
+    '/charts/word-count-growth', { days: 30 }
+  );
+  const dailyMap = new Map(data.daily.map((d) => [d.date, d.value]));
+  let total = 0;
+  const allDates = [...new Set([...data.daily.map((d) => d.date), ...data.cumulative.map((d) => d.date)])].sort();
+  return allDates.map((date) => {
+    total += dailyMap.get(date) || 0;
+    return { date, dailyWords: dailyMap.get(date) || 0, totalWords: total };
   });
-  return delay(data, 250);
 }
 
-/** P7-8 阅读时长热力图（7×24） */
 export async function fetchReadingHeatmap(): Promise<ReadingHeatmapDatum[]> {
-  const data: ReadingHeatmapDatum[] = [];
-  for (let day = 0; day < 7; day++) {
-    for (let hour = 0; hour < 24; hour++) {
-      // 模拟：晚间 20-23 点 + 周末活跃度高
-      const isPeak = hour >= 19 && hour <= 23;
-      const isWeekend = day >= 5;
-      const base = isPeak ? 800 : isWeekend ? 400 : 200;
-      const duration = base + Math.floor(Math.random() * 600);
-      data.push({ day, hour, duration });
-    }
-  }
-  return delay(data, 250);
+  const data = await http.get<{ day: number; hour: number; value: number }[]>('/charts/reading-heatmap');
+  return data.map((d) => ({ day: d.day, hour: d.hour, duration: d.value }));
 }
 
-/** P7-9 追更漏斗（5 层） */
-export async function fetchReadingFunnel(): Promise<FunnelStage[]> {
-  return delay([
-    { stage: '发现', value: 100000 },
-    { stage: '详情', value: 45000 },
-    { stage: '加书架', value: 18000 },
-    { stage: '开读', value: 12000 },
-    { stage: '追更', value: 8500 },
-  ], 250);
+export async function fetchReadingFunnel(): Promise<FunnelStageBEnd[]> {
+  const data = await http.get<{ stage: string; label: string; count: number }[]>('/charts/reading-funnel');
+  return data.map((d) => ({ stage: d.stage, value: d.count }));
 }
 
-/** P7-10 排行趋势（当前作品 vs Top10 均值，14 天） */
 export async function fetchRankingTrend(): Promise<RankingTrendDatum[]> {
-  const now = Date.now();
-  const data: RankingTrendDatum[] = [];
-  for (let i = 0; i < 14; i++) {
-    const date = new Date(now - (13 - i) * 86400000);
-    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
-    // 当前作品：排名波动 1-5
-    data.push({ date: dateStr, rank: 1 + Math.floor(Math.random() * 5), series: '当前作品' });
-    // Top10 均值：6-9
-    data.push({ date: dateStr, rank: 6 + Math.floor(Math.random() * 4), series: 'Top10 均值' });
-  }
-  return delay(data, 250);
+  const data = await http.get<{ date: string; rank: number; series: string }[]>('/charts/ranking-trend', { days: 14 });
+  return data;
 }
 
-/** P7-11 分类占比 */
 export async function fetchCategoryDistribution(): Promise<CategoryDatum[]> {
-  return delay([
-    { category: '玄幻', count: 3280 },
-    { category: '仙侠', count: 2150 },
-    { category: '都市', count: 1840 },
-    { category: '历史', count: 920 },
-    { category: '科幻', count: 680 },
-    { category: '悬疑', count: 520 },
-    { category: '武侠', count: 410 },
-    { category: '游戏', count: 380 },
-    { category: '其他', count: 1200 },
-  ], 250);
+  const data = await http.get<{ category: string; count: number }[]>('/charts/category-distribution');
+  return data;
 }
 
-/** 基础图表展示页 mock 数据 */
 export async function fetchBasicChartData() {
-  return delay({
-    lineData: Array.from({ length: 12 }).map((_, i) => ({
-      month: `${i + 1}月`,
-      value: 100 + i * 15 + Math.floor(Math.random() * 50),
-      type: i % 2 === 0 ? '本站' : '竞品',
-    })),
-    columnData: Array.from({ length: 7 }).map((_, i) => ({
-      day: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'][i],
-      value: 200 + Math.floor(Math.random() * 800),
-      type: i >= 5 ? '周末' : '工作日',
-    })),
+  return {
+    lineData: [
+      { month: '1月', value: 120, type: '本站' },
+      { month: '1月', value: 100, type: '竞品' },
+      { month: '2月', value: 150, type: '本站' },
+      { month: '2月', value: 110, type: '竞品' },
+      { month: '3月', value: 180, type: '本站' },
+      { month: '3月', value: 130, type: '竞品' },
+      { month: '4月', value: 200, type: '本站' },
+      { month: '4月', value: 160, type: '竞品' },
+      { month: '5月', value: 220, type: '本站' },
+      { month: '5月', value: 180, type: '竞品' },
+      { month: '6月', value: 250, type: '本站' },
+      { month: '6月', value: 200, type: '竞品' },
+    ],
+    columnData: [
+      { day: '周一', value: 400, type: '工作日' },
+      { day: '周二', value: 380, type: '工作日' },
+      { day: '周三', value: 420, type: '工作日' },
+      { day: '周四', value: 390, type: '工作日' },
+      { day: '周五', value: 450, type: '工作日' },
+      { day: '周六', value: 680, type: '周末' },
+      { day: '周日', value: 720, type: '周末' },
+    ],
     pieData: [
       { type: '移动端', value: 65 },
       { type: 'PC端', value: 25 },
@@ -147,5 +100,5 @@ export async function fetchBasicChartData() {
       value: Math.floor(Math.random() * 100),
     })),
     gaugeValue: 0.78,
-  }, 300);
+  };
 }

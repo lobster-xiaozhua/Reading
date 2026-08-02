@@ -132,8 +132,9 @@ class ChapterBatchOperateBody(CamelModel):
 
 # ── 内容审核 ────────────────────────────────────────────
 class SensitiveHit(CamelModel):
-    word: str
+    text: str = ""
     level: int = 3
+    offset: int = 0
     suggestion: str = ""
 
 
@@ -144,6 +145,11 @@ class AuditItem(CamelModel):
     level: AuditLevel = AuditLevel.FIRST
     status: str = "pending"
     target_title: str = ""
+    chapter_title: str = ""
+    novel_title: str = ""
+    author: str = ""
+    content: str = ""
+    word_count: int = 0
     sensitive_hits: list[SensitiveHit] = []
     submitted_at: int = 0
     processed_at: int = 0

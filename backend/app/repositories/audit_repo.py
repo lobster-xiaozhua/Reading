@@ -105,8 +105,10 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         await self.session.flush()
         return word
 
-    async def remove(self, text: str) -> bool:
+    async def remove(self, text: str, level: int | None = None) -> bool:
         stmt = select(SensitiveWord).where(SensitiveWord.text == text)
+        if level is not None:
+            stmt = stmt.where(SensitiveWord.level == level)
         result = await self.session.execute(stmt)
         word = result.scalars().first()
         if word:

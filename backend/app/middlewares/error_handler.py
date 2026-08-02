@@ -5,7 +5,7 @@
 """
 
 from fastapi import FastAPI, Request
-from fastapi.exceptions import RequestValidationError
+from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.core.exceptions import BizError, ErrorCode
@@ -59,6 +59,16 @@ async def validation_exception_handler(
     )
 
 
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    trace_id = await _get_trace_id(request)
+    body = Response.error(exc.status_code, exc.detail or "Not Found")
+    body.traceId = trace_id
+    return JSONResponse(
+        status_code=exc.status_code,
+        content=body.model_dump(by_alias=True, exclude_none=True),
+    )
+
+
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     trace_id = await _get_trace_id(request)
     body = Response.error(ErrorCode.INTERNAL_ERROR, "服务异常，请稍后重试")
@@ -73,4 +83,5 @@ def register_exception_handlers(app: FastAPI) -> None:
     """注册全部异常处理器。"""
     app.add_exception_handler(BizError, biz_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)

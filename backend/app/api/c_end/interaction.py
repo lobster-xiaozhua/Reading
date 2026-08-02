@@ -39,30 +39,30 @@ class ReadingProgressBody(BaseModel):
 @router.post("/me/bookshelf/{novel_id}")
 async def add_to_bookshelf(
     request: Request,
-    novel_id: str,
+    novel_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    return ok(request, await svc.add_to_bookshelf(reader_id, int(novel_id)))
+    return ok(request, await svc.add_to_bookshelf(reader_id, novel_id))
 
 
 @router.delete("/me/bookshelf/{novel_id}")
 async def remove_from_bookshelf(
     request: Request,
-    novel_id: str,
+    novel_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    return ok(request, await svc.remove_from_bookshelf(reader_id, int(novel_id)))
+    return ok(request, await svc.remove_from_bookshelf(reader_id, novel_id))
 
 
 @router.post("/me/reading-progress")
 async def report_reading_progress(
     request: Request,
     body: ReadingProgressBody,
-    novel_id: str = "",
+    novel_id: int = 0,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
@@ -71,8 +71,8 @@ async def report_reading_progress(
         request,
         await svc.report_reading_progress(
             reader_id,
-            int(novel_id) if novel_id else 0,
-            int(body.chapter_id) if body.chapter_id else None,
+            novel_id,
+            int(body.chapter_id) if body.chapter_id and body.chapter_id.isdigit() else None,
             body.chapter_index,
             body.percent,
         ),
@@ -82,14 +82,14 @@ async def report_reading_progress(
 @router.post("/books/{book_id}/comments")
 async def create_comment(
     request: Request,
-    book_id: str,
+    book_id: int,
     body: AddCommentBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
     comment_id = await svc.create_comment(
-        reader_id, int(book_id), body.content, body.rating
+        reader_id, book_id, body.content, body.rating
     )
     return ok(request, {"id": comment_id})
 
@@ -97,24 +97,25 @@ async def create_comment(
 @router.post("/comments/{comment_id}/like")
 async def like_comment(
     request: Request,
-    comment_id: str,
+    comment_id: int,
+    reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    return ok(request, await svc.like_comment(int(comment_id)))
+    return ok(request, await svc.like_comment(comment_id, reader_id))
 
 
 @router.post("/books/{book_id}/rewards")
 async def create_reward(
     request: Request,
-    book_id: str,
+    book_id: int,
     body: RewardBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
     record_id = await svc.create_reward(
-        reader_id, int(book_id), body.type, body.amount
+        reader_id, book_id, body.type, body.amount
     )
     return ok(request, {"id": record_id})
 
@@ -122,10 +123,10 @@ async def create_reward(
 @router.post("/books/{book_id}/rating")
 async def submit_rating(
     request: Request,
-    book_id: str,
+    book_id: int,
     body: RatingBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    return ok(request, await svc.submit_rating(reader_id, int(book_id), body.rating))
+    return ok(request, await svc.submit_rating(reader_id, book_id, body.rating))

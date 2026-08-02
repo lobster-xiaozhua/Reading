@@ -18,20 +18,26 @@
     "import-audit": "node tools/token-scanner/dist/import-audit.js --root apps/admin",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "monitor": "bash monitoring/run.sh",
+    "monitor:health": "bash monitoring/run.sh --only health",
+    "monitor:api": "bash monitoring/run.sh --only api",
+    "monitor:page": "bash monitoring/run.sh --only page",
+    "monitor:flow": "bash monitoring/run.sh --only flow",
     "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan && pnpm run import-audit && pnpm run test"
   },
   "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@playwright/test": "^1.62.1",
     "@storybook/addon-a11y": "^8.3.0",
     "@storybook/addon-essentials": "^8.3.0",
     "@storybook/addon-interactions": "^8.3.0",
     "@storybook/react-vite": "^8.3.0",
     "eslint": "^9.10.0",
-    "@eslint/js": "^9.10.0",
-    "typescript-eslint": "^8.5.0",
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "storybook": "^8.3.0",
     "tsx": "^4.23.1",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.5.0"
   }
 }

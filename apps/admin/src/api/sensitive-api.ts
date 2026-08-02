@@ -1,10 +1,11 @@
 /* ============================================================
- * P8-1-1 · 敏感词库 Mock API
+ * P8-1-1 · 敏感词库 API：对接后端 /sensitive-words 真实接口
  * - 三级分级：1 严禁（涉政/涉黄）/ 2 警告（暴力/广告）/ 3 提示（俗语/敏感谐音）
- * - 版本号对接 fetcher.system.getConfig.sensitiveWordLibVersion
+ * - 版本号由后端词库管理
  * Source: 04 §13.1 / P8-1-1
  * ============================================================ */
 
+import { http, ApiError } from './http';
 import type { SensitiveWord } from '@novel/b-end';
 
 /** 敏感词库元信息 */
@@ -19,28 +20,31 @@ export interface SensitiveWordLibMeta {
   byLevel: Record<1 | 2 | 3, number>;
 }
 
-/** 默认敏感词库（mock，真实环境由后端下发） */
-const DEFAULT_LIB: SensitiveWord[] = [
-  // 一级 严禁
-  { text: '违禁药品', level: 1, suggestion: '涉政敏感词，建议删除或替换为「丹药」' },
-  { text: '神秘组织', level: 1, suggestion: '涉政敏感词，建议替换为「帮派」或「门派」' },
-  { text: '反动', level: 1, suggestion: '涉政敏感词，禁止发布' },
-  { text: '色情', level: 1, suggestion: '涉黄敏感词，禁止发布' },
-  // 二级 警告
-  { text: '毒酒', level: 2, suggestion: '暴力元素，建议弱化描写' },
-  { text: '血液染红', level: 2, suggestion: '暴力描写，建议改为「汗水湿透」' },
-  { text: '加微信', level: 2, suggestion: '广告引流，建议删除' },
-  { text: 'QQ群', level: 2, suggestion: '广告引流，建议删除' },
-  // 三级 提示
-  { text: '敌军压境', level: 3, suggestion: '可人工判断，建议保留但留意上下文' },
-  { text: '该死', level: 3, suggestion: '俗语，建议自查上下文' },
-  { text: '见鬼', level: 3, suggestion: '敏感谐音，建议自查' },
-];
+interface BackendSensitiveWord {
+  id: string;
+  text: string;
+  level: number;
+  suggestion?: string;
+  libVersion?: string;
+}
 
-let CURRENT_LIB: SensitiveWord[] = DEFAULT_LIB;
+interface BackendSensitiveWordLib {
+  words: BackendSensitiveWord[];
+  meta: {
+    version: string;
+    updatedAt: number;
+    totalCount: number;
+    byLevel: Record<string, number>;
+  };
+}
 
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+function toByLevel(byLevel: Record<string, number>): Record<1 | 2 | 3, number> {
+  const out: Record<1 | 2 | 3, number> = { 1: 0, 2: 0, 3: 0 };
+  Object.entries(byLevel ?? {}).forEach(([k, v]) => {
+    const n = Number(k);
+    if (n === 1 || n === 2 || n === 3) out[n] = v;
+  });
+  return out;
 }
 
 /** 拉取敏感词库（含元信息） */
@@ -48,36 +52,46 @@ export async function fetchSensitiveWordLib(): Promise<{
   words: SensitiveWord[];
   meta: SensitiveWordLibMeta;
 }> {
-  await delay(200);
-  const byLevel: Record<1 | 2 | 3, number> = { 1: 0, 2: 0, 3: 0 };
-  CURRENT_LIB.forEach((w) => {
-    byLevel[w.level]++;
-  });
+  const data = await http.get<BackendSensitiveWordLib>('/sensitive-words');
   return {
-    words: [...CURRENT_LIB],
+    words: (data.words ?? []).map((w) => ({
+      text: w.text,
+      level: (w.level as SensitiveWord['level']) || 3,
+      suggestion: w.suggestion,
+    })),
     meta: {
-      version: '2026.07.31',
-      updatedAt: Date.now(),
-      totalCount: CURRENT_LIB.length,
-      byLevel,
+      version: data.meta?.version ?? '',
+      updatedAt: data.meta?.updatedAt ?? Date.now(),
+      totalCount: data.meta?.totalCount ?? data.words?.length ?? 0,
+      byLevel: toByLevel(data.meta?.byLevel),
     },
   };
 }
 
-/** 新增敏感词（mock 本地写入） */
+/** 新增敏感词 */
 export async function addSensitiveWord(word: SensitiveWord): Promise<{ success: boolean }> {
-  await delay(150);
-  if (CURRENT_LIB.some((w) => w.text === word.text && w.level === word.level)) {
+  try {
+    await http.post('/sensitive-words', {
+      text: word.text,
+      level: word.level,
+      suggestion: word.suggestion ?? '',
+    });
+    return { success: true };
+  } catch (err) {
+    if (err instanceof ApiError) return { success: false };
     return { success: false };
   }
-  CURRENT_LIB = [...CURRENT_LIB, word];
-  return { success: true };
 }
 
-/** 删除敏感词（mock 本地写入） */
-export async function removeSensitiveWord(text: string, level: 1 | 2 | 3): Promise<{ success: boolean }> {
-  await delay(150);
-  const before = CURRENT_LIB.length;
-  CURRENT_LIB = CURRENT_LIB.filter((w) => !(w.text === text && w.level === level));
-  return { success: CURRENT_LIB.length < before };
+/** 删除敏感词 */
+export async function removeSensitiveWord(
+  text: string,
+  level: 1 | 2 | 3,
+): Promise<{ success: boolean }> {
+  try {
+    await http.del(`/sensitive-words?text=${encodeURIComponent(text)}&level=${level}`);
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
 }

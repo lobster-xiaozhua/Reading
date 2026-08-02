@@ -40,8 +40,9 @@ async def add_sensitive_word(
 async def remove_sensitive_word(
     request: Request,
     text: str = Query(..., description="敏感词文本"),
+    level: int = Query(None, description="敏感词级别"),
     _admin=Depends(require_permission("system.config")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = SensitiveService(db, await get_redis_client())
-    return ok(request, await svc.remove_word(text))
+    return ok(request, await svc.remove_word(text, level))

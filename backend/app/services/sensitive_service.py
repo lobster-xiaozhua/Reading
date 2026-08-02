@@ -77,8 +77,8 @@ class SensitiveService:
         )
 
     # ── 删除敏感词 ─────────────────────────────────────────
-    async def remove_word(self, text: str) -> bool:
-        removed = await self.repo.remove(text)
+    async def remove_word(self, text: str, level: int | None = None) -> bool:
+        removed = await self.repo.remove(text, level)
         if removed:
             await self.session.commit()
             await self._refresh_trie()

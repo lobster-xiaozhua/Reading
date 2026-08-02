@@ -21,6 +21,7 @@ from app.schemas.b_end import (
     AuditQueueStats,
     AuditSubmitBody,
     AuditSubmitResult,
+    RejectReason,
     SensitiveHit,
 )
 from app.schemas.enums import AuditResult
@@ -103,7 +104,7 @@ class AuditService:
         record: AuditRecord,
         result: AuditResult,
         comment: str,
-        reject_reason,
+        reject_reason: RejectReason | None,
         operator_id: int,
         operator_name: str,
     ) -> None:
@@ -149,20 +150,42 @@ class AuditService:
 
     async def _record_to_item(self, record: AuditRecord) -> AuditItem:
         target_title = ""
+        chapter_title = ""
+        novel_title = ""
+        author = ""
+        content = ""
+        word_count = 0
         if record.target_type == "novel":
             novel = await self.session.get(Novel, record.target_id)
             if novel:
                 target_title = novel.title
+                novel_title = novel.title
+                author = novel.author_name
         elif record.target_type == "chapter":
             chapter = await self.session.get(Chapter, record.target_id)
             if chapter:
                 target_title = chapter.title
+                chapter_title = chapter.title
+                content = chapter.content_text or chapter.content or ""
+                word_count = chapter.word_count or 0
+                novel = await self.session.get(Novel, chapter.novel_id)
+                if novel:
+                    novel_title = novel.title
+                    author = novel.author_name
 
         hits: list[SensitiveHit] = []
         if record.sensitive_hits:
             try:
                 hit_data = json.loads(record.sensitive_hits)
-                hits = [SensitiveHit(**h) for h in hit_data]
+                for h in hit_data:
+                    hits.append(
+                        SensitiveHit(
+                            text=h.get("text") or h.get("word", ""),
+                            level=h.get("level", 3),
+                            offset=h.get("offset", 0),
+                            suggestion=h.get("suggestion", ""),
+                        )
+                    )
             except Exception:
                 logger.debug("敏感词快照解析失败 audit_id=%s", record.id, exc_info=True)
 
@@ -173,6 +196,11 @@ class AuditService:
             level=record.level,
             status=record.status,
             target_title=target_title,
+            chapter_title=chapter_title,
+            novel_title=novel_title,
+            author=author,
+            content=content,
+            word_count=word_count,
             sensitive_hits=hits,
             submitted_at=record.submitted_at,
             processed_at=record.processed_at,

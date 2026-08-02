@@ -14,6 +14,7 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const ReadingStatsPage = lazy(() => import('./pages/ReadingStatsPage'));
 const VipPage = lazy(() => import('./pages/VipPage'));
 const FollowPage = lazy(() => import('./pages/FollowPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 const withSuspense = (node: React.ReactNode) => (
@@ -41,6 +42,7 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
     element: <ReaderLayout />,
     children: [{ index: true, element: withSuspense(<ReaderPage />) }],
   },
+  { path: '/login', element: withSuspense(<LoginPage />) },
   { path: '/404', element: withSuspense(<NotFoundPage />) },
   { path: '*', element: <Navigate to="/404" replace /> },
 ]);

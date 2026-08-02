@@ -1,10 +1,11 @@
 /* ============================================================
- * P4-0 · 作品相关 Mock API（P5/P6 接真实 API 后替换）
+ * B 端作品管理 API：对接后端 /api/v1/b/novels 真实接口
+ * 响应统一 { code, message, data, traceId }，由 http 客户端解包
  * 数据模型对齐 @novel/types BNovelDetail
  * ============================================================ */
 
+import { http } from './http';
 import type { BNovelDetail, BNovelStatus, OfflineReason } from '@novel/types';
-import { canTransitionNovel } from '@novel/b-end';
 
 /** 列表查询参数 */
 export interface NovelListParams {
@@ -47,68 +48,58 @@ export const NOVEL_STATUS_OPTIONS = [
   { label: '已下架', value: 'offline' as const },
 ];
 
-/** Mock 数据生成 */
-const MOCK_NOVELS: BNovelDetail[] = Array.from({ length: 47 }).map((_, i) => {
-  const statuses: BNovelStatus[] = ['draft', 'pending', 'published', 'offline'];
-  const cats = ['xuanhuan', 'xianxia', 'urban', 'history', 'scifi', 'wuxia', 'game', 'suspense', 'romance'];
-  const status = statuses[i % 4];
-  const now = Date.now();
-  return {
-    id: `novel-${String(i + 1).padStart(4, '0')}`,
-    title: `测试作品 ${i + 1}`,
-    author: `作者${String.fromCharCode(65 + (i % 26))}`,
-    cover: '',
-    category: cats[i % cats.length],
-    tags: ['VIP', '推荐'].slice(0, (i % 3) + 1),
-    wordCount: 100000 + i * 5000,
-    intro: `这是测试作品 ${i + 1} 的简介内容。`,
-    lastUpdated: now - i * 86400000,
-    status,
-    authorId: `author-${i % 10}`,
-    publishedAt: status === 'published' ? now - i * 86400000 * 2 : null,
-    shelvedAt: status === 'offline' ? now - i * 86400000 : null,
-    createdAt: now - i * 86400000 * 3,
-  };
-});
+/** 后端返回的作品详情转前端共享结构（兼容 0→null、offlineReason→reason） */
+type BackendNovel = Record<string, unknown>;
 
-/** 模拟网络延迟 */
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+function mapNovel(raw: BackendNovel): BNovelDetail {
+  const tags = Array.isArray(raw.tags) ? (raw.tags as string[]) : [];
+  const offlineReason = (raw.offlineReason as string) || '';
+  const offlineRemark = (raw.offlineRemark as string) || '';
+  return {
+    id: String(raw.id ?? ''),
+    title: (raw.title as string) ?? '',
+    author: (raw.author as string) ?? '',
+    cover: (raw.cover as string) ?? '',
+    category: (raw.category as string) ?? '',
+    tags,
+    wordCount: Number(raw.wordCount ?? 0),
+    intro: (raw.intro as string) ?? '',
+    lastUpdated: Number(raw.lastUpdated ?? raw.updatedAt ?? 0),
+    status: (raw.status as BNovelStatus) ?? 'draft',
+    authorId: String(raw.authorId ?? ''),
+    publishedAt: Number(raw.publishedAt ?? 0) || null,
+    shelvedAt: Number(raw.shelvedAt ?? 0) || null,
+    reason: offlineRemark || offlineReason || undefined,
+    createdAt: Number(raw.createdAt ?? 0),
+  };
 }
 
 /** 查询列表 */
 export async function fetchNovelList(params: NovelListParams): Promise<NovelListResponse> {
-  await delay(300);
-  let list = [...MOCK_NOVELS];
-
-  if (params.searchKey) {
-    const q = params.searchKey.toLowerCase();
-    list = list.filter(
-      (n) => n.title.toLowerCase().includes(q) || n.author.toLowerCase().includes(q),
-    );
-  }
-  if (params.status && params.status !== 'all') {
-    list = list.filter((n) => n.status === params.status);
-  }
-  if (params.category && params.category !== 'all') {
-    list = list.filter((n) => n.category === params.category);
-  }
-  if (params.dateRange && params.dateRange.length === 2) {
-    const [start, end] = params.dateRange;
-    list = list.filter((n) => n.lastUpdated >= start && n.lastUpdated <= end);
-  }
-
-  const total = list.length;
-  const start = (params.page - 1) * params.pageSize;
-  const paged = list.slice(start, start + params.pageSize);
-
-  return { list: paged, total, page: params.page, pageSize: params.pageSize };
+  const data = await http.get<{ list: BackendNovel[]; total: number; page: number; pageSize: number }>('/novels', {
+    page: params.page,
+    page_size: params.pageSize,
+    search_key: params.searchKey ?? '',
+    status: params.status ?? 'all',
+    category: params.category ?? 'all',
+    date_range: params.dateRange ? params.dateRange.join(',') : undefined,
+  });
+  return {
+    list: (data.list ?? []).map(mapNovel),
+    total: data.total ?? 0,
+    page: data.page ?? params.page,
+    pageSize: data.pageSize ?? params.pageSize,
+  };
 }
 
 /** 查询单条详情 */
 export async function fetchNovelDetail(id: string): Promise<BNovelDetail | null> {
-  await delay(300);
-  return MOCK_NOVELS.find((n) => n.id === id) ?? null;
+  try {
+    const data = await http.get<BackendNovel>(`/novels/${id}`);
+    return mapNovel(data);
+  } catch {
+    return null;
+  }
 }
 
 /** 新建/编辑作品入参 */
@@ -128,67 +119,43 @@ export interface NovelFormValues {
 
 /** 提交作品（新建/编辑） */
 export async function submitNovel(values: NovelFormValues): Promise<{ success: boolean; id: string }> {
-  await delay(500);
-  if (values.id) {
-    const idx = MOCK_NOVELS.findIndex((n) => n.id === values.id);
-    if (idx >= 0) {
-      MOCK_NOVELS[idx] = { ...MOCK_NOVELS[idx], ...values, lastUpdated: Date.now() };
-    }
-  } else {
-    MOCK_NOVELS.unshift({
-      id: `novel-${String(MOCK_NOVELS.length + 1).padStart(4, '0')}`,
-      title: values.title,
-      author: values.author,
-      cover: values.cover ?? '',
-      category: values.category,
-      tags: values.tags,
-      wordCount: 0,
-      intro: values.intro,
-      lastUpdated: Date.now(),
-      status: values.status,
-      authorId: 'author-0',
-      publishedAt: values.isOnShelf ? Date.now() : null,
-      shelvedAt: null,
-      createdAt: Date.now(),
-    });
+  const body = {
+    title: values.title,
+    author: values.author,
+    category: values.category,
+    tags: values.tags ?? [],
+    cover: values.cover ?? '',
+    intro: values.intro,
+    flags: [],
+    price: values.price ?? 0,
+    authorRemark: '',
+    isCompleted: values.status === 'published' ? true : values.isOnShelf,
+    vipChapters: values.vipChapters ?? [],
+  };
+  try {
+    const data = await (values.id
+      ? http.put<BackendNovel>(`/novels/${values.id}`, body)
+      : http.post<BackendNovel>('/novels', body));
+    return { success: true, id: String(data.id ?? values.id ?? '') };
+  } catch {
+    return { success: false, id: values.id ?? '' };
   }
-  return { success: true, id: values.id ?? `novel-${String(MOCK_NOVELS.length).padStart(4, '0')}` };
 }
 
 /** 批量操作（保留向后兼容，内部接入状态机校验） */
-export async function batchOperate(ids: string[], action: 'publish' | 'offline' | 'delete'): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
-  await delay(400);
-  if (action === 'delete') {
-    ids.forEach((id) => {
-      const idx = MOCK_NOVELS.findIndex((n) => n.id === id);
-      if (idx >= 0) MOCK_NOVELS.splice(idx, 1);
-    });
-    return { success: true };
-  }
-  // publish/offline 接入状态机校验（P8-3）
-  const targetStatus: BNovelStatus = action === 'publish' ? 'published' : 'offline';
-  const failed: { id: string; reason: string }[] = [];
-  ids.forEach((id) => {
-    const novel = MOCK_NOVELS.find((n) => n.id === id);
-    if (!novel) {
-      failed.push({ id, reason: '作品不存在' });
-      return;
-    }
-    if (!canTransitionNovel(novel.status, targetStatus)) {
-      failed.push({ id, reason: `当前状态「${novel.status}」不可转换到「${targetStatus}」` });
-      return;
-    }
-    novel.status = targetStatus;
-    novel.lastUpdated = Date.now();
-    if (targetStatus === 'published') {
-      novel.publishedAt = novel.publishedAt ?? Date.now();
-      novel.shelvedAt = null;
-      novel.reason = undefined;
-    } else {
-      novel.shelvedAt = Date.now();
-    }
-  });
-  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+export async function batchOperate(
+  ids: string[],
+  action: 'publish' | 'offline' | 'delete',
+): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
+  const target = action === 'publish' ? 'approve' : action === 'offline' ? 'shelve' : 'delete';
+  const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
+    '/novels/batch-operate',
+    { ids: ids.map(Number), action: target },
+  );
+  return {
+    success: data.success,
+    failed: (data.failed ?? []).map((f) => ({ id: String(f.id), reason: f.reason })),
+  };
 }
 
 /* ---------- P8-3 · 上下架流程（状态机强校验 + 下架原因） ---------- */
@@ -209,47 +176,31 @@ export const OFFLINE_REASON_LABEL: Record<OfflineReason, { text: string; color: 
   'operation-adjust': { text: '运营调整', color: 'warning' },
 };
 
+type OperateResult = { success: boolean; failed?: { id: string; reason: string }[] };
+
+function mapOperate(data: { success: boolean; failed?: { id: string; reason: string }[] }): OperateResult {
+  return {
+    success: data.success,
+    failed: (data.failed ?? []).map((f) => ({ id: String(f.id), reason: f.reason })),
+  };
+}
+
 /** 提交审核：draft → pending（P8-3-1） */
-export async function submitForAudit(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
-  await delay(400);
-  const failed: { id: string; reason: string }[] = [];
-  ids.forEach((id) => {
-    const novel = MOCK_NOVELS.find((n) => n.id === id);
-    if (!novel) {
-      failed.push({ id, reason: '作品不存在' });
-      return;
-    }
-    if (!canTransitionNovel(novel.status, 'pending')) {
-      failed.push({ id, reason: `当前状态「${novel.status}」不可提交审核（仅草稿可提交）` });
-      return;
-    }
-    novel.status = 'pending';
-    novel.lastUpdated = Date.now();
-  });
-  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+export async function submitForAudit(ids: string[]): Promise<OperateResult> {
+  const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
+    '/novels/submit-audit',
+    { ids: ids.map(Number) },
+  );
+  return mapOperate(data);
 }
 
 /** 审核通过上架：pending → published（P8-3-1） */
-export async function approveNovel(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
-  await delay(400);
-  const failed: { id: string; reason: string }[] = [];
-  ids.forEach((id) => {
-    const novel = MOCK_NOVELS.find((n) => n.id === id);
-    if (!novel) {
-      failed.push({ id, reason: '作品不存在' });
-      return;
-    }
-    if (!canTransitionNovel(novel.status, 'published')) {
-      failed.push({ id, reason: `当前状态「${novel.status}」不可上架（仅待审核可上架）` });
-      return;
-    }
-    novel.status = 'published';
-    novel.publishedAt = novel.publishedAt ?? Date.now();
-    novel.shelvedAt = null;
-    novel.reason = undefined;
-    novel.lastUpdated = Date.now();
-  });
-  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+export async function approveNovel(ids: string[]): Promise<OperateResult> {
+  const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
+    '/novels/approve',
+    { ids: ids.map(Number) },
+  );
+  return mapOperate(data);
 }
 
 /** 下架并记录原因：published → offline（P8-3-2） */
@@ -257,46 +208,19 @@ export async function shelveNovel(
   ids: string[],
   reason: OfflineReason,
   comment?: string,
-): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
-  await delay(400);
-  const failed: { id: string; reason: string }[] = [];
-  const reasonLabel = OFFLINE_REASON_LABEL[reason].text;
-  ids.forEach((id) => {
-    const novel = MOCK_NOVELS.find((n) => n.id === id);
-    if (!novel) {
-      failed.push({ id, reason: '作品不存在' });
-      return;
-    }
-    if (!canTransitionNovel(novel.status, 'offline')) {
-      failed.push({ id, reason: `当前状态「${novel.status}」不可下架` });
-      return;
-    }
-    novel.status = 'offline';
-    novel.shelvedAt = Date.now();
-    novel.reason = comment ? `${reasonLabel}：${comment}` : reasonLabel;
-    novel.lastUpdated = Date.now();
-  });
-  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+): Promise<OperateResult> {
+  const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
+    '/novels/shelve',
+    { ids: ids.map(Number), reason, comment: comment ?? '' },
+  );
+  return mapOperate(data);
 }
 
 /** 恢复上架：offline → published（P8-3-2） */
-export async function reshelveNovel(ids: string[]): Promise<{ success: boolean; failed?: { id: string; reason: string }[] }> {
-  await delay(400);
-  const failed: { id: string; reason: string }[] = [];
-  ids.forEach((id) => {
-    const novel = MOCK_NOVELS.find((n) => n.id === id);
-    if (!novel) {
-      failed.push({ id, reason: '作品不存在' });
-      return;
-    }
-    if (!canTransitionNovel(novel.status, 'published')) {
-      failed.push({ id, reason: `当前状态「${novel.status}」不可恢复上架` });
-      return;
-    }
-    novel.status = 'published';
-    novel.shelvedAt = null;
-    novel.reason = undefined;
-    novel.lastUpdated = Date.now();
-  });
-  return { success: failed.length === 0, failed: failed.length > 0 ? failed : undefined };
+export async function reshelveNovel(ids: string[]): Promise<OperateResult> {
+  const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
+    '/novels/reshelve',
+    { ids: ids.map(Number) },
+  );
+  return mapOperate(data);
 }

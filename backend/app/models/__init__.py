@@ -12,6 +12,7 @@ from app.models.reading import (
     ReadingStatsDaily,
 )
 from app.models.royalty import RoyaltyDetail
+from app.models.system_config import SystemConfigModel
 from app.models.user import Admin, Author, Reader
 
 __all__ = [
@@ -37,6 +38,7 @@ __all__ = [
     "RolePermission",
     "RoyaltyDetail",
     "SensitiveWord",
+    "SystemConfigModel",
     "SoftDeleteMixin",
     "Tag",
     "TimestampMixin",
