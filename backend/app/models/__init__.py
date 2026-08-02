@@ -38,8 +38,8 @@ __all__ = [
     "RolePermission",
     "RoyaltyDetail",
     "SensitiveWord",
-    "SystemConfigModel",
     "SoftDeleteMixin",
+    "SystemConfigModel",
     "Tag",
     "TimestampMixin",
 ]

@@ -4,12 +4,15 @@
 getRelatedBooks / getComments / getRatingDistribution / getCategoryBooks。
 """
 
+import time
+
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
 from app.core.database import get_db
 from app.core.redis import get_redis_client
+from app.models.user import Reader
 from app.repositories.novel_repo import NovelRepository
 from app.schemas.common import PagedResult
 from app.schemas.enums import SortKey
@@ -69,8 +72,6 @@ async def get_chapter(
     db: AsyncSession = Depends(get_db),
 ):
     """获取章节正文，VIP 章节需校验读者会员状态。"""
-    import time
-    from app.models.user import Reader
     reader = await db.get(Reader, reader_id)
     reader_vip = bool(reader and reader.is_vip and reader.vip_expire_at > int(time.time() * 1000))
     svc = BookService(db, await get_redis_client())
