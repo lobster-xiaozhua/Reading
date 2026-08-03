@@ -41,7 +41,7 @@ def event_loop():
     loop.close()
 
 
-@pytest_asyncio.fixture(autouse=True)
+@pytest_asyncio.fixture
 async def setup_db():
     """每个测试前建表、测试后清理。"""
     async with _test_engine.begin() as conn:
@@ -52,7 +52,7 @@ async def setup_db():
 
 
 @pytest_asyncio.fixture
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+async def db_session(setup_db) -> AsyncGenerator[AsyncSession, None]:
     """提供事务内会话，测试结束自动回滚。"""
     async with _TestSessionLocal() as session:
         yield session

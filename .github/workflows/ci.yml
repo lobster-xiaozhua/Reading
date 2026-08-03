@@ -115,8 +115,7 @@ jobs:
         run: |
           uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           sleep 3
-          curl -sf http://localhost:8000/health | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('code')==0, f'unexpected: {d}'"
-          echo "Backend health check passed"
+          curl -sf http://localhost:8000/health | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='ok', f'unexpected: {d}'; print('Backend health check passed')"
 
   security:
     name: Security Audit

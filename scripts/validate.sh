@@ -157,6 +157,20 @@ backend_checks() {
 
   run_step "Ruff 代码检查"  "/tmp/validate-ruff.log"  ruff check backend/app/ backend/tests/  || return 1
   run_step "模块导入检查"    "/tmp/validate-import.log" python3 -c "import sys; sys.path.insert(0, 'backend'); import app.main"  || return 1
+  run_step "后端健康检查"    "/tmp/validate-health.log"  python3 -c "
+import sys; sys.path.insert(0, 'backend')
+from app.main import app
+from httpx import ASGITransport, AsyncClient
+import asyncio
+async def check():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url='http://test') as c:
+        r = await c.get('/health')
+        d = r.json()
+        assert d.get('status') == 'ok', f'unexpected: {d}'
+        print('Backend health check passed')
+asyncio.run(check())
+"  || return 1
 }
 
 backend_tests() {
