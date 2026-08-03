@@ -118,9 +118,10 @@ async def read_all_follows(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
-    from app.models.reading import ReadingHistory
     from sqlalchemy import select
+
     from app.models.novel import Novel
+    from app.models.reading import ReadingHistory
 
     subq = select(ReadingHistory.novel_id).where(ReadingHistory.reader_id == reader_id).subquery()
     stmt = select(Novel.id).where(

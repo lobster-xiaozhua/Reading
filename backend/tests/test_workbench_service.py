@@ -4,9 +4,10 @@ import time
 from datetime import date
 
 import pytest
-from app.models.novel import Novel, Chapter
+
+from app.models.interaction import Comment, RewardRecord
+from app.models.novel import Chapter, Novel
 from app.models.user import Author, Reader
-from app.models.interaction import RewardRecord, Comment
 from app.services.workbench_service import WorkbenchService
 
 

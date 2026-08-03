@@ -1,6 +1,7 @@
 """互动服务测试（书架、阅读进度、评论、打赏、评分）。"""
 
 import pytest
+
 from app.core.exceptions import NotFoundError, ParamError
 from app.models.novel import Novel
 from app.services.interaction_service import InteractionService
@@ -78,7 +79,6 @@ class TestComment:
             await svc.create_comment(1, novel.id, "", 5)
 
     async def test_like_comment(self, svc, db_session):
-        from app.models.interaction import Comment
         novel = await _create_published_novel(db_session)
         comment_id = await svc.create_comment(1, novel.id, "好文", 4)
         result = await svc.like_comment(int(comment_id), 2)

@@ -1,14 +1,14 @@
 """C 端笔记服务（选词笔记 CRUD）。"""
 
-import time
 import logging
+import time
 
-from sqlalchemy import select, delete
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ParamError
 from app.models.notes import ReaderNote
-from app.schemas.c_end import NoteItem, NoteCreateBody, NoteUpdateBody
+from app.schemas.c_end import NoteCreateBody, NoteItem, NoteUpdateBody
 
 logger = logging.getLogger(__name__)
 

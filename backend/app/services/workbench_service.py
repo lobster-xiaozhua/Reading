@@ -44,8 +44,9 @@ class WorkbenchService:
         total_authors = await self._count(Author, Author.deleted == 0)
         total_readers = await self._count(Reader, Reader.deleted == 0)
 
-        from app.models.interaction import RewardRecord
         import time
+
+        from app.models.interaction import RewardRecord
         today_start = int(time.mktime(date.today().timetuple())) * 1000
         today_revenue = await self._sum(RewardRecord, RewardRecord.amount, RewardRecord.created_at >= today_start)
 
@@ -100,9 +101,10 @@ class WorkbenchService:
 
     # ── 内容概览 ─────────────────────────────────────────
     async def get_overviews(self) -> list[dict]:
-        from app.models.novel import Chapter
-        from app.models.interaction import RewardRecord, Comment
         import time
+
+        from app.models.interaction import Comment, RewardRecord
+        from app.models.novel import Chapter
 
         today_start = int(time.mktime(date.today().timetuple())) * 1000
 

@@ -1,6 +1,7 @@
 """稿费服务测试。"""
 
 import pytest
+
 from app.core.exceptions import BizError
 from app.models.royalty import RoyaltyDetail
 from app.services.royalty_service import RoyaltyService
