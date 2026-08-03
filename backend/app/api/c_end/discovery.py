@@ -17,6 +17,15 @@ from app.services.interaction_service import InteractionService
 router = APIRouter()
 
 
+@router.get("/discovery/home")
+async def get_discovery_home(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+):
+    svc = DiscoveryService(db, await get_redis_client())
+    return ok(request, await svc.get_home_payload())
+
+
 @router.get("/banners")
 async def get_banners(request: Request, db: AsyncSession = Depends(get_db)):
     svc = DiscoveryService(db, await get_redis_client())

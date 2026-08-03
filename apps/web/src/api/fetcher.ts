@@ -12,12 +12,14 @@ import type {
   ChapterContent,
   ChapterSummary,
   Comment,
+  DiscoverHome,
   FollowItem,
   HeatmapCell,
   PagedResult,
   PaymentMethodItem,
   PreferenceItem,
   RankItem,
+  RankType,
   RatingDistribution,
   ReadingHistoryItem,
   ReadingStatOverview,
@@ -76,6 +78,27 @@ export const fetcher = {
     },
   },
   /* ---------- 发现页 ---------- */
+  async getDiscoverHome(): Promise<DiscoverHome> {
+    const data = await http.get<{
+      banners: Banner[];
+      hotBooks: BookSummary[];
+      freeBooks: BookSummary[];
+      editorPicks: RecommendBook[];
+      categories: Category[];
+      rankings: Record<RankType, RankItem[]>;
+    }>('/discovery/home');
+    return {
+      banners: data.banners,
+      hotBooks: data.hotBooks,
+      freeBooks: data.freeBooks,
+      editorPicks: data.editorPicks.map((r) => r.book),
+      categories: data.categories,
+      rankings: Object.fromEntries(
+        Object.entries(data.rankings).map(([k, items]) => [k, items.map((r) => r.book)]),
+      ) as DiscoverHome['rankings'],
+    };
+  },
+
   async getBanners(): Promise<Banner[]> {
     return http.get<Banner[]>('/banners');
   },

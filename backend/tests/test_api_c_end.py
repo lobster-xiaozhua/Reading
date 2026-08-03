@@ -30,6 +30,53 @@ class TestCEndBanners:
         assert data[0]["title"] == "测试Banner"
 
 
+class TestCEndDiscoverHome:
+    async def test_home_empty(self, client):
+        resp = await client.get("/api/v1/c/discovery/home")
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["code"] == 0
+        data = body["data"]
+        assert data["banners"] == []
+        assert data["hotBooks"] == []
+        assert data["freeBooks"] == []
+        assert data["editorPicks"] == []
+        assert data["categories"] == []
+        assert set(data["rankings"].keys()) == {"hot", "follow", "ticket", "new"}
+
+    async def test_home_with_data(self, client, db_session):
+        from app.models.novel import Banner, Novel
+        db_session.add(Banner(book_id="1", title="聚合Banner", sort=1))
+        db_session.add(Novel(
+            title="聚合热书", category="xuanhuan", status="published",
+            word_count=100, click_count=999,
+        ))
+        await db_session.commit()
+        resp = await client.get("/api/v1/c/discovery/home")
+        body = resp.json()
+        assert body["code"] == 0
+        data = body["data"]
+        assert len(data["banners"]) == 1
+        assert data["banners"][0]["title"] == "聚合Banner"
+        assert len(data["rankings"]["hot"]) >= 1
+
+    async def test_home_redis_cached(self, client, db_session):
+        from app.models.novel import Novel
+        db_session.add(Novel(
+            title="缓存热书", category="xuanhuan", status="published",
+            word_count=100, click_count=100,
+        ))
+        await db_session.commit()
+        first = await client.get("/api/v1/c/discovery/home")
+        assert first.json()["code"] == 0
+        db_session.add(Novel(
+            title="缓存后新增", category="urban", status="published", word_count=200
+        ))
+        await db_session.commit()
+        second = await client.get("/api/v1/c/discovery/home")
+        assert second.json()["code"] == 0
+
+
 class TestCEndCategories:
     async def test_get_categories_empty(self, client):
         resp = await client.get("/api/v1/c/categories")

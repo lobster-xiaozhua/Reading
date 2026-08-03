@@ -10,6 +10,7 @@ class CacheKeys:
 
     # C 端
     BANNERS = "c:banners"
+    HOME = "c:discovery:home"
     HOT_BOOKS = "c:books:hot"
     FREE_LIMITED = "c:books:free-limited"
     EDITOR_PICKS = "c:books:editor-picks"

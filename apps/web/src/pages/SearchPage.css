@@ -280,6 +280,67 @@
   text-decoration: none;
 }
 
+/* ---------- 加载更多 ---------- */
+.search-page__error {
+  padding-top: var(--space-6);
+}
+.search-page__retry-btn {
+  padding: var(--space-2) var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-brand);
+  font-size: 14px;
+  cursor: pointer;
+}
+.search-page__retry-btn:hover {
+  background: var(--color-brand-bg);
+  border-color: var(--color-brand);
+}
+.search-page__loadmore {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) 0;
+}
+.search-page__loadmore-btn {
+  padding: var(--space-2) var(--space-10);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-standard);
+}
+.search-page__loadmore-btn:hover:not(:disabled) {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+.search-page__loadmore-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.search-page__loadmore-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-feedback-error);
+}
+.search-page__loadmore-error button {
+  margin-left: var(--space-2);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-brand);
+  font-size: 13px;
+  cursor: pointer;
+}
+.search-page__loadmore-done {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
 @media (min-width: 768px) {
   .search-page__hot-list {
     grid-template-columns: repeat(3, 1fr);

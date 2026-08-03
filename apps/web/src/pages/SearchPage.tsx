@@ -4,7 +4,7 @@
  * 搜索历史（localStorage）+ 热门搜索 + 结果列表 + 空状态
  * URL 同步：?q=关键词
  * ============================================================ */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   BookCard,
@@ -19,6 +19,7 @@ import { useSearchStore } from '@/stores/searchStore';
 import './SearchPage.css';
 
 const DEBOUNCE_MS = 300;
+const PAGE_SIZE = 20;
 
 function toBook(b: BookSummary): Book {
   return {
@@ -72,13 +73,79 @@ export default function SearchPage() {
   );
   const suggestions = suggestState.data ?? [];
 
-  /* ---------- 搜索结果 ---------- */
-  const resultState = useAsyncState(
-    () => fetcher.searchBooks(committedQuery, 1, 20),
-    { deps: [committedQuery], loadingDelay: 200 },
-  );
-  const results = resultState.data?.items ?? [];
-  const total = resultState.data?.total ?? 0;
+  /* ---------- 搜索结果（累积分页） ---------- */
+  const [results, setResults] = useState<BookSummary[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [resultsLoading, setResultsLoading] = useState(false);
+  const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [resultsError, setResultsError] = useState(false);
+  const [retryToken, setRetryToken] = useState(0);
+  const retryInitial = () => setRetryToken((t) => t + 1);
+  const hasQuery = committedQuery.trim().length > 0;
+  const hasMore = results.length < total;
+  const isAllLoaded = hasQuery && !resultsLoading && !resultsError && results.length > 0 && !hasMore;
+
+  /* 新关键词提交 → 重置并加载第一页 */
+  useEffect(() => {
+    if (!committedQuery.trim()) {
+      setResults([]);
+      setTotal(0);
+      setPage(1);
+      setResultsLoading(false);
+      setResultsError(false);
+      return;
+    }
+    let alive = true;
+    setResultsLoading(true);
+    setResultsError(false);
+    fetcher
+      .searchBooks(committedQuery, 1, PAGE_SIZE)
+      .then((r) => {
+        if (!alive) return;
+        setResults(r.items);
+        setTotal(r.total);
+        setPage(1);
+      })
+      .catch(() => {
+        if (alive) setResultsError(true);
+      })
+      .finally(() => {
+        if (alive) setResultsLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [committedQuery, retryToken]);
+
+  /* 加载更多 → 追加下一页 */
+  const handleLoadMore = useCallback(() => {
+    if (loadMoreLoading || !hasMore) return;
+    let alive = true;
+    setLoadMoreLoading(true);
+    setResultsError(false);
+    fetcher
+      .searchBooks(committedQuery, page + 1, PAGE_SIZE)
+      .then((r) => {
+        if (!alive) return;
+        setResults((prev) => {
+          const seen = new Set(prev.map((b) => b.id));
+          const next = r.items.filter((b) => !seen.has(b.id));
+          return [...prev, ...next];
+        });
+        setTotal(r.total);
+        setPage((p) => p + 1);
+      })
+      .catch(() => {
+        if (alive) setResultsError(true);
+      })
+      .finally(() => {
+        if (alive) setLoadMoreLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [committedQuery, page, hasMore, loadMoreLoading]);
 
   /* ---------- 提交搜索 ---------- */
   const commitSearch = (keyword: string) => {
@@ -107,7 +174,6 @@ export default function SearchPage() {
     commitSearch(s.text);
   };
 
-  const hasQuery = committedQuery.trim().length > 0;
   const showSuggestPanel = showSuggestions && debouncedInput.length > 0;
 
   const groupedSuggestions = useMemo(() => {
@@ -261,11 +327,27 @@ export default function SearchPage() {
           </div>
 
           {/* 结果列表 */}
-          {resultState.loading && results.length === 0 ? (
+          {resultsLoading && results.length === 0 ? (
             <div className="search-page__list">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} rows={2} avatar />
               ))}
+            </div>
+          ) : resultsError && results.length === 0 ? (
+            <div className="search-page__error">
+              <EmptyState
+                title="搜索失败"
+                description="网络开小差了，请稍后重试"
+                action={
+                  <button
+                    type="button"
+                    className="search-page__retry-btn"
+                    onClick={retryInitial}
+                  >
+                    重试
+                  </button>
+                }
+              />
             </div>
           ) : results.length === 0 ? (
             <EmptyState
@@ -280,13 +362,41 @@ export default function SearchPage() {
               }
             />
           ) : (
-            <div className="search-page__list">
-              {results.map((b) => (
-                <Link key={b.id} to={`/book/${b.id}`} className="search-page__result-item">
-                  <BookCard book={toBook(b)} variant="list" size="md" showIntro />
-                </Link>
-              ))}
-            </div>
+            <>
+              <div className="search-page__list">
+                {results.map((b) => (
+                  <Link key={b.id} to={`/book/${b.id}`} className="search-page__result-item">
+                    <BookCard book={toBook(b)} variant="list" size="md" showIntro />
+                  </Link>
+                ))}
+              </div>
+
+              {/* 加载更多 / 全部加载完 */}
+              {hasMore ? (
+                <div className="search-page__loadmore">
+                  <button
+                    type="button"
+                    className="search-page__loadmore-btn"
+                    onClick={handleLoadMore}
+                    disabled={loadMoreLoading}
+                  >
+                    {loadMoreLoading ? '加载中…' : '加载更多'}
+                  </button>
+                  {resultsError ? (
+                    <p className="search-page__loadmore-error">
+                      加载失败，请重试
+                      <button type="button" onClick={handleLoadMore}>
+                        重试
+                      </button>
+                    </p>
+                  ) : null}
+                </div>
+              ) : isAllLoaded ? (
+                <div className="search-page__loadmore">
+                  <span className="search-page__loadmore-done">已加载全部</span>
+                </div>
+              ) : null}
+            </>
           )}
         </div>
       )}

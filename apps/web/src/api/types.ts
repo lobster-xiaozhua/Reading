@@ -9,6 +9,16 @@ export type BookStatus = 'ongoing' | 'completed';
 /** 内容分级（用于 VIP/限免标识） */
 export type BookFlag = 'vip' | 'free-limited' | 'editor-pick' | 'hot';
 
+/** 发现页聚合数据 */
+export interface DiscoverHome {
+  banners: Banner[];
+  hotBooks: BookSummary[];
+  freeBooks: BookSummary[];
+  editorPicks: BookSummary[];
+  categories: Category[];
+  rankings: Record<RankType, BookSummary[]>;
+}
+
 /** 书籍摘要（列表/卡片用） */
 export interface BookSummary {
   id: string;
@@ -27,6 +37,8 @@ export interface BookSummary {
   flags: BookFlag[];
   /** 最近更新时间戳（ms） */
   lastUpdated: number;
+  /** 限免截止时间戳（ms），缺失时前端降级为「限免中」 */
+  freeDeadline?: number;
 }
 
 /** 章节摘要（目录用） */

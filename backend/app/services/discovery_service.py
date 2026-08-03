@@ -14,7 +14,15 @@ from app.core.redis import CacheKeys
 from app.models.novel import Banner as BannerModel
 from app.models.novel import Category, Novel
 from app.repositories.novel_repo import NovelRepository
-from app.schemas.c_end import Banner, BookSummary, CategoryNode, RankItem, RecommendBook, TagItem
+from app.schemas.c_end import (
+    Banner,
+    BookSummary,
+    CategoryNode,
+    DiscoverHome,
+    RankItem,
+    RecommendBook,
+    TagItem,
+)
 from app.services._converters import novel_to_c_summary
 
 logger = logging.getLogger(__name__)
@@ -27,6 +35,7 @@ _TTL_EDITOR_PICKS = 300
 _TTL_RANKING = 600           # 10 分钟
 _TTL_CATEGORIES = 3600
 _TTL_TAGS = 3600
+_TTL_HOME = 300              # 聚合接口取各模块最小 TTL
 
 
 class DiscoveryService:
@@ -36,6 +45,46 @@ class DiscoveryService:
         self.session = session
         self.redis = redis_client
         self.novel_repo = NovelRepository(session)
+
+    # ── 聚合首页 ────────────────────────────────────────
+    async def get_home_payload(self, rank_limit: int = 8) -> DiscoverHome:
+        """聚合发现页全部模块数据，单模块失败降级为空数组。
+
+        各模块复用既有 Cache-Aside 缓存方法；聚合结果整体再套一层 HOME 缓存。
+        """
+        cached = await self.redis.get(CacheKeys.HOME)
+        if cached:
+            try:
+                return DiscoverHome.model_validate_json(cached)
+            except Exception:
+                logger.warning("聚合缓存解析失败，回源重建", exc_info=True)
+
+        def safe(fn):
+            async def _run() -> list:
+                try:
+                    return await fn
+                except Exception:
+                    logger.warning("发现页模块加载失败", exc_info=True)
+                    return []
+
+            return _run
+
+        payload = DiscoverHome(
+            banners=await safe(self.get_banners())(),
+            hotBooks=await safe(self.get_hot_books(10))(),
+            freeBooks=await safe(self.get_free_limited_books(10))(),
+            editorPicks=await safe(self.get_editor_picks(6))(),
+            categories=await safe(self.get_categories())(),
+            rankings={
+                rank_type: await safe(self.get_ranking(rank_type, rank_limit))()
+                for rank_type in ("hot", "follow", "ticket", "new")
+            },
+        )
+        try:
+            await self.redis.set(CacheKeys.HOME, payload.model_dump_json(), ex=_TTL_HOME)
+        except Exception:
+            logger.warning("聚合缓存写入失败 key=%s", CacheKeys.HOME, exc_info=True)
+        return payload
 
     # ── Banner ──────────────────────────────────────────
     async def get_banners(self) -> list[Banner]:
@@ -133,7 +182,8 @@ class DiscoveryService:
 
     async def _cache_set(self, key: str, data: list, ttl: int) -> None:
         try:
-            await self.redis.set(key, json.dumps(data, default=str), ex=ttl)
+            payload = [d.model_dump(mode="json") for d in data]
+            await self.redis.set(key, json.dumps(payload), ex=ttl)
         except Exception:
             logger.warning("缓存写入失败 key=%s", key, exc_info=True)
 

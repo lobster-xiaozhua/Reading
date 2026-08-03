@@ -16,3 +16,4 @@ apps/*/dist
 tools/*/dist
 *.tsbuildinfo
 test-results/
+monitoring/reports/

@@ -6,6 +6,9 @@ test.describe('C 端页面巡检', () => {
   test('首页发现页正常渲染', async ({ page }) => {
     await page.goto(WEB, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
+    await expect(page.locator('.discover-page')).toBeAttached();
+    await expect(page.locator('.discover-page__banner')).toBeVisible();
+    await expect(page.locator('.discover-page__rank-tabs')).toBeVisible();
   });
 
   test('登录页正常渲染', async ({ page }) => {

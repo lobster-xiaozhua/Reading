@@ -76,6 +76,42 @@
 .category-page__cat-item.is-active .category-page__cat-count {
   color: var(--color-brand);
 }
+.category-page__cat-sub {
+  list-style: none;
+  margin: var(--space-1) 0 var(--space-2) 0;
+  padding: 0 0 0 var(--space-4);
+  border-left: 2px solid var(--color-border-subtle);
+}
+.category-page__cat-sub-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  transition: background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.category-page__cat-sub-item:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+.category-page__cat-sub-item.is-active {
+  color: var(--color-brand);
+  font-weight: 500;
+}
+.category-page__cat-sub-item.is-active .category-page__cat-count {
+  color: var(--color-brand);
+}
+.category-page__error {
+  padding-top: var(--space-6);
+}
 .category-page__sidebar-loading {
   width: 100%;
 }

@@ -89,4 +89,14 @@ test.describe('业务链路巡检', () => {
     await page.goto(`${WEB}/profile`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
   });
+
+  test('C 端发现页 → 分类联动', async ({ page }) => {
+    await page.goto(WEB, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('.discover-page__category-grid')).toBeVisible();
+    const firstCat = page.locator('.discover-page__category-main').first();
+    if ((await firstCat.count()) > 0) {
+      await firstCat.click();
+      await expect(page.locator('.category-page')).toBeAttached();
+    }
+  });
 });

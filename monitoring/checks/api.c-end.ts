@@ -58,6 +58,21 @@ test.describe('C 端 API 巡检', () => {
     expect(res.status()).toBeGreaterThanOrEqual(200);
   });
 
+  test('发现页聚合接口', async ({ request }) => {
+    const res = await request.get(`${BASE}/discovery/home`);
+    expect(res.ok()).toBeTruthy();
+    const body = await res.json();
+    expect(body.code).toBe(0);
+    expect(Array.isArray(body.data.banners)).toBeTruthy();
+    expect(Array.isArray(body.data.hotBooks)).toBeTruthy();
+    expect(Array.isArray(body.data.freeBooks)).toBeTruthy();
+    expect(Array.isArray(body.data.editorPicks)).toBeTruthy();
+    expect(Array.isArray(body.data.categories)).toBeTruthy();
+    for (const key of ['hot', 'follow', 'ticket', 'new']) {
+      expect(Array.isArray(body.data.rankings[key])).toBeTruthy();
+    }
+  });
+
   test('热搜接口', async ({ request }) => {
     const res = await request.get(`${BASE}/search/hot`);
     expect(res.ok()).toBeTruthy();

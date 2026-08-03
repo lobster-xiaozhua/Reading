@@ -125,6 +125,7 @@ export default function CategoryPage() {
   }, [totalPages, page]);
 
   const loading = booksState.loading && books.length === 0;
+  const loadError = booksState.status === 'error';
 
   return (
     <div className="category-page container-page">
@@ -157,6 +158,24 @@ export default function CategoryPage() {
                     <span>{c.name}</span>
                     <span className="category-page__cat-count">{c.count}</span>
                   </button>
+                  {c.children && c.children.length > 0 ? (
+                    <ul className="category-page__cat-sub">
+                      {c.children.map((sub) => (
+                        <li key={sub.id}>
+                          <button
+                            type="button"
+                            className={`category-page__cat-sub-item ${
+                              category === sub.name ? 'is-active' : ''
+                            }`}
+                            onClick={() => updateParam('cat', sub.name)}
+                          >
+                            {sub.name}
+                            <span className="category-page__cat-count">{sub.count}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </li>
               ))
             )}
@@ -234,7 +253,23 @@ export default function CategoryPage() {
           </div>
 
           {/* 书籍网格 */}
-          {loading ? (
+          {loadError && books.length === 0 ? (
+            <div className="category-page__error">
+              <EmptyState
+                title="加载失败"
+                description="网络开小差了，请稍后重试"
+                action={
+                  <button
+                    type="button"
+                    className="category-page__reset-btn"
+                    onClick={() => booksState.run()}
+                  >
+                    重试
+                  </button>
+                }
+              />
+            </div>
+          ) : loading ? (
             <div className="category-page__grid">
               {Array.from({ length: PAGE_SIZE }).map((_, i) => (
                 <BookCard key={i} book={{ id: `s-${i}`, title: '', author: '' }} variant="grid" size="md" loading />

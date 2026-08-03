@@ -297,6 +297,17 @@ class NoteUpdateBody(CamelModel):
     annotation: str | None = None
 
 
+class DiscoverHome(CamelModel):
+    """发现页聚合数据。"""
+
+    banners: list[Banner] = []
+    hot_books: list[BookSummary] = []
+    free_books: list[BookSummary] = []
+    editor_picks: list[RecommendBook] = []
+    categories: list[CategoryNode] = []
+    rankings: dict[str, list[RankItem]] = {}
+
+
 # 显式再导出枚举，便于路由层引用
 __all__ = [
     "Badge",
@@ -309,6 +320,7 @@ __all__ = [
     "ChapterListItem",
     "Comment",
     "CommentUser",
+    "DiscoverHome",
     "FollowItem",
     "HeatmapCell",
     "PaymentMethodItem",
