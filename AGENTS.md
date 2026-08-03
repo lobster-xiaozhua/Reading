@@ -34,18 +34,22 @@ cd /workspace/apps/web && pnpm dev &
 ```bash
 pnpm build                    # 构建所有 packages (build 顺序: tokens → icons → types → components → b-end)
 pnpm typecheck                # 全量 TS 类型检查 (8 个包)
-pnpm run ci                   # CI 全流程: lint → typecheck → token-scan → import-audit → test
+pnpm run ci                   # CI 全流程: lint → typecheck → token-scan → import-audit → test → build
+pnpm run validate              # 本地预检 (模拟 CI 全流程)
+pnpm run validate:quick        # 快速预检 (跳过构建和慢速测试)
 pnpm run token-scan           # 代码安全扫描 (token-scanner 工具)
 pnpm run import-audit         # B 端 import 审计
 pnpm storybook                # 启动 Storybook (port 6006)
 bash monitoring/run.sh        # 全量 Playwright 巡检
+pnpm audit                    # 前端依赖漏洞扫描
+pip-audit                     # 后端依赖漏洞扫描 (backend/ 目录)
 ```
 
 ## 后端开发
 
 - 依赖安装: `pip install -e ".[dev]"` (在 `backend/` 目录)
 - 代码检查: `ruff check app/` (配置见 `pyproject.toml`)
-- 测试: `python -m pytest tests/ -v --tb=short` (162 个测试)
+- 测试: `python -m pytest tests/ -v --tb=short` (306 个测试, 84% 覆盖率门禁 70%)
 - 后端 API 统一前缀: `/api/v1/c` (C 端), `/api/v1/b` (B 端)
 - 统一响应格式: `{ code: 0, message: "ok", data: ..., traceId: "..." }` (code=0 成功)
 - Schema 自动 snake_case → camelCase 序列化 (基于 `CamelModel` 基类)
@@ -70,6 +74,20 @@ pnpm run monitor:api          # 仅 API 接口巡检
 pnpm run monitor:page         # 仅前端页面渲染巡检
 pnpm run monitor:flow         # 仅业务链路巡检
 ```
+
+## 项目文档
+
+项目文档位于 `.monkeycode/docs/`，包含完整 wiki：
+
+| 文档 | 说明 |
+|------|------|
+| `INDEX.md` | 文档索引 |
+| `ARCHITECTURE.md` | 系统架构总览（Monorepo 结构、分层设计、架构决策） |
+| `INTERFACES.md` | API 接口文档（C/B 端全部端点、响应格式、鉴权） |
+| `DEVELOPER_GUIDE.md` | 开发者指南（环境搭建、构建、测试、部署） |
+| `专有概念/` | 核心概念：三层令牌架构、状态机、双 Token 鉴权、作品状态流转、敏感词系统、权限体系 |
+| `模块/` | 模块文档：后端三层架构、C 端、B 端管理后台、设计系统、图标库、共享类型、监控巡检 |
+| `原始设计文档/` | 原始设计规范文档（已归档） |
 
 ## 架构约定
 

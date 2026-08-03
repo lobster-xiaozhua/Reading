@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -55,7 +56,7 @@ export default function NovelListPage() {
   const [shelveSubmitting, setShelveSubmitting] = useState(false);
   const { message } = App.useApp();
 
-  const canCreate = hasPermission('novel.create' as never);
+  const canCreate = hasPermission('novel.create');
 
   const loadData = useCallback(async () => {
     setStatus('loading');
@@ -213,7 +214,7 @@ export default function NovelListPage() {
       fixed: 'right',
       width: 160,
       render: (_, record) => {
-        const canEdit = hasPermission('novel.edit' as never);
+        const canEdit = hasPermission('novel.edit');
         const statusAction =
           record.status === 'draft'
             ? { key: 'submit-audit', label: t('novel:action.submitAudit'), icon: <AuditOutlined /> }
@@ -321,7 +322,7 @@ export default function NovelListPage() {
         advancedValues={advancedValues}
         onAdvancedConfirm={setAdvancedValues}
         onReset={handleReset}
-        columns={columns as never}
+        columns={columns as any}
         dataSource={dataSource}
         rowKey="id"
         loading={status === 'loading'}

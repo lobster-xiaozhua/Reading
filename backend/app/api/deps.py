@@ -1,6 +1,7 @@
 """FastAPI 依赖注入：数据库、缓存、当前用户、权限校验。"""
 
 from dataclasses import dataclass, field
+from typing import cast
 
 import redis.asyncio as redis
 from fastapi import Depends, Header, Request
@@ -51,7 +52,7 @@ async def get_current_admin(
             roles=["super-admin"],
             permissions=ALL_PERMISSIONS,
         )
-        return request.state.admin  # type: ignore[return-value]
+        return cast(AdminContext, request.state.admin)
 
     token = authorization.removeprefix("Bearer ").strip()
     try:

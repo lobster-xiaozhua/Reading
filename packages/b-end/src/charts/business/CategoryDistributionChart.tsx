@@ -55,7 +55,7 @@ export function CategoryDistributionChart({
   const total = processed.reduce((sum, d) => sum + d.count, 0);
 
   const mergedConfig: PieConfig = {
-    data: processed as never[],
+    data: processed,
     angleField: 'count',
     colorField: 'category',
     height,

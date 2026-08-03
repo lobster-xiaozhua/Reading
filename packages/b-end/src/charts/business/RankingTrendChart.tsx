@@ -50,10 +50,10 @@ export function RankingTrendChart({
   }
 
   const mergedConfig: LineConfig = {
-    data: data as never[],
+    data,
     xField: 'date',
     yField: 'rank',
-    seriesField: 'series' as never,
+    seriesField: 'series',
     colorField: 'series',
     height,
     theme: dark ? 'classicDark' : 'classic',

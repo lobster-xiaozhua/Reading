@@ -63,7 +63,7 @@ export function BLineChart({
     data,
     xField,
     yField,
-    seriesField: seriesField as never,
+    seriesField,
     height,
     theme: dark ? 'classicDark' : 'classic',
     colorField: seriesField,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -41,11 +42,11 @@ export default function ChartsShowcasePage() {
   const [heatmapData, setHeatmapData] = useState<Array<Record<string, unknown>>>([]);
   const [gaugeValue, setGaugeValue] = useState(0);
 
-  const [wordCountData, setWordCountData] = useState<never[]>([]);
-  const [readingHeatmapData, setReadingHeatmapData] = useState<never[]>([]);
-  const [funnelData, setFunnelData] = useState<never[]>([]);
-  const [rankingData, setRankingData] = useState<never[]>([]);
-  const [categoryData, setCategoryData] = useState<never[]>([]);
+  const [wordCountData, setWordCountData] = useState<any[]>([]);
+  const [readingHeatmapData, setReadingHeatmapData] = useState<any[]>([]);
+  const [funnelData, setFunnelData] = useState<any[]>([]);
+  const [rankingData, setRankingData] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<any[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,17 +62,17 @@ export default function ChartsShowcasePage() {
           fetchCategoryDistribution(),
         ]);
         if (cancelled) return;
-        setLineData(basic.lineData as never);
-        setColumnData(basic.columnData as never);
-        setPieData(basic.pieData as never);
-        setAreaData(basic.areaData as never);
-        setHeatmapData(basic.heatmapData as never);
+        setLineData(basic.lineData);
+        setColumnData(basic.columnData);
+        setPieData(basic.pieData);
+        setAreaData(basic.areaData);
+        setHeatmapData(basic.heatmapData);
         setGaugeValue(basic.gaugeValue);
-        setWordCountData(wc as never);
-        setReadingHeatmapData(rh as never);
-        setFunnelData(rf as never);
-        setRankingData(rt as never);
-        setCategoryData(cd as never);
+        setWordCountData(wc);
+        setReadingHeatmapData(rh);
+        setFunnelData(rf);
+        setRankingData(rt);
+        setCategoryData(cd);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -179,27 +180,27 @@ export default function ChartsShowcasePage() {
         <Row gutter={[16, 16]}>
           <Col span={24}>
             <Card title={t('charts:business.wordCount')} size="small" extra={<Tag color="warning">{t('charts:business.wordCountTag')}</Tag>}>
-              <WordCountGrowthChart data={wordCountData as never} />
+              <WordCountGrowthChart data={wordCountData} />
             </Card>
           </Col>
           <Col span={24}>
             <Card title={t('charts:business.readingHeatmap')} size="small" extra={<Tag color="processing">{t('charts:business.readingHeatmapTag')}</Tag>}>
-              <ReadingHeatmap data={readingHeatmapData as never} />
+              <ReadingHeatmap data={readingHeatmapData} />
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t('charts:business.funnel')} size="small" extra={<Tag color="error">{t('charts:business.funnelTag')}</Tag>}>
-              <ReadingFunnel data={funnelData as never} />
+              <ReadingFunnel data={funnelData} />
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t('charts:business.ranking')} size="small" extra={<Tag color="success">{t('charts:business.rankingTag')}</Tag>}>
-              <RankingTrendChart data={rankingData as never} />
+              <RankingTrendChart data={rankingData} />
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t('charts:business.category')} size="small" extra={<Tag>{t('charts:business.categoryTag')}</Tag>}>
-              <CategoryDistributionChart data={categoryData as never} />
+              <CategoryDistributionChart data={categoryData} />
             </Card>
           </Col>
         </Row>

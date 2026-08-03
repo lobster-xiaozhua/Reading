@@ -150,12 +150,12 @@ export function BRoyaltyDetail(props: BRoyaltyDetailProps) {
   const { columns, dataSource, rowKey, loading, pagination, rowSelection } = props;
   return (
     <BTable
-      columns={(columns as never) ?? (defaultRoyaltyColumns() as never)}
-      dataSource={dataSource as never}
-      rowKey={rowKey as never}
+      columns={(columns as any) ?? (defaultRoyaltyColumns() as any)}
+      dataSource={dataSource as any}
+      rowKey={rowKey as any}
       loading={loading}
-      pagination={pagination as never}
-      rowSelection={rowSelection as never}
+      pagination={pagination as any}
+      rowSelection={rowSelection as any}
     />
   );
 }

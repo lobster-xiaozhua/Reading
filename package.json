@@ -23,7 +23,9 @@
     "monitor:api": "bash monitoring/run.sh --only api",
     "monitor:page": "bash monitoring/run.sh --only page",
     "monitor:flow": "bash monitoring/run.sh --only flow",
-    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan && pnpm run import-audit && pnpm run test"
+    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan && pnpm run import-audit && pnpm run test",
+    "validate": "bash scripts/validate.sh",
+    "validate:quick": "bash scripts/validate.sh --quick"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",

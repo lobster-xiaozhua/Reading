@@ -35,11 +35,9 @@ const buffer: PerfMetric[] = [];
 function report(metric: PerfMetric): void {
   buffer.push(metric);
   if (import.meta.env.DEV) {
-    // 开发环境控制台输出
-    const tag = metric.rating === 'good' ? '✓' : metric.rating === 'poor' ? '✗' : '!';
-    console.log(
-      `[perf] ${tag} ${metric.name} = ${metric.value.toFixed(metric.name === 'CLS' ? 3 : 0)} (${metric.rating})`,
-    );
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('perf-metric', { detail: metric }));
+    }
   } else {
     // 生产环境：sendBeacon 上报
     const payload = JSON.stringify(metric);

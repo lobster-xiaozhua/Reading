@@ -45,7 +45,7 @@ export function ReadingFunnel({
   }
 
   const mergedConfig: FunnelConfig = {
-    data: data as never[],
+    data,
     xField: 'stage',
     yField: 'value',
     height,

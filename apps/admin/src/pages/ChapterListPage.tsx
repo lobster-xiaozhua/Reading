@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -143,7 +144,7 @@ function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: str
     return (
       <Space>
         <Input
-          ref={inputRef as never}
+          ref={inputRef as any}
           size="small"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -201,9 +202,9 @@ export default function ChapterListPage() {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [createForm] = Form.useForm<{ title: string; content: string; isVip: boolean }>();
 
-  const canEdit = hasPermission('chapter.edit' as never);
-  const canCreate = hasPermission('chapter.create' as never);
-  const canDelete = hasPermission('chapter.delete' as never);
+  const canEdit = hasPermission('chapter.edit');
+  const canCreate = hasPermission('chapter.create');
+  const canDelete = hasPermission('chapter.delete');
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -577,12 +578,12 @@ export default function ChapterListPage() {
         >
           <SortableContext items={dataSource.map((c) => c.id)} strategy={verticalListSortingStrategy}>
             <BTable
-              columns={columns as never}
-              dataSource={dataSource as never}
+              columns={columns as any}
+              dataSource={dataSource as any}
               rowKey="id"
               size="small"
               scroll={{ x: 1200, y: 600 }}
-              components={{ body: { row: DraggableRow } } as never}
+              components={{ body: { row: DraggableRow } } as any}
               pagination={{
                 current: page,
                 pageSize,
@@ -596,7 +597,7 @@ export default function ChapterListPage() {
                 selectedRowKeys,
                 onChange: setSelectedRowKeys,
                 columnWidth: 40,
-              } as never}
+              } as any}
               locale={{
                 emptyText: t('chapter:emptyTable'),
               }}

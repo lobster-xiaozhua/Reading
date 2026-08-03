@@ -188,7 +188,7 @@ export default {
     chapterSection: {
       title: '章节管理',
       enter: '进入章节管理',
-      placeholder: '章节列表、排序、编辑将在 P5-1 章节管理页实现',
+      placeholder: '在章节管理页进行章节的排序、编辑和管理',
     },
     steps: {
       draft: '草稿',

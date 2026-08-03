@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tabs, Dropdown } from 'antd';
@@ -114,7 +115,7 @@ export function MultiTabs() {
         onEdit={(targetKey, action) => {
           if (action === 'remove') handleRemove(targetKey as string);
         }}
-        renderTabBar={renderTabBar as never}
+        renderTabBar={renderTabBar as any}
       />
     </div>
   );

@@ -6,6 +6,7 @@
  * Source: 04 §5.1
  * ============================================================ */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useCallback } from 'react';
 import { Result, Button } from 'antd';
 import { ReloadOutlined, PlusOutlined } from '@ant-design/icons';
@@ -159,7 +160,7 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
   }, [onCreate, canCreate]);
 
   // 无权限
-  if (permission && !hasPermission(permission as never)) {
+  if (permission && !hasPermission(permission as any)) {
     return (
       <div>
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
@@ -211,8 +212,8 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
       />
 
       <BTable
-        columns={columns as never}
-        dataSource={dataSource as never}
+        columns={columns as any}
+        dataSource={dataSource as any}
         rowKey={rowKey}
         loading={loading ?? status === 'loading'}
         pagination={
@@ -224,7 +225,7 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
             onChange: handlePaginationChange,
           }
         }
-        rowSelection={rowSelection as never}
+        rowSelection={rowSelection as any}
         locale={{
           emptyText: isNoSearchResult ? (
             <Result

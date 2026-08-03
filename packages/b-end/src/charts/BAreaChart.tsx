@@ -60,7 +60,7 @@ export function BAreaChart({
     data,
     xField,
     yField,
-    seriesField: seriesField as never,
+    seriesField,
     isStack,
     height,
     theme: dark ? 'classicDark' : 'classic',

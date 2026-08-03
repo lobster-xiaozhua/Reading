@@ -49,7 +49,7 @@ export function ReadingHeatmap({
   }
 
   const mergedConfig: HeatmapConfig = {
-    data: data as never[],
+    data,
     xField: 'hour',
     yField: 'day',
     colorField: 'duration',

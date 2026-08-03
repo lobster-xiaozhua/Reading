@@ -215,7 +215,10 @@ def _build_category_tree(categories: list[Category]) -> list[CategoryNode]:
     for c in categories:
         node = nodes[c.id]
         if c.parent_id and c.parent_id in nodes:
-            nodes[c.parent_id].children.append(node)  # type: ignore[arg-type]
+            parent = nodes[c.parent_id]
+            if parent.children is None:
+                parent.children = []
+            parent.children.append(node)
         else:
             roots.append(node)
     # 空子节点置 None，对齐前端可选字段

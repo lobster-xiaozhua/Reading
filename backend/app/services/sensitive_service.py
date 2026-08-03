@@ -100,7 +100,8 @@ class SensitiveService:
         version = await self.repo.current_version() or ""
         if _trie is None or _trie_version != version:
             await self._refresh_trie()
-        return _trie  # type: ignore[return-value]
+        assert _trie is not None
+        return _trie
 
     async def _refresh_trie(self) -> None:
         global _trie, _trie_version

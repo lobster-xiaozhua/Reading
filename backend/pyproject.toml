@@ -78,7 +78,7 @@ known-first-party = ["app"]
 asyncio_mode = "auto"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+addopts = "-v --tb=short --cov=app/ --cov-report=term-missing --cov-fail-under=70"
 filterwarnings = [
     "ignore::DeprecationWarning",
 ]

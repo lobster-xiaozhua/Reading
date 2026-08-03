@@ -51,7 +51,7 @@ export function WordCountGrowthChart({
   }
 
   const mergedConfig: DualAxesConfig = {
-    data: [data as never[], data as never[]],
+    data: [data, data],
     xField: 'date',
     yField: ['dailyWords', 'totalWords'],
     height,

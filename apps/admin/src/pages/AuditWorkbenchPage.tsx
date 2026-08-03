@@ -57,8 +57,8 @@ export default function AuditWorkbenchPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const hitRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
 
-  const canApprove = hasPermission('audit.approve' as never);
-  const canReject = hasPermission('audit.reject' as never);
+  const canApprove = hasPermission('audit.approve');
+  const canReject = hasPermission('audit.reject');
 
   const loadData = useCallback(async () => {
     setStatus('loading');

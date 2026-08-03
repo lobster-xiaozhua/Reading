@@ -57,7 +57,7 @@ export function BColumnChart({
     data,
     xField,
     yField,
-    seriesField: seriesField as never,
+    seriesField,
     isGroup: seriesField ? isGroup : false,
     isStack,
     height,
