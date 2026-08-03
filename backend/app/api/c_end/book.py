@@ -28,6 +28,7 @@ async def get_category_books(
     category: str = Query("all"),
     sort: str = Query("hot"),
     status: str | None = Query(None),
+    tags: str | None = Query(None),
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
@@ -37,7 +38,7 @@ async def get_category_books(
         status = "completed"
     repo = NovelRepository(db)
     novels, total = await repo.list_published(
-        category=category, sort=sort, status=status, page=page, page_size=page_size
+        category=category, sort=sort, status=status, tags=tags, page=page, page_size=page_size
     )
     items = [novel_to_c_summary(n) for n in novels]
     return ok(request, PagedResult.build(items, total, page, page_size))

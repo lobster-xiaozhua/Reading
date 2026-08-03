@@ -153,25 +153,11 @@ export const fetcher = {
   }): Promise<PagedResult<BookSummary>> {
     const { category, tags = [], sort = 'hot', status, page = 1, pageSize = 12 } = params;
 
-    // 后端不支持 tag 过滤：带 tag 时扩大拉取并前端二次过滤
-    if (tags.length > 0) {
-      const data = await http.get<BookSummary[]>('/books', {
-        category,
-        sort,
-        status,
-        page: 1,
-        page_size: 100,
-      });
-      const filtered = data.filter((b) => tags.every((t) => b.tags.includes(t)));
-      const total = filtered.length;
-      const start = (page - 1) * pageSize;
-      return toPaged(filtered.slice(start, start + pageSize), total, page, pageSize);
-    }
-
     const data = await http.get<PagedResult<BookSummary>>('/books', {
       category,
       sort,
       status,
+      tags: tags.length > 0 ? tags.join(',') : undefined,
       page,
       page_size: pageSize,
     });
@@ -267,6 +253,10 @@ export const fetcher = {
     return http.get<FollowItem[]>('/me/follows');
   },
 
+  async readAllFollows(): Promise<{ updatedCount: number }> {
+    return http.post<{ updatedCount: number }>('/me/follows/read-all');
+  },
+
   /* ---------- 写操作（互动） ---------- */
   async addToBookshelf(bookId: string): Promise<void> {
     await http.post(`/me/bookshelf/${bookId}`);
@@ -309,6 +299,35 @@ export const fetcher = {
 
   async submitRating(bookId: string, rating: number): Promise<void> {
     await http.post(`/books/${bookId}/rating`, { rating });
+  },
+
+  /* ---------- 笔记 ---------- */
+  async createNote(params: {
+    bookId: string;
+    chapterId: string;
+    text: string;
+    annotation?: string;
+    paragraphIndex?: number;
+    offsetStart?: number;
+    offsetEnd?: number;
+  }): Promise<{ id: string }> {
+    return http.post<{ id: string }>('/me/notes', {
+      novel_id: parseInt(params.bookId),
+      chapter_id: parseInt(params.chapterId),
+      text: params.text,
+      annotation: params.annotation ?? '',
+      paragraph_index: params.paragraphIndex ?? 0,
+      offset_start: params.offsetStart ?? 0,
+      offset_end: params.offsetEnd ?? 0,
+    });
+  },
+
+  async getNotes(novelId?: string): Promise<{ id: string; text: string; annotation: string; chapter_id: number; created_at: number }[]> {
+    return http.get('/me/notes', novelId ? { novel_id: novelId } : undefined);
+  },
+
+  async deleteNote(noteId: string): Promise<void> {
+    await http.del(`/me/notes/${noteId}`);
   },
 };
 

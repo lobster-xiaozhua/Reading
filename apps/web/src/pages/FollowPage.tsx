@@ -84,9 +84,14 @@ export default function FollowPage() {
     setItems((prev) => prev.filter((i) => i.bookId !== bookId));
   };
 
-  const handleMarkAllRead = () => {
+  const handleMarkAllRead = async () => {
     setItems((prev) => prev.map((i) => ({ ...i, unreadCount: 0 })));
     setConfirmOpen(false);
+    try {
+      await fetcher.readAllFollows?.();
+    } catch {
+      // 静默失败，前端已同步清空未读数
+    }
   };
 
   return (

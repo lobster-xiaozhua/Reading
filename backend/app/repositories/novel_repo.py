@@ -15,6 +15,7 @@ class NovelRepository(BaseRepository[Novel]):
         category: str = "all",
         sort: str = "hot",
         status: str | None = None,
+        tags: str | None = None,
         page: int = 1,
         page_size: int = 12,
     ) -> tuple[list[Novel], int]:
@@ -30,6 +31,11 @@ class NovelRepository(BaseRepository[Novel]):
             stmt = stmt.where(Novel.category == category)
         if status == "completed" or sort == "completed":
             stmt = stmt.where(Novel.is_completed == 1)
+        if tags:
+            for tag in tags.split(","):
+                tag = tag.strip()
+                if tag:
+                    stmt = stmt.where(Novel.tags_str.contains(f",{tag},") | Novel.tags_str.like(f"{tag},%") | Novel.tags_str.like(f"%,{tag}") | (Novel.tags_str == tag))
         stmt = stmt.order_by(sort_field)
         return await self.paginate(stmt, page, page_size)
 

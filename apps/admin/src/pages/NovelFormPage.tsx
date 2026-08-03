@@ -1,12 +1,5 @@
-/* ============================================================
- * P4-4 · 新建/编辑作品表单页
- * 基于 FormPageTemplate 实例化
- * 基本信息（书名/作者/分类Cascader/标签/简介）+ 封面上传 + 设置区 + 底部提交条
- * 校验：失焦 + 提交双校验，错误滚动首字段（04 §9.4）
- * Source: 04 §5.4 / P4-4
- * ============================================================ */
-
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Input, Select, Radio, Switch, InputNumber, Tree, Upload, Card, App } from 'antd';
 import type { UploadFile, TreeDataNode } from 'antd';
@@ -26,6 +19,7 @@ const CATEGORY_OPTIONS = NOVEL_CATEGORIES.filter((c) => c.value !== 'all').map((
 }));
 
 export default function NovelFormPage() {
+  const { t } = useTranslation();
   const { novelId } = useParams<{ novelId: string }>();
   const navigate = useNavigate();
   const { message } = App.useApp();
@@ -40,25 +34,24 @@ export default function NovelFormPage() {
       const data = await http.get<{ index: number; title: string }[]>(`/novels/${id}/chapters`);
       if (data && data.length > 0) {
         setChapterTree([{
-          title: '全部章节',
+          title: t('novelForm:treeAll'),
           key: 'all',
           children: data.map((ch: { index: number; title: string }) => ({
-            title: `第 ${ch.index} 章 ${ch.title}`,
+            title: t('novelForm:treeChapter', { index: ch.index, title: ch.title }),
             key: `ch-${ch.index}`,
           })),
         }]);
       }
     } catch {
-      // 章节加载失败不影响表单
+      // 章节树加载失败不影响表单编辑
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (!isEdit) {
       setStatus('editing');
       return;
     }
-    // 编辑模式：回填
     let cancelled = false;
     (async () => {
       try {
@@ -88,7 +81,7 @@ export default function NovelFormPage() {
     return () => {
       cancelled = true;
     };
-  }, [novelId, form, isEdit]);
+  }, [novelId, form, isEdit, loadChapters]);
 
   const handleFinish = async (values: Record<string, unknown>) => {
     setStatus('submitting');
@@ -98,7 +91,7 @@ export default function NovelFormPage() {
       await submitNovel(formValues);
       setStatus('success');
     } catch {
-      message.error('提交失败，请重试');
+      message.error(t('novelForm:message.submitFailed'));
       setStatus('editing');
     }
   };
@@ -108,18 +101,18 @@ export default function NovelFormPage() {
     values.status = 'draft' as BNovelStatus;
     values.id = novelId;
     await submitNovel(values as NovelFormValues);
-    message.success('草稿已保存');
+    message.success(t('novelForm:message.saved'));
   };
 
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      message.error('只能上传图片文件');
+      message.error(t('novelForm:message.imageOnly'));
       return Upload.LIST_IGNORE;
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
     if (!isLt2M) {
-      message.error('封面图片不能超过 2MB');
+      message.error(t('novelForm:message.imageTooLarge'));
       return Upload.LIST_IGNORE;
     }
     const reader = new FileReader();
@@ -133,11 +126,11 @@ export default function NovelFormPage() {
 
   return (
     <FormPageTemplate
-      title={isEdit ? '编辑作品' : '新建作品'}
+      title={isEdit ? t('novelForm:editTitle') : t('novelForm:createTitle')}
       breadcrumb={[
-        { title: '内容管理' },
-        { title: '作品管理', onClick: () => navigate('/novel') },
-        { title: isEdit ? '编辑' : '新建' },
+        { title: t('novelForm:breadcrumb.content') },
+        { title: t('novelForm:breadcrumb.novel'), onClick: () => navigate('/novel') },
+        { title: isEdit ? t('novelForm:breadcrumb.edit') : t('novelForm:breadcrumb.create') },
       ]}
       onBack={() => navigate('/novel')}
       status={status}
@@ -148,57 +141,56 @@ export default function NovelFormPage() {
         form.resetFields();
         setStatus('editing');
       }}
-      submitText={isEdit ? '保存' : '提交'}
+      submitText={isEdit ? t('novelForm:save') : t('novelForm:submit')}
       showDraft
       onDraft={handleDraft}
     >
-      {/* 基本信息 */}
-      <Card title="基本信息" style={{ marginBottom: 'var(--space-4)' }}>
+      <Card title={t('novelForm:card.basic')} style={{ marginBottom: 'var(--space-4)' }}>
         <Form.Item
           name="title"
-          label="书名"
+          label={t('novelForm:field.title')}
           rules={[
-            { required: true, message: '请输入书名' },
-            { max: 50, message: '书名不能超过 50 字' },
+            { required: true, message: t('novelForm:field.titleRequired') },
+            { max: 50, message: t('novelForm:field.titleMax') },
           ]}
         >
-          <Input placeholder="请输入书名（1-50 字）" maxLength={50} showCount />
+          <Input placeholder={t('novelForm:field.titlePlaceholder')} maxLength={50} showCount />
         </Form.Item>
 
         <Form.Item
           name="author"
-          label="作者"
-          rules={[{ required: true, message: '请输入作者名' }]}
+          label={t('novelForm:field.author')}
+          rules={[{ required: true, message: t('novelForm:field.authorRequired') }]}
         >
-          <Input placeholder="请输入作者笔名" />
+          <Input placeholder={t('novelForm:field.authorPlaceholder')} />
         </Form.Item>
 
         <Form.Item
           name="category"
-          label="分类"
-          rules={[{ required: true, message: '请选择分类' }]}
+          label={t('novelForm:field.category')}
+          rules={[{ required: true, message: t('novelForm:field.categoryRequired') }]}
         >
-          <Select options={CATEGORY_OPTIONS} placeholder="请选择作品分类" />
+          <Select options={CATEGORY_OPTIONS} placeholder={t('novelForm:field.categoryPlaceholder')} />
         </Form.Item>
 
-        <Form.Item name="tags" label="标签">
+        <Form.Item name="tags" label={t('novelForm:field.tags')}>
           <Select
             mode="tags"
-            placeholder="输入标签后回车（如：VIP、推荐、限免）"
+            placeholder={t('novelForm:field.tagsPlaceholder')}
             tokenSeparators={[',']}
           />
         </Form.Item>
 
         <Form.Item
           name="intro"
-          label="简介"
+          label={t('novelForm:field.intro')}
           rules={[
-            { required: true, message: '请输入作品简介' },
-            { max: 500, message: '简介不能超过 500 字' },
+            { required: true, message: t('novelForm:field.introRequired') },
+            { max: 500, message: t('novelForm:field.introMax') },
           ]}
         >
           <TextArea
-            placeholder="请输入作品简介（1-500 字）"
+            placeholder={t('novelForm:field.introPlaceholder')}
             rows={4}
             maxLength={500}
             showCount
@@ -206,9 +198,8 @@ export default function NovelFormPage() {
         </Form.Item>
       </Card>
 
-      {/* 封面上传 */}
-      <Card title="封面" style={{ marginBottom: 'var(--space-4)' }}>
-        <Form.Item name="cover" label="封面图片">
+      <Card title={t('novelForm:card.cover')} style={{ marginBottom: 'var(--space-4)' }}>
+        <Form.Item name="cover" label={t('novelForm:field.coverImage')}>
           <Upload
             listType="picture-card"
             fileList={fileList}
@@ -220,9 +211,9 @@ export default function NovelFormPage() {
             {fileList.length === 0 && (
               <div>
                 <UploadOutlined />
-                <div style={{ marginTop: 8 }}>上传封面</div>
+                <div style={{ marginTop: 8 }}>{t('novelForm:field.uploadCover')}</div>
                 <div style={{ fontSize: 'var(--font-size-caption, 13px)', color: 'var(--color-text-tertiary)' }}>
-                  120 × 160，≤ 2MB
+                  {t('novelForm:field.uploadHint')}
                 </div>
               </div>
             )}
@@ -230,28 +221,27 @@ export default function NovelFormPage() {
         </Form.Item>
       </Card>
 
-      {/* 设置区 */}
-      <Card title="设置" style={{ marginBottom: 'var(--space-4)' }}>
-        <Form.Item name="status" label="连载状态" initialValue="draft">
+      <Card title={t('novelForm:card.settings')} style={{ marginBottom: 'var(--space-4)' }}>
+        <Form.Item name="status" label={t('novelForm:field.serialStatus')} initialValue="draft">
           <Radio.Group>
-            <Radio value="draft">草稿</Radio>
-            <Radio value="pending">提交审核</Radio>
+            <Radio value="draft">{t('novel:status.draft')}</Radio>
+            <Radio value="pending">{t('novel:status.pending')}</Radio>
           </Radio.Group>
         </Form.Item>
 
-        <Form.Item name="isOnShelf" label="上架" valuePropName="checked" initialValue={false}>
+        <Form.Item name="isOnShelf" label={t('novelForm:field.shelve')} valuePropName="checked" initialValue={false}>
           <Switch />
         </Form.Item>
 
-        <Form.Item name="price" label="定价（书币/千字）" initialValue={0}>
+        <Form.Item name="price" label={t('novelForm:field.pricing')} initialValue={0}>
           <InputNumber min={0} max={9999} step={10} style={{ width: 200 }} />
         </Form.Item>
 
-        <Form.Item name="vipChapters" label="VIP 章节" getValueFromEvent={(checkedKeys) => checkedKeys as string[]}>
+        <Form.Item name="vipChapters" label={t('novelForm:field.vipChapter')} getValueFromEvent={(checkedKeys) => checkedKeys as string[]}>
           <Tree
             checkable
             defaultExpandAll
-            treeData={chapterTree.length > 0 ? chapterTree : [{ title: '暂无章节（保存后可在章节管理中设置）', key: 'empty', disableCheckbox: true, selectable: false }]}
+            treeData={chapterTree.length > 0 ? chapterTree : [{ title: t('novelForm:field.noChapters'), key: 'empty', disableCheckbox: true, selectable: false }]}
             style={{ maxHeight: 300, overflowY: 'auto' }}
             onCheck={(checked) => form.setFieldValue('vipChapters', checked as string[])}
           />

@@ -150,6 +150,7 @@ async def get_novel_stats(
 ):
 
     from app.models.novel import Novel as NovelModel
+    from app.models.reading import ReadingHistory
 
     novel = await db.get(NovelModel, novel_id)
     if not novel:
@@ -157,12 +158,24 @@ async def get_novel_stats(
             "readCount": 0, "favCount": 0, "ticketCount": 0,
             "rating": 0, "completionRate": 0,
         })
+
+    from sqlalchemy import func
+    total_readers = await db.scalar(
+        select(func.count()).select_from(ReadingHistory)
+        .where(ReadingHistory.novel_id == novel_id, ReadingHistory.percent > 0)
+    )
+    completed_readers = await db.scalar(
+        select(func.count()).select_from(ReadingHistory)
+        .where(ReadingHistory.novel_id == novel_id, ReadingHistory.percent >= 100)
+    )
+    completion_rate = round((completed_readers / total_readers * 100) if total_readers and total_readers > 0 else 0, 2)
+
     return ok(request, {
         "readCount": novel.click_count or 0,
         "favCount": novel.follow_count or 0,
         "ticketCount": max(0, (novel.click_count or 0) // 50),
         "rating": float(novel.rating or 0),
-        "completionRate": 0,  # TODO: 接入完读率统计后替换为真实数据
+        "completionRate": completion_rate,
     })
 
 

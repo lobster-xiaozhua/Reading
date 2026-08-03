@@ -1,56 +1,44 @@
-/* ============================================================
- * P1-5 · 多 Tab 标签页 MultiTabs
- * 高 40px；宽 120-200px；首页不可关闭；右键菜单（关闭其他/左侧/右侧/全部）
- * 刷新后保留（tabStore persist）
- * 04 §8.5
- * ============================================================ */
-
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tabs, Dropdown } from 'antd';
 import type { MenuProps } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTabStore } from '@/stores/tabStore';
 import { menuConfig, HOME_TAB_KEY } from './menu-config';
 
-/** 从路径解析 Tab label */
-function resolveLabel(pathname: string): string {
-  // 首页
-  if (pathname === '/workbench' || pathname === '/') return '工作台';
-  // 顶层
+function resolveLabel(pathname: string, t: (key: string) => string): string {
+  if (pathname === '/workbench' || pathname === '/') return t('menu:workbench');
   for (const item of menuConfig) {
-    if (item.path === pathname) return item.label;
+    if (item.path === pathname) return t(item.labelKey);
   }
-  // 二级
   for (const parent of menuConfig) {
     if (!parent.children) continue;
     for (const child of parent.children) {
-      if (child.path && pathname.startsWith(child.path)) return child.label;
+      if (child.path && pathname.startsWith(child.path)) return t(child.labelKey);
     }
   }
-  // 未匹配（如详情页 /novel/:id）：取最近菜单名 + 「详情」
   for (const parent of menuConfig) {
     if (!parent.children) continue;
     for (const child of parent.children) {
-      if (child.path && pathname.includes(child.path)) return `${child.label}详情`;
+      if (child.path && pathname.includes(child.path)) return `${t(child.labelKey)}${t('layout:detail')}`;
     }
   }
-  return '未命名';
+  return t('layout:unnamed');
 }
 
 export function MultiTabs() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { tabs, activeKey, addTab, closeTab, closeOthers, closeLeft, closeRight, closeAll, setActive } =
     useTabStore();
 
-  // 监听路由变化，自动同步 Tab
   useEffect(() => {
     const path = location.pathname;
     if (path === '/' || path === '/404') return;
-    const label = resolveLabel(path);
+    const label = resolveLabel(path, t);
     addTab({ key: path, label, closable: path !== `/${HOME_TAB_KEY}` });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]);
+  }, [location.pathname, t, addTab]);
 
   const items = useMemo(
     () =>
@@ -69,22 +57,20 @@ export function MultiTabs() {
 
   const handleRemove = (key: string) => {
     closeTab(key);
-    // closeTab 内部会算出下一个 activeKey，导航过去
     const next = useTabStore.getState().activeKey;
     if (next !== key) navigate(next);
   };
 
-  /** 右键菜单项 */
   const buildContextMenu = (targetKey: string): MenuProps => ({
     items: [
-      { key: 'closeOthers', label: '关闭其他', disabled: tabs.length <= 1 },
-      { key: 'closeLeft', label: '关闭左侧', disabled: tabs.findIndex((t) => t.key === targetKey) === 0 },
+      { key: 'closeOthers', label: t('layout:closeOthers'), disabled: tabs.length <= 1 },
+      { key: 'closeLeft', label: t('layout:closeLeft'), disabled: tabs.findIndex((t) => t.key === targetKey) === 0 },
       {
         key: 'closeRight',
-        label: '关闭右侧',
+        label: t('layout:closeRight'),
         disabled: tabs.findIndex((t) => t.key === targetKey) === tabs.length - 1,
       },
-      { key: 'closeAll', label: '关闭全部' },
+      { key: 'closeAll', label: t('layout:closeAll') },
     ],
     onClick: (info) => {
       switch (info.key) {
@@ -106,7 +92,6 @@ export function MultiTabs() {
     },
   });
 
-  // 为每个 Tab 渲染带右键菜单的 label
   const renderTabBar: TabsPropsRenderTabBar = (props, DefaultTabBar) => (
     <DefaultTabBar {...props}>
       {(node: { key?: string; label?: React.ReactNode }) => (
@@ -118,7 +103,7 @@ export function MultiTabs() {
   );
 
   return (
-    <div className="bend-tabs" role="tablist" aria-label="页面标签">
+    <div className="bend-tabs" role="tablist" aria-label={t('layout:pageTabs')}>
       <Tabs
         type="card"
         size="small"
@@ -135,7 +120,6 @@ export function MultiTabs() {
   );
 }
 
-/** renderTabBar 类型别名（避免直接依赖 antd 内部类型） */
 type TabsPropsRenderTabBar = (
   props: Record<string, unknown>,
   DefaultTabBar: React.ComponentType<Record<string, unknown>>,

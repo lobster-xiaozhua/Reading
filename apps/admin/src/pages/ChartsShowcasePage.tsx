@@ -1,11 +1,5 @@
-/* ============================================================
- * P7 · 数据可视化看板
- * 展示 6 基础图表 + 5 小说专用图表
- * 用于验证图表规范、暗黑模式、空数据、交互
- * Source: P7-2~11
- * ============================================================ */
-
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Segmented, Skeleton, Space, Tag } from 'antd';
 import { BPageHeader } from '@novel/b-end';
@@ -35,11 +29,11 @@ import {
 type Tab = 'basic' | 'business';
 
 export default function ChartsShowcasePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('basic');
   const [loading, setLoading] = useState(true);
 
-  // 基础图表数据
   const [lineData, setLineData] = useState<Array<Record<string, unknown>>>([]);
   const [columnData, setColumnData] = useState<Array<Record<string, unknown>>>([]);
   const [pieData, setPieData] = useState<Array<Record<string, unknown>>>([]);
@@ -47,7 +41,6 @@ export default function ChartsShowcasePage() {
   const [heatmapData, setHeatmapData] = useState<Array<Record<string, unknown>>>([]);
   const [gaugeValue, setGaugeValue] = useState(0);
 
-  // 业务图表数据
   const [wordCountData, setWordCountData] = useState<never[]>([]);
   const [readingHeatmapData, setReadingHeatmapData] = useState<never[]>([]);
   const [funnelData, setFunnelData] = useState<never[]>([]);
@@ -87,21 +80,21 @@ export default function ChartsShowcasePage() {
   }, []);
 
   const breadcrumb: BPageHeaderProps['breadcrumb'] = [
-    { title: '数据可视化' },
-    { title: '图表展示' },
+    { title: t('charts:breadcrumb.charts') },
+    { title: t('charts:breadcrumb.showcase') },
   ];
 
   return (
     <div className="b-charts-showcase-page">
       <BPageHeader
-        title="数据可视化看板"
+        title={t('charts:title')}
         breadcrumb={breadcrumb}
         onBack={() => navigate('/workbench')}
         extra={
           <Space>
-            <Tag color="processing">chart-1~6 色板</Tag>
-            <Tag color="success">暗黑模式适配</Tag>
-            <Tag>高度 320px</Tag>
+            <Tag color="processing">{t('charts:tags.palette')}</Tag>
+            <Tag color="success">{t('charts:tags.darkMode')}</Tag>
+            <Tag>{t('charts:tags.height')}</Tag>
           </Space>
         }
       />
@@ -111,8 +104,8 @@ export default function ChartsShowcasePage() {
           value={tab}
           onChange={(v) => setTab(v as Tab)}
           options={[
-            { label: '基础图表（6）', value: 'basic' },
-            { label: '小说专用图表（5）', value: 'business' },
+            { label: t('charts:tabs.basic'), value: 'basic' },
+            { label: t('charts:tabs.business'), value: 'business' },
           ]}
         />
       </div>
@@ -122,7 +115,7 @@ export default function ChartsShowcasePage() {
       ) : tab === 'basic' ? (
         <Row gutter={[16, 16]}>
           <Col span={12}>
-            <Card title="折线图 BLineChart" size="small">
+            <Card title={t('charts:basic.line')} size="small">
               <BLineChart
                 data={lineData}
                 xField="month"
@@ -133,7 +126,7 @@ export default function ChartsShowcasePage() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="柱状图 BColumnChart" size="small">
+            <Card title={t('charts:basic.column')} size="small">
               <BColumnChart
                 data={columnData}
                 xField="day"
@@ -144,18 +137,18 @@ export default function ChartsShowcasePage() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="饼图 BPieChart（环形）" size="small">
+            <Card title={t('charts:basic.pie')} size="small">
               <BPieChart
                 data={pieData}
                 angleField="value"
                 colorField="type"
                 ring
-                statisticTitle="设备分布"
+                statisticTitle={t('charts:basic.pieStatistic')}
               />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="面积图 BAreaChart" size="small">
+            <Card title={t('charts:basic.area')} size="small">
               <BAreaChart
                 data={areaData}
                 xField="date"
@@ -167,7 +160,7 @@ export default function ChartsShowcasePage() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="热力图 BHeatmap" size="small">
+            <Card title={t('charts:basic.heatmap')} size="small">
               <BHeatmap
                 data={heatmapData}
                 xField="hour"
@@ -177,35 +170,35 @@ export default function ChartsShowcasePage() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="仪表盘 BGauge" size="small">
-              <BGauge value={gaugeValue} title="目标达成率" />
+            <Card title={t('charts:basic.gauge')} size="small">
+              <BGauge value={gaugeValue} title={t('charts:basic.gaugeTitle')} />
             </Card>
           </Col>
         </Row>
       ) : (
         <Row gutter={[16, 16]}>
           <Col span={24}>
-            <Card title="P7-7 字数增长曲线（双轴）" size="small" extra={<Tag color="warning">{`日更 <2000 警戒线`}</Tag>}>
+            <Card title={t('charts:business.wordCount')} size="small" extra={<Tag color="warning">{t('charts:business.wordCountTag')}</Tag>}>
               <WordCountGrowthChart data={wordCountData as never} />
             </Card>
           </Col>
           <Col span={24}>
-            <Card title="P7-8 阅读时长热力图（7×24）" size="small" extra={<Tag color="processing">晚间 19-23 点活跃</Tag>}>
+            <Card title={t('charts:business.readingHeatmap')} size="small" extra={<Tag color="processing">{t('charts:business.readingHeatmapTag')}</Tag>}>
               <ReadingHeatmap data={readingHeatmapData as never} />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="P7-9 追更漏斗" size="small" extra={<Tag color="error">{`转化率 <10% 标注`}</Tag>}>
+            <Card title={t('charts:business.funnel')} size="small" extra={<Tag color="error">{t('charts:business.funnelTag')}</Tag>}>
               <ReadingFunnel data={funnelData as never} />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="P7-10 排行趋势" size="small" extra={<Tag color="success">当前作品加粗</Tag>}>
+            <Card title={t('charts:business.ranking')} size="small" extra={<Tag color="success">{t('charts:business.rankingTag')}</Tag>}>
               <RankingTrendChart data={rankingData as never} />
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="P7-11 分类占比（环形）" size="small" extra={<Tag>Top6 后合并其他</Tag>}>
+            <Card title={t('charts:business.category')} size="small" extra={<Tag>{t('charts:business.categoryTag')}</Tag>}>
               <CategoryDistributionChart data={categoryData as never} />
             </Card>
           </Col>

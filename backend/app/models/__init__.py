@@ -3,6 +3,7 @@
 from app.models.audit import AuditHistory, AuditRecord, SensitiveWord
 from app.models.base import Base, IdMixin, SoftDeleteMixin, TimestampMixin
 from app.models.interaction import Comment, Review, RewardRecord
+from app.models.notes import ReaderNote
 from app.models.novel import Banner, Category, Chapter, Novel, Tag
 from app.models.permission import Permission as PermissionModel
 from app.models.permission import Role, RolePermission

@@ -44,13 +44,18 @@ class WorkbenchService:
         total_authors = await self._count(Author, Author.deleted == 0)
         total_readers = await self._count(Reader, Reader.deleted == 0)
 
+        from app.models.interaction import RewardRecord
+        import time
+        today_start = int(time.mktime(date.today().timetuple())) * 1000
+        today_revenue = await self._sum(RewardRecord, RewardRecord.amount, RewardRecord.created_at >= today_start)
+
         kpi = WorkbenchKpi(
             total_novels=total_novels,
             published_novels=published,
             pending_audit=pending,
             total_authors=total_authors,
             total_readers=total_readers,
-            today_revenue=0.0,
+            today_revenue=float(today_revenue or 0),
         )
         try:
             await self.redis.set(
@@ -93,7 +98,33 @@ class WorkbenchService:
             cumulative.append(TrendPoint(date=day, value=running))
         return WordCountTrend(daily=daily, cumulative=cumulative)
 
+    # ── 内容概览 ─────────────────────────────────────────
+    async def get_overviews(self) -> list[dict]:
+        from app.models.novel import Chapter
+        from app.models.interaction import RewardRecord, Comment
+        import time
+
+        today_start = int(time.mktime(date.today().timetuple())) * 1000
+
+        total_novels = await self._count(Novel, Novel.deleted == 0)
+        total_chapters = await self._count(Chapter, Chapter.deleted == 0)
+        pending_audit = await self._count(Novel, Novel.deleted == 0, Novel.status == "pending")
+        today_rewards = await self._count(RewardRecord, RewardRecord.created_at >= today_start)
+        today_comments = await self._count(Comment, Comment.created_at >= today_start)
+
+        return [
+            {"key": "totalNovels", "label": "作品总数", "value": total_novels, "icon": "book"},
+            {"key": "totalChapters", "label": "章节总数", "value": total_chapters, "icon": "file"},
+            {"key": "pendingAudit", "label": "待审核", "value": pending_audit, "icon": "clock"},
+            {"key": "todayRewards", "label": "今日打赏", "value": today_rewards, "icon": "star"},
+            {"key": "todayComments", "label": "今日评论", "value": today_comments, "icon": "message"},
+        ]
+
     # ── 内部工具 ─────────────────────────────────────────
     async def _count(self, model, *filters) -> int:
         stmt = select(func.count()).select_from(model).where(*filters)
         return (await self.session.execute(stmt)).scalar_one()
+
+    async def _sum(self, model, column, *filters) -> float:
+        stmt = select(func.coalesce(func.sum(column), 0)).where(*filters)
+        return float((await self.session.execute(stmt)).scalar_one())

@@ -1,11 +1,5 @@
-/* ============================================================
- * P6-7 · 角色权限分配页
- * 左侧角色列表 + 右侧权限分配树（Tree + 复选）
- * 超级管理员权限只读；其他角色可分配权限点
- * Source: 04 §10.7 / P6-7
- * ============================================================ */
-
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -43,6 +37,7 @@ import {
 type PageStatus = 'loading' | 'ready' | 'empty' | 'error';
 
 export default function PermissionPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { message } = App.useApp();
   const { isSuperAdmin: canEditAnyRole } = usePermission();
@@ -76,7 +71,6 @@ export default function PermissionPage() {
     loadData();
   }, [loadData]);
 
-  // 加载选中角色详情
   useEffect(() => {
     if (!selectedRoleKey) {
       setCurrentRole(null);
@@ -95,7 +89,6 @@ export default function PermissionPage() {
     return () => { cancelled = true; };
   }, [selectedRoleKey]);
 
-  // 权限树数据
   const treeData = useMemo<TreeDataNode[]>(() => {
     return PERMISSION_TREE.map((group) => ({
       key: `module:${group.module}`,
@@ -125,15 +118,14 @@ export default function PermissionPage() {
     if (!currentRole) return;
     setSaving(true);
     try {
-      // 过滤掉 module: 前缀的分组节点
       const perms = checkedKeys.filter((k): k is Permission => typeof k === 'string' && !k.startsWith('module:')) as Permission[];
       const res = await updateRolePermissions(currentRole.key, perms);
       if (res.success) {
-        message.success(`「${currentRole.name}」权限已更新`);
+        message.success(t('permission:message.updated', { role: currentRole.name }));
         setCurrentRole({ ...currentRole, permissions: perms });
         loadData();
       } else {
-        message.error(res.reason ?? '权限更新失败');
+        message.error(res.reason ?? t('permission:message.updateFailed'));
       }
     } finally {
       setSaving(false);
@@ -147,51 +139,49 @@ export default function PermissionPage() {
       description: metaDraft.description.trim(),
     });
     if (res.success) {
-      message.success('角色信息已更新');
+      message.success(t('permission:message.infoUpdated'));
       setCurrentRole({ ...currentRole, name: metaDraft.name, description: metaDraft.description });
       setEditingMeta(false);
       loadData();
     } else {
-      message.error('更新失败');
+      message.error(t('permission:message.infoUpdateFailed'));
     }
   };
 
   const breadcrumb: BPageHeaderProps['breadcrumb'] = [
-    { title: '用户管理' },
-    { title: '角色权限' },
+    { title: t('permission:breadcrumb.user') },
+    { title: t('permission:breadcrumb.permission') },
   ];
 
-  // 选中角色的权限数统计
   const selectedCount = checkedKeys.filter((k) => typeof k === 'string' && !k.startsWith('module:')).length;
   const isReadonly = currentRole?.key === 'super-admin';
 
   return (
     <div className="b-permission-page">
       <BPageHeader
-        title="角色权限分配"
+        title={t('permission:title')}
         breadcrumb={breadcrumb}
         onBack={() => navigate('/workbench')}
         extra={
           <Space>
-            <Button icon={<ReloadOutlined />} onClick={loadData}>刷新</Button>
+            <Button icon={<ReloadOutlined />} onClick={loadData}>{t('common:refresh')}</Button>
           </Space>
         }
       />
 
       {status === 'error' ? (
-        <Result status="error" title="加载失败" subTitle="角色列表加载出错，请重试。" extra={<Button type="primary" onClick={loadData}>重试</Button>} />
+        <Result status="error" title={t('common:loading')} subTitle={t('common:empty')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
       ) : (
         <div style={{ display: 'flex', gap: 'var(--space-4)', minHeight: 600 }}>
-          {/* 左侧：角色列表 30% */}
           <Card
-            title="角色列表"
+            title={t('permission:roleList')}
             style={{ width: '30%' }}
             styles={{ body: { padding: 0 } }}
           >
             {status === 'loading' ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : roles.length === 0 ? (
-              <Empty description="暂无角色" style={{ padding: 'var(--space-8)' }} />
+              <Empty description={t('permission:empty')} style={{ padding: 'var(--space-8)' }} />
             ) : (
               <List
                 dataSource={roles}
@@ -215,12 +205,12 @@ export default function PermissionPage() {
                             <strong>{role.name}</strong>
                             {role.builtin && (
                               <Tag color="default" style={{ fontSize: 'var(--font-size-caption, 12px)' }}>
-                                {role.key === 'super-admin' ? <><LockOutlined /> 内置</> : '内置'}
+                                {role.key === 'super-admin' ? <><LockOutlined /> {t('permission:builtin')}</> : t('permission:builtin')}
                               </Tag>
                             )}
                           </Space>
                           <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
-                            {role.userCount} 人
+                            {t('permission:userCount', { count: role.userCount })}
                           </span>
                         </div>
                         <div style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
@@ -231,7 +221,7 @@ export default function PermissionPage() {
                             {DATA_SCOPE_LABEL_HELPER[role.dataScope]}
                           </Tag>
                           <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
-                            {role.permissions.length} 个权限点
+                            {t('permission:permissionCount', { count: role.permissions.length })}
                           </span>
                         </div>
                       </div>
@@ -242,29 +232,27 @@ export default function PermissionPage() {
             )}
           </Card>
 
-          {/* 右侧：角色详情 + 权限分配树 70% */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             {status === 'loading' ? (
               <Card><Skeleton active paragraph={{ rows: 8 }} /></Card>
             ) : !currentRole ? (
               <Card>
-                <Empty description="请从左侧选择角色" style={{ padding: 'var(--space-8)' }} />
+                <Empty description={t('permission:emptySelect')} style={{ padding: 'var(--space-8)' }} />
               </Card>
             ) : (
               <>
-                {/* 角色基本信息 */}
                 <Card
-                  title="角色信息"
+                  title={t('permission:roleInfo')}
                   extra={
                     <Authorized permission="permission.assign" fallback={null}>
                       {!isReadonly && canEditAnyRole && (
                         editingMeta ? (
                           <Space>
-                            <Button size="small" onClick={() => { setEditingMeta(false); setMetaDraft({ name: currentRole.name, description: currentRole.description }); }}>取消</Button>
-                            <Button size="small" type="primary" icon={<SaveOutlined />} onClick={handleSaveMeta}>保存</Button>
+                            <Button size="small" onClick={() => { setEditingMeta(false); setMetaDraft({ name: currentRole.name, description: currentRole.description }); }}>{t('permission:cancel')}</Button>
+                            <Button size="small" type="primary" icon={<SaveOutlined />} onClick={handleSaveMeta}>{t('permission:save')}</Button>
                           </Space>
                         ) : (
-                          <Button size="small" onClick={() => setEditingMeta(true)}>编辑信息</Button>
+                          <Button size="small" onClick={() => setEditingMeta(true)}>{t('permission:editInfo')}</Button>
                         )
                       )}
                     </Authorized>
@@ -275,14 +263,14 @@ export default function PermissionPage() {
                       <Input
                         value={metaDraft.name}
                         onChange={(e) => setMetaDraft((d) => ({ ...d, name: e.target.value }))}
-                        placeholder="角色名称"
+                        placeholder={t('permission:placeholder.name')}
                         maxLength={20}
-                        addonBefore="名称"
+                        addonBefore={t('permission:field.name')}
                       />
                       <Input.TextArea
                         value={metaDraft.description}
                         onChange={(e) => setMetaDraft((d) => ({ ...d, description: e.target.value }))}
-                        placeholder="角色描述"
+                        placeholder={t('permission:placeholder.description')}
                         rows={2}
                         maxLength={100}
                         showCount
@@ -290,30 +278,29 @@ export default function PermissionPage() {
                     </Space>
                   ) : (
                     <Descriptions column={2} size="small">
-                      <Descriptions.Item label="角色标识">
+                      <Descriptions.Item label={t('permission:field.key')}>
                         <Tag>{currentRole.key}</Tag>
                       </Descriptions.Item>
-                      <Descriptions.Item label="角色名称">{currentRole.name}</Descriptions.Item>
-                      <Descriptions.Item label="数据范围">
+                      <Descriptions.Item label={t('permission:field.roleName')}>{currentRole.name}</Descriptions.Item>
+                      <Descriptions.Item label={t('permission:field.dataScope')}>
                         <Tag color={currentRole.dataScope === 'all' ? 'success' : currentRole.dataScope === 'department' ? 'processing' : 'default'}>
                           {DATA_SCOPE_LABEL_HELPER[currentRole.dataScope]}
                         </Tag>
                       </Descriptions.Item>
-                      <Descriptions.Item label="用户数">{currentRole.userCount} 人</Descriptions.Item>
-                      <Descriptions.Item label="描述" span={2}>{currentRole.description}</Descriptions.Item>
+                      <Descriptions.Item label={t('permission:field.userCount')}>{t('permission:userCount', { count: currentRole.userCount })}</Descriptions.Item>
+                      <Descriptions.Item label={t('permission:field.description')} span={2}>{currentRole.description}</Descriptions.Item>
                     </Descriptions>
                   )}
                 </Card>
 
-                {/* 权限分配树 */}
                 <Card
                   title={
                     <Space>
-                      <span>权限分配</span>
+                      <span>{t('permission:permissionAssign')}</span>
                       <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)', fontWeight: 'normal' }}>
-                        已选 {selectedCount} / 共 {PERMISSION_TREE.reduce((sum, g) => sum + g.permissions.length, 0)} 项
+                        {t('permission:selectedCount', { selected: selectedCount, total: PERMISSION_TREE.reduce((sum, g) => sum + g.permissions.length, 0) })}
                       </span>
-                      {isReadonly && <Tag color="warning"><LockOutlined /> 只读</Tag>}
+                      {isReadonly && <Tag color="warning"><LockOutlined /> {t('permission:readonly')}</Tag>}
                     </Space>
                   }
                   extra={
@@ -325,7 +312,7 @@ export default function PermissionPage() {
                           loading={saving}
                           onClick={handleSavePermissions}
                         >
-                          保存权限
+                          {t('permission:savePermission')}
                         </Button>
                       )}
                     </Authorized>
@@ -333,11 +320,11 @@ export default function PermissionPage() {
                 >
                   {isReadonly ? (
                     <div style={{ padding: 'var(--space-3)', background: 'var(--color-feedback-warning-bg)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 'var(--space-3)', color: 'var(--color-feedback-warning)' }}>
-                      超级管理员拥有全部权限，且不可修改。
+                      {t('permission:superAdminHint')}
                     </div>
                   ) : (
                     <div style={{ padding: 'var(--space-3)', background: 'var(--color-bg-subtle)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 'var(--space-3)', color: 'var(--color-text-secondary)' }}>
-                      勾选权限点后点击「保存权限」生效。修改将记录到操作日志。
+                      {t('permission:saveHint')}
                     </div>
                   )}
                   <Tree

@@ -5,6 +5,8 @@ getRewardRecords / getReadingStatOverview / getHeatmap / getPreferences /
 getBadges / getVipPlans / getPaymentMethods / getFollowList。
 """
 
+import time
+
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -108,6 +110,34 @@ async def get_follow_list(
 ):
     svc = UserCenterService(db, await get_redis_client())
     return ok(request, await svc.get_follow_list(reader_id))
+
+
+@router.post("/me/follows/read-all")
+async def read_all_follows(
+    request: Request,
+    reader_id: int = Depends(get_current_reader),
+    db: AsyncSession = Depends(get_db),
+):
+    from app.models.reading import ReadingHistory
+    from sqlalchemy import select
+    from app.models.novel import Novel
+
+    subq = select(ReadingHistory.novel_id).where(ReadingHistory.reader_id == reader_id).subquery()
+    stmt = select(Novel.id).where(
+        Novel.deleted == 0, Novel.status == "published",
+        Novel.id.notin_(select(subq.c.novel_id)),
+    ).limit(100)
+    rows = (await db.execute(stmt)).scalars().all()
+    updated = 0
+    now = int(time.time() * 1000)
+    for novel_id in rows:
+        db.add(ReadingHistory(
+            reader_id=reader_id, novel_id=novel_id,
+            percent=0.0, read_at=now,
+        ))
+        updated += 1
+    await db.commit()
+    return ok(request, {"updatedCount": updated})
 
 
 @router.get("/vip/plans")

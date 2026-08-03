@@ -1,12 +1,5 @@
-/* ============================================================
- * P8-2 · 稿费管理页
- * - 顶部：结算流程图（SettlementFlow）
- * - 中部：4 个汇总统计卡片（本月应发 / 待结算 / 已结算 / 已提现）
- * - 底部：稿费明细表（BRoyaltyDetail）+ 月份/状态筛选 + 批量结算/提现
- * Source: 04 §13.2 / P8-2-4~5
- * ============================================================ */
-
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, Row, Col, Select, Button, Space, App } from 'antd';
 import { BPageHeader, BRoyaltyDetail, SettlementFlow } from '@novel/b-end';
 import type { BPageHeaderProps } from '@novel/b-end';
@@ -25,6 +18,7 @@ function formatAmount(n: number): string {
 }
 
 export default function RoyaltyPage() {
+  const { t } = useTranslation();
   const { message, modal } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState<RoyaltyDetail[]>([]);
@@ -36,7 +30,6 @@ export default function RoyaltyPage() {
   const [filterStatus, setFilterStatus] = useState<SettlementStatus | 'all'>('all');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-  // 月份选项（最近 6 个月）
   const monthOptions = Array.from({ length: 6 }).map((_, i) => {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
@@ -57,27 +50,27 @@ export default function RoyaltyPage() {
       setStats(res.stats);
       setTotal(res.total);
     } catch {
-      message.error('稿费明细加载失败');
+      message.error(t('royalty:message.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [filterMonth, filterStatus, page, pageSize, message]);
+  }, [filterMonth, filterStatus, page, pageSize, message, t]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   const breadcrumb: BPageHeaderProps['breadcrumb'] = [
-    { title: '运营管理' },
-    { title: '稿费管理' },
+    { title: t('royalty:breadcrumb.operation') },
+    { title: t('royalty:breadcrumb.royalty') },
   ];
 
   const statCards: { title: string; value: number; suffix: string; color: string }[] = stats
     ? [
-        { title: '本月应发总额', value: stats.monthlyTotal, suffix: '书币', color: 'var(--color-text-primary)' },
-        { title: '待结算', value: stats.pendingTotal, suffix: '书币', color: 'var(--color-feedback-warning)' },
-        { title: '已结算未提现', value: stats.settledTotal, suffix: '书币', color: 'var(--color-brand)' },
-        { title: '已提现', value: stats.withdrawnTotal, suffix: '书币', color: 'var(--color-feedback-success)' },
+        { title: t('royalty:stats.monthlyTotal'), value: stats.monthlyTotal, suffix: t('royalty:stats.unit'), color: 'var(--color-text-primary)' },
+        { title: t('royalty:stats.pendingSettlement'), value: stats.pendingTotal, suffix: t('royalty:stats.unit'), color: 'var(--color-feedback-warning)' },
+        { title: t('royalty:stats.settled'), value: stats.settledTotal, suffix: t('royalty:stats.unit'), color: 'var(--color-brand)' },
+        { title: t('royalty:stats.withdrawn'), value: stats.withdrawnTotal, suffix: t('royalty:stats.unit'), color: 'var(--color-feedback-success)' },
       ]
     : [];
 
@@ -86,17 +79,17 @@ export default function RoyaltyPage() {
   const handleBatchSettle = () => {
     const pendingIds = list.filter((r) => selectedRowKeys.includes(r.id) && r.status === 'pending').map((r) => r.id);
     if (pendingIds.length === 0) {
-      message.warning('选中行中没有可结算的记录（仅「待结算」状态可结算）');
+      message.warning(t('royalty:message.noSettleable'));
       return;
     }
     modal.confirm({
-      title: '确认批量结算',
-      content: `将对 ${pendingIds.length} 条「待结算」记录执行结算，金额计入作者余额。`,
-      okText: '确认结算',
-      cancelText: '取消',
+      title: t('royalty:confirmSettle.title'),
+      content: t('royalty:confirmSettle.content', { count: pendingIds.length }),
+      okText: t('royalty:confirmSettle.confirm'),
+      cancelText: t('royalty:confirmSettle.cancel'),
       onOk: async () => {
         await batchSettle(pendingIds);
-        message.success(`已结算 ${pendingIds.length} 条`);
+        message.success(t('royalty:message.settled', { count: pendingIds.length }));
         setSelectedRowKeys([]);
         loadData();
       },
@@ -106,17 +99,17 @@ export default function RoyaltyPage() {
   const handleBatchWithdraw = () => {
     const settledIds = list.filter((r) => selectedRowKeys.includes(r.id) && r.status === 'settled').map((r) => r.id);
     if (settledIds.length === 0) {
-      message.warning('选中行中没有可提现的记录（仅「已结算」状态可提现）');
+      message.warning(t('royalty:message.noWithdrawable'));
       return;
     }
     modal.confirm({
-      title: '确认批量标记提现',
-      content: `将对 ${settledIds.length} 条「已结算」记录标记为已提现。`,
-      okText: '确认提现',
-      cancelText: '取消',
+      title: t('royalty:confirmWithdraw.title'),
+      content: t('royalty:confirmWithdraw.content', { count: settledIds.length }),
+      okText: t('royalty:confirmWithdraw.confirm'),
+      cancelText: t('royalty:confirmWithdraw.cancel'),
       onOk: async () => {
         await markWithdrawn(settledIds);
-        message.success(`已标记提现 ${settledIds.length} 条`);
+        message.success(t('royalty:message.withdrawn', { count: settledIds.length }));
         setSelectedRowKeys([]);
         loadData();
       },
@@ -125,14 +118,12 @@ export default function RoyaltyPage() {
 
   return (
     <div>
-      <BPageHeader title="稿费管理" breadcrumb={breadcrumb} />
+      <BPageHeader title={t('royalty:title')} breadcrumb={breadcrumb} />
 
-      {/* 结算流程图 */}
-      <Card title="结算流程" size="small" style={{ marginBottom: 'var(--space-4)' }}>
+      <Card title={t('royalty:settlementFlow')} size="small" style={{ marginBottom: 'var(--space-4)' }}>
         <SettlementFlow />
       </Card>
 
-      {/* 汇总统计 */}
       <Row gutter={[16, 16]} style={{ marginBottom: 'var(--space-4)' }}>
         {statCards.map((c) => (
           <Col span={6} key={c.title}>
@@ -151,14 +142,13 @@ export default function RoyaltyPage() {
         ))}
       </Row>
 
-      {/* 明细表 */}
       <Card
-        title="稿费明细"
+        title={t('royalty:detail')}
         size="small"
         extra={
           <Space>
             <Select
-              placeholder="月份"
+              placeholder={t('royalty:month')}
               allowClear
               style={{ width: 140 }}
               value={filterMonth || undefined}
@@ -166,7 +156,7 @@ export default function RoyaltyPage() {
               options={monthOptions}
             />
             <Select
-              placeholder="状态"
+              placeholder={t('royalty:status')}
               allowClear
               style={{ width: 120 }}
               value={filterStatus === 'all' ? undefined : filterStatus}
@@ -174,20 +164,20 @@ export default function RoyaltyPage() {
               options={Object.entries(SETTLEMENT_STATUS_LABEL).map(([k, v]) => ({ label: v.text, value: k }))}
             />
             <Button onClick={() => { setFilterMonth(''); setFilterStatus('all'); setPage(1); }}>
-              重置
+              {t('common:reset')}
             </Button>
           </Space>
         }
       >
         <Space style={{ marginBottom: 'var(--space-3)' }}>
           <Button type="primary" onClick={handleBatchSettle} disabled={selectedRowKeys.length === 0}>
-            批量结算
+            {t('royalty:batchSettle')}
           </Button>
           <Button onClick={handleBatchWithdraw} disabled={selectedRowKeys.length === 0}>
-            批量标记提现
+            {t('royalty:batchWithdraw')}
           </Button>
           <span style={{ color: 'var(--color-text-tertiary)', fontSize: 12 }}>
-            共 {total} 条 · 涉及 {stats?.authorCount ?? 0} 位作者
+            {t('royalty:pagination', { total, count: stats?.authorCount ?? 0 })}
           </span>
         </Space>
         <BRoyaltyDetail

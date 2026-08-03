@@ -16,9 +16,8 @@ i18n.use(initReactI18next).init({
   lng: 'zh-CN',
   fallbackLng: 'zh-CN',
   defaultNS: 'common',
-  ns: ['common', 'menu', 'novel', 'chapter', 'audit', 'royalty', 'permission', 'error'],
+  ns: ['common', 'menu', 'layout', 'workbench', 'novel', 'novelDetail', 'novelForm', 'chapter', 'audit', 'charts', 'royalty', 'permission', 'user', 'system', 'login', 'error'],
   interpolation: {
-    // React 已默认转义，关闭 i18next 转义避免双重处理
     escapeValue: false,
   },
 });

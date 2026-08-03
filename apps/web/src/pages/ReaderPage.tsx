@@ -4,7 +4,7 @@
  * 接入 useReaderCache（±2 预加载 / LRU 5）+ useReaderSettings
  * 章节切换 / 上下章 / 目录抽屉 / 阅读进度记录
  * ============================================================ */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ChapterList,
@@ -25,6 +25,7 @@ import { useHistoryStore } from '@/stores/historyStore';
 import { useOfflineCache } from '@/hooks/useOfflineCache';
 import { useAdaptivePreloadRadius } from '@/hooks/useNetworkStatus';
 import { markChapterStart, markChapterEnd } from '@/utils/perf';
+import { SelectionPopover } from '@/components/SelectionPopover';
 import './ReaderPage.css';
 
 /** 把章节正文段落转为 HTML（首段为章节标题，跳过） */
@@ -48,6 +49,7 @@ export default function ReaderPage() {
   const recordReading = useHistoryStore((s) => s.recordReading);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [chapterPercent, setChapterPercent] = useState(0);
+  const readerContainerRef = useRef<HTMLDivElement>(null);
 
   const { settings, updateAll } = useReaderSettings();
 
@@ -213,23 +215,26 @@ export default function ReaderPage() {
 
   return (
     <>
-      <Reader
-        chapter={cache.current}
-        loading={cache.loading}
-        error={cache.error}
-        currentIndex={cache.currentIndex >= 0 ? cache.currentIndex + 1 : undefined}
-        totalChapters={chapters.length}
-        chapterPercent={chapterPercent}
-        settings={settings}
-        onSettingsChange={updateAll}
-        onPrev={cache.prevId ? handlePrev : undefined}
-        onNext={cache.nextId ? handleNext : undefined}
-        onSeek={handleSeek}
-        onCatalog={() => setCatalogOpen(true)}
-        onBack={handleBack}
-        onProgress={setChapterPercent}
-        className="reader-page"
-      />
+      <div ref={readerContainerRef} style={{ position: 'relative' }}>
+        <Reader
+          chapter={cache.current}
+          loading={cache.loading}
+          error={cache.error}
+          currentIndex={cache.currentIndex >= 0 ? cache.currentIndex + 1 : undefined}
+          totalChapters={chapters.length}
+          chapterPercent={chapterPercent}
+          settings={settings}
+          onSettingsChange={updateAll}
+          onPrev={cache.prevId ? handlePrev : undefined}
+          onNext={cache.nextId ? handleNext : undefined}
+          onSeek={handleSeek}
+          onCatalog={() => setCatalogOpen(true)}
+          onBack={handleBack}
+          onProgress={setChapterPercent}
+          className="reader-page"
+        />
+        <SelectionPopover bookId={bookId} chapterId={cache.current?.id ?? ''} />
+      </div>
 
       {/* 目录抽屉 */}
       <Drawer

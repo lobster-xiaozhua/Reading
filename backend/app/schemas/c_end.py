@@ -256,12 +256,45 @@ class FollowItem(CamelModel):
 
 
 class BookshelfItem(CamelModel):
-    """书架项。"""
+    """书架项（含阅读进度）。"""
 
     book: BookSummary
     added_at: int = 0
     last_read_chapter_index: int = 0
     percent: float = 0.0
+
+
+class NoteItem(CamelModel):
+    """读者笔记项。"""
+
+    id: str
+    novel_id: int = 0
+    chapter_id: int = 0
+    text: str = ""
+    paragraph_index: int = 0
+    offset_start: int = 0
+    offset_end: int = 0
+    annotation: str = ""
+    created_at: int = 0
+    updated_at: int = 0
+
+
+class NoteCreateBody(CamelModel):
+    """创建笔记请求体。"""
+
+    novel_id: int
+    chapter_id: int
+    text: str
+    paragraph_index: int = 0
+    offset_start: int = 0
+    offset_end: int = 0
+    annotation: str = ""
+
+
+class NoteUpdateBody(CamelModel):
+    """更新笔记请求体。"""
+
+    annotation: str | None = None
 
 
 # 显式再导出枚举，便于路由层引用

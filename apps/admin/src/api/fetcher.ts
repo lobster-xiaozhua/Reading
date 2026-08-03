@@ -49,6 +49,9 @@ export const fetcher = {
     async getKpiCards(): Promise<WorkbenchKpi> {
       return http.get<WorkbenchKpi>('/workbench/kpi');
     },
+    async getOverviews(): Promise<{ key: string; label: string; value: number; icon: string }[]> {
+      return http.get('/workbench/overviews');
+    },
     async getWordCountTrend(days = 30) {
       const data = await http.get<{ daily: TrendPoint[]; cumulative: TrendPoint[] }>(
         '/workbench/word-trend',

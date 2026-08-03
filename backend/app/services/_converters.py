@@ -19,6 +19,12 @@ def _parse_flags(flags_str: str | None) -> list[BookFlag]:
     return result
 
 
+def _parse_tags(tags_str: str | None) -> list[str]:
+    if not tags_str:
+        return []
+    return [t.strip() for t in tags_str.split(",") if t.strip()]
+
+
 def novel_to_c_summary(novel: Novel) -> BookSummary:
     """ORM Novel → C 端 BookSummary。"""
     status = CNovelStatus.COMPLETED if novel.is_completed else CNovelStatus.ONGOING
@@ -28,7 +34,7 @@ def novel_to_c_summary(novel: Novel) -> BookSummary:
         author=novel.author_name,
         cover=novel.cover or "",
         category=novel.category,
-        tags=[],
+        tags=_parse_tags(novel.tags_str),
         word_count=novel.word_count,
         status=status,
         rating=float(novel.rating),

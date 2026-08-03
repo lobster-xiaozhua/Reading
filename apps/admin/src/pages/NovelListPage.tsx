@@ -1,12 +1,5 @@
-/* ============================================================
- * P4-1 · 作品管理列表页
- * 基于 ListPageTemplate 实例化
- * 行操作 ≤3 直接显示，>3 折叠到 Dropdown（04 §9.1）
- * 批量操作含危险确认（删除二次确认，04 §9.5）
- * Source: 04 §5.1 / P4-1
- * ============================================================ */
-
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Tag, Dropdown, Button, Space, App, Modal, Radio, Input } from 'antd';
 import type { TableColumnsType } from 'antd';
@@ -41,6 +34,7 @@ const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
 );
 
 export default function NovelListPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const hasPermission = useAuthStore((s) => s.hasPermission);
 
@@ -54,7 +48,6 @@ export default function NovelListPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-  // P8-3 下架原因 Modal 状态
   const [shelveModalOpen, setShelveModalOpen] = useState(false);
   const [shelveTargetIds, setShelveTargetIds] = useState<string[]>([]);
   const [shelveReason, setShelveReason] = useState<OfflineReason>('operation-adjust');
@@ -106,33 +99,30 @@ export default function NovelListPage() {
     loadData();
   };
 
-  // P8-3-1 提交审核：draft → pending
   const handleBatchSubmitAudit = async () => {
     const ids = selectedRowKeys.map(String);
     const res = await submitForAudit(ids);
     if (res.success) {
-      message.success(`已提交 ${ids.length} 条作品审核`);
+      message.success(t('novel:message.submitted'));
       setSelectedRowKeys([]);
       loadData();
     } else {
-      message.error(`提交失败：${res.failed?.map((f) => f.reason).join('；')}`);
+      message.error(t('novel:message.submitFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
     }
   };
 
-  // P8-3-1 审核通过上架：pending → published
   const handleBatchApprove = async () => {
     const ids = selectedRowKeys.map(String);
     const res = await approveNovel(ids);
     if (res.success) {
-      message.success(`已通过 ${ids.length} 条作品审核`);
+      message.success(t('novel:message.approved'));
       setSelectedRowKeys([]);
       loadData();
     } else {
-      message.error(`审核失败：${res.failed?.map((f) => f.reason).join('；')}`);
+      message.error(t('novel:message.approveFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
     }
   };
 
-  // P8-3-2 下架：打开原因 Modal
   const handleBatchShelve = () => {
     setShelveTargetIds(selectedRowKeys.map(String));
     setShelveReason('operation-adjust');
@@ -140,18 +130,17 @@ export default function NovelListPage() {
     setShelveModalOpen(true);
   };
 
-  // P8-3-2 下架确认：published → offline（记录原因）
   const handleShelveConfirm = async () => {
     setShelveSubmitting(true);
     try {
       const res = await shelveNovel(shelveTargetIds, shelveReason, shelveComment);
       if (res.success) {
-        message.success(`已下架 ${shelveTargetIds.length} 条作品`);
+        message.success(t('novel:message.offlined'));
         setShelveModalOpen(false);
         setSelectedRowKeys([]);
         loadData();
       } else {
-        message.error(`下架失败：${res.failed?.map((f) => f.reason).join('；')}`);
+        message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
       }
     } finally {
       setShelveSubmitting(false);
@@ -159,23 +148,23 @@ export default function NovelListPage() {
   };
 
   const batchActions: BatchAction[] = [
-    { key: 'submit-audit', label: '提交审核', onClick: handleBatchSubmitAudit },
-    { key: 'approve', label: '审核通过', onClick: handleBatchApprove },
-    { key: 'publish', label: '批量上架', onClick: () => handleBatch('publish') },
-    { key: 'offline', label: '批量下架', danger: true, onClick: handleBatchShelve },
+    { key: 'submit-audit', label: t('novel:list.batchSubmitAudit'), onClick: handleBatchSubmitAudit },
+    { key: 'approve', label: t('novel:list.batchApprove'), onClick: handleBatchApprove },
+    { key: 'publish', label: t('novel:list.batchOnline'), onClick: () => handleBatch('publish') },
+    { key: 'offline', label: t('novel:list.batchOffline'), danger: true, onClick: handleBatchShelve },
     {
       key: 'delete',
-      label: '批量删除',
+      label: t('novel:list.batchDelete'),
       danger: true,
-      confirmTitle: '确认删除选中作品？',
-      confirmContent: '删除后作品及其章节将无法恢复，此操作不可撤销。',
+      confirmTitle: t('common:deleteConfirm'),
+      confirmContent: t('common:deleteWarningDetail'),
       onClick: () => handleBatch('delete'),
     },
   ];
 
   const columns: TableColumnsType<BNovelDetail> = [
     {
-      title: '书名',
+      title: t('novel:table.title'),
       dataIndex: 'title',
       key: 'title',
       width: 200,
@@ -185,16 +174,16 @@ export default function NovelListPage() {
         </a>
       ),
     },
-    { title: '作者', dataIndex: 'author', key: 'author', width: 120 },
+    { title: t('novel:table.author'), dataIndex: 'author', key: 'author', width: 120 },
     {
-      title: '分类',
+      title: t('novel:table.category'),
       dataIndex: 'category',
       key: 'category',
       width: 100,
       render: (cat: string) => CATEGORY_LABEL[cat] ?? cat,
     },
     {
-      title: '字数',
+      title: t('novel:table.wordCount'),
       dataIndex: 'wordCount',
       key: 'wordCount',
       width: 120,
@@ -202,7 +191,7 @@ export default function NovelListPage() {
       render: (v: number) => v.toLocaleString(),
     },
     {
-      title: '状态',
+      title: t('novel:table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 100,
@@ -212,38 +201,37 @@ export default function NovelListPage() {
       },
     },
     {
-      title: '更新时间',
+      title: t('novel:table.updatedAt'),
       dataIndex: 'lastUpdated',
       key: 'lastUpdated',
       width: 180,
       render: (v: number) => new Date(v).toLocaleString('zh-CN'),
     },
     {
-      title: '操作',
+      title: t('novel:table.operation'),
       key: 'action',
       fixed: 'right',
       width: 160,
       render: (_, record) => {
         const canEdit = hasPermission('novel.edit' as never);
-        // P8-3 行级操作按状态机分流
         const statusAction =
           record.status === 'draft'
-            ? { key: 'submit-audit', label: '提交审核', icon: <AuditOutlined /> }
+            ? { key: 'submit-audit', label: t('novel:action.submitAudit'), icon: <AuditOutlined /> }
             : record.status === 'pending'
-              ? { key: 'approve', label: '审核通过', icon: <CheckCircleOutlined /> }
+              ? { key: 'approve', label: t('novel:action.approve'), icon: <CheckCircleOutlined /> }
               : record.status === 'published'
-                ? { key: 'offline', label: '下架', icon: <ArrowDownOutlined />, danger: true }
-                : { key: 'reshelve', label: '恢复上架', icon: <ArrowUpOutlined /> };
+                ? { key: 'offline', label: t('novel:action.offline'), icon: <ArrowDownOutlined />, danger: true }
+                : { key: 'reshelve', label: t('novel:action.reshelve'), icon: <ArrowUpOutlined /> };
         const menuItems = [
-          { key: 'view', label: '查看详情', icon: <EyeOutlined /> },
-          ...(canEdit ? [{ key: 'edit', label: '编辑', icon: <EditOutlined /> }] : []),
+          { key: 'view', label: t('novel:action.viewDetail'), icon: <EyeOutlined /> },
+          ...(canEdit ? [{ key: 'edit', label: t('novel:action.edit'), icon: <EditOutlined /> }] : []),
           statusAction,
         ];
         return (
           <Space size="small">
             {canEdit && (
               <Button type="link" size="small" icon={<EditOutlined />} onClick={() => navigate(`/novel/${record.id}/edit`)}>
-                编辑
+                {t('novel:action.edit')}
               </Button>
             )}
             <Dropdown menu={{ items: menuItems, onClick: ({ key }) => {
@@ -251,29 +239,28 @@ export default function NovelListPage() {
               else if (key === 'edit') navigate(`/novel/${record.id}/edit`);
               else if (key === 'submit-audit') {
                 submitForAudit([record.id]).then((res) => {
-                  if (res.success) { message.success('已提交审核'); loadData(); }
-                  else { message.error(`提交失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+                  if (res.success) { message.success(t('novel:message.submitted')); loadData(); }
+                  else { message.error(t('novel:message.submitFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
                 });
               } else if (key === 'approve') {
                 approveNovel([record.id]).then((res) => {
-                  if (res.success) { message.success('审核通过，已上架'); loadData(); }
-                  else { message.error(`审核失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+                  if (res.success) { message.success(t('novel:message.approved')); loadData(); }
+                  else { message.error(t('novel:message.approveFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
                 });
               } else if (key === 'offline') {
-                // P8-3-2 行级下架也走原因 Modal
                 setShelveTargetIds([record.id]);
                 setShelveReason('operation-adjust');
                 setShelveComment('');
                 setShelveModalOpen(true);
               } else if (key === 'reshelve') {
                 reshelveNovel([record.id]).then((res) => {
-                  if (res.success) { message.success('已恢复上架'); loadData(); }
-                  else { message.error(`恢复失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+                  if (res.success) { message.success(t('novel:message.reshelved')); loadData(); }
+                  else { message.error(t('novel:message.reshelveFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
                 });
               }
             }}}>
               <Button type="link" size="small" icon={<MoreOutlined />}>
-                更多
+                {t('novel:action.more')}
               </Button>
             </Dropdown>
           </Space>
@@ -285,7 +272,7 @@ export default function NovelListPage() {
   const filters: FilterField[] = [
     {
       name: 'status',
-      label: '状态',
+      label: t('novel:filter.status'),
       control: (
         <select
           value={filterStatus}
@@ -300,7 +287,7 @@ export default function NovelListPage() {
     },
     {
       name: 'category',
-      label: '分类',
+      label: t('novel:filter.category'),
       control: (
         <select
           value={filterCategory}
@@ -318,17 +305,17 @@ export default function NovelListPage() {
   return (
     <>
       <ListPageTemplate<BNovelDetail>
-        title="作品管理"
+        title={t('novel:list.title')}
         breadcrumb={[
-          { title: '内容管理' },
-          { title: '作品管理' },
+          { title: t('novel:breadcrumb.content') },
+          { title: t('novel:breadcrumb.novel') },
         ]}
         permission="novel.list"
         status={status}
         onRetry={loadData}
         searchKey={searchKey}
         onSearch={handleSearch}
-        searchPlaceholder="搜索书名或作者"
+        searchPlaceholder={t('novel:list.searchPlaceholder')}
         filters={filters}
         advancedFilters={[]}
         advancedValues={advancedValues}
@@ -358,19 +345,18 @@ export default function NovelListPage() {
         onCreate={canCreate ? () => navigate('/novel/create') : undefined}
         canCreate={canCreate}
       />
-      {/* P8-3-2 下架原因 Modal */}
       <Modal
         open={shelveModalOpen}
-        title={`批量下架作品（${shelveTargetIds.length} 条）`}
-        okText="确认下架"
-        cancelText="取消"
+        title={t('novel:offline.title', { count: shelveTargetIds.length })}
+        okText={t('novel:offline.confirm')}
+        cancelText={t('novel:offline.cancel')}
         okType="danger"
         confirmLoading={shelveSubmitting}
         onOk={handleShelveConfirm}
         onCancel={() => setShelveModalOpen(false)}
       >
         <div style={{ marginBottom: 'var(--space-3)' }}>
-          <p style={{ marginBottom: 'var(--space-2)' }}>请选择下架原因（必填）：</p>
+          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.reasonRequired')}</p>
           <Radio.Group
             value={shelveReason}
             onChange={(e) => setShelveReason(e.target.value as OfflineReason)}
@@ -386,12 +372,12 @@ export default function NovelListPage() {
           </Radio.Group>
         </div>
         <div>
-          <p style={{ marginBottom: 'var(--space-2)' }}>备注说明（选填）：</p>
+          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.remark')}</p>
           <Input.TextArea
             value={shelveComment}
             onChange={(e) => setShelveComment(e.target.value)}
             rows={4}
-            placeholder="请输入下架原因的补充说明..."
+            placeholder={t('novel:offline.remarkPlaceholder')}
             maxLength={200}
             showCount
           />

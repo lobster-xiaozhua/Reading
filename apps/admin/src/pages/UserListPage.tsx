@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Card, Space, Table, Tag, Typography, Input, App, Modal, Select } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SearchOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
@@ -27,6 +28,7 @@ interface PagedResult {
 }
 
 export default function UserListPage() {
+  const { t } = useTranslation();
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const { message } = App.useApp();
   const [loading, setLoading] = useState(false);
@@ -47,11 +49,11 @@ export default function UserListPage() {
       setData(res.items ?? []);
       setTotal(res.total ?? 0);
     } catch {
-      message.error('加载用户列表失败');
+      message.error(t('user:message.loadFailed'));
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, searchKey, roleFilter, message]);
+  }, [page, pageSize, searchKey, roleFilter, message, t]);
 
   useEffect(() => {
     loadData();
@@ -59,50 +61,50 @@ export default function UserListPage() {
 
   const handleBan = (record: UserItem) => {
     confirm({
-      title: '确认操作',
+      title: t('user:confirm.title'),
       icon: <ExclamationCircleOutlined />,
-      content: record.status === 1 ? `确定要封禁用户「${record.username}」吗？` : `确定要解封用户「${record.username}」吗？`,
+      content: record.status === 1 ? t('user:confirm.ban', { username: record.username }) : t('user:confirm.unban', { username: record.username }),
       onOk: async () => {
         try {
           await http.post(`/users/${record.id}/status`, { status: record.status === 1 ? 0 : 1 });
-          message.success('操作成功');
+          message.success(t('user:message.success'));
           loadData();
         } catch {
-          message.error('操作失败');
+          message.error(t('user:message.failed'));
         }
       },
     });
   };
 
   const columns: TableColumnsType<UserItem> = [
-    { title: 'ID', dataIndex: 'id', width: 60, ellipsis: true },
-    { title: '用户名', dataIndex: 'username', width: 120 },
-    { title: '昵称', dataIndex: 'nickname', width: 120 },
+    { title: t('user:table.id'), dataIndex: 'id', width: 60, ellipsis: true },
+    { title: t('user:table.username'), dataIndex: 'username', width: 120 },
+    { title: t('user:table.nickname'), dataIndex: 'nickname', width: 120 },
     {
-      title: '等级', dataIndex: 'level', width: 60,
+      title: t('user:table.level'), dataIndex: 'level', width: 60,
       render: (v: number) => `Lv.${v}`,
     },
     {
-      title: 'VIP', dataIndex: 'isVip', width: 60,
-      render: (v: boolean) => v ? <Tag color="gold">VIP</Tag> : <Tag>否</Tag>,
+      title: t('user:table.vip'), dataIndex: 'isVip', width: 60,
+      render: (v: boolean) => v ? <Tag color="gold">VIP</Tag> : <Tag>{t('user:vipLabel')}</Tag>,
     },
     {
-      title: '状态', dataIndex: 'status', width: 70,
+      title: t('user:table.status'), dataIndex: 'status', width: 70,
       render: (v: number) => (
-        <Tag color={v === 1 ? 'success' : 'error'}>{v === 1 ? '正常' : '封禁'}</Tag>
+        <Tag color={v === 1 ? 'success' : 'error'}>{v === 1 ? t('user:statusLabel.normal') : t('user:statusLabel.banned')}</Tag>
       ),
     },
     {
-      title: '注册时间', dataIndex: 'createdAt', width: 160,
+      title: t('user:table.registerTime'), dataIndex: 'createdAt', width: 160,
       render: (v: number) => v ? new Date(v).toLocaleString('zh-CN') : '-',
     },
     {
-      title: '操作', width: 100, fixed: 'right',
+      title: t('user:table.operation'), width: 100, fixed: 'right',
       render: (_: unknown, record: UserItem) => (
         <Space>
           {hasPermission('user.edit') && (
             <Button type="link" size="small" danger={record.status === 1} onClick={() => handleBan(record)}>
-              {record.status === 1 ? '封禁' : '解封'}
+              {record.status === 1 ? t('user:action.ban') : t('user:action.unban')}
             </Button>
           )}
         </Space>
@@ -112,12 +114,12 @@ export default function UserListPage() {
 
   return (
     <div>
-      <Title level={2} style={{ marginBottom: 'var(--space-4)' }}>用户管理</Title>
+      <Title level={2} style={{ marginBottom: 'var(--space-4)' }}>{t('user:title')}</Title>
       <Card>
         <Space style={{ marginBottom: 'var(--space-4)', width: '100%', justifyContent: 'space-between' }}>
           <Space>
             <Input
-              placeholder="搜索用户名/昵称"
+              placeholder={t('user:searchPlaceholder')}
               prefix={<SearchOutlined />}
               value={searchKey}
               onChange={(e) => setSearchKey(e.target.value)}
@@ -126,11 +128,11 @@ export default function UserListPage() {
               allowClear
             />
             <Select value={roleFilter} onChange={setRoleFilter} style={{ width: 120 }}>
-              <Select.Option value="all">全部用户</Select.Option>
-              <Select.Option value="reader">读者</Select.Option>
-              <Select.Option value="author">作者</Select.Option>
+              <Select.Option value="all">{t('user:filterAll')}</Select.Option>
+              <Select.Option value="reader">{t('user:filterReader')}</Select.Option>
+              <Select.Option value="author">{t('user:filterAuthor')}</Select.Option>
             </Select>
-            <Button icon={<ReloadOutlined />} onClick={() => loadData()}>刷新</Button>
+            <Button icon={<ReloadOutlined />} onClick={() => loadData()}>{t('common:refresh')}</Button>
           </Space>
         </Space>
         <Table<UserItem>
@@ -143,7 +145,7 @@ export default function UserListPage() {
             current: page, pageSize, total,
             onChange: (p, ps) => { setPage(p); setPageSize(ps); loadData(p); },
             showSizeChanger: true,
-            showTotal: (t) => `共 ${t} 条`,
+            showTotal: (totalCount) => t('common:total', { count: totalCount }),
           }}
         />
       </Card>

@@ -1,12 +1,5 @@
-/* ============================================================
- * P5-2 · 内容审核工作流页
- * 分屏布局：左 40% 待审列表 + 右 60% 内容预览 + 审核操作栏
- * 敏感词高亮（error-bg 底 + error 字 + 下划线 + hover Tooltip）
- * 审核流程：初审 → 复审 → 终审；驳回退回作者
- * Source: 04 §5.6 / P5-2
- * ============================================================ */
-
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -45,6 +38,7 @@ const { TextArea } = Input;
 type PageStatus = 'loading' | 'ready' | 'empty' | 'error';
 
 export default function AuditWorkbenchPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { message } = App.useApp();
   const hasPermission = useAuthStore((s) => s.hasPermission);
@@ -60,7 +54,6 @@ export default function AuditWorkbenchPage() {
   const [pendingCount, setPendingCount] = useState(0);
   const [todayProcessed, setTodayProcessed] = useState(0);
 
-  // 敏感词定位滚动 ref
   const contentRef = useRef<HTMLDivElement>(null);
   const hitRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
 
@@ -74,7 +67,6 @@ export default function AuditWorkbenchPage() {
       setQueue(list);
       setPendingCount(stats.pendingCount);
       setTodayProcessed(stats.todayProcessed);
-      // 自动选中第一条
       if (list.length > 0 && !list.find((i) => i.id === selectedId)) {
         setSelectedId(list[0].id);
       } else if (list.length === 0) {
@@ -90,7 +82,6 @@ export default function AuditWorkbenchPage() {
     loadData();
   }, [loadData]);
 
-  // 加载选中项的审核历史
   useEffect(() => {
     if (!selectedId) {
       setHistory([]);
@@ -109,17 +100,15 @@ export default function AuditWorkbenchPage() {
     [queue, selectedId],
   );
 
-  // 审核提交
   const handleSubmit = async (result: AuditResult) => {
     if (!currentItem) return;
-    // 驳回校验：必填原因 + 说明 ≥10 字
     if (result === 'reject') {
       if (!rejectReason) {
-        message.error('请选择驳回原因');
+        message.error(t('audit:message.noRejectReason'));
         return;
       }
       if (comment.trim().length < 10) {
-        message.error('驳回时审核意见需 ≥10 字');
+        message.error(t('audit:message.commentTooShort'));
         return;
       }
     }
@@ -131,12 +120,10 @@ export default function AuditWorkbenchPage() {
         comment: comment.trim(),
         rejectReason: result === 'reject' ? rejectReason : undefined,
       });
-      const actionText = result === 'approve' ? '通过' : result === 'revise' ? '待修改' : '驳回';
-      message.success(`已${actionText}，通知将下发给作者`);
-      // 清空表单
+      const actionText = result === 'approve' ? t('audit:resultLabel.approved') : result === 'revise' ? t('audit:resultLabel.revise') : t('audit:resultLabel.rejected');
+      message.success(t('audit:message.completed', { action: actionText }));
       setComment('');
       setRejectReason(undefined);
-      // 跳转下一条
       if (res.nextId) {
         setSelectedId(res.nextId);
       }
@@ -146,7 +133,6 @@ export default function AuditWorkbenchPage() {
     }
   };
 
-  // 敏感词点击定位
   const handleSensitiveClick = (hit: SensitiveHit) => {
     const el = hitRefs.current.get(hit.text + hit.offset);
     if (el) {
@@ -159,8 +145,8 @@ export default function AuditWorkbenchPage() {
   };
 
   const breadcrumb: BPageHeaderProps['breadcrumb'] = [
-    { title: '内容管理' },
-    { title: '内容审核' },
+    { title: t('audit:breadcrumb') },
+    { title: t('audit:title') },
   ];
 
   const segments = useMemo(() => {
@@ -171,28 +157,27 @@ export default function AuditWorkbenchPage() {
   return (
     <div className="b-audit-workbench-page">
       <BPageHeader
-        title="内容审核工作台"
+        title={t('audit:workbenchTitle')}
         breadcrumb={breadcrumb}
         onBack={() => navigate('/workbench')}
         extra={
           <Space size="large">
             <Badge count={pendingCount} overflowCount={99} offset={[0, 0]}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>待审</span>
+              <span style={{ color: 'var(--color-text-secondary)' }}>{t('audit:stats.pending')}</span>
             </Badge>
             <span style={{ color: 'var(--color-text-secondary)' }}>
-              今日已处理：<strong style={{ fontFamily: 'var(--font-mono)' }}>{todayProcessed}</strong> 条
+              {t('audit:stats.todayProcessed')}<strong style={{ fontFamily: 'var(--font-mono)' }}>{todayProcessed}</strong> {t('audit:stats.unit')}
             </span>
           </Space>
         }
       />
 
       {status === 'error' ? (
-        <Result status="error" title="加载失败" subTitle="审核队列加载出错，请重试。" extra={<Button type="primary" onClick={loadData}>重试</Button>} />
+        <Result status="error" title={t('common:loading')} subTitle={t('common:empty')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
       ) : (
         <div style={{ display: 'flex', gap: 'var(--space-4)', minHeight: 600 }}>
-          {/* 左侧：待审列表 40% */}
           <Card
-            title="待审列表"
+            title={t('audit:leftPanel')}
             extra={
               <Select
                 value={filterLevel}
@@ -207,7 +192,7 @@ export default function AuditWorkbenchPage() {
             {status === 'loading' ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : queue.length === 0 ? (
-              <Empty description="暂无待审内容" style={{ padding: 'var(--space-8)' }} />
+              <Empty description={t('audit:empty')} style={{ padding: 'var(--space-8)' }} />
             ) : (
               <List
                 dataSource={queue}
@@ -235,10 +220,10 @@ export default function AuditWorkbenchPage() {
                           《{item.novelTitle}》 · {item.author}
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-1)', color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
-                          <span>{item.wordCount.toLocaleString()} 字</span>
+                          <span>{item.wordCount.toLocaleString()} {t('audit:wordSuffix')}</span>
                           {item.sensitiveHits.length > 0 && (
                             <span style={{ color: 'var(--color-feedback-error)' }}>
-                              敏感词 {item.sensitiveHits.length} 处
+                              {t('audit:sensitiveHit', { count: item.sensitiveHits.length })}
                             </span>
                           )}
                         </div>
@@ -250,33 +235,30 @@ export default function AuditWorkbenchPage() {
             )}
           </Card>
 
-          {/* 右侧：内容预览 + 审核操作 60% */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             {status === 'loading' ? (
               <Card><Skeleton active paragraph={{ rows: 8 }} /></Card>
             ) : !currentItem ? (
               <Card>
-                <Empty description="请从左侧选择待审条目" style={{ padding: 'var(--space-8)' }} />
+                <Empty description={t('audit:emptySelect')} style={{ padding: 'var(--space-8)' }} />
               </Card>
             ) : (
               <>
-                {/* 内容预览 + 敏感词高亮 */}
                 <Card
                   title={
                     <Space>
                       <span>{currentItem.chapterTitle}</span>
                       <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)', fontWeight: 'normal' }}>
-                        《{currentItem.novelTitle}》 · {currentItem.author} · {currentItem.wordCount.toLocaleString()} 字
+                        《{currentItem.novelTitle}》 · {currentItem.author} · {currentItem.wordCount.toLocaleString()} {t('audit:wordSuffix')}
                       </span>
                     </Space>
                   }
                   extra={<Tag color={AUDIT_LEVEL_LABEL[currentItem.level].color}>{AUDIT_LEVEL_LABEL[currentItem.level].text}</Tag>}
                 >
-                  {/* 敏感词清单 */}
                   {currentItem.sensitiveHits.length > 0 && (
                     <div style={{ marginBottom: 'var(--space-3)', padding: 'var(--space-3)', background: 'var(--color-feedback-error-bg)', borderRadius: 'var(--radius-md, 8px)' }}>
                       <div style={{ marginBottom: 'var(--space-2)', color: 'var(--color-feedback-error)', fontWeight: 600 }}>
-                        命中敏感词 {currentItem.sensitiveHits.length} 处：
+                        {t('audit:sensitiveTitle', { count: currentItem.sensitiveHits.length })}
                       </div>
                       <Space wrap>
                         {currentItem.sensitiveHits.map((hit, idx) => {
@@ -301,7 +283,6 @@ export default function AuditWorkbenchPage() {
                     </div>
                   )}
 
-                  {/* 正文 + 敏感词高亮 */}
                   <div
                     ref={contentRef}
                     style={{
@@ -341,9 +322,8 @@ export default function AuditWorkbenchPage() {
                   </div>
                 </Card>
 
-                {/* 审核历史 */}
                 {history.length > 0 && (
-                  <Card title="审核历史">
+                  <Card title={t('audit:history')}>
                     <Timeline
                       items={history.map((h) => ({
                         color: h.result === 'approve' ? 'green' : h.result === 'reject' ? 'red' : 'blue',
@@ -351,7 +331,7 @@ export default function AuditWorkbenchPage() {
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
                               <Tag color={h.result === 'approve' ? 'success' : h.result === 'reject' ? 'error' : 'processing'}>
-                                {h.result === 'approve' ? '通过' : h.result === 'reject' ? '驳回' : '待修改'}
+                                {h.result === 'approve' ? t('audit:resultLabel.approved') : h.result === 'reject' ? t('audit:resultLabel.rejected') : t('audit:resultLabel.revise')}
                               </Tag>
                               <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
                                 {h.operator} · {h.time}
@@ -367,16 +347,15 @@ export default function AuditWorkbenchPage() {
                   </Card>
                 )}
 
-                {/* 审核操作栏（底部固定） */}
-                <Card title="审核操作">
+                <Card title={t('audit:operation.title')}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <label style={{ color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>驳回原因：</label>
+                      <label style={{ color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>{t('audit:operation.rejectReasonLabel')}</label>
                       <Select
                         value={rejectReason}
                         onChange={setRejectReason}
                         options={REJECT_REASON_OPTIONS}
-                        placeholder="选择驳回原因（驳回时必填）"
+                        placeholder={t('audit:operation.rejectReasonPlaceholder')}
                         style={{ width: 200 }}
                         allowClear
                       />
@@ -384,7 +363,7 @@ export default function AuditWorkbenchPage() {
                     <TextArea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="审核意见（驳回时需 ≥10 字）"
+                      placeholder={t('audit:operation.commentPlaceholder')}
                       rows={3}
                       maxLength={500}
                       showCount
@@ -396,14 +375,14 @@ export default function AuditWorkbenchPage() {
                         onClick={() => handleSubmit('approve')}
                         disabled={!canApprove}
                       >
-                        通过
+                        {t('audit:operation.approve')}
                       </Button>
                       <Button
                         loading={submitting}
                         onClick={() => handleSubmit('revise')}
                         disabled={!canApprove}
                       >
-                        待修改
+                        {t('audit:operation.revise')}
                       </Button>
                       <Button
                         danger
@@ -411,7 +390,7 @@ export default function AuditWorkbenchPage() {
                         onClick={() => handleSubmit('reject')}
                         disabled={!canReject || !rejectReason || comment.trim().length < 10}
                       >
-                        驳回
+                        {t('audit:operation.reject')}
                       </Button>
                     </Space>
                   </div>

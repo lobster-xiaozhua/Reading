@@ -11,6 +11,7 @@ import {
   Button,
   ChapterList,
   EmptyState,
+  RewardButton,
   Skeleton,
   Tabs,
   useAsyncState,
@@ -271,7 +272,7 @@ export default function BookDetailPage() {
             {
               key: 'reward',
               label: '打赏',
-              children: <RewardPlaceholder />,
+              children: <RewardSection bookId={bookId} />,
             },
           ]}
         />
@@ -343,25 +344,47 @@ function CommentList({ comments, loading }: { comments: Comment[]; loading: bool
   );
 }
 
-/* ---------- 打赏占位 ---------- */
+/* ---------- 打赏区域 ---------- */
 
-function RewardPlaceholder() {
+function RewardSection({ bookId }: { bookId: string }) {
+  const [loading, setLoading] = useState<'ticket' | 'recommend' | 'tip' | null>(null);
+  const { message } = useFeedback();
+
+  const handleReward = async (type: 'ticket' | 'recommend' | 'tip', amount: number) => {
+    setLoading(type);
+    try {
+      await fetcher.createReward(bookId, type, amount);
+      message('success', '打赏成功，感谢支持！');
+    } catch {
+      message('error', '打赏失败，请稍后重试');
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="book-detail__reward">
-      <div className="book-detail__reward-illustration" aria-hidden>
-        <svg viewBox="0 0 120 120" width="96" height="96" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="60" cy="60" r="40" />
-          <path d="M60 36v36M48 48h18a8 8 0 0 1 0 16H48" />
-        </svg>
-      </div>
-      <p className="book-detail__reward-text">打赏功能即将上线</p>
-      <p className="book-detail__reward-hint">支持作者，激励创作</p>
-      <div className="book-detail__reward-presets" role="group" aria-label="打赏金额">
-        {['100 月票', '500 推荐票', '1 杯咖啡', '5 杯咖啡'].map((label) => (
-          <button key={label} type="button" className="book-detail__reward-preset" disabled>
-            {label}
-          </button>
-        ))}
+      <p className="book-detail__reward-text">支持作者，激励创作</p>
+      <p className="book-detail__reward-hint">选择您的方式支持作者</p>
+      <div className="book-detail__reward-actions" role="group" aria-label="打赏方式">
+        <RewardButton
+          rewardType="ticket"
+          count={1}
+          loading={loading === 'ticket'}
+          onReward={handleReward}
+        />
+        <RewardButton
+          rewardType="recommend"
+          count={1}
+          loading={loading === 'recommend'}
+          onReward={handleReward}
+        />
+        <RewardButton
+          rewardType="tip"
+          count={10}
+          loading={loading === 'tip'}
+          onReward={handleReward}
+        />
       </div>
     </div>
   );

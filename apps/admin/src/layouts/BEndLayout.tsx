@@ -1,12 +1,5 @@
-/* ============================================================
- * P1-1 / P1-2 / P1-6 · B 端整体布局
- * - Sider 240（折叠 80） + Header 64 + Tabs 40 + Content max 1440 / padding 24
- * - 最小宽度 1280px，低于此横向滚动（不适配移动端，04 §1.3）
- * - 内容区栅格 12 列 / gap 16 / 最大宽 1440px
- * 04 §8.1 / §8.2 / §8.6
- * ============================================================ */
-
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layout } from 'antd';
 import { Outlet } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -18,6 +11,7 @@ import './bend-layout.css';
 const { Content } = Layout;
 
 export function BEndLayout() {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
 
   useHotkeys('/', (e) => {
@@ -40,7 +34,7 @@ export function BEndLayout() {
   return (
     <div className="bend-shell">
       <a href="#main-content" className="skip-link">
-        跳到主内容
+        {t('layout:skipToContent')}
       </a>
       <Layout className="bend-layout">
         <SiderMenu collapsed={collapsed} />

@@ -1,11 +1,5 @@
-/* ============================================================
- * P1-4 · 顶部栏 HeaderBar
- * 折叠按钮 48 + 面包屑 flex + 全局搜索 240 + 通知 48（红点）+ 用户菜单
- * 通知未读红点 --color-feedback-error
- * 04 §8.4
- * ============================================================ */
-
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Layout, Breadcrumb, Input, Badge, Dropdown, Avatar, theme } from 'antd';
 import {
   MenuFoldOutlined,
@@ -27,13 +21,10 @@ interface HeaderBarProps {
   onToggle: () => void;
 }
 
-/** 从路径解析面包屑链 */
 function resolveBreadcrumb(pathname: string): MenuItem[] {
-  // 顶层直接匹配
   for (const item of menuConfig) {
     if (item.path === pathname) return [item];
   }
-  // 二级匹配：父 > 子
   for (const parent of menuConfig) {
     if (!parent.children) continue;
     for (const child of parent.children) {
@@ -46,6 +37,7 @@ function resolveBreadcrumb(pathname: string): MenuItem[] {
 }
 
 export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
@@ -54,8 +46,8 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
 
   const breadcrumbItems = useMemo(() => {
     const chain = resolveBreadcrumb(location.pathname);
-    return chain.map((item) => ({ title: item.label }));
-  }, [location.pathname]);
+    return chain.map((item) => ({ title: t(item.labelKey) }));
+  }, [location.pathname, t]);
 
   const handleLogout = () => {
     logout();
@@ -66,18 +58,18 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: '个人中心',
+      label: t('layout:profile'),
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: '账号设置',
+      label: t('layout:accountSettings'),
     },
     { type: 'divider' as const },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: t('layout:logout'),
       danger: true,
     },
   ];
@@ -95,7 +87,7 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
         type="button"
         className="bend-header__collapse"
         onClick={onToggle}
-        aria-label={collapsed ? '展开侧边栏' : '折叠侧边栏'}
+        aria-label={collapsed ? t('layout:expandSidebar') : t('layout:collapseSidebar')}
         aria-expanded={!collapsed}
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -106,17 +98,17 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
       <div className="bend-header__right">
         <Input
           prefix={<SearchOutlined />}
-          placeholder="搜索功能 / 作品 / 用户"
+          placeholder={t('layout:searchPlaceholder')}
           className="bend-header__search"
           style={{ width: 240 }}
           allowClear
-          aria-label="全局搜索"
+          aria-label={t('layout:globalSearch')}
         />
         <Badge count={5} size="small" offset={[-2, 4]}>
           <button
             type="button"
             className="bend-header__icon-btn"
-            aria-label="通知（5 条未读）"
+            aria-label={t('layout:notifications')}
           >
             <BellOutlined />
           </button>
@@ -126,9 +118,9 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
           placement="bottomRight"
           trigger={['click']}
         >
-          <button type="button" className="bend-header__user" aria-label="用户菜单">
+          <button type="button" className="bend-header__user" aria-label={t('layout:profile')}>
             <Avatar size={32} src={user?.avatar} icon={<UserOutlined />} />
-            <span className="bend-header__username">{user?.nickname ?? user?.username ?? '管理员'}</span>
+            <span className="bend-header__username">{user?.nickname ?? user?.username ?? t('layout:admin')}</span>
           </button>
         </Dropdown>
       </div>

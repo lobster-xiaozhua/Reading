@@ -1,11 +1,5 @@
-/* ============================================================
- * P4-3 · 作品详情卡片页
- * 基于 DetailCardTemplate 实例化
- * 基本信息 + 数据统计（Progress circle 完读率）+ 章节卡 + 审核 Timeline + 评论 Top10
- * Source: 04 §5.3 / P4-3
- * ============================================================ */
-
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Space, Progress, Tag, App, Steps, Modal, Radio, Input } from 'antd';
 import { EditOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, AuditOutlined, CheckCircleOutlined } from '@ant-design/icons';
@@ -28,6 +22,7 @@ import { useAuthStore } from '@/stores/authStore';
 const CATEGORY_LABEL = Object.fromEntries(NOVEL_CATEGORIES.map((c) => [c.value, c.label]));
 
 export default function NovelDetailPage() {
+  const { t } = useTranslation();
   const { novelId } = useParams<{ novelId: string }>();
   const navigate = useNavigate();
   const { modal, message } = App.useApp();
@@ -35,12 +30,11 @@ export default function NovelDetailPage() {
 
   const [status, setStatus] = useState<DetailCardStatus>('loading');
   const [novel, setNovel] = useState<BNovelDetail | null>(null);
-  // P8-3 下架原因 Modal 状态
   const [shelveModalOpen, setShelveModalOpen] = useState(false);
   const [shelveReason, setShelveReason] = useState<OfflineReason>('operation-adjust');
   const [shelveComment, setShelveComment] = useState('');
   const [shelveSubmitting, setShelveSubmitting] = useState(false);
-  
+
   const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
   const [comments, setComments] = useState<CommentItem[]>([]);
   const [novelStats, setNovelStats] = useState<{
@@ -86,44 +80,41 @@ export default function NovelDetailPage() {
 
   const canEdit = hasPermission('novel.edit');
 
-  // P8-3 按状态机分流的工作流操作
   const handleWorkflowAction = () => {
     if (!novel) return;
     if (novel.status === 'draft') {
       submitForAudit([novel.id]).then((res) => {
-        if (res.success) { message.success('已提交审核'); loadDetail(); }
-        else { message.error(`提交失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+        if (res.success) { message.success(t('novel:message.submitted')); loadDetail(); }
+        else { message.error(t('novel:message.submitFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
       });
     } else if (novel.status === 'pending') {
       approveNovel([novel.id]).then((res) => {
-        if (res.success) { message.success('审核通过，已上架'); loadDetail(); }
-        else { message.error(`审核失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+        if (res.success) { message.success(t('novel:message.approved')); loadDetail(); }
+        else { message.error(t('novel:message.approveFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
       });
     } else if (novel.status === 'published') {
-      // 打开下架原因 Modal
       setShelveReason('operation-adjust');
       setShelveComment('');
       setShelveModalOpen(true);
     } else if (novel.status === 'offline') {
       reshelveNovel([novel.id]).then((res) => {
-        if (res.success) { message.success('已恢复上架'); loadDetail(); }
-        else { message.error(`恢复失败：${res.failed?.map((f) => f.reason).join('；')}`); }
+        if (res.success) { message.success(t('novel:message.reshelved')); loadDetail(); }
+        else { message.error(t('novel:message.reshelveFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
       });
     }
   };
 
-  // P8-3-2 下架确认
   const handleShelveConfirm = async () => {
     if (!novel) return;
     setShelveSubmitting(true);
     try {
       const res = await shelveNovel([novel.id], shelveReason, shelveComment);
       if (res.success) {
-        message.success('已下架');
+        message.success(t('novel:message.offlined'));
         setShelveModalOpen(false);
         loadDetail();
       } else {
-        message.error(`下架失败：${res.failed?.map((f) => f.reason).join('；')}`);
+        message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
       }
     } finally {
       setShelveSubmitting(false);
@@ -133,21 +124,20 @@ export default function NovelDetailPage() {
   const handleDelete = () => {
     if (!novel) return;
     modal.confirm({
-      title: '永久删除该作品？',
-      content: `此操作不可撤销。作品《${novel.title}》及其所有章节将被永久删除。`,
-      okText: '确认删除',
+      title: t('novel:deleteConfirm.title'),
+      content: t('novel:deleteConfirm.content', { title: novel.title }),
+      okText: t('novel:deleteConfirm.confirm'),
       okType: 'danger',
       onOk: () => batchOperate([novel.id], 'delete').then(() => navigate('/novel')),
     });
   };
 
-  // P8-3 按状态生成按钮文案与图标
   const workflowBtn = novel ? (() => {
     switch (novel.status) {
-      case 'draft': return { text: '提交审核', icon: <AuditOutlined /> };
-      case 'pending': return { text: '审核通过', icon: <CheckCircleOutlined /> };
-      case 'published': return { text: '下架', icon: <ArrowDownOutlined /> };
-      case 'offline': return { text: '恢复上架', icon: <ArrowUpOutlined /> };
+      case 'draft': return { text: t('novel:action.submitAudit'), icon: <AuditOutlined /> };
+      case 'pending': return { text: t('novel:action.approve'), icon: <CheckCircleOutlined /> };
+      case 'published': return { text: t('novel:action.offline'), icon: <ArrowDownOutlined /> };
+      case 'offline': return { text: t('novel:action.reshelve'), icon: <ArrowUpOutlined /> };
     }
   })() : null;
 
@@ -155,7 +145,7 @@ export default function NovelDetailPage() {
     <Space>
       {canEdit && (
         <Button type="primary" icon={<EditOutlined />} onClick={() => navigate(`/novel/${novel.id}/edit`)}>
-          编辑
+          {t('novel:action.edit')}
         </Button>
       )}
       {workflowBtn && (
@@ -168,16 +158,15 @@ export default function NovelDetailPage() {
         </Button>
       )}
       <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
-        删除
+        {t('novel:action.delete')}
       </Button>
     </Space>
   ) : undefined;
 
-  // P8-3 工作流状态映射（draft=0, pending=1, published=2, offline=2+error）
   const WORKFLOW_STEPS = [
-    { title: '草稿', description: '创建作品' },
-    { title: '待审核', description: '提交审核中' },
-    { title: '已发布', description: 'C 端可阅读' },
+    { title: t('novelDetail:steps.draft'), description: t('novelDetail:steps.draftDesc') },
+    { title: t('novelDetail:steps.pending'), description: t('novelDetail:steps.pendingDesc') },
+    { title: t('novelDetail:steps.published'), description: t('novelDetail:steps.publishedDesc') },
   ];
   const workflowCurrent = novel
     ? novel.status === 'draft' ? 0
@@ -188,18 +177,17 @@ export default function NovelDetailPage() {
 
   const basicItems: DescItem[] = novel
     ? [
-        { key: 'title', label: '书名', children: novel.title },
-        { key: 'author', label: '作者', children: novel.author },
-        { key: 'category', label: '分类', children: CATEGORY_LABEL[novel.category] ?? novel.category },
-        { key: 'tags', label: '标签', children: novel.tags.map((t: string) => <Tag key={t}>{t}</Tag>) },
-        { key: 'wordCount', label: '总字数', children: novel.wordCount.toLocaleString() },
-        { key: 'intro', label: '简介', span: 2, children: novel.intro },
-        { key: 'createdAt', label: '创建时间', children: new Date(novel.createdAt).toLocaleString('zh-CN') },
-        { key: 'publishedAt', label: '上架时间', children: novel.publishedAt ? new Date(novel.publishedAt).toLocaleString('zh-CN') : '未上架' },
-        // P8-3 工作流状态展示
+        { key: 'title', label: t('novelDetail:info.title'), children: novel.title },
+        { key: 'author', label: t('novelDetail:info.author'), children: novel.author },
+        { key: 'category', label: t('novelDetail:info.category'), children: CATEGORY_LABEL[novel.category] ?? novel.category },
+        { key: 'tags', label: t('novelDetail:info.tags'), children: novel.tags.map((t: string) => <Tag key={t}>{t}</Tag>) },
+        { key: 'wordCount', label: t('novelDetail:info.wordCount'), children: novel.wordCount.toLocaleString() },
+        { key: 'intro', label: t('novelDetail:info.intro'), span: 2, children: novel.intro },
+        { key: 'createdAt', label: t('novelDetail:info.createdAt'), children: new Date(novel.createdAt).toLocaleString('zh-CN') },
+        { key: 'publishedAt', label: t('novelDetail:info.shelvedAt'), children: novel.publishedAt ? new Date(novel.publishedAt).toLocaleString('zh-CN') : t('novelDetail:info.notShelved') },
         {
           key: 'workflow',
-          label: '状态流转',
+          label: t('novelDetail:info.statusFlow'),
           span: 2,
           children: (
             <Steps
@@ -207,17 +195,16 @@ export default function NovelDetailPage() {
               current={workflowCurrent}
               status={workflowStatus}
               items={novel.status === 'offline'
-                ? [...WORKFLOW_STEPS, { title: '已下架', description: novel.reason ?? '已下架' }]
+                ? [...WORKFLOW_STEPS, { title: t('novelDetail:steps.offline'), description: novel.reason ?? t('novelDetail:steps.offline') }]
                 : WORKFLOW_STEPS}
             />
           ),
         },
-        // P8-3 下架原因与时间
         ...(novel.status === 'offline' && novel.shelvedAt
-          ? [{ key: 'shelvedAt', label: '下架时间', children: new Date(novel.shelvedAt).toLocaleString('zh-CN') }]
+          ? [{ key: 'shelvedAt', label: t('novelDetail:info.offlinedAt'), children: new Date(novel.shelvedAt).toLocaleString('zh-CN') }]
           : []),
         ...(novel.status === 'offline' && novel.reason
-          ? [{ key: 'offlineReason', label: '下架原因', span: 2, children: <Tag color="error">{novel.reason}</Tag> }]
+          ? [{ key: 'offlineReason', label: t('novelDetail:info.offlineReason'), span: 2, children: <Tag color="error">{novel.reason}</Tag> }]
           : []),
       ]
     : [];
@@ -225,25 +212,25 @@ export default function NovelDetailPage() {
   const statsContent = novel ? (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ color: 'var(--color-text-secondary)' }}>阅读量</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>{t('novelDetail:stats.readCount')}</span>
         <strong>{(novelStats?.readCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ color: 'var(--color-text-secondary)' }}>收藏数</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>{t('novelDetail:stats.favCount')}</span>
         <strong>{(novelStats?.favCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ color: 'var(--color-text-secondary)' }}>月票</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>{t('novelDetail:stats.ticketCount')}</span>
         <strong>{(novelStats?.ticketCount ?? 0).toLocaleString()}</strong>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-        <span style={{ color: 'var(--color-text-secondary)' }}>评分</span>
+        <span style={{ color: 'var(--color-text-secondary)' }}>{t('novelDetail:stats.rating')}</span>
         <strong>{novelStats?.rating ? novelStats.rating.toFixed(1) : '-'}</strong>
       </div>
       <div style={{ textAlign: 'center', marginTop: 'var(--space-2)' }}>
         <Progress type="circle" percent={novelStats?.completionRate ?? 0} size={100} />
         <div style={{ marginTop: 'var(--space-2)', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
-          完读率
+          {t('novelDetail:stats.completionRate')}
         </div>
       </div>
     </div>
@@ -252,45 +239,44 @@ export default function NovelDetailPage() {
   return (
     <>
       <DetailCardTemplate
-        title={novel?.title ?? '作品详情'}
+        title={novel?.title ?? t('novelDetail:title')}
         breadcrumb={[
-          { title: '内容管理' },
-          { title: '作品管理', onClick: () => navigate('/novel') },
-          { title: novel?.title ?? '详情' },
+          { title: t('novelDetail:breadcrumb.content') },
+          { title: t('novelDetail:breadcrumb.novel'), onClick: () => navigate('/novel') },
+          { title: novel?.title ?? t('novelDetail:breadcrumb.detail') },
         ]}
         status={status}
-        offlineMessage={novel?.reason ? `该内容已下架，原因：${novel.reason}` : undefined}
+        offlineMessage={novel?.reason ? t('novelDetail:offlinedNotice', { reason: novel.reason }) : undefined}
         onBack={() => navigate('/novel')}
         extra={headerExtra}
         basicItems={basicItems}
         statsContent={statsContent}
-        chapterTitle="章节管理"
+        chapterTitle={t('novelDetail:chapterSection.title')}
         chapterContent={
           <div style={{ textAlign: 'center', padding: 'var(--space-8) 0' }}>
             <Button type="primary" onClick={() => navigate(`/chapter/${novel?.id}`)}>
-              进入章节管理
+              {t('novelDetail:chapterSection.enter')}
             </Button>
             <p style={{ marginTop: 'var(--space-2)', color: 'var(--color-text-secondary)' }}>
-              章节列表、排序、编辑将在 P5-1 章节管理页实现
+              {t('novelDetail:chapterSection.placeholder')}
             </p>
           </div>
         }
         auditHistory={auditHistory}
         comments={comments}
       />
-      {/* P8-3-2 下架原因 Modal */}
       <Modal
         open={shelveModalOpen}
-        title="下架作品"
-        okText="确认下架"
-        cancelText="取消"
+        title={t('novel:action.offline')}
+        okText={t('novel:offline.confirm')}
+        cancelText={t('novel:offline.cancel')}
         okType="danger"
         confirmLoading={shelveSubmitting}
         onOk={handleShelveConfirm}
         onCancel={() => setShelveModalOpen(false)}
       >
         <div style={{ marginBottom: 'var(--space-3)' }}>
-          <p style={{ marginBottom: 'var(--space-2)' }}>请选择下架原因（必填）：</p>
+          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.reasonRequired')}</p>
           <Radio.Group
             value={shelveReason}
             onChange={(e) => setShelveReason(e.target.value as OfflineReason)}
@@ -306,12 +292,12 @@ export default function NovelDetailPage() {
           </Radio.Group>
         </div>
         <div>
-          <p style={{ marginBottom: 'var(--space-2)' }}>备注说明（选填）：</p>
+          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.remark')}</p>
           <Input.TextArea
             value={shelveComment}
             onChange={(e) => setShelveComment(e.target.value)}
             rows={4}
-            placeholder="请输入下架原因的补充说明..."
+            placeholder={t('novel:offline.remarkPlaceholder')}
             maxLength={200}
             showCount
           />

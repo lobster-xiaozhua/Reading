@@ -9,7 +9,7 @@
     "build": "tsc -p tsconfig.app.json && vite build",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
-    "lint": "echo 'lint placeholder'",
+    "lint": "eslint src/ --max-warnings=0",
     "test": "echo 'no tests'"
   },
   "dependencies": {

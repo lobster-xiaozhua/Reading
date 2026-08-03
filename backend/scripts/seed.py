@@ -239,6 +239,7 @@ async def seed_content(db) -> None:
             click_count=120000 + idx * 30000,
             price=10 if idx % 2 == 0 else 0,
             is_completed=1 if idx in (0, 1) else 0,
+            tags_str=["热血,爽文,玄幻", "仙侠,修真,经典", "言情,甜宠,现代", "悬疑,推理,烧脑", "科幻,末世,未来"][idx],
             published_at=now - idx * 86400000,
             shelved_at=now - idx * 86400000,
         )

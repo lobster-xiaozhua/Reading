@@ -67,7 +67,7 @@ export const FunctionalColors: Story = {
 };
 
 export const ModalWithShadow: Story = {
-  render: () => {
+  render: function ModalWithShadowRender() {
     const [open, setOpen] = useState(false);
     return (
       <Card title="弹窗阴影桥接（boxShadow → var(--sh-3)）">

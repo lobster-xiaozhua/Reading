@@ -1,20 +1,18 @@
-/* ============================================================
- * P0-17 · 404 兜底页
- * ============================================================ */
-
+import { useTranslation } from 'react-i18next';
 import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 export default function NotFoundPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
     <Result
       status="404"
       title="404"
-      subTitle="抱歉，您访问的页面不存在。"
+      subTitle={t('error:notFoundDesc')}
       extra={
         <Button type="primary" onClick={() => navigate('/workbench', { replace: true })}>
-          返回工作台
+          {t('error:backToWorkbench')}
         </Button>
       }
     />

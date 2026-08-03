@@ -1,12 +1,5 @@
-/* ============================================================
- * P5-1 · 章节管理页
- * 拖拽排序（dnd-kit）+ 行内标题编辑 + 状态 Tag + VIP 标记 + Drawer 预览
- * 紧凑行高 40px（small size），默认每页 50 条
- * 状态流转：draft → pending → published → offline → published
- * Source: 04 §5.5 / P5-1
- * ============================================================ */
-
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Button,
@@ -73,16 +66,12 @@ import {
   CHAPTER_STATUS_TAG,
 } from '@/api/chapter-api';
 
-/** 紧凑行高（P5-1-9，40px，由 size='small' 实现） */
-
-/** Row Context：将 dnd-kit listeners 从 DraggableRow 传递到 holder 单元格 */
 interface RowContextValue {
   listeners?: ReturnType<typeof useSortable>['listeners'];
   isDragging?: boolean;
 }
 const RowContext = createContext<RowContextValue>({});
 
-/** 拖拽手柄：在 holder 列单元格内消费 listeners */
 function DragHandle({ enabled }: { enabled: boolean }) {
   const { listeners } = useContext(RowContext);
   return (
@@ -96,7 +85,6 @@ function DragHandle({ enabled }: { enabled: boolean }) {
   );
 }
 
-/** 拖拽行：注入到 Table components.body.row，通过 Context 暴露 listeners */
 function DraggableRow({ children, ...props }: React.HTMLAttributes<HTMLTableRowElement> & { 'data-row-key'?: string }) {
   const id = props['data-row-key'] as string;
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -115,8 +103,8 @@ function DraggableRow({ children, ...props }: React.HTMLAttributes<HTMLTableRowE
   );
 }
 
-/** 行内标题编辑单元 */
 function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: string) => Promise<void> }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
@@ -177,7 +165,7 @@ function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: str
   }
 
   return (
-    <Tooltip title="双击编辑标题">
+    <Tooltip title={t('chapter:editTitleTooltip')}>
       <span
         onDoubleClick={() => setEditing(true)}
         style={{ cursor: 'pointer', color: 'var(--color-text-primary)' }}
@@ -191,6 +179,7 @@ function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: str
 type PageStatus = 'loading' | 'ready' | 'empty' | 'no-search-result' | 'error' | 'no-permission' | 'not-found';
 
 export default function ChapterListPage() {
+  const { t } = useTranslation();
   const { novelId } = useParams<{ novelId: string }>();
   const navigate = useNavigate();
   const { modal, message } = App.useApp();
@@ -227,7 +216,6 @@ export default function ChapterListPage() {
     }
     setStatus('loading');
     try {
-      // 加载作品标题（用于面包屑）
       const novel = await fetchNovelDetail(novelId);
       if (novel) setNovelTitle(novel.title);
       const res = await fetchChapterList({
@@ -255,25 +243,23 @@ export default function ChapterListPage() {
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
-    // 仅在按 index 排序时允许拖拽
     if (sortBy !== 'index') {
-      message.warning('请切换为「按序号排序」后再拖拽');
+      message.warning(t('chapter:message.sortWarning'));
       return;
     }
     const oldIndex = dataSource.findIndex((c) => c.id === active.id);
     const newIndex = dataSource.findIndex((c) => c.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
 
-    // 乐观更新
     const next = arrayMove(dataSource, oldIndex, newIndex);
     const original = [...dataSource];
     setDataSource(next);
     try {
       await reorderChapters(novelId!, next.map((c) => c.id));
-      message.success('排序已更新');
+      message.success(t('chapter:message.sortUpdated'));
     } catch {
       setDataSource(original);
-      message.error('排序保存失败，已回滚');
+      message.error(t('chapter:message.sortFailed'));
     }
   };
 
@@ -282,20 +268,20 @@ export default function ChapterListPage() {
     setDataSource((ds) =>
       ds.map((c) => (c.id === chapter.id ? { ...c, title: newTitle, updatedAt: Date.now() } : c)),
     );
-    message.success('章节标题已更新');
+    message.success(t('chapter:message.titleUpdated'));
   };
 
   const handleTransition = (chapter: BChapterDetail, to: BChapterStatus) => {
     modal.confirm({
-      title: `确认将「${chapter.title}」状态变更为 ${CHAPTER_STATUS_TAG[to].text}？`,
-      content: '此操作将记录到审核历史。',
+      title: t('chapter:confirmStatusChange', { title: chapter.title, status: CHAPTER_STATUS_TAG[to].text }),
+      content: t('chapter:confirmStatusDesc'),
       onOk: async () => {
         const res = await transitionChapterStatus(chapter.id, to);
         if (res.success) {
-          message.success('状态已更新');
+          message.success(t('chapter:message.statusUpdated'));
           loadData();
         } else {
-          message.error(res.reason ?? '状态更新失败');
+          message.error(res.reason ?? t('chapter:message.statusUpdateFailed'));
         }
       },
     });
@@ -303,48 +289,47 @@ export default function ChapterListPage() {
 
   const handleDelete = (chapter: BChapterDetail) => {
     if (chapter.status === 'published') {
-      // 已发布章节需输入标题匹配
       let inputTitle = '';
       modal.confirm({
-        title: `永久删除「${chapter.title}」？`,
+        title: t('chapter:confirmDeletePublished', { title: chapter.title }),
         content: (
           <div>
-            <p style={{ color: 'var(--color-feedback-error)' }}>已发布章节删除不可恢复，请输入章节标题确认：</p>
+            <p style={{ color: 'var(--color-feedback-error)' }}>{t('chapter:confirmDeletePublishedDesc')}</p>
             <Input
               placeholder={chapter.title}
               onChange={(e) => { inputTitle = e.target.value; }}
             />
           </div>
         ),
-        okText: '确认删除',
+        okText: t('chapter:confirmDelete'),
         okType: 'danger',
         onOk: async () => {
           if (inputTitle !== chapter.title) {
-            message.error('标题不匹配，已取消删除');
+            message.error(t('chapter:message.titleMismatch'));
             return Promise.reject();
           }
           const res = await deleteChapter(chapter.id, inputTitle);
           if (res.success) {
-            message.success('章节已删除');
+            message.success(t('chapter:message.deleted'));
             loadData();
           } else {
-            message.error(res.reason ?? '删除失败');
+            message.error(res.reason ?? t('chapter:message.deleteFailed'));
           }
         },
       });
     } else {
       modal.confirm({
-        title: `确认删除「${chapter.title}」？`,
-        content: '删除后不可恢复。',
-        okText: '确认删除',
+        title: t('chapter:confirmDeleteDraft', { title: chapter.title }),
+        content: t('chapter:confirmDeleteDraftDesc'),
+        okText: t('chapter:confirmDelete'),
         okType: 'danger',
         onOk: async () => {
           const res = await deleteChapter(chapter.id);
           if (res.success) {
-            message.success('章节已删除');
+            message.success(t('chapter:message.deleted'));
             loadData();
           } else {
-            message.error(res.reason ?? '删除失败');
+            message.error(res.reason ?? t('chapter:message.deleteFailed'));
           }
         },
       });
@@ -355,24 +340,24 @@ export default function ChapterListPage() {
     const ids = selectedRowKeys.map(String);
     const res = await batchOperateChapters(ids, action);
     if (res.success) {
-      message.success('批量操作完成');
+      message.success(t('chapter:message.batchComplete'));
     } else if (res.failed && res.failed.length > 0) {
-      message.warning(`部分章节状态转换非法已跳过（${res.failed.length} 条）`);
+      message.warning(t('chapter:message.batchPartial', { count: res.failed.length }));
     }
     setSelectedRowKeys([]);
     loadData();
   };
 
   const batchActions: BatchAction[] = [
-    { key: 'submit-audit', label: '批量提交审核', onClick: () => handleBatch('submit-audit') },
-    { key: 'publish', label: '批量发布', onClick: () => handleBatch('publish') },
-    { key: 'offline', label: '批量下架', onClick: () => handleBatch('offline') },
+    { key: 'submit-audit', label: t('chapter:action.batchSubmit'), onClick: () => handleBatch('submit-audit') },
+    { key: 'publish', label: t('chapter:action.batchPublish'), onClick: () => handleBatch('publish') },
+    { key: 'offline', label: t('chapter:action.batchOffline'), onClick: () => handleBatch('offline') },
     {
       key: 'delete',
-      label: '批量删除',
+      label: t('chapter:action.batchDelete'),
       danger: true,
-      confirmTitle: '确认删除选中章节？',
-      confirmContent: '删除后章节不可恢复，已发布章节需逐个标题匹配确认。',
+      confirmTitle: t('chapter:confirmBatchDelete'),
+      confirmContent: t('chapter:confirmBatchDeleteDesc'),
       onClick: () => handleBatch('delete'),
     },
   ];
@@ -386,7 +371,7 @@ export default function ChapterListPage() {
       isVip: values.isVip,
     });
     if (res.success) {
-      message.success('章节已创建');
+      message.success(t('chapter:message.chapterCreated'));
       setCreateModalOpen(false);
       createForm.resetFields();
       loadData();
@@ -403,7 +388,7 @@ export default function ChapterListPage() {
       render: () => <DragHandle enabled={sortBy === 'index'} />,
     },
     {
-      title: '序号',
+      title: t('chapter:table.index'),
       dataIndex: 'index',
       key: 'index',
       width: 64,
@@ -411,7 +396,7 @@ export default function ChapterListPage() {
       render: (v: number) => <span style={{ fontFamily: 'var(--font-mono)' }}>{v}</span>,
     },
     {
-      title: '章节标题',
+      title: t('chapter:table.title'),
       dataIndex: 'title',
       key: 'title',
       render: (title: string, record) =>
@@ -422,7 +407,7 @@ export default function ChapterListPage() {
         ),
     },
     {
-      title: '字数',
+      title: t('chapter:table.wordCount'),
       dataIndex: 'wordCount',
       key: 'wordCount',
       width: 96,
@@ -432,7 +417,7 @@ export default function ChapterListPage() {
       ),
     },
     {
-      title: '状态',
+      title: t('chapter:table.status'),
       dataIndex: 'status',
       key: 'status',
       width: 96,
@@ -442,7 +427,7 @@ export default function ChapterListPage() {
       },
     },
     {
-      title: 'VIP',
+      title: t('chapter:table.vip'),
       dataIndex: 'isVip',
       key: 'isVip',
       width: 72,
@@ -450,40 +435,40 @@ export default function ChapterListPage() {
         v ? <Tag color="gold" style={{ color: 'var(--color-feedback-warning)' }}>VIP</Tag> : null,
     },
     {
-      title: '更新时间',
+      title: t('chapter:table.updatedAt'),
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 144,
       render: (v: number) => new Date(v).toLocaleString('zh-CN'),
     },
     {
-      title: '操作',
+      title: t('chapter:table.operation'),
       key: 'action',
       fixed: 'right',
       width: 160,
       render: (_, record) => {
         const menuItems: { key: string; label: string; icon: React.ReactNode; danger?: boolean }[] = [
-          { key: 'view', label: '预览正文', icon: <EyeOutlined /> },
+          { key: 'view', label: t('chapter:action.preview'), icon: <EyeOutlined /> },
         ];
         if (canEdit) {
-          menuItems.push({ key: 'edit', label: '编辑标题', icon: <EditOutlined /> });
+          menuItems.push({ key: 'edit', label: t('chapter:action.editTitle'), icon: <EditOutlined /> });
           if (record.status === 'draft') {
-            menuItems.push({ key: 'submit', label: '提交审核', icon: <ArrowUpOutlined /> });
+            menuItems.push({ key: 'submit', label: t('chapter:action.submitAudit'), icon: <ArrowUpOutlined /> });
           } else if (record.status === 'pending') {
-            menuItems.push({ key: 'publish', label: '直接发布', icon: <ArrowUpOutlined /> });
+            menuItems.push({ key: 'publish', label: t('chapter:action.publish'), icon: <ArrowUpOutlined /> });
           } else if (record.status === 'published') {
-            menuItems.push({ key: 'offline', label: '下架', icon: <ArrowDownOutlined />, danger: true });
+            menuItems.push({ key: 'offline', label: t('chapter:action.offline'), icon: <ArrowDownOutlined />, danger: true });
           } else if (record.status === 'offline') {
-            menuItems.push({ key: 'republish', label: '重新上架', icon: <ArrowUpOutlined /> });
+            menuItems.push({ key: 'republish', label: t('chapter:action.reshelve'), icon: <ArrowUpOutlined /> });
           }
         }
         if (canDelete) {
-          menuItems.push({ key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true });
+          menuItems.push({ key: 'delete', label: t('chapter:action.delete'), icon: <DeleteOutlined />, danger: true });
         }
         return (
           <Space size="small">
             <Button type="link" size="small" icon={<EyeOutlined />} onClick={() => openPreview(record)}>
-              预览
+              {t('chapter:action.preview')}
             </Button>
             <Dropdown menu={{ items: menuItems, onClick: ({ key }) => {
               if (key === 'view' || key === 'edit') openPreview(record);
@@ -492,7 +477,7 @@ export default function ChapterListPage() {
               else if (key === 'offline') handleTransition(record, 'offline');
               else if (key === 'delete') handleDelete(record);
             } }}>
-              <Button type="link" size="small" icon={<MoreOutlined />}>更多</Button>
+              <Button type="link" size="small" icon={<MoreOutlined />}>{t('chapter:action.more')}</Button>
             </Dropdown>
           </Space>
         );
@@ -506,28 +491,28 @@ export default function ChapterListPage() {
   };
 
   const breadcrumb: BPageHeaderProps['breadcrumb'] = useMemo(() => [
-    { title: '内容管理' },
-    { title: '作品管理', onClick: () => navigate('/novel') },
+    { title: t('novel:breadcrumb.content') },
+    { title: t('novel:breadcrumb.novel'), onClick: () => navigate('/novel') },
     { title: novelTitle || novelId || '作品', onClick: () => navigate(`/novel/${novelId}`) },
-    { title: '章节管理' },
-  ], [navigate, novelId, novelTitle]);
+    { title: t('chapter:title') },
+  ], [navigate, novelId, novelTitle, t]);
 
   if (status === 'not-found') {
-    return <Result status="404" title="作品不存在" subTitle="未找到对应的作品，请返回列表。" extra={<Button onClick={() => navigate('/novel')}>返回作品列表</Button>} />;
+    return <Result status="404" title={t('chapter:notFound')} subTitle={t('chapter:notFoundDesc')} extra={<Button onClick={() => navigate('/novel')}>{t('chapter:notFoundAction')}</Button>} />;
   }
 
   const stats = (
     <Space size="large" style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-body, 14px)' }}>
-      <span>总字数：<strong style={{ fontFamily: 'var(--font-mono)' }}>{totalWords.toLocaleString()}</strong></span>
-      <span>章节数：<strong style={{ fontFamily: 'var(--font-mono)' }}>{total}</strong></span>
-      <span>连载状态：<Tag color="success">连载中</Tag></span>
+      <span>{t('chapter:stats.totalWords')}<strong style={{ fontFamily: 'var(--font-mono)' }}>{totalWords.toLocaleString()}</strong></span>
+      <span>{t('chapter:stats.chapterCount')}<strong style={{ fontFamily: 'var(--font-mono)' }}>{total}</strong></span>
+      <span>{t('chapter:stats.serialStatus')}<Tag color="success">{t('chapter:stats.ongoing')}</Tag></span>
     </Space>
   );
 
   return (
     <div className="b-chapter-list-page">
       <BPageHeader
-        title={`《${novelTitle || '加载中'}》章节管理`}
+        title={t('chapter:pageTitle', { title: novelTitle || t('common:loading') })}
         breadcrumb={breadcrumb}
         onBack={() => navigate(`/novel/${novelId}`)}
         extra={
@@ -535,18 +520,17 @@ export default function ChapterListPage() {
             {stats}
             {canCreate && (
               <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
-                新建章节
+                {t('chapter:action.newChapter')}
               </Button>
             )}
           </Space>
         }
       />
 
-      {/* 工具栏：搜索 + 状态筛选 + 排序切换 */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)', gap: 'var(--space-3)' }}>
         <Space>
           <Input.Search
-            placeholder="搜索章节标题"
+            placeholder={t('chapter:searchPlaceholder')}
             value={searchKey}
             onChange={(e) => setSearchKey(e.target.value)}
             onSearch={(v) => { setSearchKey(v); setPage(1); }}
@@ -567,23 +551,22 @@ export default function ChapterListPage() {
           value={sortBy}
           onChange={(v) => setSortBy(v as 'index' | 'updatedAt')}
           options={[
-            { label: '按序号', value: 'index' },
-            { label: '按更新时间', value: 'updatedAt' },
+            { label: t('chapter:sort.byIndex'), value: 'index' },
+            { label: t('chapter:sort.byUpdatedAt'), value: 'updatedAt' },
           ]}
         />
       </div>
 
-      {/* 表格 + 拖拽 */}
       {status === 'loading' ? (
         <Skeleton active paragraph={{ rows: 8 }} />
       ) : status === 'error' ? (
-        <Result status="error" title="加载失败" subTitle="章节列表加载出错，请重试。" extra={<Button type="primary" onClick={loadData}>重试</Button>} />
+        <Result status="error" title={t('chapter:loadError')} subTitle={t('chapter:loadErrorDesc')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
       ) : status === 'empty' || status === 'no-search-result' ? (
         <Result
           status="info"
-          title={status === 'no-search-result' ? '未找到匹配章节' : '暂无章节'}
-          subTitle={status === 'no-search-result' ? '尝试调整搜索关键词或筛选条件。' : '点击右上角「新建章节」开始创作。'}
-          extra={status === 'empty' && canCreate ? <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>新建章节</Button> : undefined}
+          title={status === 'no-search-result' ? t('chapter:emptySearchTitle') : t('chapter:emptyTitle')}
+          subTitle={status === 'no-search-result' ? t('chapter:emptySearchDesc') : t('chapter:emptyDesc')}
+          extra={status === 'empty' && canCreate ? <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>{t('chapter:emptyAction')}</Button> : undefined}
         />
       ) : (
         <DndContext
@@ -606,7 +589,7 @@ export default function ChapterListPage() {
                 total,
                 showSizeChanger: true,
                 pageSizeOptions: [20, 50, 100],
-                showTotal: (t) => `共 ${t} 章`,
+                showTotal: (totalCount) => t('chapter:pagination', { count: totalCount }),
                 onChange: (p, ps) => { setPage(p); setPageSize(ps); },
               }}
               rowSelection={{
@@ -615,14 +598,13 @@ export default function ChapterListPage() {
                 columnWidth: 40,
               } as never}
               locale={{
-                emptyText: '暂无章节',
+                emptyText: t('chapter:emptyTable'),
               }}
             />
           </SortableContext>
         </DndContext>
       )}
 
-      {/* 批量操作浮层 */}
       {batchActions.length > 0 && (
         <BBatchActionBar
           selectedCount={selectedRowKeys.length}
@@ -632,7 +614,6 @@ export default function ChapterListPage() {
         />
       )}
 
-      {/* 章节正文预览 Drawer */}
       <Drawer
         title={previewChapter?.title}
         open={drawerOpen}
@@ -640,15 +621,15 @@ export default function ChapterListPage() {
         width={480}
         extra={
           <Space>
-            <Button onClick={() => setDrawerOpen(false)}>关闭</Button>
+            <Button onClick={() => setDrawerOpen(false)}>{t('common:close')}</Button>
           </Space>
         }
       >
         {previewChapter && (
           <div>
             <Space size="large" style={{ marginBottom: 'var(--space-4)', color: 'var(--color-text-secondary)' }}>
-              <span>字数：<strong style={{ fontFamily: 'var(--font-mono)' }}>{previewChapter.wordCount.toLocaleString()}</strong></span>
-              <span>已保存：{new Date(previewChapter.updatedAt).toLocaleString('zh-CN')}</span>
+              <span>{t('chapter:preview.wordCount')}<strong style={{ fontFamily: 'var(--font-mono)' }}>{previewChapter.wordCount.toLocaleString()}</strong></span>
+              <span>{t('chapter:preview.saved')}{new Date(previewChapter.updatedAt).toLocaleString('zh-CN')}</span>
             </Space>
             <div
               style={{
@@ -667,39 +648,38 @@ export default function ChapterListPage() {
         )}
       </Drawer>
 
-      {/* 新建章节 Modal */}
       <Modal
-        title="新建章节"
+        title={t('chapter:newChapter.title')}
         open={createModalOpen}
         onCancel={() => setCreateModalOpen(false)}
         onOk={handleCreateSubmit}
-        okText="创建"
-        cancelText="取消"
+        okText={t('chapter:newChapter.create')}
+        cancelText={t('chapter:newChapter.cancel')}
         width={640}
         destroyOnClose
       >
         <Form form={createForm} layout="vertical" initialValues={{ isVip: false }}>
           <Form.Item
             name="title"
-            label="章节标题"
+            label={t('chapter:newChapter.fieldTitle')}
             rules={[
-              { required: true, message: '请输入章节标题' },
-              { min: 1, max: 50, message: '标题长度 1-50 字' },
+              { required: true, message: t('chapter:newChapter.titleRequired') },
+              { min: 1, max: 50, message: t('chapter:newChapter.titleLength') },
             ]}
           >
-            <Input placeholder="如：第 61 章 风云再起" maxLength={50} showCount />
+            <Input placeholder={t('chapter:newChapter.titlePlaceholder')} maxLength={50} showCount />
           </Form.Item>
           <Form.Item
             name="content"
-            label="章节正文"
+            label={t('chapter:newChapter.fieldContent')}
             rules={[
-              { required: true, message: '请输入章节正文' },
-              { min: 100, message: '正文至少 100 字' },
+              { required: true, message: t('chapter:newChapter.contentRequired') },
+              { min: 100, message: t('chapter:newChapter.contentMin') },
             ]}
           >
-            <Input.TextArea rows={10} placeholder="请输入章节正文（至少 100 字）" showCount maxLength={10000} />
+            <Input.TextArea rows={10} placeholder={t('chapter:newChapter.contentPlaceholder')} showCount maxLength={10000} />
           </Form.Item>
-          <Form.Item name="isVip" label="VIP 章节" valuePropName="checked">
+          <Form.Item name="isVip" label={t('chapter:newChapter.vipChapter')} valuePropName="checked">
             <Switch />
           </Form.Item>
         </Form>

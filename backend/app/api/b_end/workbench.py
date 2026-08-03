@@ -24,6 +24,16 @@ async def get_kpi(
     return ok(request, await svc.get_kpi())
 
 
+@router.get("/overviews")
+async def get_overviews(
+    request: Request,
+    _admin=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    svc = WorkbenchService(db, await get_redis_client())
+    return ok(request, await svc.get_overviews())
+
+
 @router.get("/word-trend")
 async def get_word_count_trend(
     request: Request,

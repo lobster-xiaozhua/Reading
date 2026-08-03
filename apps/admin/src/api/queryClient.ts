@@ -13,25 +13,26 @@ export const queryClient = new QueryClient({
     queries: {
       staleTime: 30_000,
       gcTime: 5 * 60_000,
-      retry: (failureCount, error: any) => {
+      retry: (failureCount, error: unknown) => {
         // 401 不重试，由全局 onError 处理
-        if (error?.status === 401) return false;
+        const err = error as { status?: number };
+        if (err?.status === 401) return false;
         return failureCount < 2;
       },
       refetchOnWindowFocus: false,
     },
     mutations: {
       retry: false,
-      onError: (error: any) => {
-        // 全局错误处理：401 强制登出
-        if (error?.status === 401) {
+      onError: (error: unknown) => {
+        const err = error as { status?: number; message?: string };
+        if (err?.status === 401) {
           useAuthStore.getState().logout();
           message.error('会话已过期，请重新登录');
           const redirect = encodeURIComponent(window.location.pathname + window.location.search);
           window.location.href = `/login?redirect=${redirect}`;
           return;
         }
-        const msg = error?.message || '操作失败，请稍后重试';
+        const msg = err?.message || '操作失败，请稍后重试';
         message.error(msg);
       },
     },

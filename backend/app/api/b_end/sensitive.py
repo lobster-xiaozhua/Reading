@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import ok, require_permission
 from app.core.database import get_db
 from app.core.redis import get_redis_client
-from app.schemas.b_end import AddSensitiveWordBody
+from app.schemas.b_end import AddSensitiveWordBody, SensitiveCheckBody
 from app.services.sensitive_service import SensitiveService
 
 router = APIRouter(prefix="/sensitive-words")
@@ -34,6 +34,23 @@ async def add_sensitive_word(
 ):
     svc = SensitiveService(db, await get_redis_client())
     return ok(request, await svc.add_word(body))
+
+
+@router.post("/check")
+async def check_sensitive_words(
+    request: Request,
+    body: SensitiveCheckBody,
+    _admin=Depends(require_permission("system.config")),
+    db: AsyncSession = Depends(get_db),
+):
+    if not body.text:
+        return ok(request, {"hasSensitive": False, "hits": []})
+    svc = SensitiveService(db, await get_redis_client())
+    hits = await svc.scan(body.text)
+    return ok(request, {
+        "hasSensitive": len(hits) > 0,
+        "hits": [h.model_dump(by_alias=True) for h in hits],
+    })
 
 
 @router.delete("")

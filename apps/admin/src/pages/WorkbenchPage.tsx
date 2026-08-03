@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { DashboardTemplate } from '@/templates/DashboardTemplate';
 import type { DashboardStatus, KpiItem, OverviewSection, QuickAction } from '@/templates/DashboardTemplate';
@@ -7,10 +8,11 @@ import { fetcher } from '@/api/fetcher';
 import { fetchWorkbenchTrend, type TrendRange, type WorkbenchTrendItem } from '@/api/chart-api';
 
 export default function WorkbenchPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [status, setStatus] = useState<DashboardStatus>('loading');
   const [kpis, setKpis] = useState<KpiItem[]>([]);
-  const [overviews] = useState<OverviewSection[]>([]);
+  const [overviews, setOverviews] = useState<OverviewSection[]>([]);
   const [todoCount, setTodoCount] = useState(0);
   const [trendRange, setTrendRange] = useState<TrendRange>(30);
   const [trendData, setTrendData] = useState<WorkbenchTrendItem[]>([]);
@@ -23,10 +25,10 @@ export default function WorkbenchPage() {
         const kpi = await fetcher.workbench.getKpiCards();
         if (cancelled) return;
         setKpis([
-          { key: 'totalNovels', title: '作品总数', value: kpi.totalNovels, suffix: '部', trend: 'up', trendText: `${kpi.publishedNovels} 已发布`, trendLabel: '' },
-          { key: 'pendingAudit', title: '待审核', value: kpi.pendingAudit, suffix: '条', trend: kpi.pendingAudit > 0 ? 'down' : 'up', trendText: '', trendLabel: '需处理' },
-          { key: 'totalAuthors', title: '作者总数', value: kpi.totalAuthors, suffix: '人', trend: 'up', trendText: '', trendLabel: '' },
-          { key: 'totalReaders', title: '读者总数', value: kpi.totalReaders, suffix: '人', trend: 'up', trendText: '', trendLabel: '' },
+          { key: 'totalNovels', title: t('workbench:totalNovels'), value: kpi.totalNovels, suffix: t('workbench:unitNovel'), trend: 'up', trendText: `${kpi.publishedNovels} ${t('workbench:published')}`, trendLabel: '' },
+          { key: 'pendingAudit', title: t('workbench:pendingAudit'), value: kpi.pendingAudit, suffix: t('workbench:unitAudit'), trend: kpi.pendingAudit > 0 ? 'down' : 'up', trendText: '', trendLabel: t('workbench:needHandle') },
+          { key: 'totalAuthors', title: t('workbench:totalAuthors'), value: kpi.totalAuthors, suffix: t('workbench:unitPeople'), trend: 'up', trendText: '', trendLabel: '' },
+          { key: 'totalReaders', title: t('workbench:totalReaders'), value: kpi.totalReaders, suffix: t('workbench:unitPeople'), trend: 'up', trendText: '', trendLabel: '' },
         ]);
         setTodoCount(kpi.pendingAudit);
         setStatus('ready');
@@ -34,9 +36,27 @@ export default function WorkbenchPage() {
         if (!cancelled) setStatus('error');
       }
     }
+    async function loadOverviews() {
+      try {
+        const items = await fetcher.workbench.getOverviews();
+        if (cancelled) return;
+        setOverviews([{
+          key: 'overview',
+          title: t('workbench:overview'),
+          items: items.map((item: { key: string; label: string; value: number; icon: string }) => ({
+            id: item.key,
+            title: item.label,
+            description: `${item.value}`,
+          })),
+        }]);
+      } catch {
+        // overviews 加载失败不影响页面主体
+      }
+    }
     load();
+    loadOverviews();
     return () => { cancelled = true; };
-  }, []);
+  }, [t]);
 
   const loadTrend = useCallback(async (range: TrendRange) => {
     const data = await fetchWorkbenchTrend(range);
@@ -48,23 +68,23 @@ export default function WorkbenchPage() {
   }, [trendRange, loadTrend]);
 
   const quickActions: QuickAction[] = [
-    { key: 'newNovel', label: '新建作品', onClick: () => navigate('/novel/create') },
-    { key: 'novelList', label: '作品管理', onClick: () => navigate('/novel') },
-    { key: 'audit', label: '内容审核', onClick: () => navigate('/audit') },
-    { key: 'charts', label: '数据看板', onClick: () => navigate('/charts') },
+    { key: 'newNovel', label: t('workbench:newNovel'), onClick: () => navigate('/novel/create') },
+    { key: 'novelList', label: t('workbench:novelManage'), onClick: () => navigate('/novel') },
+    { key: 'audit', label: t('workbench:auditManage'), onClick: () => navigate('/audit') },
+    { key: 'charts', label: t('workbench:charts'), onClick: () => navigate('/charts') },
   ];
 
   const metricLabel: Record<typeof trendMetric, string> = {
-    newNovels: '新增作品',
-    newReaders: '新增读者',
-    monthlyTickets: '月票',
+    newNovels: t('workbench:newNovels'),
+    newReaders: t('workbench:newReaders'),
+    monthlyTickets: t('workbench:monthlyTickets'),
   };
 
   const chart = (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
         <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-body, 14px)' }}>
-          {metricLabel[trendMetric]}趋势
+          {metricLabel[trendMetric]}{t('workbench:trend')}
         </span>
         <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
           {(['newNovels', 'newReaders', 'monthlyTickets'] as const).map((m) => (

@@ -131,6 +131,10 @@ class ChapterBatchOperateBody(CamelModel):
 
 
 # ── 内容审核 ────────────────────────────────────────────
+class SensitiveCheckBody(CamelModel):
+    text: str = ""
+
+
 class SensitiveHit(CamelModel):
     text: str = ""
     level: int = 3

@@ -35,6 +35,7 @@ class Novel(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     offline_reason: Mapped[str] = mapped_column(String(32), default="")
     offline_remark: Mapped[str] = mapped_column(String(500), default="")
     is_completed: Mapped[int] = mapped_column(Integer, default=0, comment="0 连载中 1 完结")
+    tags_str: Mapped[str] = mapped_column(String(200), default="", comment="逗号分隔标签")
 
 
 class Chapter(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
