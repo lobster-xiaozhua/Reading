@@ -85,6 +85,13 @@ preflight() {
   fi
   ok "后端依赖已安装"
 
+  # 检查 pip-audit 是否安装
+  if command -v pip-audit &>/dev/null; then
+    ok "pip-audit 已安装"
+  else
+    echo "  [WARN] pip-audit 未安装，安全审计将跳过 (pip install pip-audit)"
+  fi
+
   # 检查 pnpm lockfile 是否最新
   if [ -f "pnpm-lock.yaml" ]; then
     ok "pnpm-lock.yaml 存在"
