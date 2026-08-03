@@ -1,0 +1,96 @@
+.selection-popover {
+  position: fixed;
+  z-index: 1000;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-3);
+  padding: var(--space-1);
+  display: flex;
+  gap: var(--space-1);
+  font-size: var(--font-size-body);
+  transform: translateX(-50%);
+}
+
+.selection-popover__btn {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+  white-space: nowrap;
+  transition: background var(--dur-normal);
+}
+
+.selection-popover__btn:hover {
+  background: var(--color-bg-elevated);
+  filter: brightness(1.1);
+}
+
+.selection-popover__btn--primary {
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+}
+
+.selection-popover__btn--primary:hover {
+  background: var(--color-brand-hover);
+}
+
+.selection-popover__btn--primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selection-popover__btn--ghost {
+  color: var(--color-text-secondary);
+}
+
+.selection-popover__close {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: var(--font-size-body);
+}
+
+.selection-popover__close:hover {
+  filter: brightness(1.1);
+}
+
+.selection-popover__note {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  min-width: 200px;
+}
+
+.selection-popover__quote {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selection-popover__textarea {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1);
+  font-size: var(--font-size-body);
+  resize: none;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  line-height: var(--line-height-normal);
+}
+
+.selection-popover__actions {
+  display: flex;
+  gap: var(--space-1);
+  justify-content: flex-end;
+}

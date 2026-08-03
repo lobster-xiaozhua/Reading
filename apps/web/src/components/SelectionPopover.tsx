@@ -3,8 +3,9 @@
  * 监听文本选中事件，在选中区域上方弹出操作菜单
  * 支持：添加笔记、划线标记
  * ============================================================ */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { fetcher } from '@/api/fetcher';
+import './SelectionPopover.css';
 
 interface SelectionPopoverProps {
   bookId: string;
@@ -19,7 +20,6 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
   const [activeAction, setActiveAction] = useState<Action | null>(null);
   const [noteText, setNoteText] = useState('');
   const [saving, setSaving] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
 
   const handleSelection = useCallback(() => {
     if (activeAction) return;
@@ -40,7 +40,7 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
     const range = sel.getRangeAt(0);
     const rect = range.getBoundingClientRect();
     setAnchor({
-      top: rect.top - 8,
+      top: rect.top - 48,
       left: rect.left + rect.width / 2,
     });
     setSelectedText(text);
@@ -71,10 +71,6 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
         bookId,
         chapterId,
         text: selectedText,
-        annotation: '',
-        paragraphIndex: 0,
-        offsetStart: 0,
-        offsetEnd: 0,
       });
     } catch {
       // 静默失败
@@ -93,9 +89,6 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
         chapterId,
         text: selectedText,
         annotation: noteText,
-        paragraphIndex: 0,
-        offsetStart: 0,
-        offsetEnd: 0,
       });
       clearSelection();
     } catch {
@@ -114,75 +107,35 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
 
   return (
     <div
-      ref={popoverRef}
       className="selection-popover"
-      style={{
-        position: 'fixed',
-        top: `${anchor.top - 48}px`,
-        left: `${anchor.left}px`,
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        background: 'var(--color-bg-elevated, #333)',
-        borderRadius: 'var(--radius-md, 8px)',
-        boxShadow: 'var(--sh-3, 0 4px 12px rgba(0,0,0,0.3))',
-        padding: '4px',
-        display: 'flex',
-        gap: '2px',
-        fontSize: '13px',
-      }}
+      style={{ top: `${anchor.top}px`, left: `${anchor.left}px` }}
     >
       {activeAction === 'note' ? (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', padding: '4px', minWidth: '200px' }}>
-          <div style={{ fontSize: '12px', color: 'var(--color-text-secondary, #999)', marginBottom: '2px' }}>
-            "{selectedText.slice(0, 30)}{selectedText.length > 30 ? '...' : ''}"
+        <div className="selection-popover__note">
+          <div className="selection-popover__quote">
+            &ldquo;{selectedText.slice(0, 30)}{selectedText.length > 30 ? '...' : ''}&rdquo;
           </div>
           <textarea
             autoFocus
+            className="selection-popover__textarea"
             value={noteText}
             onChange={(e) => setNoteText(e.target.value)}
             placeholder="输入笔记内容..."
             rows={3}
-            style={{
-              border: '1px solid var(--color-border, #555)',
-              borderRadius: '4px',
-              padding: '6px',
-              fontSize: '13px',
-              resize: 'none',
-              background: 'var(--color-bg, #222)',
-              color: 'var(--color-text, #fff)',
-              fontFamily: 'inherit',
-            }}
           />
-          <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+          <div className="selection-popover__actions">
             <button
               type="button"
+              className="selection-popover__btn selection-popover__btn--ghost"
               onClick={handleCancelNote}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: 'none',
-                background: 'transparent',
-                color: 'var(--color-text-secondary, #999)',
-                cursor: 'pointer',
-                fontSize: '12px',
-              }}
             >
               取消
             </button>
             <button
               type="button"
+              className="selection-popover__btn selection-popover__btn--primary"
               onClick={handleSaveNote}
               disabled={saving}
-              style={{
-                padding: '4px 12px',
-                borderRadius: '4px',
-                border: 'none',
-                background: 'var(--color-brand, #e74c3c)',
-                color: '#fff',
-                cursor: 'pointer',
-                fontSize: '12px',
-                opacity: saving ? 0.6 : 1,
-              }}
             >
               保存笔记
             </button>
@@ -192,56 +145,23 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
         <>
           <button
             type="button"
+            className="selection-popover__btn"
             onClick={handleNote}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: 'none',
-              background: 'transparent',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '13px',
-              whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
           >
             添加笔记
           </button>
           <button
             type="button"
+            className="selection-popover__btn"
             onClick={handleHighlight}
             disabled={saving}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '4px',
-              border: 'none',
-              background: 'transparent',
-              color: '#fff',
-              cursor: 'pointer',
-              fontSize: '13px',
-              whiteSpace: 'nowrap',
-              opacity: saving ? 0.6 : 1,
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
           >
             划线标记
           </button>
           <button
             type="button"
+            className="selection-popover__close"
             onClick={clearSelection}
-            style={{
-              padding: '6px 8px',
-              borderRadius: '4px',
-              border: 'none',
-              background: 'transparent',
-              color: 'var(--color-text-secondary, #999)',
-              cursor: 'pointer',
-              fontSize: '13px',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
             aria-label="关闭"
           >
             ✕
