@@ -20,6 +20,7 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[RoyaltyDetail], int]:
+        """B 端分页查询稿费记录，按月/状态/作者筛选。"""
         stmt = select(RoyaltyDetail)
         if month:
             stmt = stmt.where(RoyaltyDetail.month == month)
@@ -29,6 +30,7 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         return await self.paginate(stmt, page, page_size)
 
     async def batch_settle(self, ids: list[int]) -> int:
+        """批量结算稿费，返回成功结算的条数。"""
         if not ids:
             return 0
         stmt = select(RoyaltyDetail).where(
@@ -44,6 +46,7 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         return len(items)
 
     async def mark_withdrawn(self, ids: list[int]) -> int:
+        """批量标记稿费为已提现，返回成功标记的条数。"""
         if not ids:
             return 0
         stmt = select(RoyaltyDetail).where(

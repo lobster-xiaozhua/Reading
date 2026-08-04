@@ -39,6 +39,18 @@ class RoyaltyService:
         page: int = 1,
         page_size: int = 20,
     ) -> RoyaltyListResponse:
+        """分页查询稿费列表（含统计汇总）。
+
+        Args:
+            month: 结算月份。
+            status: 状态过滤（all/pending/settled/withdrawn）。
+            author_name: 作者名搜索。
+            page: 页码。
+            page_size: 每页数量。
+
+        Returns:
+            稿费列表及统计。
+        """
         details, _ = await self.repo.list_for_b_end(
             month=month,
             status=status,
@@ -81,6 +93,14 @@ class RoyaltyService:
 
     # ── 批量结算 ─────────────────────────────────────────
     async def batch_settle(self, ids: list[int]) -> BatchOperateResult:
+        """批量结算稿费（pending -> settled）。
+
+        Args:
+            ids: 稿费记录 ID 列表。
+
+        Returns:
+            批量操作结果。
+        """
         # 预校验状态
         await self._assert_status(ids, "pending")
         affected = await self.repo.batch_settle(ids)
@@ -89,6 +109,14 @@ class RoyaltyService:
 
     # ── 标记提现 ─────────────────────────────────────────
     async def mark_withdrawn(self, ids: list[int]) -> BatchOperateResult:
+        """标记稿费已提现（settled -> withdrawn）。
+
+        Args:
+            ids: 稿费记录 ID 列表。
+
+        Returns:
+            批量操作结果。
+        """
         await self._assert_status(ids, "settled")
         affected = await self.repo.mark_withdrawn(ids)
         await self.session.commit()

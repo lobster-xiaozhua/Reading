@@ -88,6 +88,7 @@ class DiscoveryService:
 
     # ── Banner ──────────────────────────────────────────
     async def get_banners(self) -> list[Banner]:
+        """获取 Banner 列表（Cache-Aside）。"""
         cached = await self.redis.get(CacheKeys.BANNERS)
         if cached:
             return [Banner.model_validate(b) for b in json.loads(cached)]
@@ -99,14 +100,38 @@ class DiscoveryService:
 
     # ── 热门 / 限免 / 编辑推荐 ────────────────────────────
     async def get_hot_books(self, limit: int = 6) -> list[BookSummary]:
+        """获取热门作品列表。
+
+        Args:
+            limit: 数量限制。
+
+        Returns:
+            热门作品列表。
+        """
         return await self._get_flag_books(CacheKeys.HOT_BOOKS, "hot", limit, _TTL_HOT_BOOKS)
 
     async def get_free_limited_books(self, limit: int = 6) -> list[BookSummary]:
+        """获取限免作品列表。
+
+        Args:
+            limit: 数量限制。
+
+        Returns:
+            限免作品列表。
+        """
         return await self._get_flag_books(
             CacheKeys.FREE_LIMITED, "free-limited", limit, _TTL_FREE_LIMITED
         )
 
     async def get_editor_picks(self, limit: int = 6) -> list[RecommendBook]:
+        """获取编辑推荐作品列表。
+
+        Args:
+            limit: 数量限制。
+
+        Returns:
+            编辑推荐列表（含匹配度评分）。
+        """
         cached = await self.redis.get(CacheKeys.EDITOR_PICKS)
         if cached:
             return [RecommendBook.model_validate(r) for r in json.loads(cached)]
@@ -121,6 +146,15 @@ class DiscoveryService:
 
     # ── 排行榜 ──────────────────────────────────────────
     async def get_ranking(self, rank_type: str, limit: int = 100) -> list[RankItem]:
+        """获取排行榜数据。
+
+        Args:
+            rank_type: 排行榜类型（hot/follow/ticket/new）。
+            limit: 数量限制。
+
+        Returns:
+            排行榜列表。
+        """
         key = CacheKeys.rank(rank_type)
         cached = await self.redis.get(key)
         if cached:
@@ -136,6 +170,7 @@ class DiscoveryService:
 
     # ── 分类树 ──────────────────────────────────────────
     async def get_categories(self) -> list[CategoryNode]:
+        """获取分类树（一级/二级层级结构）。"""
         cached = await self.redis.get(CacheKeys.CATEGORIES)
         if cached:
             return [CategoryNode.model_validate(c) for c in json.loads(cached)]
@@ -147,6 +182,7 @@ class DiscoveryService:
 
     # ── 标签云 ──────────────────────────────────────────
     async def get_tags(self) -> list[TagItem]:
+        """获取标签云数据。"""
         cached = await self.redis.get(CacheKeys.TAGS)
         if cached:
             return [TagItem.model_validate(t) for t in json.loads(cached)]

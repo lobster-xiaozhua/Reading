@@ -32,6 +32,7 @@ class RoleService:
 
     # ── 角色列表 ─────────────────────────────────────────
     async def list_roles(self) -> list[RoleItem]:
+        """获取角色列表。"""
         roles = await self.role_repo.list_all()
         return [
             RoleItem(
@@ -47,6 +48,14 @@ class RoleService:
 
     # ── 角色详情 ─────────────────────────────────────────
     async def get_detail(self, role_key: str) -> RoleDetail:
+        """获取角色详情（含权限列表）。
+
+        Args:
+            role_key: 角色标识。
+
+        Returns:
+            角色详情。
+        """
         role = await self.role_repo.get_by_key(role_key)
         if not role:
             raise NotFoundError("角色不存在")
@@ -65,6 +74,15 @@ class RoleService:
     async def update_permissions(
         self, role_key: str, body: UpdateRolePermissionsBody
     ) -> RoleDetail:
+        """更新角色权限（内置角色不可修改）。
+
+        Args:
+            role_key: 角色标识。
+            body: 权限更新请求体。
+
+        Returns:
+            更新后的角色详情。
+        """
         role = await self.role_repo.get_by_key(role_key)
         if not role:
             raise NotFoundError("角色不存在")
@@ -78,6 +96,15 @@ class RoleService:
     async def update_meta(
         self, role_key: str, body: UpdateRoleMetaBody
     ) -> RoleDetail:
+        """更新角色元信息（名称、描述、数据范围）。
+
+        Args:
+            role_key: 角色标识。
+            body: 元信息更新请求体。
+
+        Returns:
+            更新后的角色详情。
+        """
         role = await self.role_repo.get_by_key(role_key)
         if not role:
             raise NotFoundError("角色不存在")
@@ -96,6 +123,7 @@ class RoleService:
 
     # ── 全部权限点 ─────────────────────────────────────────
     async def list_permissions(self) -> list[PermissionItem]:
+        """获取全部权限点清单。"""
         perms = await self.perm_repo.list_all()
         return [
             PermissionItem(

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { http, ApiError } from '../api/http';
+import { http } from '../api/http';
 
 const AUTH_KEY = 'atlas-admin-auth';
 

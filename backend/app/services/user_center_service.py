@@ -40,6 +40,7 @@ from app.schemas.c_end import (
 )
 from app.schemas.enums import FollowStatus
 from app.services._converters import novel_to_c_summary
+from app.utils.cache import cache_set
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +61,14 @@ class UserCenterService:
 
     # ── 个人信息 ─────────────────────────────────────────
     async def get_profile(self, reader_id: int) -> UserProfile:
+        """获取读者个人信息及阅读统计。
+
+        Args:
+            reader_id: 读者 ID。
+
+        Returns:
+            用户个人资料。
+        """
         reader = await self.session.get(Reader, reader_id)
         if not reader:
             return UserProfile(id=str(reader_id), nickname="游客")
@@ -86,6 +95,15 @@ class UserCenterService:
     async def get_bookshelf(
         self, reader_id: int, tab: str = "all"
     ) -> list[BookshelfItem]:
+        """获取读者书架列表。
+
+        Args:
+            reader_id: 读者 ID。
+            tab: 筛选标签（all/ongoing/completed/recent）。
+
+        Returns:
+            书架列表。
+        """
         shelves = await self.shelf_repo.list_by_reader(reader_id, limit=200)
         if not shelves:
             return []
@@ -118,6 +136,15 @@ class UserCenterService:
 
     # ── 阅读历史 ─────────────────────────────────────────
     async def get_reading_history(self, reader_id: int, limit: int = 20) -> list[ReadingHistoryItem]:
+        """获取阅读历史记录。
+
+        Args:
+            reader_id: 读者 ID。
+            limit: 数量限制。
+
+        Returns:
+            阅读历史列表。
+        """
         histories = await self.history_repo.list_by_reader(reader_id, limit)
         if not histories:
             return []
@@ -146,6 +173,15 @@ class UserCenterService:
 
     # ── 打赏记录 ─────────────────────────────────────────
     async def get_reward_records(self, reader_id: int, limit: int = 20) -> list[RewardRecord]:
+        """获取打赏记录。
+
+        Args:
+            reader_id: 读者 ID。
+            limit: 数量限制。
+
+        Returns:
+            打赏记录列表。
+        """
         from app.models.interaction import RewardRecord as RewardModel
         stmt = (
             select(RewardModel, Novel.title)
@@ -169,6 +205,14 @@ class UserCenterService:
 
     # ── 阅读统计概览 ───────────────────────────────────────
     async def get_stats_overview(self, reader_id: int) -> ReadingStatOverview:
+        """获取阅读统计概览（本周时长、总字数、连续阅读天数）。
+
+        Args:
+            reader_id: 读者 ID。
+
+        Returns:
+            阅读统计概览。
+        """
         overview = await self.stats_repo.get_overview(reader_id)
         streak = await self.stats_repo.get_current_streak(reader_id)
         # 本周阅读时长
@@ -191,6 +235,15 @@ class UserCenterService:
 
     # ── 热力图 ──────────────────────────────────────────
     async def get_heatmap(self, reader_id: int, days: int = 365) -> list[HeatmapCell]:
+        """获取阅读热力图数据（Cache-Aside）。
+
+        Args:
+            reader_id: 读者 ID。
+            days: 统计天数。
+
+        Returns:
+            热力图数据列表。
+        """
         cached = await self.redis.get(CacheKeys.heatmap(reader_id))
         if cached:
             return [HeatmapCell.model_validate(c) for c in json.loads(cached)]
@@ -205,6 +258,14 @@ class UserCenterService:
 
     # ── 阅读偏好 ─────────────────────────────────────────
     async def get_preferences(self, reader_id: int) -> list[PreferenceItem]:
+        """获取阅读偏好（按分类统计阅读占比）。
+
+        Args:
+            reader_id: 读者 ID。
+
+        Returns:
+            阅读偏好列表。
+        """
         stmt = (
             select(Novel.category, func.sum(ReadingStatsDaily.words))
             .join(Novel, ReadingStatsDaily.reader_id == Novel.author_id)
@@ -224,19 +285,37 @@ class UserCenterService:
 
     # ── 徽章 ──────────────────────────────────────────
     async def get_badges(self, reader_id: int) -> list[Badge]:
+        """获取读者徽章列表（基于阅读统计计算）。
+
+        Args:
+            reader_id: 读者 ID。
+
+        Returns:
+            徽章列表。
+        """
         overview = await self.stats_repo.get_overview(reader_id)
         return _build_badges(overview)
 
     # ── VIP 套餐 ─────────────────────────────────────────
     async def get_vip_plans(self) -> list[VipPlan]:
+        """获取 VIP 套餐列表。"""
         return _default_vip_plans()
 
     # ── 支付方式 ─────────────────────────────────────────
     async def get_payment_methods(self) -> list[PaymentMethodItem]:
+        """获取支付方式列表。"""
         return _default_payment_methods()
 
     # ── 追更列表 ─────────────────────────────────────────
     async def get_follow_list(self, reader_id: int) -> list[FollowItem]:
+        """获取追更列表（含更新状态标记）。
+
+        Args:
+            reader_id: 读者 ID。
+
+        Returns:
+            追更列表。
+        """
         shelves = await self.shelf_repo.list_by_reader(reader_id, limit=200)
         if not shelves:
             return []
@@ -287,10 +366,7 @@ class UserCenterService:
         return (await self.session.execute(stmt)).scalar_one()
 
     async def _cache_set(self, key: str, data: list, ttl: int) -> None:
-        try:
-            await self.redis.set(key, json.dumps(data, default=str), ex=ttl)
-        except Exception:
-            logger.warning("缓存写入失败 key=%s", key, exc_info=True)
+        await cache_set(self.redis, key, data, ttl)
 
 
 def _build_badges(overview: dict) -> list[Badge]:

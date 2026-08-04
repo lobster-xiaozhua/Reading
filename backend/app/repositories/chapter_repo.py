@@ -12,6 +12,7 @@ class ChapterRepository(BaseRepository[Chapter]):
     async def list_by_novel(
         self, novel_id: int, status: str | None = None
     ) -> list[Chapter]:
+        """获取指定作品的全部章节，可按状态筛选。"""
         stmt = select(Chapter).where(
             Chapter.novel_id == novel_id, Chapter.deleted == 0
         )
@@ -24,6 +25,7 @@ class ChapterRepository(BaseRepository[Chapter]):
     async def get_neighbor(
         self, novel_id: int, index: int, direction: str
     ) -> Chapter | None:
+        """获取指定章节的上一章或下一章（prev/next）。"""
         if direction == "prev":
             stmt = (
                 select(Chapter)
@@ -52,6 +54,7 @@ class ChapterRepository(BaseRepository[Chapter]):
         return result.scalars().first()
 
     async def get_latest(self, novel_id: int) -> Chapter | None:
+        """获取指定作品的最新已发布章节。"""
         stmt = (
             select(Chapter)
             .where(

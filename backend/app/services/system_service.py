@@ -16,6 +16,7 @@ class SystemService:
         self.repo = SystemConfigRepository(session)
 
     async def get_config(self) -> SystemConfig:
+        """获取系统配置。"""
         config = await self.repo.get_or_create()
         return SystemConfig(
             site_name=config.site_name,
@@ -25,6 +26,15 @@ class SystemService:
         )
 
     async def update_config(self, site_name: str, icp: str) -> SystemConfig:
+        """更新系统配置（站点名称、ICP 备案号）。
+
+        Args:
+            site_name: 站点名称。
+            icp: ICP 备案号。
+
+        Returns:
+            更新后的系统配置。
+        """
         config = await self.repo.update_config(site_name, icp)
         await self.session.commit()
         return SystemConfig(

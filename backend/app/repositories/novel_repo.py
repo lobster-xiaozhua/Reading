@@ -19,6 +19,7 @@ class NovelRepository(BaseRepository[Novel]):
         page: int = 1,
         page_size: int = 12,
     ) -> tuple[list[Novel], int]:
+        """分页查询已发布作品，支持分类/排序/状态/标签筛选。"""
         sort_field = {
             "hot": Novel.click_count.desc(),
             "follow": Novel.follow_count.desc(),
@@ -49,6 +50,7 @@ class NovelRepository(BaseRepository[Novel]):
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Novel], int]:
+        """B 端分页查询作品列表，支持搜索/状态/分类/时间范围筛选。"""
         stmt = select(Novel).where(Novel.deleted == 0)
         if search_key:
             stmt = stmt.where(Novel.title.contains(search_key))
@@ -64,6 +66,7 @@ class NovelRepository(BaseRepository[Novel]):
         return await self.paginate(stmt, page, page_size)
 
     async def by_flag(self, flag: str, limit: int = 6) -> list[Novel]:
+        """根据标记位查询已发布作品，按评分降序排列。"""
         stmt = (
             select(Novel)
             .where(
@@ -78,6 +81,7 @@ class NovelRepository(BaseRepository[Novel]):
         return list(result.scalars().all())
 
     async def ranking(self, rank_type: str, limit: int = 100) -> list[Novel]:
+        """获取排行榜作品列表，支持 hot/follow/ticket/new 维度。"""
         order = {
             "hot": Novel.click_count.desc(),
             "follow": Novel.follow_count.desc(),
@@ -94,6 +98,7 @@ class NovelRepository(BaseRepository[Novel]):
         return list(result.scalars().all())
 
     async def search(self, keyword: str, limit: int = 20) -> list[Novel]:
+        """根据标题关键词搜索已发布作品。"""
         stmt = (
             select(Novel)
             .where(
@@ -107,15 +112,18 @@ class NovelRepository(BaseRepository[Novel]):
         return list(result.scalars().all())
 
     async def get_categories(self) -> list[Category]:
+        """获取全部分类，按排序字段升序排列。"""
         result = await self.session.execute(select(Category).order_by(Category.sort))
         return list(result.scalars().all())
 
     async def get_tags(self) -> list[Tag]:
+        """获取全部标签，按引用次数降序排列。"""
         result = await self.session.execute(
             select(Tag).order_by(Tag.ref_count.desc())
         )
         return list(result.scalars().all())
 
     async def get_banners(self) -> list[Banner]:
+        """获取全部 Banner，按排序字段升序排列。"""
         result = await self.session.execute(select(Banner).order_by(Banner.sort))
         return list(result.scalars().all())

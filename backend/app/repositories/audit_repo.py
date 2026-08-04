@@ -15,6 +15,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
     async def list_queue(
         self, level: str = "all", page: int = 1, page_size: int = 20
     ) -> tuple[list[AuditRecord], int]:
+        """分页查询待审核队列，可按级别筛选。"""
         stmt = select(AuditRecord).where(AuditRecord.status == "pending")
         if level and level != "all":
             stmt = stmt.where(AuditRecord.level == level)
@@ -22,6 +23,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
         return await self.paginate(stmt, page, page_size)
 
     async def get_history(self, audit_record_id: int) -> list[AuditHistory]:
+        """获取指定审核记录的操作历史。"""
         stmt = (
             select(AuditHistory)
             .where(AuditHistory.audit_record_id == audit_record_id)
@@ -39,6 +41,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
         comment: str,
         reject_reason: str = "",
     ) -> AuditHistory:
+        """添加一条审核操作历史记录。"""
         h = AuditHistory(
             audit_record_id=audit_record_id,
             operator_id=operator_id,
@@ -53,6 +56,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
         return h
 
     async def stats(self, level: str = "all") -> dict:
+        """获取审核统计：待审核数/今日处理数/按级别分布。"""
         base = select(AuditRecord).where(AuditRecord.status == "pending")
         if level != "all":
             base = base.where(AuditRecord.level == level)
@@ -89,12 +93,14 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
     model = SensitiveWord
 
     async def list_all(self) -> list[SensitiveWord]:
+        """获取全部敏感词。"""
         result = await self.session.execute(select(SensitiveWord))
         return list(result.scalars().all())
 
     async def add(
         self, text: str, level: int, suggestion: str, version: str
     ) -> SensitiveWord:
+        """新增一条敏感词记录。"""
         word = SensitiveWord(
             text=text,
             level=level,
@@ -106,6 +112,7 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         return word
 
     async def remove(self, text: str, level: int | None = None) -> bool:
+        """删除敏感词，返回是否成功删除。"""
         stmt = select(SensitiveWord).where(SensitiveWord.text == text)
         if level is not None:
             stmt = stmt.where(SensitiveWord.level == level)
@@ -118,6 +125,7 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         return False
 
     async def current_version(self) -> str:
+        """获取敏感词库当前版本号。"""
         stmt = select(func.max(SensitiveWord.lib_version))
         result = await self.session.execute(stmt)
         return result.scalar_one() or ""

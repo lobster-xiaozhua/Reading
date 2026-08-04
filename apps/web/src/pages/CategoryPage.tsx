@@ -121,6 +121,7 @@ export default function CategoryPage() {
     if (totalPages > 0 && page > totalPages) {
       updateParam('page', '1');
     }
+    // updateParam omitted: local function recreated on every render, adding it would cause infinite re-runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalPages, page]);
 

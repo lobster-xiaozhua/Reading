@@ -39,6 +39,14 @@ class AuditService:
 
     # ── 审核队列 ─────────────────────────────────────────
     async def get_queue(self, level: str = "all") -> AuditQueueResponse:
+        """获取审核队列（含待审统计）。
+
+        Args:
+            level: 审核级别过滤（all/1/2/3）。
+
+        Returns:
+            审核队列及统计信息。
+        """
         records, _ = await self.repo.list_queue(level=level, page=1, page_size=100)
         stats_data = await self.repo.stats(level=level)
         stats = AuditQueueStats(
@@ -51,6 +59,14 @@ class AuditService:
 
     # ── 审核历史 ─────────────────────────────────────────
     async def get_history(self, audit_id: int) -> list[AuditHistoryItem]:
+        """获取指定审核项的操作历史。
+
+        Args:
+            audit_id: 审核记录 ID。
+
+        Returns:
+            审核历史列表。
+        """
         histories = await self.repo.get_history(audit_id)
         return [
             AuditHistoryItem(
@@ -68,6 +84,16 @@ class AuditService:
     async def submit_audit(
         self, body: AuditSubmitBody, operator_id: int, operator_name: str
     ) -> AuditSubmitResult:
+        """提交审核结果（通过/驳回），联动章节状态流转。
+
+        Args:
+            body: 审核提交数据。
+            operator_id: 操作人 ID。
+            operator_name: 操作人姓名。
+
+        Returns:
+            审核提交结果（含下一条待审项 ID）。
+        """
         failed: list[dict] = []
         next_id: str | None = None
         processed: list[int] = []

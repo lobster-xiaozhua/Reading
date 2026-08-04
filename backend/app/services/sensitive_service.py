@@ -38,6 +38,7 @@ class SensitiveService:
 
     # ── 查询词库 ─────────────────────────────────────────
     async def get_lib(self) -> SensitiveWordLib:
+        """获取敏感词库（含按级别统计和版本元信息）。"""
         words = await self.repo.list_all()
         items = [
             SensitiveWordItem(
@@ -63,6 +64,14 @@ class SensitiveService:
 
     # ── 新增敏感词 ─────────────────────────────────────────
     async def add_word(self, body: AddSensitiveWordBody) -> SensitiveWordItem:
+        """新增敏感词，版本号自增并刷新 Trie 树。
+
+        Args:
+            body: 敏感词数据。
+
+        Returns:
+            新增的敏感词项。
+        """
         version = date.today().isoformat()
         word = await self.repo.add(body.text, body.level, body.suggestion, version)
         await self.session.commit()
@@ -78,6 +87,15 @@ class SensitiveService:
 
     # ── 删除敏感词 ─────────────────────────────────────────
     async def remove_word(self, text: str, level: int | None = None) -> bool:
+        """删除敏感词，刷新 Trie 树。
+
+        Args:
+            text: 敏感词文本。
+            level: 可选，指定级别删除。
+
+        Returns:
+            是否删除了记录。
+        """
         removed = await self.repo.remove(text, level)
         if removed:
             await self.session.commit()
@@ -86,6 +104,14 @@ class SensitiveService:
 
     # ── 扫描文本 ─────────────────────────────────────────
     async def scan(self, text: str) -> list[SensitiveHit]:
+        """扫描文本，返回敏感词命中列表。
+
+        Args:
+            text: 待扫描文本。
+
+        Returns:
+            敏感词命中列表。
+        """
         """扫描文本返回敏感词命中列表。"""
         trie = await self._get_trie()
         hits = trie.scan(text)

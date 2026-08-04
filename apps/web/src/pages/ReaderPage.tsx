@@ -112,6 +112,8 @@ export default function ReaderPage() {
       ? chapterId
       : chapters[0].id;
     cache.goto(target);
+    // chapters omitted: reference changes on every fetch, would re-navigate to first chapter
+    // cache omitted: object recreated on every render, would cause infinite re-runs
     // 仅在首次或路由参数变化时定位；cache.goto 内部已做去重
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId, chapters.length]);

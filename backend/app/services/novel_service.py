@@ -35,6 +35,14 @@ class NovelService:
 
     # ── 作品列表 ─────────────────────────────────────────
     async def list_novels(self, params: NovelListParams) -> NovelListResponse:
+        """分页查询作品列表。
+
+        Args:
+            params: 查询参数（搜索关键词、状态、分类、日期范围）。
+
+        Returns:
+            分页作品列表。
+        """
         novels, total = await self.repo.list_for_b_end(
             search_key=params.search_key,
             status=params.status,
@@ -53,6 +61,14 @@ class NovelService:
 
     # ── 作品详情 ─────────────────────────────────────────
     async def get_detail(self, novel_id: int) -> BNovelDetail:
+        """获取作品详情（含章节数）。
+
+        Args:
+            novel_id: 作品 ID。
+
+        Returns:
+            作品详情。
+        """
         novel = await self._get_novel(novel_id)
         detail = novel_to_b_detail(novel)
         # 补全章节数
@@ -63,6 +79,15 @@ class NovelService:
 
     # ── 新建/编辑作品 ───────────────────────────────────────
     async def submit_novel(self, body: NovelSubmitBody, novel_id: int | None = None) -> BNovelDetail:
+        """新建或编辑作品。
+
+        Args:
+            body: 作品提交数据。
+            novel_id: 编辑时传入作品 ID，新建时为 None。
+
+        Returns:
+            作品详情。
+        """
         if novel_id:
             novel = await self._get_novel(novel_id)
         else:
@@ -90,6 +115,17 @@ class NovelService:
         reason: str = "",
         comment: str = "",
     ) -> BatchOperateResponse:
+        """批量操作作品（提审/通过/下架/重新上架/删除）。
+
+        Args:
+            ids: 作品 ID 列表。
+            action: 操作类型（submit-audit/approve/shelve/reshelve/delete）。
+            reason: 操作原因。
+            comment: 操作备注。
+
+        Returns:
+            批量操作结果。
+        """
         action_handlers = {
             "submit-audit": self._batch_submit_audit,
             "approve": self._batch_approve,
@@ -118,6 +154,15 @@ class NovelService:
 
     # ── 状态流转 ─────────────────────────────────────────
     async def transition(self, novel_id: int, target: str) -> BNovelDetail:
+        """执行作品状态流转。
+
+        Args:
+            novel_id: 作品 ID。
+            target: 目标状态。
+
+        Returns:
+            更新后的作品详情。
+        """
         novel = await self._get_novel(novel_id)
         NovelStateMachine.assert_transition(novel.status, target)
         novel.status = target
@@ -172,6 +217,17 @@ class NovelService:
     async def batch_result(
         self, ids: list[int], action: str, reason: str = "", comment: str = ""
     ) -> BatchOperateResult:
+        """返回通用批量操作结果（含 affected 计数）。
+
+        Args:
+            ids: 作品 ID 列表。
+            action: 操作类型。
+            reason: 操作原因。
+            comment: 操作备注。
+
+        Returns:
+            批量操作结果（含影响数量）。
+        """
         """返回通用批量操作结果（含 affected 计数）。"""
         resp = await self.batch_operate(ids, action, reason, comment)
         affected = len(ids) - (len(resp.failed) if resp.failed else 0)

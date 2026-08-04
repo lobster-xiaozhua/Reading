@@ -61,6 +61,8 @@ export function useAsyncState<T>(
   const runningRef = useRef<Promise<T> | null>(null);
   const mountedRef = useRef(true);
   const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const loadedRef = useRef(state.loaded);
+  loadedRef.current = state.loaded;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -76,7 +78,7 @@ export function useAsyncState<T>(
       if (runningRef.current) return runningRef.current;
 
       // 延迟显示 loading（仅在未加载过数据时）
-      if (!state.loaded && loadingDelay > 0) {
+      if (!loadedRef.current && loadingDelay > 0) {
         delayTimerRef.current = setTimeout(() => {
           if (mountedRef.current && runningRef.current) {
             setState((s) => ({ ...s, status: 'loading' }));
@@ -117,6 +119,7 @@ export function useAsyncState<T>(
         }
       }
     },
+    // state omitted: loadedRef avoids stale closure without re-creating run on every state change
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [asyncFn, loadingDelay],
   );
@@ -140,7 +143,6 @@ export function useAsyncState<T>(
   // 自动执行：首次挂载 + deps 变化时重新执行
   const immediateRef = useRef(immediate);
   const firstRunRef = useRef(true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const depsKey = JSON.stringify(deps);
   useEffect(() => {
     if (!immediateRef.current) return;
@@ -149,6 +151,7 @@ export function useAsyncState<T>(
       firstRunRef.current = false;
     }
     run();
+    // immediateRef omitted: ref is stable, never changes after mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depsKey, run]);
 

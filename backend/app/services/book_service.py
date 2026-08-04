@@ -28,6 +28,7 @@ from app.schemas.c_end import (
     RatingDistribution,
 )
 from app.services._converters import novel_to_c_summary
+from app.utils.cache import cache_set
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,14 @@ class BookService:
 
     # ── 书籍详情 ─────────────────────────────────────────
     async def get_book(self, book_id: int) -> BookSummary:
+        """获取书籍详情，异步累加点击数。
+
+        Args:
+            book_id: 书籍 ID。
+
+        Returns:
+            书籍摘要。
+        """
         novel = await self._get_published_novel(book_id)
         # 异步累加点击数（不阻塞响应）
         await self._incr_click(book_id)
@@ -53,6 +62,14 @@ class BookService:
 
     # ── 章节列表 ─────────────────────────────────────────
     async def get_chapters(self, book_id: int) -> list[ChapterListItem]:
+        """获取已发布章节列表。
+
+        Args:
+            book_id: 书籍 ID。
+
+        Returns:
+            章节列表项。
+        """
         novel = await self._get_published_novel(book_id)
         chapters = await self.chapter_repo.list_by_novel(novel.id, status="published")
         return [_chapter_to_list_item(c, novel.id) for c in chapters]
@@ -61,6 +78,16 @@ class BookService:
     async def get_chapter(
         self, book_id: int, chapter_id: int, *, reader_vip: bool = False
     ) -> ChapterContent:
+        """获取章节正文（含前后章节导航），VIP 章节需会员权限。
+
+        Args:
+            book_id: 书籍 ID。
+            chapter_id: 章节 ID。
+            reader_vip: 读者是否为 VIP。
+
+        Returns:
+            章节正文内容。
+        """
         novel = await self._get_published_novel(book_id)
         chapter = await self.chapter_repo.get_by_id(chapter_id)
         if not chapter or chapter.novel_id != novel.id or chapter.status != "published":
@@ -76,6 +103,15 @@ class BookService:
 
     # ── 相关推荐 ─────────────────────────────────────────
     async def get_related_books(self, book_id: int, limit: int = 6) -> list[BookSummary]:
+        """获取同分类相关推荐书籍。
+
+        Args:
+            book_id: 源书籍 ID。
+            limit: 推荐数量。
+
+        Returns:
+            相关书籍列表。
+        """
         novel = await self._get_published_novel(book_id)
         # 同分类高评分推荐
         stmt = (
@@ -94,12 +130,29 @@ class BookService:
 
     # ── 评论列表 ─────────────────────────────────────────
     async def get_comments(self, book_id: int, limit: int = 20) -> list[Comment]:
+        """获取书籍评论列表（按点赞数排序）。
+
+        Args:
+            book_id: 书籍 ID。
+            limit: 数量限制。
+
+        Returns:
+            评论列表。
+        """
         novel = await self._get_published_novel(book_id)
         comments = await self._list_comments_with_users(novel.id, limit)
         return comments
 
     # ── 评分分布 ─────────────────────────────────────────
     async def get_rating_distribution(self, book_id: int) -> RatingDistribution:
+        """获取评分分布（1-5 星各档数量及占比，Cache-Aside）。
+
+        Args:
+            book_id: 书籍 ID。
+
+        Returns:
+            评分分布数据。
+        """
         novel = await self._get_published_novel(book_id)
         cached = await self.redis.get(CacheKeys.book_rating(novel.id))
         if cached:
@@ -191,14 +244,7 @@ class BookService:
         ]
 
     async def _cache_set(self, key: str, data: object, ttl: int) -> None:
-        try:
-            if isinstance(data, (dict, list)):
-                payload = json.dumps(data, default=str)
-            else:
-                payload = data.model_dump_json(by_alias=True)
-            await self.redis.set(key, payload, ex=ttl)
-        except Exception:
-            logger.warning("缓存写入失败 key=%s", key, exc_info=True)
+        await cache_set(self.redis, key, data, ttl)
 
 
 def _chapter_to_list_item(ch: Chapter, novel_id: int) -> ChapterListItem:

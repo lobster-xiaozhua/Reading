@@ -129,13 +129,16 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
       else next.delete('q');
       setSearchParams(next, { replace: true });
     }
+    // searchParams omitted: adding it would re-trigger when URL is updated by this effect
+    // setSearchParams is stable from useSearchParams
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchKey]);
+  }, [searchKey, setSearchParams]);
 
   // 初始化时从 URL 读 searchKey
   useEffect(() => {
     const q = searchParams.get('q');
     if (q && q !== searchKey) onSearch(q);
+    // mount-only: read initial URL params into parent state
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

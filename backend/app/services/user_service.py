@@ -29,6 +29,16 @@ class UserService:
         page_size: int = 20,
         search_key: str = "",
     ) -> PagedResult[UserListItem]:
+        """查询读者列表，支持按用户名/昵称搜索。
+
+        Args:
+            page: 页码。
+            page_size: 每页数量。
+            search_key: 搜索关键词。
+
+        Returns:
+            分页的读者列表。
+        """
         stmt = select(Reader).where(Reader.deleted == 0)
         if search_key:
             stmt = stmt.where(
@@ -60,6 +70,15 @@ class UserService:
 
     # ── 封禁/解封 ─────────────────────────────────────────
     async def set_status(self, reader_id: int, status: int) -> bool:
+        """封禁或解封读者。
+
+        Args:
+            reader_id: 读者 ID。
+            status: 0=封禁，1=解封。
+
+        Returns:
+            操作是否成功。
+        """
         reader = await self.session.get(Reader, reader_id)
         if not reader:
             return False

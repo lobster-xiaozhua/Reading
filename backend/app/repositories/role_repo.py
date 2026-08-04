@@ -13,13 +13,16 @@ class RoleRepository:
         self.session = session
 
     async def list_all(self) -> list[Role]:
+        """获取全部角色。"""
         result = await self.session.execute(select(Role))
         return list(result.scalars().all())
 
     async def get_by_key(self, role_key: str) -> Role | None:
+        """根据角色主键获取角色信息。"""
         return await self.session.get(Role, role_key)
 
     async def get_permissions(self, role_key: str) -> list[str]:
+        """获取指定角色的权限点列表。"""
         stmt = select(RolePermission.perm_key).where(
             RolePermission.role_key == role_key
         )
@@ -27,6 +30,7 @@ class RoleRepository:
         return list(result.scalars().all())
 
     async def update_permissions(self, role_key: str, perms: list[str]) -> None:
+        """全量更新角色的权限点关联（先清空后写入）。"""
         # 清空旧关联
         old_stmt = select(RolePermission).where(RolePermission.role_key == role_key)
         result = await self.session.execute(old_stmt)
@@ -45,6 +49,7 @@ class RoleRepository:
         description: str | None = None,
         data_scope: str | None = None,
     ) -> Role | None:
+        """更新角色的元信息（名称/描述/数据范围），返回更新后的角色。"""
         role = await self.get_by_key(role_key)
         if not role:
             return None
@@ -65,5 +70,6 @@ class PermissionRepository:
         self.session = session
 
     async def list_all(self) -> list[Permission]:
+        """获取全部权限点。"""
         result = await self.session.execute(select(Permission))
         return list(result.scalars().all())

@@ -101,6 +101,14 @@ class AuthService:
 
     # ── 刷新 Token ─────────────────────────────────────────
     async def refresh(self, refresh_token: str) -> LoginResponse:
+        """刷新 access token（轮换 refresh token）。
+
+        Args:
+            refresh_token: 刷新令牌。
+
+        Returns:
+            新的登录响应（含双 Token）。
+        """
         try:
             payload = decode_token(refresh_token)
         except Exception as err:
@@ -159,6 +167,14 @@ class AuthService:
 
     # ── 登出 ──────────────────────────────────────────
     async def logout(self, access_token: str) -> bool:
+        """登出，使 access token 失效。
+
+        Args:
+            access_token: 访问令牌。
+
+        Returns:
+            操作是否成功。
+        """
         await self.redis.delete(CacheKeys.access_token(access_token))
         return True
 

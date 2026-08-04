@@ -32,6 +32,7 @@ class WorkbenchService:
 
     # ── KPI 卡片 ─────────────────────────────────────────
     async def get_kpi(self) -> WorkbenchKpi:
+        """获取工作台 KPI 卡片数据（Cache-Aside）。"""
         cached = await self.redis.get(CacheKeys.WORKBENCH_KPI)
         if cached:
             return WorkbenchKpi.model_validate_json(cached)
@@ -68,6 +69,14 @@ class WorkbenchService:
 
     # ── 字数趋势 ─────────────────────────────────────────
     async def get_word_count_trend(self, days: int = 30) -> WordCountTrend:
+        """获取字数增长趋势（按日聚合）。
+
+        Args:
+            days: 统计天数。
+
+        Returns:
+            字数增长趋势（日增 + 累计）。
+        """
         start_date = date.today() - timedelta(days=days)
         start_ts = int(time.mktime(start_date.timetuple())) * 1000
         stmt = (
@@ -101,6 +110,7 @@ class WorkbenchService:
 
     # ── 内容概览 ─────────────────────────────────────────
     async def get_overviews(self) -> list[dict]:
+        """获取内容概览（作品/章节/待审核/今日打赏/今日评论统计）。"""
         import time
 
         from app.models.interaction import Comment, RewardRecord

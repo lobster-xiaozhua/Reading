@@ -22,6 +22,7 @@ class BaseRepository(Generic[ModelT]):
         self.session = session
 
     async def get_by_id(self, id: int) -> ModelT | None:
+        """根据主键 ID 获取单个对象。"""
         return await self.session.get(self.model, id)
 
     async def add(self, obj: ModelT) -> ModelT:
@@ -31,6 +32,7 @@ class BaseRepository(Generic[ModelT]):
         return obj
 
     async def flush(self) -> None:
+        """立即 flush 当前会话中的待持久化操作。"""
         await self.session.flush()
 
     async def paginate(

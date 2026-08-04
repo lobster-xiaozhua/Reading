@@ -36,11 +36,27 @@ class ChapterService:
 
     # ── 章节列表 ─────────────────────────────────────────
     async def list_chapters(self, novel_id: int) -> list[BChapterListItem]:
+        """获取作品的章节列表。
+
+        Args:
+            novel_id: 作品 ID。
+
+        Returns:
+            章节列表项。
+        """
         chapters = await self.repo.list_by_novel(novel_id)
         return [_to_list_item(c) for c in chapters]
 
     # ── 章节详情 ─────────────────────────────────────────
     async def get_detail(self, chapter_id: int) -> BChapterDetail:
+        """获取章节详情（含正文内容）。
+
+        Args:
+            chapter_id: 章节 ID。
+
+        Returns:
+            章节详情。
+        """
         chapter = await self._get_chapter(chapter_id)
         return BChapterDetail(
             id=str(chapter.id),
@@ -61,6 +77,14 @@ class ChapterService:
 
     # ── 新建章节 ─────────────────────────────────────────
     async def create_chapter(self, body: ChapterSubmitBody) -> BChapterDetail:
+        """新建章节（自动计算 index 和字数统计）。
+
+        Args:
+            body: 章节创建数据。
+
+        Returns:
+            新建的章节详情。
+        """
         novel_id = int(body.novel_id)
         # 计算下一个 index
         existing = await self.repo.list_by_novel(novel_id)
@@ -86,6 +110,15 @@ class ChapterService:
 
     # ── 编辑章节 ─────────────────────────────────────────
     async def update_chapter(self, chapter_id: int, body: ChapterUpdateBody) -> BChapterDetail:
+        """编辑章节（标题/内容/是否 VIP 可更新，字数自动重算）。
+
+        Args:
+            chapter_id: 章节 ID。
+            body: 章节更新数据。
+
+        Returns:
+            更新后的章节详情。
+        """
         chapter = await self._get_chapter(chapter_id)
         if body.title is not None:
             chapter.title = body.title
@@ -103,6 +136,15 @@ class ChapterService:
 
     # ── 章节排序 ─────────────────────────────────────────
     async def reorder_chapters(self, novel_id: int, body: ChapterReorderBody) -> bool:
+        """重新排序章节。
+
+        Args:
+            novel_id: 作品 ID。
+            body: 排序数据（ordered_ids 顺序列表）。
+
+        Returns:
+            操作是否成功。
+        """
         ordered_ids = [int(i) for i in body.ordered_ids]
         await self.repo.reorder(novel_id, ordered_ids)
         await self.session.commit()
@@ -110,6 +152,15 @@ class ChapterService:
 
     # ── 状态流转 ─────────────────────────────────────────
     async def transition(self, chapter_id: int, body: ChapterTransitionBody) -> BChapterDetail:
+        """执行章节状态流转。
+
+        Args:
+            chapter_id: 章节 ID。
+            body: 状态流转请求体（含目标状态）。
+
+        Returns:
+            更新后的章节详情。
+        """
         chapter = await self._get_chapter(chapter_id)
         ChapterStateMachine.assert_transition(chapter.status, body.target)
         chapter.status = body.target
@@ -120,6 +171,14 @@ class ChapterService:
 
     # ── 批量操作 ─────────────────────────────────────────
     async def batch_operate(self, body: ChapterBatchOperateBody) -> BatchOperateResult:
+        """批量操作章节（提审/发布）。
+
+        Args:
+            body: 批量操作请求体。
+
+        Returns:
+            批量操作结果。
+        """
         failed: list[dict] = []
         success_count = 0
         for cid in body.ids:
@@ -145,6 +204,15 @@ class ChapterService:
 
     # ── 删除章节 ─────────────────────────────────────────
     async def delete_chapter(self, chapter_id: int, title_match: str = "") -> bool:
+        """删除章节（已发布章节需标题匹配确认）。
+
+        Args:
+            chapter_id: 章节 ID。
+            title_match: 已发布章节的标题确认（需完全匹配）。
+
+        Returns:
+            操作是否成功。
+        """
         chapter = await self._get_chapter(chapter_id)
         # 已发布章节需标题匹配
         if chapter.status == "published" and title_match != chapter.title:

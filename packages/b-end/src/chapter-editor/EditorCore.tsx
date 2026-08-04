@@ -62,9 +62,9 @@ export function EditorCore(props: EditorCoreProps) {
       list.push(createSensitivePlugin(sensitiveWords));
     }
     return list;
-    // 敏感词列表深度变化才重建；用 JSON 序列化做引用稳定性判断
+    // sensitiveWords omitted: using JSON.stringify for deep comparison
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(sensitiveWords)]);
+  }, [JSON.stringify(sensitiveWords), baseExtensions]);
 
   // 内部变更标记：onUpdate 触发的 onChange 不应再回灌 setContent
   const internalChangeRef = useRef(false);

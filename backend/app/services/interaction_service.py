@@ -44,6 +44,15 @@ class InteractionService:
 
     # ── 书架操作 ─────────────────────────────────────────
     async def add_to_bookshelf(self, reader_id: int, novel_id: int) -> bool:
+        """将作品加入读者书架（已存在则直接返回成功）。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+
+        Returns:
+            操作是否成功。
+        """
         novel = await self._get_novel(novel_id)
         if await self.shelf_repo.is_in_shelf(reader_id, novel.id):
             return True
@@ -52,6 +61,15 @@ class InteractionService:
         return True
 
     async def remove_from_bookshelf(self, reader_id: int, novel_id: int) -> bool:
+        """将作品移出读者书架。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+
+        Returns:
+            是否实际移除了记录。
+        """
         removed = await self.shelf_repo.remove(reader_id, novel_id)
         if removed:
             await self.session.commit()
@@ -66,6 +84,18 @@ class InteractionService:
         chapter_index: int | None = None,
         percent: float = 0.0,
     ) -> bool:
+        """上报阅读进度（写入 Redis 实时进度 + 同步落库）。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+            chapter_id: 章节 ID。
+            chapter_index: 章节索引。
+            percent: 阅读百分比。
+
+        Returns:
+            操作是否成功。
+        """
         # 写入 Redis 实时进度
         progress_key = CacheKeys.progress(reader_id)
         try:
@@ -100,6 +130,17 @@ class InteractionService:
         content: str,
         rating: int = 0,
     ) -> str:
+        """创建评论。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+            content: 评论内容。
+            rating: 评分（0-5）。
+
+        Returns:
+            创建的评论 ID。
+        """
         if not content or not content.strip():
             raise ParamError("评论内容不能为空")
         novel = await self._get_novel(novel_id)
@@ -118,6 +159,15 @@ class InteractionService:
         return str(comment.id)
 
     async def like_comment(self, comment_id: int, reader_id: int) -> bool:
+        """点赞评论（作者自己点赞不增加计数）。
+
+        Args:
+            comment_id: 评论 ID。
+            reader_id: 读者 ID。
+
+        Returns:
+            操作是否成功。
+        """
         comment = await self.session.get(CommentModel, comment_id)
         if not comment:
             raise NotFoundError("评论不存在")
@@ -135,6 +185,17 @@ class InteractionService:
         type_: str,
         amount: int,
     ) -> str:
+        """创建打赏记录。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+            type_: 打赏类型。
+            amount: 打赏金额。
+
+        Returns:
+            打赏记录 ID。
+        """
         if amount <= 0:
             raise ParamError("打赏金额必须大于 0")
         novel = await self._get_novel(novel_id)
@@ -154,6 +215,16 @@ class InteractionService:
     async def submit_rating(
         self, reader_id: int, novel_id: int, rating: int
     ) -> bool:
+        """提交评分（1-5），并失效评分分布缓存。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 作品 ID。
+            rating: 评分值。
+
+        Returns:
+            操作是否成功。
+        """
         if not 1 <= rating <= 5:
             raise ParamError("评分范围 1-5")
         novel = await self._get_novel(novel_id)
@@ -173,6 +244,14 @@ class InteractionService:
 
     # ── 书评列表（全局） ───────────────────────────────────
     async def get_reviews(self, limit: int = 20) -> list[Review]:
+        """获取全局书评列表（按点赞数排序）。
+
+        Args:
+            limit: 数量限制。
+
+        Returns:
+            书评列表。
+        """
         stmt = (
             select(ReviewModel, Novel)
             .join(Novel, ReviewModel.novel_id == Novel.id)
@@ -198,6 +277,14 @@ class InteractionService:
 
     # ── 话题 ──────────────────────────────────────────
     async def get_topics(self, limit: int = 20) -> list[Topic]:
+        """获取话题列表（基于标签热度）。
+
+        Args:
+            limit: 数量限制。
+
+        Returns:
+            话题列表。
+        """
         """基于标签热度生成话题列表。"""
         from app.models.novel import Tag
         stmt = select(Tag).order_by(Tag.ref_count.desc()).limit(limit)
@@ -208,6 +295,14 @@ class InteractionService:
 
     # ── 书单 ──────────────────────────────────────────
     async def get_book_lists(self, limit: int = 10) -> list[BookList]:
+        """获取推荐书单（基于高评分作品按分类聚合）。
+
+        Args:
+            limit: 书单数量限制。
+
+        Returns:
+            书单列表。
+        """
         """返回推荐书单（基于高评分作品聚合）。"""
         stmt = (
             select(Novel)

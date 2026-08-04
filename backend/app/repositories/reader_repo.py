@@ -18,6 +18,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
     model = Bookshelf
 
     async def list_by_reader(self, reader_id: int, limit: int = 100) -> list[Bookshelf]:
+        """获取读者书架列表，按添加时间降序排列。"""
         stmt = (
             select(Bookshelf)
             .where(Bookshelf.reader_id == reader_id)
@@ -28,6 +29,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
         return list(result.scalars().all())
 
     async def is_in_shelf(self, reader_id: int, novel_id: int) -> bool:
+        """检查作品是否已在读者书架中。"""
         stmt = select(Bookshelf).where(
             Bookshelf.reader_id == reader_id, Bookshelf.novel_id == novel_id
         )
@@ -35,6 +37,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
         return result.scalars().first() is not None
 
     async def add(self, reader_id: int, novel_id: int) -> Bookshelf:
+        """将作品加入读者书架。"""
         shelf = Bookshelf(
             reader_id=reader_id, novel_id=novel_id, added_at=int(time.time() * 1000)
         )
@@ -43,6 +46,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
         return shelf
 
     async def remove(self, reader_id: int, novel_id: int) -> bool:
+        """将作品移出读者书架，返回是否成功移除。"""
         stmt = select(Bookshelf).where(
             Bookshelf.reader_id == reader_id, Bookshelf.novel_id == novel_id
         )
@@ -66,6 +70,7 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         chapter_index: int | None,
         percent: float,
     ) -> ReadingHistory:
+        """创建或更新阅读历史记录（同一读者+作品）。"""
         stmt = select(ReadingHistory).where(
             ReadingHistory.reader_id == reader_id, ReadingHistory.novel_id == novel_id
         )
@@ -93,6 +98,7 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
     async def get_by_reader_novel(
         self, reader_id: int, novel_id: int
     ) -> ReadingHistory | None:
+        """根据读者 ID 和作品 ID 获取单条阅读历史。"""
         stmt = select(ReadingHistory).where(
             ReadingHistory.reader_id == reader_id, ReadingHistory.novel_id == novel_id
         )
@@ -100,6 +106,7 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         return result.scalars().first()
 
     async def list_by_reader(self, reader_id: int, limit: int = 20) -> list[ReadingHistory]:
+        """获取读者的阅读历史列表，按阅读时间降序排列。"""
         stmt = (
             select(ReadingHistory)
             .where(ReadingHistory.reader_id == reader_id)
@@ -114,6 +121,7 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
     model = ReadingStatsDaily
 
     async def get_overview(self, reader_id: int) -> dict:
+        """获取读者阅读概览：总时长/总字数/阅读天数。"""
         stmt = (
             select(
                 func.sum(ReadingStatsDaily.duration_minutes),
@@ -131,6 +139,7 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
         }
 
     async def get_current_streak(self, reader_id: int) -> int:
+        """计算读者当前连续阅读天数。"""
         stmt = select(ReadingStatsDaily.stat_date).where(
             ReadingStatsDaily.reader_id == reader_id
         )
@@ -147,6 +156,7 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
         return streak
 
     async def get_heatmap(self, reader_id: int, days: int = 365) -> list[ReadingStatsDaily]:
+        """获取读者指定天数的阅读热力图数据。"""
         start = date.today() - timedelta(days=days)
         stmt = (
             select(ReadingStatsDaily)

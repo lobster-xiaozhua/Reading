@@ -35,6 +35,14 @@ class ChartService:
 
     # ── 工作台趋势 ─────────────────────────────────────────
     async def get_workbench_trend(self, days: int = 7) -> list[TrendPoint]:
+        """获取工作台趋势数据（作品/读者新增量）。
+
+        Args:
+            days: 统计天数。
+
+        Returns:
+            趋势数据点列表。
+        """
         start = date.today() - timedelta(days=days)
         start_ts = int(time.mktime(start.timetuple())) * 1000
         # 作品新增趋势
@@ -62,6 +70,14 @@ class ChartService:
 
     # ── 字数增长 ─────────────────────────────────────────
     async def get_word_count_growth(self, days: int = 30) -> WordCountTrend:
+        """获取字数增长趋势（日增 + 累计）。
+
+        Args:
+            days: 统计天数。
+
+        Returns:
+            字数增长趋势。
+        """
         start_date = date.today() - timedelta(days=days)
         start_ts = int(time.mktime(start_date.timetuple())) * 1000
         stmt = (
@@ -93,6 +109,7 @@ class ChartService:
 
     # ── 阅读热力图（7×24） ─────────────────────────────────
     async def get_reading_heatmap(self) -> list[ChartHeatmapCell]:
+        """获取阅读热力图（7×24 网格）。"""
         stmt = select(ReadingStatsDaily.reader_id, ReadingStatsDaily.stat_date,
                       ReadingStatsDaily.duration_minutes)
         rows = (await self.session.execute(stmt)).all()
@@ -111,6 +128,7 @@ class ChartService:
 
     # ── 阅读漏斗 ─────────────────────────────────────────
     async def get_reading_funnel(self) -> list[FunnelStage]:
+        """获取阅读漏斗数据（曝光/详情/加架/开读/回访）。"""
         total_novels = await self._count(Novel, Novel.deleted == 0, Novel.status == "published")
         # 简化漏斗：曝光=作品数, 详情/加架/开读/回访用近似值
         stages = [
@@ -128,6 +146,14 @@ class ChartService:
 
     # ── 排行趋势 ─────────────────────────────────────────
     async def get_ranking_trend(self, days: int = 14) -> list[TrendPoint]:
+        """获取排行趋势（基于点击量近期增长）。
+
+        Args:
+            days: 统计天数。
+
+        Returns:
+            排行趋势数据点。
+        """
         """排行趋势（基于点击量近期增长，简化实现）。"""
         novels = await self._get_top_novels(10)
         return [
@@ -137,6 +163,7 @@ class ChartService:
 
     # ── 分类分布 ─────────────────────────────────────────
     async def get_category_distribution(self) -> list[CategoryDistribution]:
+        """获取分类分布数据（各分类作品数量及占比）。"""
         stmt = (
             select(Novel.category, func.count())
             .where(Novel.deleted == 0, Novel.status == "published")
@@ -156,6 +183,14 @@ class ChartService:
 
     # ── 基础图表 ─────────────────────────────────────────
     async def get_basic_chart(self, chart_type: str) -> BasicChartData:
+        """获取基础图表数据（按类型路由到对应 handler）。
+
+        Args:
+            chart_type: 图表类型标识。
+
+        Returns:
+            基础图表数据。
+        """
         handlers = {
             "workbench-trend": self.get_workbench_trend,
             "word-count-growth": self.get_word_count_growth,

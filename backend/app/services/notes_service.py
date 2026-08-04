@@ -20,6 +20,15 @@ class NotesService:
         self.session = session
 
     async def create_note(self, reader_id: int, body: NoteCreateBody) -> str:
+        """创建选词笔记。
+
+        Args:
+            reader_id: 读者 ID。
+            body: 笔记创建数据。
+
+        Returns:
+            创建的笔记 ID。
+        """
         if not body.text or not body.text.strip():
             raise ParamError("笔记内容不能为空")
         now = int(time.time() * 1000)
@@ -43,6 +52,16 @@ class NotesService:
     async def list_notes(
         self, reader_id: int, novel_id: int | None = None, limit: int = 50
     ) -> list[NoteItem]:
+        """查询读者笔记列表（可按作品过滤）。
+
+        Args:
+            reader_id: 读者 ID。
+            novel_id: 可选，按作品过滤。
+            limit: 数量限制。
+
+        Returns:
+            笔记列表。
+        """
         stmt = (
             select(ReaderNote)
             .where(ReaderNote.reader_id == reader_id)
@@ -69,6 +88,16 @@ class NotesService:
         ]
 
     async def update_note(self, reader_id: int, note_id: int, body: NoteUpdateBody) -> bool:
+        """更新笔记内容（仅更新 annotation 字段）。
+
+        Args:
+            reader_id: 读者 ID。
+            note_id: 笔记 ID。
+            body: 更新数据。
+
+        Returns:
+            操作是否成功。
+        """
         note = await self.session.get(ReaderNote, note_id)
         if not note or note.reader_id != reader_id:
             raise NotFoundError("笔记不存在")
@@ -79,6 +108,15 @@ class NotesService:
         return True
 
     async def delete_note(self, reader_id: int, note_id: int) -> bool:
+        """删除笔记。
+
+        Args:
+            reader_id: 读者 ID。
+            note_id: 笔记 ID。
+
+        Returns:
+            操作是否成功。
+        """
         note = await self.session.get(ReaderNote, note_id)
         if not note or note.reader_id != reader_id:
             raise NotFoundError("笔记不存在")

@@ -17,6 +17,7 @@ from app.repositories.novel_repo import NovelRepository
 from app.schemas.c_end import BookSummary, SearchSuggestion
 from app.schemas.common import PagedResult
 from app.services._converters import novel_to_c_summary
+from app.utils.cache import cache_set
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,14 @@ class SearchService:
 
     # ── 搜索建议 ─────────────────────────────────────────
     async def get_suggestions(self, keyword: str) -> list[SearchSuggestion]:
+        """获取搜索建议（书名/作者/标签匹配）。
+
+        Args:
+            keyword: 搜索关键词。
+
+        Returns:
+            搜索建议列表。
+        """
         if not keyword or not keyword.strip():
             return []
 
@@ -81,6 +90,16 @@ class SearchService:
     async def search_books(
         self, keyword: str, page: int = 1, page_size: int = 12
     ) -> PagedResult[BookSummary]:
+        """搜索书籍，按点击量排序。
+
+        Args:
+            keyword: 搜索关键词。
+            page: 页码。
+            page_size: 每页数量。
+
+        Returns:
+            分页书籍搜索结果。
+        """
         novels, total = await self._search_novels(keyword, page, page_size)
         items = [novel_to_c_summary(n) for n in novels]
         # 记录搜索词频
@@ -89,6 +108,14 @@ class SearchService:
 
     # ── 热搜词 ──────────────────────────────────────────
     async def get_hot_searches(self, limit: int = 10) -> list[str]:
+        """获取热搜词列表（基于 Redis ZSet）。
+
+        Args:
+            limit: 返回数量限制。
+
+        Returns:
+            热搜词列表。
+        """
         cached = await self.redis.get(CacheKeys.HOT_SEARCHES)
         if cached:
             return json.loads(cached)
@@ -132,7 +159,4 @@ class SearchService:
             logger.debug("搜索词频记录失败 keyword=%s", keyword, exc_info=True)
 
     async def _cache_set(self, key: str, data: list, ttl: int) -> None:
-        try:
-            await self.redis.set(key, json.dumps(data, default=str), ex=ttl)
-        except Exception:
-            logger.warning("缓存写入失败 key=%s", key, exc_info=True)
+        await cache_set(self.redis, key, data, ttl)
