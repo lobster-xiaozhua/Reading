@@ -83,7 +83,7 @@ export default function DiscoverPage() {
                 <EmptyState title="暂无热门推荐" />
               ) : (
                 <div className="discover-page__horizontal scroll-x">
-                  {home.hotBooks.map((b) => (
+                  {home.hotBooks.filter(Boolean).map((b) => (
                     <BookCard key={b.id} book={toBook(b)} variant="horizontal" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
                   ))}
                 </div>
@@ -99,7 +99,7 @@ export default function DiscoverPage() {
                 <EmptyState title="暂无限免书籍" />
               ) : (
                 <div className="discover-page__free-grid">
-                  {home.freeBooks.map((b) => (
+                  {home.freeBooks.filter(Boolean).map((b) => (
                     <div key={b.id} className="discover-page__free-item">
                       <BookCard book={toBook(b)} variant="grid" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
                       <div className="discover-page__free-meta">
@@ -188,17 +188,17 @@ export default function DiscoverPage() {
                 ) : (
                   <ol className="discover-page__rank-list">
                     {(home.rankings[rankType] ?? []).slice(0, 8).map((b, i) => (
-                      <li key={b.book.id} className="discover-page__rank-item">
+                      <li key={b?.book?.id ?? i} className="discover-page__rank-item">
                         <span
                           className={`discover-page__rank-num ${i < 3 ? `is-top-${i + 1}` : ''}`}
                           aria-hidden
                         >
                           {i + 1}
                         </span>
-                        <Link to={`/book/${b.book.id}`} className="discover-page__rank-title">
-                          {b.book.title}
+                        <Link to={`/book/${b?.book?.id}`} className="discover-page__rank-title">
+                          {b?.book?.title ?? ""}
                         </Link>
-                        <span className="discover-page__rank-author">{b.book.author}</span>
+                        <span className="discover-page__rank-author">{b?.book?.author ?? ""}</span>
                       </li>
                     ))}
                   </ol>
@@ -216,7 +216,7 @@ export default function DiscoverPage() {
 function CategoryGrid({ categories }: { categories: Category[] }) {
   return (
     <div className="discover-page__category-grid">
-      {categories.map((c) => (
+      {categories.filter(Boolean).map((c) => (
         <div key={c.id} className="discover-page__category-item hover-rise">
           <Link
             to={`/category?cat=${encodeURIComponent(c.name)}`}
