@@ -228,6 +228,7 @@ async def seed_content(db) -> None:
         authors[pen_name] = author
 
         statuses = ["published", "published", "published", "pending", "draft"]
+        flags_list = ["hot,editor-pick,free-limited", "hot", "editor-pick", "", ""]
         novel = Novel(
             title=title,
             author_id=author.id,
@@ -237,6 +238,7 @@ async def seed_content(db) -> None:
             intro=f"{title}：{pen_name} 作品，示例内容用于演示。",
             word_count=0,
             status=statuses[idx],
+            flags=flags_list[idx],
             rating=4.5 + (idx % 5) * 0.1,
             rating_count=1000 + idx * 250,
             follow_count=5000 + idx * 1300,
