@@ -16,7 +16,7 @@ export interface DiscoverHome {
   freeBooks: BookSummary[];
   editorPicks: BookSummary[];
   categories: Category[];
-  rankings: Record<RankType, BookSummary[]>;
+  rankings: Record<RankType, RankItem[]>;
 }
 
 /** 书籍摘要（列表/卡片用） */

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BookCard, EmptyState, Skeleton, useAsyncState, type Book } from '@novel/components';
 import { Carousel } from '@/components/Carousel';
 import { SectionTitle } from '@/components/SectionTitle';
@@ -50,6 +50,7 @@ export default function DiscoverPage() {
   const home = homeState.data ?? EMPTY_HOME;
   const pageLoading = homeState.loading && !homeState.loaded;
   const pageError = homeState.status === 'error';
+  const navigate = useNavigate();
 
   const [rankType, setRankType] = useState<RankType>('hot');
 
@@ -83,7 +84,7 @@ export default function DiscoverPage() {
               ) : (
                 <div className="discover-page__horizontal scroll-x">
                   {home.hotBooks.map((b) => (
-                    <BookCard key={b.id} book={toBook(b)} variant="horizontal" size="sm" />
+                    <BookCard key={b.id} book={toBook(b)} variant="horizontal" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
                   ))}
                 </div>
               )}
@@ -100,7 +101,7 @@ export default function DiscoverPage() {
                 <div className="discover-page__free-grid">
                   {home.freeBooks.map((b) => (
                     <div key={b.id} className="discover-page__free-item">
-                      <BookCard book={toBook(b)} variant="grid" size="sm" />
+                      <BookCard book={toBook(b)} variant="grid" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
                       <div className="discover-page__free-meta">
                         {b.freeDeadline ? (
                           <Countdown deadline={b.freeDeadline} />
@@ -184,17 +185,17 @@ export default function DiscoverPage() {
                 ) : (
                   <ol className="discover-page__rank-list">
                     {(home.rankings[rankType] ?? []).slice(0, 8).map((b, i) => (
-                      <li key={b.id} className="discover-page__rank-item">
+                      <li key={b.book.id} className="discover-page__rank-item">
                         <span
                           className={`discover-page__rank-num ${i < 3 ? `is-top-${i + 1}` : ''}`}
                           aria-hidden
                         >
                           {i + 1}
                         </span>
-                        <Link to={`/book/${b.id}`} className="discover-page__rank-title">
-                          {b.title}
+                        <Link to={`/book/${b.book.id}`} className="discover-page__rank-title">
+                          {b.book.title}
                         </Link>
-                        <span className="discover-page__rank-author">{b.author}</span>
+                        <span className="discover-page__rank-author">{b.book.author}</span>
                       </li>
                     ))}
                   </ol>
