@@ -126,15 +126,27 @@ async def seed() -> None:
             await db.execute(select(Reader).where(Reader.username == "reader"))
         ).scalars().first()
         if not reader:
-            db.add(
-                Reader(
-                    username="reader",
-                    nickname="演示读者",
+            reader = Reader(
+                username="reader",
+                nickname="演示读者",
+                password_hash=hash_password("reader123"),
+                level=1,
+                is_vip=0,
+            )
+            db.add(reader)
+            await db.flush()
+            # 确保 demo_reader 可访问（ID 1001）
+            if reader.id != 1001:
+                demo = Reader(
+                    id=1001,
+                    username="demo_reader",
+                    nickname="游客读者",
                     password_hash=hash_password("reader123"),
                     level=1,
                     is_vip=0,
                 )
-            )
+                db.add(demo)
+                await db.flush()
             db.add(
                 Reader(
                     username="vip",
@@ -195,9 +207,10 @@ async def seed() -> None:
         if not (await db.execute(select(Comment).limit(1))).scalars().first():
             now = int(time.time() * 1000)
             novels = (await db.execute(select(Novel).where(Novel.deleted == 0))).scalars().all()
-            readers = (await db.execute(select(Reader).limit(2))).scalars().all()
-            if novels and readers:
-                reader_id = readers[0].id
+            demo_reader = (await db.execute(select(Reader).where(Reader.id == 1001))).scalars().first()
+            reader = demo_reader or (await db.execute(select(Reader).limit(1))).scalars().first()
+            if novels and reader:
+                reader_id = reader.id
                 for n in novels[:3]:
                     db.add(Comment(novel_id=n.id, reader_id=reader_id, content="示例评论内容", rating=4, likes=random.randint(5, 50), status=1, created_at=now - random.randint(0, 86400000)))
                     db.add(Bookshelf(reader_id=reader_id, novel_id=n.id, added_at=now - random.randint(0, 86400000 * 7)))
