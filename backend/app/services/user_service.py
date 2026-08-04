@@ -60,11 +60,10 @@ class UserService:
 
     # ── 封禁/解封 ─────────────────────────────────────────
     async def set_status(self, reader_id: int, status: int) -> bool:
-        """设置用户状态（0 封禁 1 正常）。"""
         reader = await self.session.get(Reader, reader_id)
         if not reader:
             return False
-        # 复用 deleted 字段表示封禁状态（简化实现）
+        reader.deleted = 1 if status == 0 else 0
         reader.updated_at = int(time.time() * 1000)
         await self.session.commit()
         return True

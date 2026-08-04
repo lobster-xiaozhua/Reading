@@ -90,7 +90,7 @@ class SensitiveService:
         trie = await self._get_trie()
         hits = trie.scan(text)
         return [
-            SensitiveHit(word=h.word, level=h.level, suggestion=h.suggestion)
+            SensitiveHit(text=h.word, level=h.level, suggestion=h.suggestion)
             for h in hits
         ]
 

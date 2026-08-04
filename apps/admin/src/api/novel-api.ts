@@ -76,7 +76,7 @@ function mapNovel(raw: BackendNovel): BNovelDetail {
 
 /** 查询列表 */
 export async function fetchNovelList(params: NovelListParams): Promise<NovelListResponse> {
-  const data = await http.get<{ list: BackendNovel[]; total: number; page: number; pageSize: number }>('/novels', {
+  const data = await http.get<{ items: BackendNovel[]; total: number; page: number; pageSize: number }>('/novels', {
     page: params.page,
     page_size: params.pageSize,
     search_key: params.searchKey ?? '',
@@ -85,7 +85,7 @@ export async function fetchNovelList(params: NovelListParams): Promise<NovelList
     date_range: params.dateRange ? params.dateRange.join(',') : undefined,
   });
   return {
-    list: (data.list ?? []).map(mapNovel),
+    list: (data.items ?? []).map(mapNovel),
     total: data.total ?? 0,
     page: data.page ?? params.page,
     pageSize: data.pageSize ?? params.pageSize,
