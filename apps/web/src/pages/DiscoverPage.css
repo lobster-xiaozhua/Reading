@@ -91,7 +91,7 @@
 }
 .discover-page__category-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--sh-2);
   border-color: var(--color-brand);
 }
 .discover-page__category-main {
@@ -173,7 +173,7 @@
 }
 .discover-page__editor-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--sh-2);
   border-color: var(--color-brand);
 }
 .discover-page__editor-cover {
@@ -294,16 +294,16 @@
   transform: scale(1.1);
 }
 .discover-page__rank-num.is-top-1 {
-  background: linear-gradient(135deg, #FFD700, #FFA500);
-  color: white;
+  background: var(--color-rank-gold-gradient);
+  color: var(--color-text-inverse);
 }
 .discover-page__rank-num.is-top-2 {
-  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
-  color: white;
+  background: var(--color-rank-silver-gradient);
+  color: var(--color-text-inverse);
 }
 .discover-page__rank-num.is-top-3 {
-  background: linear-gradient(135deg, #CD7F32, #B8722A);
-  color: white;
+  background: var(--color-rank-bronze-gradient);
+  color: var(--color-text-inverse);
 }
 .discover-page__rank-title {
   font-size: 14px;

@@ -14,9 +14,9 @@ export interface DiscoverHome {
   banners: Banner[];
   hotBooks: BookSummary[];
   freeBooks: BookSummary[];
-  editorPicks: RecommendBook[];
+  editorPicks: BookSummary[];
   categories: Category[];
-  rankings: Record<RankType, RankItem[]>;
+  rankings: Record<RankType, BookSummary[]>;
 }
 
 /** 书籍摘要（列表/卡片用） */

@@ -136,7 +136,6 @@ class SearchService:
         if not keyword or not keyword.strip():
             return [], 0
         keyword = keyword.strip()
-        pattern = f"%{keyword}%"
         stmt = (
             select(Novel)
             .where(

@@ -136,32 +136,29 @@ export default function DiscoverPage() {
                   <EmptyState title="暂无编辑推荐" />
                 ) : (
                   <div className="discover-page__editor-list">
-                    {home.editorPicks.map((b, i) => {
-                      const book = b.book ?? b;
-                      return (
-                        <Link
-                          key={book.id}
-                          to={`/book/${book.id}`}
-                          className="discover-page__editor-item hover-rise"
-                        >
-                          <img
-                            src={book.cover}
-                            alt={book.title}
-                            className="discover-page__editor-cover"
-                            loading="lazy"
-                          />
-                          <div className="discover-page__editor-info">
-                            <div className="discover-page__editor-rank">No.{i + 1}</div>
-                            <h3 className="discover-page__editor-title">{book.title}</h3>
-                            <p className="discover-page__editor-intro">{book.intro}</p>
-                            <div className="discover-page__editor-meta">
-                              <span>{book.author}</span>
-                              <span className="discover-page__editor-cat">{book.category}</span>
-                            </div>
+                    {home.editorPicks.map((b, i) => (
+                      <Link
+                        key={b.id}
+                        to={`/book/${b.id}`}
+                        className="discover-page__editor-item hover-rise"
+                      >
+                        <img
+                          src={b.cover}
+                          alt={b.title}
+                          className="discover-page__editor-cover"
+                          loading="lazy"
+                        />
+                        <div className="discover-page__editor-info">
+                          <div className="discover-page__editor-rank">No.{i + 1}</div>
+                          <h3 className="discover-page__editor-title">{b.title}</h3>
+                          <p className="discover-page__editor-intro">{b.intro}</p>
+                          <div className="discover-page__editor-meta">
+                            <span>{b.author}</span>
+                            <span className="discover-page__editor-cat">{b.category}</span>
                           </div>
-                        </Link>
-                      );
-                    })}
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 )}
               </DiscoverModule>
@@ -189,17 +186,17 @@ export default function DiscoverPage() {
                 ) : (
                   <ol className="discover-page__rank-list">
                     {(home.rankings[rankType] ?? []).slice(0, 8).map((b, i) => (
-                      <li key={b?.book?.id ?? i} className="discover-page__rank-item">
+                      <li key={b?.id ?? i} className="discover-page__rank-item">
                         <span
                           className={`discover-page__rank-num ${i < 3 ? `is-top-${i + 1}` : ''}`}
                           aria-hidden
                         >
                           {i + 1}
                         </span>
-                        <Link to={`/book/${b?.book?.id}`} className="discover-page__rank-title">
-                          {b?.book?.title ?? ""}
+                        <Link to={`/book/${b?.id}`} className="discover-page__rank-title">
+                          {b?.title ?? ""}
                         </Link>
-                        <span className="discover-page__rank-author">{b?.book?.author ?? ""}</span>
+                        <span className="discover-page__rank-author">{b?.author ?? ""}</span>
                       </li>
                     ))}
                   </ol>

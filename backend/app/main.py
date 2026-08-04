@@ -26,8 +26,9 @@ async def lifespan(app: FastAPI):
 
     if settings.debug:
         try:
-            from app.core.database import AsyncSessionLocal
             from sqlalchemy import select
+
+            from app.core.database import AsyncSessionLocal
             from app.models.novel import Novel
 
             async with AsyncSessionLocal() as db:
