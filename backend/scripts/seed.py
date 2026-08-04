@@ -69,19 +69,19 @@ SENSITIVE_WORDS: list[tuple[str, int, str]] = [
 ]
 
 CATEGORIES: list[tuple[str, str, int]] = [
-    ("fantasy", "玄幻", 1),
+    ("xuanhuan", "玄幻", 1),
     ("xianxia", "仙侠", 2),
-    ("sci-fi", "科幻", 3),
+    ("scifi", "科幻", 3),
     ("romance", "言情", 4),
-    ("other", "其他", 5),
+    ("urban", "都市", 5),
 ]
 
 NOVELS: list[tuple[str, str, str, str, int]] = [
-    ("斗破苍穹", "天蚕土豆", "fantasy", "buyout", 50),
+    ("斗破苍穹", "天蚕土豆", "xuanhuan", "buyout", 50),
     ("凡人修仙传", "忘语", "xianxia", "share", 60),
     ("遮天", "辰东", "xianxia", "guarantee-share", 50),
     ("诡秘之主", "爱潜水的乌贼", "fantasy", "share", 70),
-    ("大奉打更人", "卖报小郎君", "fantasy", "buyout", 45),
+    ("大奉打更人", "卖报小郎君", "xuanhuan", "buyout", 45),
 ]
 
 
@@ -190,7 +190,7 @@ async def seed() -> None:
 
         # ── 互动数据（评论/书架/阅读历史）─────────
         from app.models.interaction import Comment, RewardRecord
-        from app.models.novel import Novel
+        from app.models.novel import Novel, Chapter
 
         if not (await db.execute(select(Comment).limit(1))).scalars().first():
             now = int(time.time() * 1000)
@@ -201,7 +201,11 @@ async def seed() -> None:
                 for n in novels[:3]:
                     db.add(Comment(novel_id=n.id, reader_id=reader_id, content="示例评论内容", rating=4, likes=random.randint(5, 50), status=1, created_at=now - random.randint(0, 86400000)))
                     db.add(Bookshelf(reader_id=reader_id, novel_id=n.id, added_at=now - random.randint(0, 86400000 * 7)))
-                    db.add(ReadingHistory(reader_id=reader_id, novel_id=n.id, chapter_id=1, chapter_index=1, percent=random.uniform(10, 100), read_at=now - random.randint(0, 86400000)))
+                    first_chapter = (await db.execute(
+                        select(Chapter).where(Chapter.novel_id == n.id).order_by(Chapter.index).limit(1)
+                    )).scalars().first()
+                    if first_chapter:
+                        db.add(ReadingHistory(reader_id=reader_id, novel_id=n.id, chapter_id=first_chapter.id, chapter_index=1, percent=random.uniform(10, 100), read_at=now - random.randint(0, 86400000)))
 
         await db.commit()
         print("seed done")
