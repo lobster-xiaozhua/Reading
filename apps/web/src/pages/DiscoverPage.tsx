@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BookCard, EmptyState, Skeleton, useAsyncState, type Book } from '@novel/components';
 import { Carousel } from '@/components/Carousel';
@@ -42,7 +42,9 @@ const EMPTY_HOME: DiscoverHome = {
 };
 
 export default function DiscoverPage() {
-  const homeState = useAsyncState<DiscoverHome>(() => fetcher.getDiscoverHome(), {
+  const navigate = useNavigate();
+  const fetchHome = useCallback(() => fetcher.getDiscoverHome(), []);
+  const homeState = useAsyncState<DiscoverHome>(fetchHome, {
     initial: EMPTY_HOME,
     loadingDelay: 200,
   });
@@ -50,7 +52,6 @@ export default function DiscoverPage() {
   const home = homeState.data ?? EMPTY_HOME;
   const pageLoading = homeState.loading && !homeState.loaded;
   const pageError = homeState.status === 'error';
-  const navigate = useNavigate();
 
   const [rankType, setRankType] = useState<RankType>('hot');
 
