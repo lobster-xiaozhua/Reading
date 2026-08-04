@@ -14,7 +14,7 @@ export interface DiscoverHome {
   banners: Banner[];
   hotBooks: BookSummary[];
   freeBooks: BookSummary[];
-  editorPicks: BookSummary[];
+  editorPicks: RecommendBook[];
   categories: Category[];
   rankings: Record<RankType, RankItem[]>;
 }

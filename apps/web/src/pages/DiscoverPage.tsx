@@ -135,29 +135,32 @@ export default function DiscoverPage() {
                   <EmptyState title="暂无编辑推荐" />
                 ) : (
                   <div className="discover-page__editor-list">
-                    {home.editorPicks.map((b, i) => (
-                      <Link
-                        key={b.id}
-                        to={`/book/${b.id}`}
-                        className="discover-page__editor-item hover-rise"
-                      >
-                        <img
-                          src={b.cover}
-                          alt={b.title}
-                          className="discover-page__editor-cover"
-                          loading="lazy"
-                        />
-                        <div className="discover-page__editor-info">
-                          <div className="discover-page__editor-rank">No.{i + 1}</div>
-                          <h3 className="discover-page__editor-title">{b.title}</h3>
-                          <p className="discover-page__editor-intro">{b.intro}</p>
-                          <div className="discover-page__editor-meta">
-                            <span>{b.author}</span>
-                            <span className="discover-page__editor-cat">{b.category}</span>
+                    {home.editorPicks.map((b, i) => {
+                      const book = b.book ?? b;
+                      return (
+                        <Link
+                          key={book.id}
+                          to={`/book/${book.id}`}
+                          className="discover-page__editor-item hover-rise"
+                        >
+                          <img
+                            src={book.cover}
+                            alt={book.title}
+                            className="discover-page__editor-cover"
+                            loading="lazy"
+                          />
+                          <div className="discover-page__editor-info">
+                            <div className="discover-page__editor-rank">No.{i + 1}</div>
+                            <h3 className="discover-page__editor-title">{book.title}</h3>
+                            <p className="discover-page__editor-intro">{book.intro}</p>
+                            <div className="discover-page__editor-meta">
+                              <span>{book.author}</span>
+                              <span className="discover-page__editor-cat">{book.category}</span>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </DiscoverModule>
