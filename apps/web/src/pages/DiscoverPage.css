@@ -1,6 +1,6 @@
 .discover-page {
   padding-top: var(--space-6);
-  padding-bottom: var(--space-8);
+  padding-bottom: var(--space-12);
 }
 
 .discover-page__banner {
@@ -11,10 +11,38 @@
   margin-bottom: var(--space-10);
 }
 
+.discover-page__section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.discover-page__section-title::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 18px;
+  background: var(--color-brand);
+  border-radius: 2px;
+}
+
 .discover-page__horizontal {
   display: flex;
   gap: var(--space-3);
   padding-bottom: var(--space-2);
+}
+
+.discover-page__horizontal > * {
+  flex-shrink: 0;
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+}
+
+.discover-page__horizontal > *:hover {
+  transform: var(--card-hover-transform);
+  box-shadow: var(--card-hover-shadow);
 }
 
 .discover-page__free-grid {
@@ -26,6 +54,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  transition: transform var(--transition-smooth);
+}
+.discover-page__free-item:hover {
+  transform: translateY(-4px);
 }
 .discover-page__free-meta {
   display: flex;
@@ -41,7 +73,6 @@
   font-weight: 500;
 }
 
-/* ---------- 分类网格 ---------- */
 .discover-page__category-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -56,6 +87,12 @@
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+}
+.discover-page__category-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-brand);
 }
 .discover-page__category-main {
   display: flex;
@@ -74,14 +111,16 @@
   margin-top: var(--space-1);
 }
 .discover-page__category-sub-item {
-  padding: 1px var(--space-2);
+  padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-bg-subtle);
   font-size: 12px;
   color: var(--color-text-secondary);
   text-decoration: none;
+  transition: background var(--transition-smooth), color var(--transition-smooth);
 }
 .discover-page__category-sub-item:hover {
+  background: var(--color-brand-bg);
   color: var(--color-brand);
 }
 .discover-page__category-icon {
@@ -91,11 +130,15 @@
   width: 48px;
   height: 48px;
   border-radius: var(--radius-lg);
-  background: var(--color-brand-bg);
+  background: linear-gradient(135deg, var(--color-brand-bg), var(--color-brand-bg-hover));
   color: var(--color-brand);
   font-family: var(--font-serif);
   font-size: 20px;
   font-weight: 600;
+  transition: transform var(--transition-smooth);
+}
+.discover-page__category-item:hover .discover-page__category-icon {
+  transform: scale(1.1);
 }
 .discover-page__category-name {
   font-size: 14px;
@@ -106,7 +149,6 @@
   color: var(--color-text-tertiary);
 }
 
-/* ---------- 编辑推荐 + 排行榜 双栏 ---------- */
 .discover-page__dual {
   display: grid;
   grid-template-columns: 1fr;
@@ -127,6 +169,12 @@
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--color-text-primary);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+}
+.discover-page__editor-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-brand);
 }
 .discover-page__editor-cover {
   width: 72px;
@@ -153,6 +201,10 @@
   font-family: var(--font-serif);
   font-size: 16px;
   font-weight: 600;
+  transition: color var(--transition-smooth);
+}
+.discover-page__editor-item:hover .discover-page__editor-title {
+  color: var(--color-brand);
 }
 .discover-page__editor-intro {
   margin: 0;
@@ -177,7 +229,6 @@
   border-radius: var(--radius-sm);
 }
 
-/* ---------- 排行榜 ---------- */
 .discover-page__rank-tabs {
   display: flex;
   gap: var(--space-1);
@@ -192,8 +243,8 @@
   font-size: 14px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color var(--dur-fast) var(--ease-standard),
-    border-color var(--dur-fast) var(--ease-standard);
+  margin-bottom: -1px;
+  transition: color var(--transition-smooth), border-color var(--transition-smooth);
 }
 .discover-page__rank-tab:hover {
   color: var(--color-brand);
@@ -216,6 +267,11 @@
   gap: var(--space-3);
   padding: var(--space-2) var(--space-1);
   border-bottom: 1px solid var(--color-border-subtle);
+  transition: background var(--transition-smooth);
+  border-radius: var(--radius-sm);
+}
+.discover-page__rank-item:hover {
+  background: var(--color-bg-subtle);
 }
 .discover-page__rank-item:last-child {
   border-bottom: none;
@@ -232,18 +288,22 @@
   font-family: var(--font-mono);
   font-size: 13px;
   font-weight: 600;
+  transition: transform var(--transition-smooth);
+}
+.discover-page__rank-item:hover .discover-page__rank-num {
+  transform: scale(1.1);
 }
 .discover-page__rank-num.is-top-1 {
-  background: var(--color-rank-gold-gradient);
-  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: white;
 }
 .discover-page__rank-num.is-top-2 {
-  background: var(--color-rank-silver-gradient);
-  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+  color: white;
 }
 .discover-page__rank-num.is-top-3 {
-  background: var(--color-rank-bronze-gradient);
-  color: var(--color-text-inverse);
+  background: linear-gradient(135deg, #CD7F32, #B8722A);
+  color: white;
 }
 .discover-page__rank-title {
   font-size: 14px;
@@ -252,6 +312,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color var(--transition-smooth);
 }
 .discover-page__rank-title:hover {
   color: var(--color-brand);
@@ -261,7 +322,6 @@
   color: var(--color-text-tertiary);
 }
 
-/* ---------- 响应式 ---------- */
 @media (min-width: 768px) {
   .discover-page__category-grid {
     grid-template-columns: repeat(4, 1fr);

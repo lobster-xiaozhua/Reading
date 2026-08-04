@@ -1,14 +1,21 @@
 .novel-footer {
   margin-top: var(--space-16);
-  padding: var(--space-8) 0;
+  padding: var(--space-10) 0 var(--space-6);
   background: var(--color-bg-surface);
   border-top: 1px solid var(--color-border-subtle);
 }
 .novel-footer__inner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--space-6);
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+.novel-footer__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
 }
 .novel-footer__logo {
   font-family: var(--font-serif);
@@ -17,7 +24,7 @@
   color: var(--color-text-primary);
 }
 .novel-footer__slogan {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   font-size: 12px;
   color: var(--color-text-tertiary);
 }
@@ -29,26 +36,21 @@
 .novel-footer__nav a {
   color: var(--color-text-secondary);
   font-size: 14px;
+  text-decoration: none;
+  transition: color var(--transition-smooth);
 }
 .novel-footer__nav a:hover {
   color: var(--color-brand);
 }
 .novel-footer__meta {
-  text-align: right;
   font-size: 12px;
   color: var(--color-text-tertiary);
   line-height: 1.6;
 }
 
 @media (max-width: 768px) {
-  .novel-footer__inner {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
   .novel-footer__nav {
     flex-wrap: wrap;
-  }
-  .novel-footer__meta {
-    text-align: center;
+    gap: var(--space-4);
   }
 }

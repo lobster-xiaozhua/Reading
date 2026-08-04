@@ -6,6 +6,9 @@
 
 :root {
   color-scheme: light;
+  --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --card-hover-transform: translateY(-4px);
+  --card-hover-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 html,
@@ -17,6 +20,7 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
 }
 
 #root {
@@ -26,6 +30,7 @@ body {
 a {
   color: var(--color-text-link);
   text-decoration: none;
+  transition: color var(--transition-smooth);
 }
 a:hover {
   color: var(--color-text-link-hover);
@@ -37,6 +42,7 @@ a:hover {
 
 button {
   font-family: inherit;
+  cursor: pointer;
 }
 
 img {
@@ -44,7 +50,6 @@ img {
   max-width: 100%;
 }
 
-/* 可访问性：跳过到主内容 */
 .skip-link {
   position: absolute;
   left: -9999px;
@@ -61,7 +66,6 @@ img {
   top: var(--space-4);
 }
 
-/* 全局工具类：响应式容器 */
 .container-page {
   width: 100%;
   max-width: 1200px;
@@ -79,7 +83,6 @@ img {
   }
 }
 
-/* 横向滚动条隐藏 */
 .scroll-x {
   overflow-x: auto;
   scrollbar-width: none;
@@ -89,70 +92,85 @@ img {
   display: none;
 }
 
-/* 卡片悬浮微缩放（C 端温度感） */
 .hover-rise {
-  transition: transform var(--dur-fast) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard);
+  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
 }
 .hover-rise:hover {
   transform: translateY(-2px);
   box-shadow: var(--sh-3);
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.fade-in {
+  animation: fadeIn 300ms ease-out both;
+}
+
+.slide-in {
+  animation: slideIn 300ms ease-out both;
+}
+
+.scale-in {
+  animation: scaleIn 200ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hover-rise:hover {
     transform: none;
   }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
-/* ============================================================
- * P7-2 · 触控热区 ≥ 44×44px 全量审计
- * 移动端（≤768px）所有交互元素最小命中区域 44×44
- * 通过 ::before 伪元素扩展命中范围，不改变视觉尺寸
- * ============================================================ */
 @media (max-width: 768px) and (pointer: coarse) {
   .novel-navbar__search-btn,
   .novel-navbar__login-btn,
   .novel-reader__icon-btn,
   .novel-reader__bar-btn {
-    /* 视觉不变，仅保证 min-height；宽度由内容撑开但 ≥44 */
     min-height: 44px;
     min-width: 44px;
   }
 }
 
-/* ============================================================
- * P7-7 · 安全区 env(safe-area-inset-*) 全量适配
- * viewport-fit=cover 已在 index.html 设置
- * ============================================================ */
 .app-layout {
-  /* 桌面端无安全区，移动端由 BottomTabBar 自身处理底部 */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 .app-layout__main {
   flex: 1;
-  /* H5 端为 BottomTabBar 让出 48px + 安全区底部 */
 }
 @media (max-width: 768px) {
   .app-layout__main {
     padding-bottom: calc(48px + env(safe-area-inset-bottom, 0px));
   }
-  /* H5 端隐藏桌面 Footer（BottomTabBar 接管导航） */
   .novel-footer {
     display: none;
   }
-  /* H5 端顶部 NavBar 让出状态栏 */
   .novel-navbar {
     padding-top: env(safe-area-inset-top, 0px);
   }
 }
 
-/* ============================================================
- * P8-A3 · 焦点可见全局样式
- * 所有可聚焦元素 :focus-visible 时统一 brand 描边
- * ============================================================ */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -164,15 +182,10 @@ textarea:focus-visible,
   border-radius: var(--radius-sm);
 }
 
-/* 阅读器内 tap-zone 不显示焦点环（aria-hidden） */
 .novel-reader__tap-zone:focus-visible {
   outline: none;
 }
 
-/* ============================================================
- * P8-A5 · prefers-contrast: more 高对比模式
- * 强化文本与边框对比，禁用半透明
- * ============================================================ */
 @media (prefers-contrast: more) {
   :root {
     --color-border-subtle: var(--color-border-default);
@@ -181,40 +194,17 @@ textarea:focus-visible,
     background: var(--color-bg-surface);
     color: var(--color-text-primary);
   }
-  a,
-  a:hover {
+  a, a:hover {
     text-decoration: underline;
   }
-  .novel-navbar,
-  .novel-footer {
+  .novel-navbar, .novel-footer {
     border-color: var(--color-text-primary);
   }
-  /* 阅读器：正文加粗描边 */
   .novel-reader__article-body p {
     text-shadow: none;
   }
 }
 
-/* ============================================================
- * P8-A7 · prefers-reduced-motion 全量降级
- * 关闭所有过渡/动画，仅保留 opacity 必要状态切换
- * ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* ============================================================
- * P8-A8 · 屏幕阅读器辅助工具类
- * ============================================================ */
-
-/* 仅屏幕阅读器可见 */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -227,7 +217,6 @@ textarea:focus-visible,
   border: 0;
 }
 
-/* 焦点时恢复可见（sr-only-focusable） */
 .sr-only-focusable:focus,
 .sr-only-focusable:focus-visible {
   position: static;
