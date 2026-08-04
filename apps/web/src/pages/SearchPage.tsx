@@ -67,8 +67,12 @@ export default function SearchPage() {
     return () => clearTimeout(t);
   }, [input, committedQuery]);
 
-  const suggestState = useAsyncState<SearchSuggestion[]>(
+  const fetchSuggestions = useCallback(
     () => fetcher.searchSuggestions(debouncedInput),
+    [debouncedInput],
+  );
+  const suggestState = useAsyncState<SearchSuggestion[]>(
+    fetchSuggestions,
     { deps: [debouncedInput], initial: [] as SearchSuggestion[], loadingDelay: 150 },
   );
   const suggestions = suggestState.data ?? [];

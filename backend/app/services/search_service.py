@@ -136,6 +136,7 @@ class SearchService:
         if not keyword or not keyword.strip():
             return [], 0
         keyword = keyword.strip()
+        pattern = f"%{keyword}%"
         stmt = (
             select(Novel)
             .where(
@@ -145,8 +146,21 @@ class SearchService:
             )
             .order_by(Novel.click_count.desc())
         )
+        # 若标题搜索结果不足，补充作者名匹配
         count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
         total = (await self.session.execute(count_stmt)).scalar_one()
+        if total == 0:
+            stmt = (
+                select(Novel)
+                .where(
+                    Novel.deleted == 0,
+                    Novel.status == "published",
+                    Novel.author_name.contains(keyword),
+                )
+                .order_by(Novel.click_count.desc())
+            )
+            count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
+            total = (await self.session.execute(count_stmt)).scalar_one()
         result = await self.session.execute(
             stmt.offset((page - 1) * page_size).limit(page_size)
         )
