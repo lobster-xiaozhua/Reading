@@ -3,7 +3,7 @@
  * 面包屑 + 封面/BookMeta/操作按钮 + 评分分布 + 目录
  * + 相关推荐 + 评论区 + 打赏占位
  * ============================================================ */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   BookMeta,
@@ -70,24 +70,29 @@ export default function BookDetailPage() {
   const [tab, setTab] = useState<DetailTab>('chapters');
 
   /* ---------- 数据加载 ---------- */
+  const fetchBook = useCallback(() => fetcher.getBook(bookId), [bookId]);
   const bookState = useAsyncState<BookSummary | null>(
-    () => fetcher.getBook(bookId),
+    fetchBook,
     { deps: [bookId], loadingDelay: 200 },
   );
+  const fetchChapters = useCallback(() => fetcher.getChapters(bookId), [bookId]);
   const chaptersState = useAsyncState<ChapterSummary[]>(
-    () => fetcher.getChapters(bookId),
+    fetchChapters,
     { deps: [bookId], initial: [] as ChapterSummary[], loadingDelay: 200 },
   );
+  const fetchRelated = useCallback(() => fetcher.getRelatedBooks(bookId), [bookId]);
   const relatedState = useAsyncState<BookSummary[]>(
-    () => fetcher.getRelatedBooks(bookId),
+    fetchRelated,
     { deps: [bookId], initial: [] as BookSummary[], loadingDelay: 200 },
   );
+  const fetchComments = useCallback(() => fetcher.getComments(bookId), [bookId]);
   const commentsState = useAsyncState<Comment[]>(
-    () => fetcher.getComments(bookId),
+    fetchComments,
     { deps: [bookId], initial: [] as Comment[], loadingDelay: 200 },
   );
+  const fetchRating = useCallback(() => fetcher.getRatingDistribution(bookId), [bookId]);
   const ratingState = useAsyncState<RatingDist>(
-    () => fetcher.getRatingDistribution(bookId),
+    fetchRating,
     { deps: [bookId], loadingDelay: 200 },
   );
 
