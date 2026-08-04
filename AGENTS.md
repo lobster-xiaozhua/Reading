@@ -55,6 +55,7 @@ pip-audit                     # 后端依赖漏洞扫描 (backend/ 目录)
 - Schema 自动 snake_case → camelCase 序列化 (基于 `CamelModel` 基类)
 - Auth 降级: 无 token 时自动降级为 demo 管理员/读者 (开发友好)
 - 项目启动时自动 `create_all` 建表 (开发模式)
+- 种子数据: 启动时自动检测并写入 (DEBUG=true, 已存在则跳过)
 
 ## 前端注意
 

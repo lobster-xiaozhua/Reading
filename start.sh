@@ -1,6 +1,8 @@
 #!/bin/bash
-# 启动前后端服务
+# 启动前后端服务（开发模式，自动写入种子数据）
 # 后端: 8000, 前端(Admin): 5174, 前端(Web): 5173
+
+export DEBUG=true
 
 cd /workspace/backend && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!

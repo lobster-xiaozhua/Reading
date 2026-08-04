@@ -4,6 +4,7 @@
 """
 
 import contextlib
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,12 +15,32 @@ from app.middlewares.error_handler import register_exception_handlers
 from app.middlewares.trace import TraceMiddleware
 from app.models.base import Base
 
+logger = logging.getLogger(__name__)
+
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期：启动时建表（开发/测试），生产用 Alembic 迁移。"""
+    """应用生命周期：启动时建表并自动写入种子数据（开发模式）。"""
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    if settings.debug:
+        try:
+            from app.core.database import AsyncSessionLocal
+            from sqlalchemy import select
+            from app.models.novel import Novel
+
+            async with AsyncSessionLocal() as db:
+                exists = (await db.execute(select(Novel).limit(1))).scalars().first()
+                if not exists:
+                    from scripts.seed import seed
+                    await seed()
+                    logger.info("种子数据已自动写入")
+                else:
+                    logger.debug("种子数据已存在，跳过")
+        except Exception:
+            logger.warning("种子数据写入失败（非阻塞）", exc_info=True)
+
     yield
 
 
