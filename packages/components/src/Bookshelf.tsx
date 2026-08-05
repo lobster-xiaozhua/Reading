@@ -13,6 +13,7 @@ import { useMemo, useState, type ReactNode, type MouseEvent } from 'react';
 import { BookCard, type Book } from './BookCard.js';
 import { EmptyState } from './EmptyState.js';
 import { NotificationBadge } from './NotificationBadge.js';
+import { ContentCategory, NavigationMenu, ActionSort } from '@novel/icons';
 
 export type BookshelfGroupBy = 'none' | 'status' | 'tag';
 export type BookshelfSortBy = 'recent' | 'title' | 'update';
@@ -129,34 +130,6 @@ function groupBooks(books: Book[], groupBy: BookshelfGroupBy): ShelfGroup[] {
 }
 
 /* ---------- 图标（icon-only 控件） ---------- */
-
-function GridIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
-    </svg>
-  );
-}
-
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-  );
-}
-
-function SortIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M7 4v16M7 4L4 7M7 4l3 3" />
-      <path d="M17 20V4M17 20l-3-3M17 20l3-3" opacity="0.4" />
-    </svg>
-  );
-}
 
 function GroupIcon() {
   return (
@@ -534,7 +507,7 @@ function BookshelfToolbar({
         {/* 排序下拉 */}
         <label className="novel-bookshelf__control">
           <span className="novel-bookshelf__control-icon" aria-hidden>
-            <SortIcon />
+            <ActionSort size="lg" aria-hidden="true" />
           </span>
           <select
             className="novel-bookshelf__select"
@@ -583,7 +556,7 @@ function BookshelfToolbar({
             aria-label="网格视图"
             aria-pressed={viewMode === 'grid'}
           >
-            <GridIcon />
+            <ContentCategory size="lg" aria-hidden="true" />
           </button>
           <button
             type="button"
@@ -597,7 +570,7 @@ function BookshelfToolbar({
             aria-label="列表视图"
             aria-pressed={viewMode === 'list'}
           >
-            <ListIcon />
+            <NavigationMenu size="lg" aria-hidden="true" />
           </button>
         </div>
       </div>

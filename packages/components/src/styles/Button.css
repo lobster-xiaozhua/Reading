@@ -141,3 +141,12 @@
 @keyframes novel-btn-spin {
   to { transform: rotate(360deg); }
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-btn {
+    transition: none;
+  }
+  .novel-btn:active {
+    transform: none;
+  }
+}

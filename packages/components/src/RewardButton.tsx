@@ -5,6 +5,7 @@
  * ============================================================ */
 
 import { useState, type CSSProperties } from 'react';
+import { NovelThumbsUp, NovelReward } from '@novel/icons';
 
 export type RewardType = 'ticket' | 'recommend' | 'tip';
 
@@ -28,29 +29,15 @@ const REWARD_CONFIG: Record<RewardType, { label: string; variant: Variant }> = {
   tip: { label: '打赏', variant: 'gradient' },
 };
 
-function RewardIcon({ type }: { type: RewardType }) {
-  if (type === 'ticket') {
-    return (
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <rect x="3" y="6" width="18" height="12" rx="2" />
-        <path d="M3 10h18M7 14h4" />
-      </svg>
-    );
-  }
-  if (type === 'recommend') {
-    return (
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M7 11v8H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h3z" />
-        <path d="M7 11l4-7a2 2 0 0 1 3 1.5V9h5a2 2 0 0 1 2 2.3l-1.2 7A2 2 0 0 1 17.8 20H7" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 8v8M9.5 10.5c0-1.1 1.1-2 2.5-2s2.5.9 2.5 2-1.1 2-2.5 2-2.5.9-2.5 2 1.1 2 2.5 2 2.5-.9 2.5-2" />
-    </svg>
-  );
+const REWARD_ICON: Record<RewardType, typeof NovelReward> = {
+  ticket: NovelReward,
+  recommend: NovelThumbsUp,
+  tip: NovelReward,
+};
+
+function RewardIconComp({ type }: { type: RewardType }) {
+  const IconComp = REWARD_ICON[type];
+  return <IconComp size="sm" aria-hidden="true" />;
 }
 
 export function RewardButton({
@@ -100,7 +87,7 @@ export function RewardButton({
           {loading ? (
             <span className="novel-reward__spinner" aria-hidden />
           ) : (
-            <RewardIcon type={rewardType} />
+            <RewardIconComp type={rewardType} />
           )}
         </span>
         <span className="novel-reward__label">{exhausted ? '今日已用完' : config.label}</span>

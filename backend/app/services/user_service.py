@@ -3,9 +3,9 @@
 提供读者列表查询（封禁/解封/等级调整等写操作预留）。
 """
 
-import logging
 import time
 
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +13,7 @@ from app.models.user import Reader
 from app.schemas.b_end import UserListItem
 from app.schemas.common import PagedResult
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class UserService:

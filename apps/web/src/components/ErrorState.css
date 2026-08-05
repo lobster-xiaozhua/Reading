@@ -44,3 +44,6 @@
   background: var(--color-brand-bg);
   border-color: var(--color-brand);
 }
+.error-state__retry:active {
+  transform: scale(0.97);
+}

@@ -4,7 +4,7 @@
  * Source: 04 §10.7 / P6-7
  * ============================================================ */
 
-import { http, ApiError } from './http';
+import { http, requestSafe } from './http';
 import type { AdminRole, Permission } from '@/api/types';
 import { ALL_PERMISSIONS, PERMISSION_LIST } from '@/constants/permissions';
 
@@ -69,13 +69,9 @@ export async function updateRolePermissions(
   if (key === 'super-admin') {
     return { success: false, reason: '超级管理员权限不可修改' };
   }
-  try {
-    await http.put(`/roles/${key}/permissions`, { permissions });
-    return { success: true };
-  } catch (err) {
-    if (err instanceof ApiError) return { success: false, reason: err.message };
-    return { success: false, reason: '权限更新失败' };
-  }
+  const result = await requestSafe(http.put(`/roles/${key}/permissions`, { permissions }));
+  if (result.success) return { success: true };
+  return { success: false, reason: result.error ?? '权限更新失败' };
 }
 
 /** 更新角色信息（名称/描述/数据范围） */
@@ -83,16 +79,13 @@ export async function updateRoleMeta(
   key: AdminRole,
   patch: Partial<Pick<RoleMeta, 'name' | 'description' | 'dataScope'>>,
 ): Promise<{ success: boolean }> {
-  try {
-    await http.patch(`/roles/${key}`, {
-      name: patch.name ?? undefined,
-      description: patch.description ?? undefined,
-      dataScope: patch.dataScope ?? undefined,
-    });
-    return { success: true };
-  } catch {
-    return { success: false };
-  }
+  const result = await requestSafe(http.patch(`/roles/${key}`, {
+    name: patch.name ?? undefined,
+    description: patch.description ?? undefined,
+    dataScope: patch.dataScope ?? undefined,
+  }));
+  if (result.success) return { success: true };
+  return { success: false };
 }
 
 /** 全量权限点（用于权限分配树） */

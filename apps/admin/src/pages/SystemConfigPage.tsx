@@ -7,8 +7,9 @@ import type { SensitiveWord } from '@novel/b-end';
 import { http } from '@/api/http';
 import { fetchSensitiveWordLib, addSensitiveWord, removeSensitiveWord } from '@/api/sensitive-api';
 import type { SensitiveWordLibMeta } from '@/api/sensitive-api';
+import { BPageHeader } from '@novel/b-end';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const LEVEL_MAP: Record<number, { color: string; label: string }> = {
   1: { color: 'red', label: '严禁' },
@@ -108,7 +109,7 @@ export default function SystemConfigPage() {
 
   return (
     <div>
-      <Title level={2} style={{ marginBottom: 'var(--space-4)' }}>{t('system:title')}</Title>
+      <BPageHeader title={t('system:title')} />
       <Space direction="vertical" style={{ width: '100%' }} size="large">
         <Card title={t('system:siteConfig')} extra={<Button type="primary" onClick={handleSaveConfig}>{t('system:save')}</Button>}>
           <Descriptions column={1} labelStyle={{ width: 120 }}>

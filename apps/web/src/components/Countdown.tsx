@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ContentHistory } from '@novel/icons';
 import './Countdown.css';
 
 interface CountdownProps {
@@ -42,7 +43,7 @@ export function Countdown({ deadline, urgentThreshold = 3600 * 1000 }: Countdown
       role="timer"
       aria-label={`剩余 ${format(remaining)}`}
     >
-      <span className="novel-countdown__icon" aria-hidden>⏰</span>
+      <ContentHistory size="sm" aria-hidden="true" className="novel-countdown__icon" />
       <span className="novel-countdown__time">{format(remaining)}</span>
     </span>
   );

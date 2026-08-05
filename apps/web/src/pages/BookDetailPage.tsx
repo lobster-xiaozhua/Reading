@@ -16,10 +16,11 @@ import {
   Tabs,
   useAsyncState,
   useFeedback,
-  type Book,
   type Chapter,
   type ChapterOrder,
 } from '@novel/components';
+import { NovelHeart, NovelHeartFilled, NovelComment, NavigationChevronLeft } from '@novel/icons';
+import { LazyImage } from '@/components/LazyImage';
 import { fetcher } from '@/api/fetcher';
 import type {
   BookSummary,
@@ -29,24 +30,12 @@ import type {
 } from '@/api/types';
 import { useUserStore } from '@/stores/userStore';
 import { useHistoryStore } from '@/stores/historyStore';
+import { toBook } from '@/utils/convert';
+import { formatRelativeTime } from '@/utils/time';
 import { RatingDistribution } from '@/components/RatingDistribution';
 import './BookDetailPage.css';
 
 type DetailTab = 'chapters' | 'comments' | 'reward';
-
-function toBook(b: BookSummary): Book {
-  return {
-    id: b.id,
-    title: b.title,
-    author: b.author,
-    cover: b.cover,
-    tags: b.tags,
-    intro: b.intro,
-    rating: b.rating,
-    status: b.status,
-    updateTime: b.lastUpdated,
-  };
-}
 
 function toChapter(c: ChapterSummary, readChapterIds: Set<string>): Chapter {
   return {
@@ -177,7 +166,7 @@ export default function BookDetailPage() {
       {/* 顶部：封面 + 元信息 + 操作 */}
       <section className="book-detail__hero container-page">
         <div className="book-detail__cover">
-          <img src={book.cover} alt={book.title} />
+          <LazyImage src={book.cover} alt={book.title} eager />
           {book.flags.includes('vip') ? <span className="book-detail__flag book-detail__flag--vip">VIP</span> : null}
           {book.flags.includes('free-limited') ? <span className="book-detail__flag book-detail__flag--free">限免</span> : null}
         </div>
@@ -220,7 +209,29 @@ export default function BookDetailPage() {
           </div>
           {historyEntry ? (
             <div className="book-detail__last-read">
-              上次读到：第{historyEntry.chapterIndex}章 {historyEntry.chapterTitle}（{historyEntry.percent}%）
+              <div className="book-detail__last-read-info">
+                <span className="book-detail__last-read-label">上次读到</span>
+                <span className="book-detail__last-read-text">
+                  第{historyEntry.chapterIndex}章 {historyEntry.chapterTitle}
+                </span>
+              </div>
+              <div className="book-detail__last-read-progress">
+                <div className="book-detail__last-read-track">
+                  <div
+                    className="book-detail__last-read-fill"
+                    style={{ width: `${historyEntry.percent}%` }}
+                  />
+                </div>
+                <span className="book-detail__last-read-pct">{historyEntry.percent}%</span>
+              </div>
+              <button
+                type="button"
+                className="book-detail__last-read-btn"
+                onClick={handleStartReading}
+              >
+                <NavigationChevronLeft size="xs" />
+                继续阅读
+              </button>
             </div>
           ) : null}
         </div>
@@ -305,47 +316,144 @@ export default function BookDetailPage() {
 /* ---------- 评论列表 ---------- */
 
 function CommentList({ comments, loading }: { comments: Comment[]; loading: boolean }) {
+  const [writeOpen, setWriteOpen] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [commentRating, setCommentRating] = useState(0);
+
+  const handleSubmitComment = () => {
+    setCommentText('');
+    setCommentRating(0);
+    setWriteOpen(false);
+  };
+
   if (loading) return <Skeleton rows={5} />;
-  if (comments.length === 0) return <EmptyState title="暂无评论，来抢沙发吧" />;
 
   return (
-    <ul className="book-detail__comments">
-      {comments.map((c) => (
-        <li key={c.id} className="book-detail__comment">
-          <div className="book-detail__comment-header">
-            <img src={c.user.avatar} alt={c.user.nickname} className="book-detail__comment-avatar" />
-            <div className="book-detail__comment-meta">
-              <span className="book-detail__comment-name">{c.user.nickname}</span>
-              <span className="book-detail__comment-time">{formatTime(c.createdAt)}</span>
-            </div>
-            <span className="book-detail__comment-rating" aria-label={`评分 ${c.rating} 星`}>
-              {'★'.repeat(c.rating)}
-              <span className="book-detail__comment-rating-empty">{'★'.repeat(5 - c.rating)}</span>
-            </span>
-          </div>
-          <p className="book-detail__comment-content">{c.content}</p>
-          <div className="book-detail__comment-footer">
-            <button type="button" className="book-detail__comment-like">
-              <span aria-hidden>♥</span> {c.likes}
-            </button>
-          </div>
-          {c.replies && c.replies.length > 0 ? (
-            <ul className="book-detail__replies">
-              {c.replies.map((r) => (
-                <li key={r.id} className="book-detail__reply">
-                  <img src={r.user.avatar} alt={r.user.nickname} className="book-detail__comment-avatar book-detail__comment-avatar--sm" />
-                  <div>
-                    <span className="book-detail__comment-name">{r.user.nickname}</span>
-                    <span className="book-detail__comment-name book-detail__comment-name--author">作者</span>
-                    <p className="book-detail__comment-content">{r.content}</p>
-                  </div>
-                </li>
+    <div className="book-detail__comments-wrap">
+      {/* 写评论区域 */}
+      <div className="book-detail__write-comment">
+        {!writeOpen ? (
+          <button
+            type="button"
+            className="book-detail__write-comment-trigger"
+            onClick={() => setWriteOpen(true)}
+          >
+            <NovelComment size="sm" />
+            <span>写评论...</span>
+          </button>
+        ) : (
+          <div className="book-detail__write-comment-form">
+            <div className="book-detail__write-comment-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  className={`book-detail__star-btn ${star <= commentRating ? 'is-active' : ''}`}
+                  onClick={() => setCommentRating(star)}
+                  aria-label={`${star}星`}
+                >
+                  {star <= commentRating ? '★' : '☆'}
+                </button>
               ))}
-            </ul>
-          ) : null}
-        </li>
-      ))}
-    </ul>
+            </div>
+            <textarea
+              className="book-detail__write-comment-input"
+              placeholder="写下你的想法..."
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              rows={3}
+            />
+            <div className="book-detail__write-comment-actions">
+              <button
+                type="button"
+                className="book-detail__write-comment-cancel"
+                onClick={() => {
+                  setWriteOpen(false);
+                  setCommentText('');
+                  setCommentRating(0);
+                }}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="book-detail__write-comment-submit"
+                disabled={!commentText.trim() || commentRating === 0}
+                onClick={handleSubmitComment}
+              >
+                发表评论
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {comments.length === 0 ? (
+        <EmptyState title="暂无评论，来抢沙发吧" />
+      ) : (
+        <ul className="book-detail__comments">
+          {comments.map((c) => (
+            <CommentItem key={c.id} comment={c} />
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function CommentItem({ comment: c }: { comment: Comment }) {
+  const [isLiked, setIsLiked] = useState(false);
+  const [likes, setLikes] = useState(c.likes);
+
+  const handleLike = () => {
+    if (isLiked) {
+      setIsLiked(false);
+      setLikes((n) => n - 1);
+    } else {
+      setIsLiked(true);
+      setLikes((n) => n + 1);
+    }
+  };
+
+  return (
+    <li className="book-detail__comment">
+      <div className="book-detail__comment-header">
+        <LazyImage src={c.user.avatar} alt={c.user.nickname} className="book-detail__comment-avatar" />
+        <div className="book-detail__comment-meta">
+          <span className="book-detail__comment-name">{c.user.nickname}</span>
+          <span className="book-detail__comment-time">{formatRelativeTime(c.createdAt)}</span>
+        </div>
+        <span className="book-detail__comment-rating" aria-label={`评分 ${c.rating} 星`}>
+          {'★'.repeat(c.rating)}
+          <span className="book-detail__comment-rating-empty">{'★'.repeat(5 - c.rating)}</span>
+        </span>
+      </div>
+      <p className="book-detail__comment-content">{c.content}</p>
+      <div className="book-detail__comment-footer">
+        <button
+          type="button"
+          className={`book-detail__comment-like ${isLiked ? 'is-liked' : ''}`}
+          onClick={handleLike}
+        >
+          {isLiked ? <NovelHeartFilled size="sm" aria-hidden="true" /> : <NovelHeart size="sm" aria-hidden="true" />}
+          <span>{likes}</span>
+        </button>
+      </div>
+      {c.replies && c.replies.length > 0 ? (
+        <ul className="book-detail__replies">
+          {c.replies.map((r) => (
+            <li key={r.id} className="book-detail__reply">
+              <LazyImage src={r.user.avatar} alt={r.user.nickname} className="book-detail__comment-avatar book-detail__comment-avatar--sm" />
+              <div>
+                <span className="book-detail__comment-name">{r.user.nickname}</span>
+                <span className="book-detail__comment-name book-detail__comment-name--author">作者</span>
+                <p className="book-detail__comment-content">{r.content}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </li>
   );
 }
 
@@ -395,13 +503,4 @@ function RewardSection({ bookId }: { bookId: string }) {
   );
 }
 
-/* ---------- 工具 ---------- */
 
-function formatTime(ts: number): string {
-  const diff = Date.now() - ts;
-  const day = Math.floor(diff / 86400000);
-  if (day < 1) return '今天';
-  if (day < 30) return `${day} 天前`;
-  const d = new Date(ts);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}

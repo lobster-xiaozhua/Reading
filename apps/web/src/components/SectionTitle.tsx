@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { NavigationChevronRight } from '@novel/icons';
 import './SectionTitle.css';
 
 interface SectionTitleProps {
@@ -23,7 +24,7 @@ export function SectionTitle({ title, subtitle, moreTo, moreText = '更多' }: S
       {moreTo ? (
         <Link to={moreTo} className="novel-section-title__more">
           {moreText}
-          <span aria-hidden>›</span>
+          <NavigationChevronRight size="xs" aria-hidden="true" />
         </Link>
       ) : null}
     </div>

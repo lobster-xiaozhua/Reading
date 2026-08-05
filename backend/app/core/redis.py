@@ -1,6 +1,7 @@
 """Redis 客户端与缓存键规范（§10.2）。"""
 
 import redis.asyncio as redis
+import structlog
 
 from app.core.config import settings
 
@@ -24,20 +25,12 @@ class CacheKeys:
         return f"c:book:{book_id}"
 
     @staticmethod
-    def book_chapters(book_id: int) -> str:
-        return f"c:book:{book_id}:chapters"
-
-    @staticmethod
     def book_rating(book_id: int) -> str:
         return f"c:book:{book_id}:rating"
 
     @staticmethod
     def book_click(book_id: int) -> str:
         return f"book:click:{book_id}"
-
-    @staticmethod
-    def chapter_nav(chapter_id: int) -> str:
-        return f"chapter:nav:{chapter_id}"
 
     @staticmethod
     def rank(rank_type: str) -> str:
@@ -51,16 +44,8 @@ class CacheKeys:
     def heatmap(reader_id: int) -> str:
         return f"c:me:heatmap:{reader_id}"
 
-    @staticmethod
-    def books_list(category: str, sort: str, status: str, page: int) -> str:
-        return f"c:books:list:{category}:{sort}:{status}:{page}"
-
     # B 端
     WORKBENCH_KPI = "b:workbench:kpi"
-
-    @staticmethod
-    def b_novel(novel_id: int) -> str:
-        return f"b:novel:{novel_id}"
 
     # 鉴权
     @staticmethod
@@ -81,10 +66,7 @@ class CacheKeys:
     def login_fail(username: str) -> str:
         return f"login:fail:{username}"
 
-    # 敏感词库
-    @staticmethod
-    def sensitive_lib(version: str) -> str:
-        return f"sensitive:lib:{version}"
+
 
 
 # 全局 Redis 客户端（懒初始化，便于测试替换）
@@ -109,6 +91,8 @@ async def get_redis() -> redis.Redis:
             await client.ping()
             _redis_client = client
         except Exception:
+            logger = structlog.get_logger("api.redis")
+            logger.warning("Redis connection failed, falling back to fakeredis", exc_info=True)
             # 降级到 fakeredis（测试期可用）
             try:
                 import fakeredis.aioredis as fakeredis_aio  # type: ignore[import-not-found]

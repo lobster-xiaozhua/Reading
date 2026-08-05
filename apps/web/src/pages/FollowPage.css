@@ -44,6 +44,9 @@
   background: var(--color-bg-subtle);
   color: var(--color-brand);
 }
+.follow-page__back:active {
+  transform: scale(0.95);
+}
 .follow-page__back:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-brand-bg);
@@ -75,6 +78,9 @@
 .follow-page__read-all:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-brand-bg);
+}
+.follow-page__read-all:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .follow-page__read-all:disabled {
   color: var(--color-text-tertiary);
@@ -152,6 +158,13 @@
 .follow-page__item-action:hover {
   filter: brightness(0.95);
 }
+.follow-page__item-action:active {
+  transform: scale(0.97);
+}
+.follow-page__item-action.is-confirm {
+  background: var(--color-feedback-error);
+  width: 120px;
+}
 .follow-page__item-action:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 2px var(--color-bg-surface);
@@ -228,6 +241,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.follow-page__author {
+  font-size: var(--font-size-overline);
+  color: var(--color-text-tertiary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .follow-page__latest {
   font-size: var(--font-size-caption);
   color: var(--color-text-secondary);
@@ -289,6 +309,9 @@
   color: var(--color-text-inverse);
   filter: brightness(0.95);
 }
+.follow-page__discover-btn:active {
+  transform: scale(0.97);
+}
 
 /* ---------- 确认弹窗 ---------- */
 .follow-page__modal-text {
@@ -316,12 +339,18 @@
 .follow-page__modal-btn--ghost:hover {
   color: var(--color-text-primary);
 }
+.follow-page__modal-btn--ghost:active {
+  transform: scale(0.97);
+}
 .follow-page__modal-btn--primary {
   background: var(--color-brand);
   color: var(--color-text-inverse);
 }
 .follow-page__modal-btn--primary:hover {
   filter: brightness(0.95);
+}
+.follow-page__modal-btn--primary:active {
+  transform: scale(0.97);
 }
 
 /* ---------- 骨架占位 ---------- */

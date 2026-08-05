@@ -6,7 +6,7 @@
  * ============================================================ */
 
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
 
   /* ---------- L2 Semantic · 文本 ---------- */
   --color-text-primary: var(--gray-14);
@@ -183,6 +183,9 @@
   --z-index-modal: 1300;
   --z-index-toast: 1400;
 
+  /* ---------- 主题切换过渡 ---------- */
+  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
   /* ---------- 图标尺寸 ---------- */
   --icon-size-xs: 12px;
   --icon-size-sm: 14px;
@@ -270,6 +273,73 @@
   --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.56);
 }
 
+/* ============================================================
+ * 系统暗色模式自动触发（匹配用户 OS 偏好）
+ * ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-text-primary: var(--gray-1);
+    --color-text-secondary: var(--gray-5);
+    --color-text-tertiary: var(--gray-6);
+    --color-text-disabled: var(--gray-7);
+    --color-text-inverse: var(--gray-14);
+    --color-text-link: var(--brand-6);
+    --color-text-link-hover: var(--brand-5);
+
+    --color-bg-page: var(--gray-14);
+    --color-bg-surface: var(--gray-12);
+    --color-bg-subtle: var(--gray-11);
+    --color-bg-elevated: var(--gray-12);
+    --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+    --color-border-default: var(--gray-10);
+    --color-border-subtle: var(--gray-11);
+    --color-border-focus: var(--brand-6);
+    --color-border-strong: var(--gray-8);
+
+    --color-brand: var(--brand-6);
+    --color-brand-hover: var(--brand-7);
+    --color-brand-active: var(--brand-8);
+    --color-brand-bg: rgba(24, 144, 255, 0.16);
+    --color-brand-border: rgba(24, 144, 255, 0.32);
+    --color-accent: var(--accent-6);
+    --color-accent-hover: var(--accent-7);
+    --color-accent-active: var(--accent-8);
+
+    --color-accent-orange: var(--orange-4);
+    --color-accent-orange-hover: var(--orange-3);
+    --color-accent-orange-active: var(--orange-5);
+    --color-accent-orange-bg: rgba(240, 133, 40, 0.16);
+
+    --color-rose-bg: rgba(245, 34, 45, 0.16);
+
+    --color-feedback-success: var(--success-2);
+    --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
+    --color-feedback-warning: var(--warning-2);
+    --color-feedback-warning-bg: rgba(250, 173, 20, 0.16);
+    --color-feedback-error: var(--error-2);
+    --color-feedback-error-bg: rgba(245, 34, 45, 0.16);
+    --color-feedback-info: var(--info-2);
+    --color-feedback-info-bg: rgba(24, 144, 255, 0.16);
+
+    --novel-text-color: var(--gray-3);
+
+    --novel-read-bg: var(--read-bg-night);
+    --novel-read-text: var(--read-text-night);
+    --novel-read-text-secondary: var(--read-text-secondary-night);
+
+    --color-chart-3: #8AA2B8;
+
+    --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+    --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.44);
+    --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.48);
+    --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.52);
+    --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.56);
+  }
+}
+
 /* ---------- 高对比偏好（无障碍，03 §10） ---------- */
 @media (prefers-contrast: more) {
   :root {
@@ -279,6 +349,12 @@
   [data-theme='dark'] {
     --color-border-default: var(--gray-5);
     --color-border-subtle: var(--gray-6);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --color-border-default: var(--gray-5);
+      --color-border-subtle: var(--gray-6);
+    }
   }
 }
 

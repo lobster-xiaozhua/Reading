@@ -23,12 +23,15 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // P9 阶段接入监控上报
-    console.error('[ErrorBoundary]', error, errorInfo);
+    console.error('[ErrorBoundary]', error, errorInfo, { tagged: 'initErrorMonitor' });
   }
 
-  handleReset = () => {
+  handleRetry = () => {
     this.setState({ hasError: false, error: undefined });
+  };
+
+  handleReset = () => {
+    this.handleRetry();
   };
 
   override render(): ReactNode {

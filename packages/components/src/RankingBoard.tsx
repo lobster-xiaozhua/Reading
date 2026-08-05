@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { type Book } from './BookCard.js';
+import { NovelTrendingUp, NovelTrendingDown } from '@novel/icons';
 
 export type RankBoardType = 'hot' | 'follow' | 'ticket' | 'new';
 
@@ -63,9 +64,7 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
     const delta = prevRank - rank;
     return (
       <span className="novel-ranking__trend novel-ranking__trend--up" aria-label={`上升 ${delta} 位`}>
-        <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-          <path d="M12 19V5M5 12l7-7 7 7" />
-        </svg>
+        <NovelTrendingUp size="xs" aria-hidden="true" />
         <span className="novel-ranking__trend-label" aria-hidden>升</span>
         {delta}
       </span>
@@ -74,9 +73,7 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
   const delta = rank - prevRank;
   return (
     <span className="novel-ranking__trend novel-ranking__trend--down" aria-label={`下降 ${delta} 位`}>
-      <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M12 5v14M19 12l-7 7-7-7" />
-      </svg>
+      <NovelTrendingDown size="xs" aria-hidden="true" />
       <span className="novel-ranking__trend-label" aria-hidden>降</span>
       {delta}
     </span>

@@ -5,12 +5,12 @@
 """
 
 import json
-import logging
 import time
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import BizError, NotFoundError
+from app.core.exceptions import NotFoundError
 from app.models.audit import AuditRecord
 from app.models.novel import Chapter, Novel
 from app.repositories.audit_repo import AuditRepository
@@ -25,9 +25,10 @@ from app.schemas.b_end import (
     SensitiveHit,
 )
 from app.schemas.enums import AuditResult
+from app.utils.batch import batch_execute
 from app.utils.state_machine import ChapterStateMachine
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class AuditService:
@@ -94,29 +95,23 @@ class AuditService:
         Returns:
             审核提交结果（含下一条待审项 ID）。
         """
-        failed: list[dict] = []
+        async def _process_one(aid: str) -> None:
+            audit_id = int(aid)
+            record = await self.repo.get_by_id(audit_id)
+            if not record or record.status != "pending":
+                raise NotFoundError("审核项不存在或已处理")
+            await self._process_audit(
+                record, body.result, body.comment, body.reject_reason,
+                operator_id, operator_name,
+            )
+            nonlocal next_id
+            if not next_id:
+                next_id = await self._get_next_id(audit_id)
+
         next_id: str | None = None
-        processed: list[int] = []
-
-        for aid in body.ids:
-            try:
-                audit_id = int(aid)
-                record = await self.repo.get_by_id(audit_id)
-                if not record or record.status != "pending":
-                    raise NotFoundError("审核项不存在或已处理")
-                await self._process_audit(
-                    record, body.result, body.comment, body.reject_reason,
-                    operator_id, operator_name,
-                )
-                processed.append(audit_id)
-                if not next_id:
-                    next_id = await self._get_next_id(audit_id)
-            except BizError as e:
-                failed.append({"id": aid, "reason": e.message})
-            except Exception as e:
-                logger.exception("审核处理异常 audit_id=%s", aid)
-                failed.append({"id": aid, "reason": str(e)})
-
+        _, failed = await batch_execute(
+            body.ids, _process_one, logger_name="audit_service.submit_audit"
+        )
         await self.session.commit()
         return AuditSubmitResult(
             success=len(failed) == 0,

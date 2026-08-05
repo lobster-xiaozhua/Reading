@@ -4,8 +4,7 @@
 结算状态流转走 ``RoyaltyStateMachine`` 校验。
 """
 
-import logging
-
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -20,7 +19,7 @@ from app.schemas.royalty import (
     RoyaltyStats,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class RoyaltyService:

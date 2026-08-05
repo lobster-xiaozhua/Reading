@@ -12,10 +12,10 @@ import {
   Skeleton,
   Tag,
   useAsyncState,
-  type Book,
 } from '@novel/components';
 import { fetcher } from '@/api/fetcher';
-import type { BookSummary, Category, SortKey, Tag as TagType } from '@/api/types';
+import { toBook } from '@/utils/convert';
+import type { Category, SortKey, Tag as TagType } from '@/api/types';
 import './CategoryPage.css';
 
 const SORT_TABS: { key: SortKey; label: string }[] = [
@@ -32,20 +32,6 @@ const STATUS_OPTIONS: { key: '' | 'ongoing' | 'completed'; label: string }[] = [
 ];
 
 const PAGE_SIZE = 12;
-
-function toBook(b: BookSummary): Book {
-  return {
-    id: b.id,
-    title: b.title,
-    author: b.author,
-    cover: b.cover,
-    tags: b.tags,
-    intro: b.intro,
-    rating: b.rating,
-    status: b.status,
-    updateTime: b.lastUpdated,
-  };
-}
 
 export default function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();

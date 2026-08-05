@@ -33,6 +33,7 @@ import {
   PERMISSION_TREE,
   DATA_SCOPE_LABEL_HELPER,
 } from '@/constants/role-display';
+import './PermissionPage.css';
 
 type PageStatus = 'loading' | 'ready' | 'empty' | 'error';
 
@@ -93,9 +94,9 @@ export default function PermissionPage() {
     return PERMISSION_TREE.map((group) => ({
       key: `module:${group.module}`,
       title: (
-        <span style={{ fontWeight: 600 }}>
+        <span className="pp-tree-node__title">
           {group.label}
-          <span style={{ color: 'var(--color-text-tertiary)', fontWeight: 'normal', marginLeft: 'var(--space-2)' }}>
+          <span className="pp-tree-node__count">
             ({group.permissions.length})
           </span>
         </span>
@@ -106,7 +107,7 @@ export default function PermissionPage() {
         title: (
           <Space>
             <span>{p.label}</span>
-            <Tag style={{ fontSize: 'var(--font-size-caption, 12px)' }}>{p.key}</Tag>
+            <Tag className="pp-tree-node__tag">{p.key}</Tag>
           </Space>
         ),
         selectable: false,
@@ -172,16 +173,16 @@ export default function PermissionPage() {
       {status === 'error' ? (
         <Result status="error" title={t('common:loading')} subTitle={t('common:empty')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
       ) : (
-        <div style={{ display: 'flex', gap: 'var(--space-4)', minHeight: 600 }}>
+        <div className="pp-layout">
           <Card
             title={t('permission:roleList')}
-            style={{ width: '30%' }}
+            className="pp-sidebar"
             styles={{ body: { padding: 0 } }}
           >
             {status === 'loading' ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : roles.length === 0 ? (
-              <Empty description={t('permission:empty')} style={{ padding: 'var(--space-8)' }} />
+              <Empty description={t('permission:empty')} className="pp-empty" />
             ) : (
               <List
                 dataSource={roles}
@@ -191,36 +192,33 @@ export default function PermissionPage() {
                   return (
                     <List.Item
                       onClick={() => setSelectedRoleKey(role.key)}
-                      style={{
-                        cursor: 'pointer',
-                        padding: 'var(--space-3) var(--space-4)',
-                        background: isSelected ? 'var(--color-brand-bg)' : undefined,
-                        borderLeft: isSelected ? `3px solid var(--color-brand)` : '3px solid transparent',
-                        transition: 'background var(--dur-fast) var(--ease-out)',
-                      }}
+                      className={`pp-item${isSelected ? ' pp-item--selected' : ''}`}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedRoleKey(role.key); }}
                     >
-                      <div style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1)' }}>
+                      <div className="pp-item__inner">
+                        <div className="pp-item__header">
                           <Space>
                             <strong>{role.name}</strong>
                             {role.builtin && (
-                              <Tag color="default" style={{ fontSize: 'var(--font-size-caption, 12px)' }}>
+                              <Tag color="default" className="pp-tree-node__tag">
                                 {role.key === 'super-admin' ? <><LockOutlined /> {t('permission:builtin')}</> : t('permission:builtin')}
                               </Tag>
                             )}
                           </Space>
-                          <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                          <span className="pp-item__meta">
                             {t('permission:userCount', { count: role.userCount })}
                           </span>
                         </div>
-                        <div style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                        <div className="pp-item__description">
                           {role.description}
                         </div>
-                        <div style={{ marginTop: 'var(--space-1)' }}>
+                        <div className="pp-item__footer">
                           <Tag color={role.dataScope === 'all' ? 'success' : role.dataScope === 'department' ? 'processing' : 'default'}>
                             {DATA_SCOPE_LABEL_HELPER[role.dataScope]}
                           </Tag>
-                          <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                          <span className="pp-item__permission-count">
                             {t('permission:permissionCount', { count: role.permissions.length })}
                           </span>
                         </div>
@@ -232,12 +230,12 @@ export default function PermissionPage() {
             )}
           </Card>
 
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div className="pp-content-area">
             {status === 'loading' ? (
               <Card><Skeleton active paragraph={{ rows: 8 }} /></Card>
             ) : !currentRole ? (
               <Card>
-                <Empty description={t('permission:emptySelect')} style={{ padding: 'var(--space-8)' }} />
+                <Empty description={t('permission:emptySelect')} className="pp-empty" />
               </Card>
             ) : (
               <>
@@ -259,7 +257,7 @@ export default function PermissionPage() {
                   }
                 >
                   {editingMeta ? (
-                    <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space direction="vertical" className="pp-info-panel">
                       <Input
                         value={metaDraft.name}
                         onChange={(e) => setMetaDraft((d) => ({ ...d, name: e.target.value }))}
@@ -297,7 +295,7 @@ export default function PermissionPage() {
                   title={
                     <Space>
                       <span>{t('permission:permissionAssign')}</span>
-                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)', fontWeight: 'normal' }}>
+                      <span className="pp-subtitle">
                         {t('permission:selectedCount', { selected: selectedCount, total: PERMISSION_TREE.reduce((sum, g) => sum + g.permissions.length, 0) })}
                       </span>
                       {isReadonly && <Tag color="warning"><LockOutlined /> {t('permission:readonly')}</Tag>}
@@ -319,11 +317,11 @@ export default function PermissionPage() {
                   }
                 >
                   {isReadonly ? (
-                    <div style={{ padding: 'var(--space-3)', background: 'var(--color-feedback-warning-bg)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 'var(--space-3)', color: 'var(--color-feedback-warning)' }}>
+                    <div className="pp-hint-warning">
                       {t('permission:superAdminHint')}
                     </div>
                   ) : (
-                    <div style={{ padding: 'var(--space-3)', background: 'var(--color-bg-subtle)', borderRadius: 'var(--radius-md, 8px)', marginBottom: 'var(--space-3)', color: 'var(--color-text-secondary)' }}>
+                    <div className="pp-hint-info">
                       {t('permission:saveHint')}
                     </div>
                   )}

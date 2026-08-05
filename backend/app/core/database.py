@@ -2,6 +2,7 @@
 
 from collections.abc import AsyncGenerator
 
+import structlog
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
@@ -35,6 +36,8 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
         try:
             yield session
         except Exception:
+            logger = structlog.get_logger("api.database")
+            logger.exception("Database session error")
             await session.rollback()
             raise
         finally:

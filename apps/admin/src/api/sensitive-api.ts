@@ -5,7 +5,7 @@
  * Source: 04 §13.1 / P8-1-1
  * ============================================================ */
 
-import { http, ApiError } from './http';
+import { http, requestSafe } from './http';
 import type { SensitiveWord } from '@novel/b-end';
 
 /** 敏感词库元信息 */
@@ -70,17 +70,13 @@ export async function fetchSensitiveWordLib(): Promise<{
 
 /** 新增敏感词 */
 export async function addSensitiveWord(word: SensitiveWord): Promise<{ success: boolean }> {
-  try {
-    await http.post('/sensitive-words', {
-      text: word.text,
-      level: word.level,
-      suggestion: word.suggestion ?? '',
-    });
-    return { success: true };
-  } catch (err) {
-    if (err instanceof ApiError) return { success: false };
-    return { success: false };
-  }
+  const result = await requestSafe(http.post('/sensitive-words', {
+    text: word.text,
+    level: word.level,
+    suggestion: word.suggestion ?? '',
+  }));
+  if (result.success) return { success: true };
+  return { success: false };
 }
 
 /** 删除敏感词 */
@@ -88,10 +84,7 @@ export async function removeSensitiveWord(
   text: string,
   level: 1 | 2 | 3,
 ): Promise<{ success: boolean }> {
-  try {
-    await http.del(`/sensitive-words?text=${encodeURIComponent(text)}&level=${level}`);
-    return { success: true };
-  } catch {
-    return { success: false };
-  }
+  const result = await requestSafe(http.del(`/sensitive-words?text=${encodeURIComponent(text)}&level=${level}`));
+  if (result.success) return { success: true };
+  return { success: false };
 }

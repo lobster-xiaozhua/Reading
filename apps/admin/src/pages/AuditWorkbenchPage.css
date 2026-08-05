@@ -1,0 +1,211 @@
+/* ============================================================
+ * AuditWorkbenchPage 样式
+ * BEM 命名: awb = AuditWorkbench
+ * ============================================================ */
+
+/* Layout */
+.awb-layout {
+  display: flex;
+  gap: var(--space-4);
+  min-height: 600px;
+}
+
+.awb-sidebar {
+  width: 35%;
+  overflow: auto;
+}
+
+.awb-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* List items */
+.awb-item {
+  cursor: pointer;
+  padding: var(--space-3) var(--space-4);
+  transition: background var(--dur-fast) var(--ease-out);
+  border-left: 3px solid transparent;
+}
+
+.awb-item--selected {
+  background: var(--color-brand-bg);
+  border-left-color: var(--color-brand);
+}
+
+.awb-item__inner {
+  width: 100%;
+}
+
+.awb-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-1);
+}
+
+.awb-item__title {
+  font-size: var(--font-size-body, 14px);
+}
+
+.awb-item__meta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+.awb-item__footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-1);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+.awb-item__sensitive-hint {
+  color: var(--color-feedback-error);
+}
+
+/* Text utilities */
+.awb-text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.awb-text-mono {
+  font-family: var(--font-mono);
+}
+
+/* Sensitive alert box */
+.awb-sensitive-box {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-feedback-error-bg);
+  border-radius: var(--radius-md, 8px);
+}
+
+.awb-sensitive-box__title {
+  margin-bottom: var(--space-2);
+  color: var(--color-feedback-error);
+  font-weight: 600;
+}
+
+/* Sensitive tag cursor */
+.awb-sensitive-tag {
+  cursor: pointer;
+}
+
+/* Content viewer */
+.awb-content-viewer {
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-4);
+  max-height: 360px;
+  overflow-y: auto;
+  line-height: 1.8;
+  font-size: var(--font-size-body, 14px);
+  position: relative;
+}
+
+.awb-content-viewer--expanded {
+  max-height: none;
+}
+
+.awb-expand-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--color-brand);
+  cursor: pointer;
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-caption, 13px);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+
+.awb-expand-btn:hover {
+  background: var(--color-brand-bg);
+  border-color: var(--color-brand);
+}
+
+.awb-expand-btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.awb-expand-btn:active {
+  transform: scale(0.97);
+}
+
+/* Fade-out for list items after audit submit */
+.awb-item--fade-out {
+  opacity: 0;
+  transform: translateX(-20px);
+  pointer-events: none;
+}
+
+/* Sensitive highlight */
+.awb-sensitive-highlight {
+  text-decoration: underline;
+  text-decoration-style: wavy;
+  cursor: pointer;
+  border-radius: var(--radius-xs, 2px);
+  padding: 0 2px;
+}
+
+/* History */
+.awb-history-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.awb-history-meta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+.awb-history-comment {
+  margin-top: var(--space-1);
+}
+
+/* Operation panel */
+.awb-operation-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.awb-operation-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.awb-operation-label {
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* Empty state */
+.awb-empty {
+  padding: var(--space-8);
+}
+
+/* Subtitle in card header */
+.awb-subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+  font-weight: normal;
+}
+
+/* Flex row */
+.awb-flex-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

@@ -17,7 +17,11 @@
   border-radius: var(--radius-md);
   font-size: 14px;
   cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .reader-page__back-btn:hover {
   background: var(--color-brand-hover);
+}
+.reader-page__back-btn:active {
+  transform: scale(0.95);
 }

@@ -4,6 +4,7 @@
 业务错误 HTTP 状态码默认 200（走 code 区分），鉴权类异常保留 4xx。
 """
 
+import structlog
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
 from fastapi.responses import JSONResponse
@@ -36,6 +37,8 @@ async def _get_trace_id(request: Request) -> str | None:
 
 async def biz_exception_handler(request: Request, exc: BizError) -> JSONResponse:
     trace_id = await _get_trace_id(request)
+    logger = structlog.get_logger("api.error")
+    logger.warning("BizError", code=exc.code, message=exc.message, path=request.url.path, trace_id=trace_id)
     body = Response.error(exc.code, exc.message)
     body.traceId = trace_id
     return JSONResponse(
@@ -61,6 +64,8 @@ async def validation_exception_handler(
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     trace_id = await _get_trace_id(request)
+    logger = structlog.get_logger("api.error")
+    logger.warning("HTTPException", status=exc.status_code, detail=exc.detail, path=request.url.path, trace_id=trace_id)
     body = Response.error(exc.status_code, exc.detail or "Not Found")
     body.traceId = trace_id
     return JSONResponse(
@@ -71,6 +76,8 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     trace_id = await _get_trace_id(request)
+    logger = structlog.get_logger("api.error")
+    logger.exception("Unhandled exception", path=request.url.path, trace_id=trace_id)
     body = Response.error(ErrorCode.INTERNAL_ERROR, "服务异常，请稍后重试")
     body.traceId = trace_id
     return JSONResponse(

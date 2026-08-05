@@ -25,6 +25,7 @@ import {
 } from './useReaderSettings.js';
 import { ReadingProgress } from './ReadingProgress.js';
 import { ReaderSettings } from './ReaderSettings.js';
+import { NavigationChevronLeft, NavigationChevronRight, NavigationMenu, SystemSettings, NovelMoon, NovelSun } from '@novel/icons';
 
 export interface ReaderChapter {
   id: string;
@@ -69,59 +70,7 @@ export interface ReaderProps {
   className?: string;
 }
 
-/* ---------- 图标 ---------- */
 
-function BackIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M15 6l-6 6 6 6" />
-    </svg>
-  );
-}
-function PrevIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M15 6l-6 6 6 6" />
-    </svg>
-  );
-}
-function NextIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M9 6l6 6-6 6" />
-    </svg>
-  );
-}
-function CatalogIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M4 6h16M4 12h16M4 18h10" />
-    </svg>
-  );
-}
-function SettingsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" />
-    </svg>
-  );
-}
-function MoonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
-    </svg>
-  );
-}
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5" />
-    </svg>
-  );
-}
 
 /* ============================================================
  * Reader
@@ -513,7 +462,7 @@ export function Reader({
           aria-label="返回"
           onClick={onBack}
         >
-          <BackIcon />
+          <NavigationChevronLeft size="lg" aria-hidden="true" />
         </button>
         <div className="novel-reader__topbar-title">
           {chapter?.title ?? ''}
@@ -526,7 +475,7 @@ export function Reader({
               aria-label="阅读设置"
               onClick={() => setSettingsVisible(true)}
             >
-              <SettingsIcon />
+<SystemSettings size="lg" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -541,7 +490,7 @@ export function Reader({
           onClick={onPrev}
           disabled={!onPrev}
         >
-          <PrevIcon />
+          <NavigationChevronLeft size="lg" aria-hidden="true" />
           <span>上一章</span>
         </button>
         <button
@@ -550,7 +499,7 @@ export function Reader({
           aria-label="目录"
           onClick={onCatalog}
         >
-          <CatalogIcon />
+          <NavigationMenu size="lg" aria-hidden="true" />
           <span>目录</span>
         </button>
         <button
@@ -559,7 +508,7 @@ export function Reader({
           aria-label="阅读设置"
           onClick={() => setSettingsVisible(true)}
         >
-          <SettingsIcon />
+          <SystemSettings size="lg" aria-hidden="true" />
           <span>设置</span>
         </button>
         <button
@@ -568,7 +517,7 @@ export function Reader({
           aria-label={settings.theme === 'night' ? '切换日间' : '切换夜间'}
           onClick={toggleNight}
         >
-          {settings.theme === 'night' ? <SunIcon /> : <MoonIcon />}
+          {settings.theme === 'night' ? <NovelSun size="lg" aria-hidden="true" /> : <NovelMoon size="lg" aria-hidden="true" />}
           <span>{settings.theme === 'night' ? '日间' : '夜间'}</span>
         </button>
         <button
@@ -578,7 +527,7 @@ export function Reader({
           onClick={onNext}
           disabled={!onNext}
         >
-          <NextIcon />
+          <NavigationChevronRight size="lg" aria-hidden="true" />
           <span>下一章</span>
         </button>
       </div>

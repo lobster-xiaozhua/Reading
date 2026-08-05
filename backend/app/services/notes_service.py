@@ -1,8 +1,8 @@
 """C 端笔记服务（选词笔记 CRUD）。"""
 
-import logging
 import time
 
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,7 +10,7 @@ from app.core.exceptions import NotFoundError, ParamError
 from app.models.notes import ReaderNote
 from app.schemas.c_end import NoteCreateBody, NoteItem, NoteUpdateBody
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class NotesService:

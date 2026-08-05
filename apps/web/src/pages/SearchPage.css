@@ -70,6 +70,13 @@
 .search-page__submit:hover {
   background: var(--color-brand-hover);
 }
+.search-page__submit:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.search-page__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* ---------- 联想建议浮层 ---------- */
 .search-page__suggest {
@@ -122,6 +129,10 @@
 .search-page__suggest-item:hover {
   background: var(--color-bg-subtle);
 }
+.search-page__suggest-item.is-active {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+}
 .search-page__suggest-type {
   flex-shrink: 0;
   font-size: 14px;
@@ -167,9 +178,14 @@
   color: var(--color-text-tertiary);
   font-size: 13px;
   cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .search-page__clear-btn:hover {
   color: var(--color-feedback-error);
+}
+.search-page__clear-btn:active {
+  color: var(--color-feedback-error);
+  transform: scale(0.9);
 }
 
 /* ---------- 搜索历史标签 ---------- */
@@ -192,9 +208,13 @@
   color: var(--color-text-secondary);
   font-size: 13px;
   cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .search-page__tag-btn:hover {
   color: var(--color-brand);
+}
+.search-page__tag-btn:active {
+  transform: scale(0.97);
 }
 .search-page__tag-remove {
   padding: 0 var(--space-2);
@@ -209,6 +229,10 @@
 }
 .search-page__tag-remove:hover {
   color: var(--color-feedback-error);
+}
+.search-page__tag-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ---------- 热门搜索 ---------- */
@@ -275,9 +299,12 @@
   text-decoration: none;
   color: inherit;
   display: block;
+  transition: transform var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+  border-radius: var(--radius-md);
 }
 .search-page__result-item:hover {
-  text-decoration: none;
+  background: var(--color-bg-subtle);
+  transform: translateX(4px);
 }
 
 /* ---------- 加载更多 ---------- */
@@ -292,10 +319,18 @@
   color: var(--color-brand);
   font-size: 14px;
   cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .search-page__retry-btn:hover {
   background: var(--color-brand-bg);
   border-color: var(--color-brand);
+}
+.search-page__retry-btn:active {
+  transform: scale(0.97);
+}
+.search-page__retry-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 .search-page__loadmore {
   display: flex;
@@ -317,6 +352,9 @@
 .search-page__loadmore-btn:hover:not(:disabled) {
   border-color: var(--color-brand);
   color: var(--color-brand);
+}
+.search-page__loadmore-btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 .search-page__loadmore-btn:disabled {
   opacity: 0.6;

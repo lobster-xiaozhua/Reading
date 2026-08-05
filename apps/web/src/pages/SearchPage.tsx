@@ -11,29 +11,16 @@ import {
   EmptyState,
   Skeleton,
   useAsyncState,
-  type Book,
 } from '@novel/components';
+import { NovelBookOpen, SystemUser, ContentTag } from '@novel/icons';
 import { fetcher } from '@/api/fetcher';
+import { toBook } from '@/utils/convert';
 import type { BookSummary, SearchSuggestion } from '@/api/types';
 import { useSearchStore } from '@/stores/searchStore';
 import './SearchPage.css';
 
 const DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
-
-function toBook(b: BookSummary): Book {
-  return {
-    id: b.id,
-    title: b.title,
-    author: b.author,
-    cover: b.cover,
-    tags: b.tags,
-    intro: b.intro,
-    rating: b.rating,
-    status: b.status,
-    updateTime: b.lastUpdated,
-  };
-}
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -43,7 +30,9 @@ export default function SearchPage() {
   const [committedQuery, setCommittedQuery] = useState(initialQuery);
   const [debouncedInput, setDebouncedInput] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const suggestListRef = useRef<HTMLDivElement | null>(null);
 
   const history = useSearchStore((s) => s.history);
   const addHistory = useSearchStore((s) => s.addHistory);
@@ -178,6 +167,38 @@ export default function SearchPage() {
     commitSearch(s.text);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSuggestPanel || suggestions.length === 0) {
+      if (e.key === 'Escape') setShowSuggestions(false);
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setActiveSuggestionIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setActiveSuggestionIndex((prev) =>
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+          handleSelectSuggestion(suggestions[activeSuggestionIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setShowSuggestions(false);
+        setActiveSuggestionIndex(-1);
+        break;
+    }
+  };
+
   const showSuggestPanel = showSuggestions && debouncedInput.length > 0;
 
   const groupedSuggestions = useMemo(() => {
@@ -190,7 +211,7 @@ export default function SearchPage() {
   }, [suggestions]);
 
   return (
-    <div className="search-page container-page">
+    <div className="search-page container-page fade-in">
       {/* 搜索框 */}
       <form className="search-page__form" role="search" onSubmit={handleSubmit}>
         <div className="search-page__input-wrap">
@@ -208,9 +229,11 @@ export default function SearchPage() {
             onChange={(e) => {
               setInput(e.target.value);
               setShowSuggestions(true);
+              setActiveSuggestionIndex(-1);
             }}
             onFocus={handleFocus}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onKeyDown={handleKeyDown}
             autoComplete="off"
           />
           {input ? (
@@ -238,7 +261,7 @@ export default function SearchPage() {
 
       {/* 联想建议浮层 */}
       {showSuggestPanel ? (
-        <div className="search-page__suggest" role="listbox" aria-label="搜索建议">
+        <div className="search-page__suggest" role="listbox" aria-label="搜索建议" ref={suggestListRef}>
           {suggestState.loading ? (
             <div className="search-page__suggest-loading"><Skeleton rows={3} /></div>
           ) : suggestions.length === 0 ? (
@@ -247,20 +270,24 @@ export default function SearchPage() {
             Object.entries(groupedSuggestions).map(([group, items]) => (
               <div key={group} className="search-page__suggest-group">
                 <div className="search-page__suggest-label">{group}</div>
-                {items.map((s, i) => (
-                  <button
-                    key={`${s.type}-${s.text}-${i}`}
-                    type="button"
-                    className="search-page__suggest-item"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      handleSelectSuggestion(s);
-                    }}
-                  >
-                    <span className="search-page__suggest-type">{s.type === 'book' ? '📖' : s.type === 'author' ? '✍' : '🏷'}</span>
-                    <span className="search-page__suggest-text">{highlight(s.text, debouncedInput)}</span>
-                  </button>
-                ))}
+                {items.map((s, i) => {
+                  const globalIdx = Object.values(groupedSuggestions).flat().indexOf(s);
+                  return (
+                    <button
+                      key={`${s.type}-${s.text}-${i}`}
+                      type="button"
+                      className={`search-page__suggest-item ${globalIdx === activeSuggestionIndex ? 'is-active' : ''}`}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelectSuggestion(s);
+                      }}
+                      onMouseEnter={() => setActiveSuggestionIndex(globalIdx)}
+                    >
+                      <span className="search-page__suggest-type">{s.type === 'book' ? <NovelBookOpen size="sm" aria-hidden="true" /> : s.type === 'author' ? <SystemUser size="sm" aria-hidden="true" /> : <ContentTag size="sm" aria-hidden="true" />}</span>
+                      <span className="search-page__suggest-text">{highlight(s.text, debouncedInput)}</span>
+                    </button>
+                  );
+                })}
               </div>
             ))
           )}

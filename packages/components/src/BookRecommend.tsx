@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { type Book } from './BookCard.js';
+import { NovelMedal } from '@novel/icons';
 
 export interface RecommendBookItem {
   book: Book;
@@ -128,7 +129,7 @@ function RecommendCard({
       <div className="novel-recommend__name" title={book.title}>{book.title}</div>
       {book.rating != null ? (
         <div className="novel-recommend__rating" aria-label={`评分 ${book.rating}`}>
-          <span className="novel-recommend__star" aria-hidden>★</span>
+          <NovelMedal size="sm" aria-hidden="true" className="novel-recommend__star" />
           <span className="novel-recommend__rating-num">{book.rating.toFixed(1)}</span>
         </div>
       ) : null}

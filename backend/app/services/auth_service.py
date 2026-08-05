@@ -4,11 +4,11 @@
 登录失败锁定、会话管理走 Redis。
 """
 
-import logging
 import time
 from typing import TYPE_CHECKING
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -23,7 +23,7 @@ from app.schemas.enums import ALL_PERMISSIONS
 if TYPE_CHECKING:
     from app.api.deps import AdminContext
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _LOGIN_FAIL_LIMIT = 5
 _LOGIN_LOCK_TTL = 15 * 60  # 15 分钟
@@ -112,6 +112,7 @@ class AuthService:
         try:
             payload = decode_token(refresh_token)
         except Exception as err:
+            logger.warning("Token decode failed", exc_info=True)
             raise BizError(ErrorCode.TOKEN_EXPIRED, "refresh token 无效") from err
 
         if payload.get("type") != "refresh":

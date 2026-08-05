@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Skeleton, useAsyncState, useFeedback } from '@novel/components';
+import { StatusSuccess, StatusPending, NavigationBack, NovelCrown } from '@novel/icons';
 import { fetcher } from '@/api/fetcher';
 import type { PaymentMethodItem, UserProfile, VipPlan } from '@/api/types';
 import './VipPage.css';
@@ -73,7 +74,7 @@ export default function VipPage() {
   };
 
   return (
-    <div className="vip-page container-page">
+    <div className="vip-page container-page fade-in">
       {/* 返回 */}
       <button
         type="button"
@@ -81,7 +82,7 @@ export default function VipPage() {
         aria-label="返回上一页"
         onClick={() => navigate(-1)}
       >
-        <span aria-hidden>←</span>
+        <NavigationBack size="sm" aria-hidden="true" />
         <span>返回</span>
       </button>
 
@@ -105,13 +106,19 @@ export default function VipPage() {
       {/* 1. VIP 权益卡 */}
       <section className="vip-page__benefit" aria-label="VIP 权益">
         <h1 className="vip-page__benefit-title">
-          <span className="vip-page__benefit-star" aria-hidden>★</span>
+          <span className="vip-page__benefit-star" aria-hidden><NovelCrown size="sm" aria-hidden="true" /></span>
           <span>VIP 会员 尊享全站精品</span>
         </h1>
         <ul className="vip-page__benefit-list">
           {BENEFITS.map((b) => (
             <li key={b} className="vip-page__benefit-item">
-              <span className="vip-page__benefit-check" aria-hidden>✓</span>
+              {user?.isVip ? (
+                <StatusSuccess size="sm" className="vip-page__benefit-icon is-unlocked" aria-hidden="true" />
+              ) : (
+                <span className="vip-page__benefit-icon is-pending" aria-hidden>
+                  <StatusPending size="sm" />
+                </span>
+              )}
               <span>{b}</span>
             </li>
           ))}
@@ -152,6 +159,11 @@ export default function VipPage() {
                   {plan.recommended ? (
                     <span className="vip-page__plan-badge" aria-hidden>省最多</span>
                   ) : null}
+                  {plan.originalPrice > plan.pricePerMonth ? (
+                    <span className="vip-page__plan-save" aria-hidden>
+                      省 ¥{plan.originalPrice - plan.pricePerMonth}/月
+                    </span>
+                  ) : null}
                   <span className="vip-page__plan-name">{plan.name}</span>
                   <span className="vip-page__plan-price">
                     <span className="vip-page__plan-currency">¥</span>
@@ -168,7 +180,7 @@ export default function VipPage() {
                     <span className="vip-page__plan-expired-tag">已过期</span>
                   ) : null}
                   {selected && !expired ? (
-                    <span className="vip-page__plan-check" aria-hidden>✓</span>
+                    <span className="vip-page__plan-check" aria-hidden><StatusSuccess size="sm" aria-hidden="true" /></span>
                   ) : null}
                 </button>
               );

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="ebg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#F0F9FF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#DCE3FF;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#ebg3)"/>
+  <g transform="translate(45,35)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="55" cy="55" r="25"/>
+    <line x1="73" y1="73" x2="90" y2="90"/>
+    <line x1="30" y1="105" x2="80" y2="105"/>
+    <line x1="30" y1="115" x2="65" y2="115"/>
+  </g>
+  <text x="100" y="155" text-anchor="middle" font-family="system-ui" font-size="14" fill="currentColor" opacity="0.6">没有找到相关内容</text>
+</svg>

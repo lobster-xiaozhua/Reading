@@ -5,6 +5,7 @@
  * ============================================================ */
 
 import { useMemo } from 'react';
+import { NovelFire } from '@novel/icons';
 
 export interface TagCloudTag {
   id: string;
@@ -89,7 +90,7 @@ export function TagCloud({
                   onClick={onSelect ? () => onSelect(t) : undefined}
                   aria-label={`${t.name}，${t.count} 本`}
                 >
-                  {isHot ? <span className="novel-tagcloud__hot" aria-hidden>热</span> : null}
+                  {isHot ? <NovelFire size="xs" aria-hidden="true" className="novel-tagcloud__hot" /> : null}
                   <span className="novel-tagcloud__name">{t.name}</span>
                   <span className="novel-tagcloud__count">{t.count}</span>
                 </button>

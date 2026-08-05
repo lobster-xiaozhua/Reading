@@ -5,6 +5,7 @@
  * ============================================================ */
 import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { NovelChapterLock, NavigationBack } from '@novel/icons';
 import { EmptyState, useAsyncState, type UseAsyncStateReturn } from '@novel/components';
 import { fetcher } from '@/api/fetcher';
 import type { Badge, HeatmapCell, PreferenceItem, ReadingStatOverview } from '@/api/types';
@@ -156,8 +157,20 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
     return labels;
   }, [weeks]);
 
+  const DAY_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
+
   const handleEnter = (e: ReactMouseEvent<HTMLDivElement>, cell: HeatmapCell) => {
-    setTip({ date: cell.date, duration: cell.duration, x: e.clientX, y: e.clientY });
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    let x = rect.left + rect.width / 2;
+    let y = rect.top;
+    const vw = window.innerWidth;
+    const tipW = 160;
+    const tipH = 40;
+    if (x + tipW / 2 > vw) x = vw - tipW / 2;
+    if (x - tipW / 2 < 0) x = tipW / 2;
+    if (y - tipH - 8 < 0) y = rect.bottom + tipH + 8;
+    setTip({ date: cell.date, duration: cell.duration, x, y });
   };
   const handleLeave = () => setTip(null);
 
@@ -182,24 +195,31 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
                 </span>
               ))}
             </div>
-            <div className="reading-stats-page__heat-weeks">
-              {weeks.map((week, wi) => (
-                <div key={wi} className="reading-stats-page__heat-week" role="row">
-                  {week.map((cell) => {
-                    const lv = heatLevel(cell.duration);
-                    return (
-                      <div
-                        key={cell.date}
-                        className={`reading-stats-page__heat-cell reading-stats-page__heat-cell--l${lv}`}
-                        role="gridcell"
-                        aria-label={`${cell.date} · 阅读 ${cell.duration} 分钟`}
-                        onMouseEnter={(e) => handleEnter(e, cell)}
-                        onMouseLeave={handleLeave}
-                      />
-                    );
-                  })}
-                </div>
-              ))}
+            <div className="reading-stats-page__heat-body">
+              <div className="reading-stats-page__heat-day-labels" aria-hidden="true">
+                {DAY_LABELS.map((d) => (
+                  <span key={d} className="reading-stats-page__heat-day-label">{d}</span>
+                ))}
+              </div>
+              <div className="reading-stats-page__heat-weeks">
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="reading-stats-page__heat-week" role="row">
+                    {week.map((cell) => {
+                      const lv = heatLevel(cell.duration);
+                      return (
+                        <div
+                          key={cell.date}
+                          className={`reading-stats-page__heat-cell reading-stats-page__heat-cell--l${lv}`}
+                          role="gridcell"
+                          aria-label={`${cell.date} · 阅读 ${cell.duration} 分钟`}
+                          onMouseEnter={(e) => handleEnter(e, cell)}
+                          onMouseLeave={handleLeave}
+                        />
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="reading-stats-page__heat-legend" aria-hidden="true">
               <span className="reading-stats-page__heat-legend-text">少</span>
@@ -381,7 +401,7 @@ function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
                   aria-label={`${b.name}：${b.desc}${b.unlocked ? '（已解锁）' : '（未解锁）'}`}
                 >
                   <span className="reading-stats-page__badge-icon" aria-hidden="true">
-                    {b.unlocked ? b.icon : '🔒'}
+                    {b.unlocked ? b.icon : <NovelChapterLock size="sm" aria-hidden="true" />}
                   </span>
                   <span className="reading-stats-page__badge-name">{b.name}</span>
                 </button>
@@ -445,12 +465,10 @@ export default function ReadingStatsPage() {
   };
 
   return (
-    <div className="reading-stats-page container-page">
+    <div className="reading-stats-page container-page fade-in">
       <header className="reading-stats-page__header">
         <Link to="/profile" className="reading-stats-page__back" aria-label="返回个人中心">
-          <span className="reading-stats-page__back-icon" aria-hidden="true">
-            ‹
-          </span>
+          <NavigationBack size="sm" aria-hidden="true" />
           <span>返回</span>
         </Link>
         <h1 className="reading-stats-page__title">阅读统计</h1>

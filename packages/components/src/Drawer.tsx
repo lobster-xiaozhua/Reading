@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { NavigationClose } from '@novel/icons';
 
 export type DrawerPlacement = 'left' | 'right';
 
@@ -21,11 +22,7 @@ export interface DrawerProps {
   children?: ReactNode;
 }
 
-const CloseIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-    <path d="M6 6l12 12M18 6L6 18" />
-  </svg>
-);
+
 
 export function Drawer({
   open,
@@ -105,7 +102,7 @@ export function Drawer({
             <div className="novel-drawer__title">{title}</div>
             {closable ? (
               <button type="button" className="novel-drawer__close" onClick={onClose} aria-label="关闭">
-                <CloseIcon />
+                <NavigationClose size="sm" aria-hidden="true" />
               </button>
             ) : null}
           </div>

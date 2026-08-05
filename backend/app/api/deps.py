@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 from typing import cast
 
 import redis.asyncio as redis
+import structlog
 from fastapi import Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -58,6 +59,8 @@ async def get_current_admin(
     try:
         payload = decode_token(token)
     except Exception as err:
+        logger = structlog.get_logger("api.deps")
+        logger.warning("Token decode failed", exc_info=True)
         raise UnauthorizedError("Token 无效或已过期") from err
 
     if payload.get("type") != "access":
@@ -98,6 +101,8 @@ async def get_current_reader(
     try:
         payload = decode_token(token)
     except Exception as err:
+        logger = structlog.get_logger("api.deps")
+        logger.warning("Token decode failed", exc_info=True)
         raise UnauthorizedError("Token 无效或已过期") from err
 
     if payload.get("type") != "access":

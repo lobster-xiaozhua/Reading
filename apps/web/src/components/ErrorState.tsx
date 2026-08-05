@@ -20,22 +20,7 @@ export function ErrorState({
 }: ErrorStateProps) {
   return (
     <div className="error-state" role="alert">
-      <svg
-        className="error-state__icon"
-        viewBox="0 0 120 120"
-        width="96"
-        height="96"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        aria-hidden
-      >
-        <circle cx="60" cy="54" r="30" />
-        <path d="M60 42v18" />
-        <path d="M60 70h.01" />
-        <path d="M46 98h28" opacity="0.6" />
-      </svg>
+      <img src="/src/assets/illustrations/error-state.svg" alt="" width="120" height="120" aria-hidden="true" />
       <h3 className="error-state__title">{title}</h3>
       {description ? <p className="error-state__desc">{description}</p> : null}
       {onRetry ? (

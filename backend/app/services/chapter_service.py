@@ -4,9 +4,9 @@
 已发布章节删除需标题匹配（对齐前端 mock）。
 """
 
-import logging
 import time
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
@@ -22,9 +22,10 @@ from app.schemas.b_end import (
     ChapterUpdateBody,
 )
 from app.schemas.common import BatchOperateResult
+from app.utils.batch import batch_execute
 from app.utils.state_machine import ChapterStateMachine
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ChapterService:
@@ -179,22 +180,20 @@ class ChapterService:
         Returns:
             批量操作结果。
         """
-        failed: list[dict] = []
-        success_count = 0
-        for cid in body.ids:
-            try:
-                chapter = await self._get_chapter(cid)
-                target_map = {"submit": "pending", "publish": "published"}
-                target = target_map.get(body.action)
-                if not target:
-                    raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {body.action}")
-                ChapterStateMachine.assert_transition(chapter.status, target)
-                chapter.status = target
-                if target == "published":
-                    chapter.published_at = int(time.time() * 1000)
-                success_count += 1
-            except BizError as e:
-                failed.append({"id": cid, "reason": e.message})
+        async def _process_chapter(cid: int) -> None:
+            chapter = await self._get_chapter(cid)
+            target_map = {"submit": "pending", "publish": "published"}
+            target = target_map.get(body.action)
+            if not target:
+                raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {body.action}")
+            ChapterStateMachine.assert_transition(chapter.status, target)
+            chapter.status = target
+            if target == "published":
+                chapter.published_at = int(time.time() * 1000)
+
+        success_count, failed = await batch_execute(
+            body.ids, _process_chapter, logger_name="chapter_service.batch_operate"
+        )
         await self.session.commit()
         return BatchOperateResult(
             success=len(failed) == 0,

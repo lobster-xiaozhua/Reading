@@ -4,11 +4,11 @@
 词库版本号自增，扫描走 DFA Trie 树。
 """
 
-import logging
 import time
 from datetime import date
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.audit_repo import SensitiveWordRepository
@@ -21,7 +21,7 @@ from app.schemas.b_end import (
 )
 from app.utils.sensitive_trie import SensitiveTrie
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # 进程级 Trie 单例（随词库版本刷新）
 _trie: SensitiveTrie | None = None
@@ -112,7 +112,6 @@ class SensitiveService:
         Returns:
             敏感词命中列表。
         """
-        """扫描文本返回敏感词命中列表。"""
         trie = await self._get_trie()
         hits = trie.scan(text)
         return [

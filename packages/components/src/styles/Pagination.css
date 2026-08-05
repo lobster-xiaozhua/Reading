@@ -45,9 +45,12 @@
   background: var(--color-brand-bg);
 }
 .novel-pagination__item:focus-visible {
-  outline: none;
-  border-color: var(--color-border-focus);
-  box-shadow: var(--sh-1);
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.novel-pagination__item:active:not(:disabled) {
+  transform: scale(0.95);
 }
 .novel-pagination__item.is-active {
   background: var(--color-brand);

@@ -19,11 +19,14 @@ import { AtlasAdminProvider } from './theme/AtlasAdminProvider';
 import { router } from './router';
 import { queryClient } from './api/queryClient';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { initErrorMonitor } from './utils/error-monitor';
 import './i18n';
 import './styles/global.css';
 
 // P0-16 dayjs 中文 locale
 dayjs.locale('zh-cn');
+// 全局错误监听
+initErrorMonitor();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

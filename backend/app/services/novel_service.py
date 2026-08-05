@@ -4,9 +4,9 @@
 状态转换走 ``NovelStateMachine`` 校验。
 """
 
-import logging
 import time
 
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
@@ -21,9 +21,10 @@ from app.schemas.b_end import (
 )
 from app.schemas.common import BatchOperateResult
 from app.services._converters import novel_to_b_detail
+from app.utils.batch import batch_execute
 from app.utils.state_machine import NovelStateMachine
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class NovelService:
@@ -137,18 +138,12 @@ class NovelService:
         if not handler:
             raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {action}")
 
-        failed: list[dict] = []
-        success_count = 0
-        for nid in ids:
-            try:
-                await handler(nid, reason=reason, comment=comment)
-                success_count += 1
-            except BizError as e:
-                failed.append({"id": nid, "reason": e.message})
-            except Exception as e:
-                logger.exception("批量操作异常 novel_id=%s", nid)
-                failed.append({"id": nid, "reason": str(e)})
+        async def _run(nid: int) -> None:
+            await handler(nid, reason=reason, comment=comment)
 
+        _, failed = await batch_execute(
+            ids, _run, logger_name="novel_service.batch_operate"
+        )
         await self.session.commit()
         return BatchOperateResponse(success=len(failed) == 0, failed=failed or None)
 
@@ -228,7 +223,6 @@ class NovelService:
         Returns:
             批量操作结果（含影响数量）。
         """
-        """返回通用批量操作结果（含 affected 计数）。"""
         resp = await self.batch_operate(ids, action, reason, comment)
         affected = len(ids) - (len(resp.failed) if resp.failed else 0)
         return BatchOperateResult(success=resp.success, affected=affected, failed=resp.failed)

@@ -1,13 +1,14 @@
 """Redis 缓存工具函数，消除服务层重复的 _cache_set 实现。"""
 
 import json
-import logging
 from typing import TYPE_CHECKING
+
+import structlog
 
 if TYPE_CHECKING:
     pass
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 async def cache_set(

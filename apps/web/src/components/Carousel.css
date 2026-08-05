@@ -41,13 +41,13 @@
   font-family: var(--font-serif);
   font-size: 28px;
   font-weight: 600;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 2px 8px var(--color-overlay-strong);
 }
 .novel-carousel__subtitle {
   margin: var(--space-2) 0 0;
   font-size: 14px;
   opacity: 0.9;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 1px 4px var(--color-overlay-strong);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

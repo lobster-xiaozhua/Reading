@@ -38,6 +38,14 @@
   width: 100%;
   text-align: left;
 }
+.novel-dropdown__item:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
+}
+.novel-dropdown__item:active {
+  background: var(--color-bg-subtle);
+}
 .novel-dropdown__item:hover:not(.is-disabled) {
   background: var(--color-bg-subtle);
 }

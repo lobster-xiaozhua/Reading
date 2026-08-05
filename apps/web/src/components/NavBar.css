@@ -104,10 +104,17 @@
   color: var(--color-text-inverse);
   font-size: 14px;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard);
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .novel-navbar__search-btn:hover {
   background: var(--color-brand-hover);
+}
+.novel-navbar__search-btn:active {
+  transform: scale(0.95);
+}
+.novel-navbar__search-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .novel-navbar__user {
@@ -132,12 +139,18 @@
   color: var(--color-text-primary);
   font-size: 14px;
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 .novel-navbar__login-btn:hover {
   border-color: var(--color-brand);
   color: var(--color-brand);
+}
+.novel-navbar__login-btn:active {
+  transform: scale(0.95);
+}
+.novel-navbar__login-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* 响应式：H5 隐藏用户名与搜索框文案 */

@@ -4,6 +4,7 @@
  * ============================================================ */
 
 import { useMemo, type ReactNode } from 'react';
+import { NavigationChevronLeft, NavigationChevronRight } from '@novel/icons';
 
 export interface PaginationProps {
   /** 当前页（1-based） */
@@ -21,16 +22,7 @@ export interface PaginationProps {
   onChange?: (page: number) => void;
 }
 
-const ChevronLeft = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M15 6l-6 6 6 6" />
-  </svg>
-);
-const ChevronRight = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d="M9 6l6 6-6 6" />
-  </svg>
-);
+
 
 /** 计算需要显示的页码：用 -1 表示省略号 */
 function range(current: number, total: number, siblings: number): number[] {
@@ -109,7 +101,7 @@ export function Pagination({
             disabled={prevDisabled}
             aria-label="上一页"
           >
-            <ChevronLeft />
+            <NavigationChevronLeft size="sm" aria-hidden="true" />
           </button>
         </li>
         {pages.map((p, i) => renderItem(p, i))}
@@ -121,7 +113,7 @@ export function Pagination({
             disabled={nextDisabled}
             aria-label="下一页"
           >
-            <ChevronRight />
+            <NavigationChevronRight size="sm" aria-hidden="true" />
           </button>
         </li>
       </ul>

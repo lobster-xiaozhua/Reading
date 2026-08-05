@@ -34,10 +34,7 @@
   color: var(--color-brand);
   background: var(--color-bg-subtle);
 }
-.reading-stats-page__back-icon {
-  font-size: var(--font-size-h3);
-  line-height: 1;
-}
+
 .reading-stats-page__title {
   margin: 0;
   font-family: var(--font-serif);
@@ -122,6 +119,26 @@
   width: 11px;
   overflow: visible;
   white-space: nowrap;
+  font-size: var(--font-size-overline);
+  line-height: 1;
+  color: var(--color-text-tertiary);
+}
+.reading-stats-page__heat-body {
+  display: flex;
+  gap: var(--space-2);
+}
+.reading-stats-page__heat-day-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: var(--space-3);
+}
+.reading-stats-page__heat-day-label {
+  width: 11px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: var(--font-size-overline);
   line-height: 1;
   color: var(--color-text-tertiary);
@@ -436,6 +453,10 @@
 }
 .reading-stats-page__retry:hover {
   opacity: 0.9;
+}
+.reading-stats-page__retry:active {
+  opacity: 0.8;
+  transform: scale(0.97);
 }
 .reading-stats-page__retry--sm {
   padding: var(--space-1) var(--space-3);

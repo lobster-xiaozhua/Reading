@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, Space, Table, Tag, Typography, Input, App, Modal, Select } from 'antd';
+import { Button, Card, Space, Table, Tag, Input, App, Modal, Select } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { SearchOutlined, ReloadOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useAuthStore } from '@/stores/authStore';
 import { http } from '@/api/http';
+import { BPageHeader } from '@novel/b-end';
 
-const { Title } = Typography;
 const { confirm } = Modal;
 
 interface UserItem {
@@ -114,7 +114,7 @@ export default function UserListPage() {
 
   return (
     <div>
-      <Title level={2} style={{ marginBottom: 'var(--space-4)' }}>{t('user:title')}</Title>
+      <BPageHeader title={t('user:title')} />
       <Card>
         <Space style={{ marginBottom: 'var(--space-4)', width: '100%', justifyContent: 'space-between' }}>
           <Space>

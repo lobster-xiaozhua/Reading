@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Skeleton } from 'antd';
 import { DashboardTemplate } from '@/templates/DashboardTemplate';
 import type { DashboardStatus, KpiItem, OverviewSection, QuickAction } from '@/templates/DashboardTemplate';
 import { BLineChart } from '@novel/b-end';
 import { fetcher } from '@/api/fetcher';
 import { fetchWorkbenchTrend, type TrendRange, type WorkbenchTrendItem } from '@/api/chart-api';
+import './WorkbenchPage.css';
 
 export default function WorkbenchPage() {
   const { t } = useTranslation();
@@ -14,6 +16,7 @@ export default function WorkbenchPage() {
   const [kpis, setKpis] = useState<KpiItem[]>([]);
   const [overviews, setOverviews] = useState<OverviewSection[]>([]);
   const [todoCount, setTodoCount] = useState(0);
+  const [chartLoading, setChartLoading] = useState(true);
   const [trendRange, setTrendRange] = useState<TrendRange>(30);
   const [trendData, setTrendData] = useState<WorkbenchTrendItem[]>([]);
   const [trendMetric, setTrendMetric] = useState<'newNovels' | 'newReaders' | 'monthlyTickets'>('newReaders');
@@ -59,8 +62,13 @@ export default function WorkbenchPage() {
   }, [t]);
 
   const loadTrend = useCallback(async (range: TrendRange) => {
-    const data = await fetchWorkbenchTrend(range);
-    setTrendData(data);
+    setChartLoading(true);
+    try {
+      const data = await fetchWorkbenchTrend(range);
+      setTrendData(data);
+    } finally {
+      setChartLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -81,39 +89,39 @@ export default function WorkbenchPage() {
   };
 
   const chart = (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-2)' }}>
-        <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-body, 14px)' }}>
+    <div className="wp-chart-wrapper">
+      <div className="wp-chart-header">
+        <span className="wp-chart-title">
           {metricLabel[trendMetric]}{t('workbench:trend')}
         </span>
-        <div style={{ display: 'flex', gap: 'var(--space-1)' }}>
+        <div className="wp-metric-group">
           {(['newNovels', 'newReaders', 'monthlyTickets'] as const).map((m) => (
             <button
               key={m}
               onClick={() => setTrendMetric(m)}
-              style={{
-                padding: '4px 12px',
-                fontSize: 12,
-                border: `1px solid ${trendMetric === m ? 'var(--color-brand)' : 'var(--color-border)'}`,
-                borderRadius: 'var(--radius-sm, 4px)',
-                background: trendMetric === m ? 'var(--color-brand-bg)' : 'transparent',
-                color: trendMetric === m ? 'var(--color-brand)' : 'var(--color-text-secondary)',
-                cursor: 'pointer',
-              }}
+              className={`wp-metric-btn${trendMetric === m ? ' wp-metric-btn--active' : ''}`}
+              aria-label={metricLabel[m]}
+              aria-pressed={trendMetric === m}
             >
               {metricLabel[m]}
             </button>
           ))}
         </div>
       </div>
-      <BLineChart
-        data={trendData as unknown as Record<string, unknown>[]}
-        xField="date"
-        yField={trendMetric}
-        height={300}
-        smooth
-        showLegend={false}
-      />
+      {chartLoading ? (
+        <Skeleton active paragraph={{ rows: 6 }} style={{ padding: 'var(--space-4)' }} />
+      ) : (
+        <div className="wp-chart-fade-in">
+          <BLineChart
+            data={trendData as unknown as Record<string, unknown>[]}
+            xField="date"
+            yField={trendMetric}
+            height={300}
+            smooth
+            showLegend={false}
+          />
+        </div>
+      )}
     </div>
   );
 

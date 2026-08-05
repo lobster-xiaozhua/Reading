@@ -32,6 +32,7 @@ import {
   REJECT_REASON_OPTIONS,
 } from '@/api/audit-api';
 import type { AuditItem, AuditHistoryEntry, SensitiveHit } from '@/api/audit-api';
+import './AuditWorkbenchPage.css';
 
 const { TextArea } = Input;
 
@@ -53,6 +54,8 @@ export default function AuditWorkbenchPage() {
   const [submitting, setSubmitting] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [todayProcessed, setTodayProcessed] = useState(0);
+  const [contentExpanded, setContentExpanded] = useState(false);
+  const [fadingOutId, setFadingOutId] = useState<string | null>(null);
 
   const contentRef = useRef<HTMLDivElement>(null);
   const hitRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
@@ -113,6 +116,10 @@ export default function AuditWorkbenchPage() {
       }
     }
     setSubmitting(true);
+    setFadingOutId(currentItem.id);
+    const actionText = result === 'approve' ? t('audit:resultLabel.approved') : result === 'revise' ? t('audit:resultLabel.revise') : t('audit:resultLabel.rejected');
+    message.success(t('audit:message.completed', { action: actionText }));
+    await new Promise((r) => setTimeout(r, 300));
     try {
       const res = await submitAudit({
         ids: [currentItem.id],
@@ -120,8 +127,6 @@ export default function AuditWorkbenchPage() {
         comment: comment.trim(),
         rejectReason: result === 'reject' ? rejectReason : undefined,
       });
-      const actionText = result === 'approve' ? t('audit:resultLabel.approved') : result === 'revise' ? t('audit:resultLabel.revise') : t('audit:resultLabel.rejected');
-      message.success(t('audit:message.completed', { action: actionText }));
       setComment('');
       setRejectReason(undefined);
       if (res.nextId) {
@@ -130,6 +135,7 @@ export default function AuditWorkbenchPage() {
       loadData();
     } finally {
       setSubmitting(false);
+      setFadingOutId(null);
     }
   };
 
@@ -163,19 +169,19 @@ export default function AuditWorkbenchPage() {
         extra={
           <Space size="large">
             <Badge count={pendingCount} overflowCount={99} offset={[0, 0]}>
-              <span style={{ color: 'var(--color-text-secondary)' }}>{t('audit:stats.pending')}</span>
+              <span className="awb-text-secondary">{t('audit:stats.pending')}</span>
             </Badge>
-            <span style={{ color: 'var(--color-text-secondary)' }}>
-              {t('audit:stats.todayProcessed')}<strong style={{ fontFamily: 'var(--font-mono)' }}>{todayProcessed}</strong> {t('audit:stats.unit')}
+            <span className="awb-text-secondary">
+              {t('audit:stats.todayProcessed')}<strong className="awb-text-mono">{todayProcessed}</strong> {t('audit:stats.unit')}
             </span>
           </Space>
         }
       />
 
       {status === 'error' ? (
-        <Result status="error" title={t('common:loading')} subTitle={t('common:empty')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
+        <Result status="error" title={t('common:loadError')} subTitle={t('common:retryDesc')} extra={<Button type="primary" onClick={loadData}>{t('common:retry')}</Button>} />
       ) : (
-        <div style={{ display: 'flex', gap: 'var(--space-4)', minHeight: 600 }}>
+        <div className="awb-layout">
           <Card
             title={t('audit:leftPanel')}
             extra={
@@ -186,13 +192,13 @@ export default function AuditWorkbenchPage() {
                 style={{ width: 120 }}
               />
             }
-            style={{ width: '40%', overflow: 'auto' }}
+            className="awb-sidebar"
             styles={{ body: { padding: 0 } }}
           >
             {status === 'loading' ? (
               <Skeleton active paragraph={{ rows: 6 }} />
             ) : queue.length === 0 ? (
-              <Empty description={t('audit:empty')} style={{ padding: 'var(--space-8)' }} />
+              <Empty description={t('audit:empty')} className="awb-empty" />
             ) : (
               <List
                 dataSource={queue}
@@ -203,26 +209,20 @@ export default function AuditWorkbenchPage() {
                   return (
                     <List.Item
                       onClick={() => setSelectedId(item.id)}
-                      style={{
-                        cursor: 'pointer',
-                        padding: 'var(--space-3) var(--space-4)',
-                        background: isSelected ? 'var(--color-brand-bg)' : undefined,
-                        borderLeft: isSelected ? `3px solid var(--color-brand)` : '3px solid transparent',
-                        transition: 'background var(--dur-fast) var(--ease-out)',
-                      }}
+                      className={`awb-item${isSelected ? ' awb-item--selected' : ''}${fadingOutId === item.id ? ' awb-item--fade-out' : ''}`}
                     >
-                      <div style={{ width: '100%' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-1)' }}>
-                          <strong style={{ fontSize: 'var(--font-size-body, 14px)' }}>{item.chapterTitle}</strong>
+                      <div className="awb-item__inner">
+                        <div className="awb-item__header">
+                          <strong className="awb-item__title">{item.chapterTitle}</strong>
                           <Tag color={levelCfg.color}>{levelCfg.text}</Tag>
                         </div>
-                        <div style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                        <div className="awb-item__meta">
                           《{item.novelTitle}》 · {item.author}
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 'var(--space-1)', color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                        <div className="awb-item__footer">
                           <span>{item.wordCount.toLocaleString()} {t('audit:wordSuffix')}</span>
                           {item.sensitiveHits.length > 0 && (
-                            <span style={{ color: 'var(--color-feedback-error)' }}>
+                            <span className="awb-item__sensitive-hint">
                               {t('audit:sensitiveHit', { count: item.sensitiveHits.length })}
                             </span>
                           )}
@@ -235,12 +235,12 @@ export default function AuditWorkbenchPage() {
             )}
           </Card>
 
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div className="awb-content-area">
             {status === 'loading' ? (
               <Card><Skeleton active paragraph={{ rows: 8 }} /></Card>
             ) : !currentItem ? (
               <Card>
-                <Empty description={t('audit:emptySelect')} style={{ padding: 'var(--space-8)' }} />
+                <Empty description={t('audit:emptySelect')} className="awb-empty" />
               </Card>
             ) : (
               <>
@@ -248,7 +248,7 @@ export default function AuditWorkbenchPage() {
                   title={
                     <Space>
                       <span>{currentItem.chapterTitle}</span>
-                      <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)', fontWeight: 'normal' }}>
+                      <span className="awb-subtitle">
                         《{currentItem.novelTitle}》 · {currentItem.author} · {currentItem.wordCount.toLocaleString()} {t('audit:wordSuffix')}
                       </span>
                     </Space>
@@ -256,8 +256,8 @@ export default function AuditWorkbenchPage() {
                   extra={<Tag color={AUDIT_LEVEL_LABEL[currentItem.level].color}>{AUDIT_LEVEL_LABEL[currentItem.level].text}</Tag>}
                 >
                   {currentItem.sensitiveHits.length > 0 && (
-                    <div style={{ marginBottom: 'var(--space-3)', padding: 'var(--space-3)', background: 'var(--color-feedback-error-bg)', borderRadius: 'var(--radius-md, 8px)' }}>
-                      <div style={{ marginBottom: 'var(--space-2)', color: 'var(--color-feedback-error)', fontWeight: 600 }}>
+                    <div className="awb-sensitive-box">
+                      <div className="awb-sensitive-box__title">
                         {t('audit:sensitiveTitle', { count: currentItem.sensitiveHits.length })}
                       </div>
                       <Space wrap>
@@ -266,13 +266,17 @@ export default function AuditWorkbenchPage() {
                           return (
                             <Tooltip key={idx} title={`${cfg.label}：${hit.suggestion}`}>
                               <Tag
+                                className="awb-sensitive-tag"
                                 style={{
                                   color: cfg.color,
                                   background: cfg.bg,
                                   borderColor: cfg.color,
-                                  cursor: 'pointer',
                                 }}
                                 onClick={() => handleSensitiveClick(hit)}
+                                role="button"
+                                tabIndex={0}
+                                aria-label={`${t('audit:sensitiveTitle', { count: 1 })}: ${hit.text}`}
+                                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSensitiveClick(hit); }}
                               >
                                 {hit.text} · {cfg.label}
                               </Tag>
@@ -285,15 +289,7 @@ export default function AuditWorkbenchPage() {
 
                   <div
                     ref={contentRef}
-                    style={{
-                      background: 'var(--color-bg-subtle)',
-                      borderRadius: 'var(--radius-md, 8px)',
-                      padding: 'var(--space-4)',
-                      maxHeight: 360,
-                      overflowY: 'auto',
-                      lineHeight: 1.8,
-                      fontSize: 'var(--font-size-body, 14px)',
-                    }}
+                    className={`awb-content-viewer${contentExpanded ? ' awb-content-viewer--expanded' : ''}`}
                   >
                     {segments.map((seg, idx) =>
                       seg.isHit && seg.hit ? (
@@ -302,14 +298,10 @@ export default function AuditWorkbenchPage() {
                             ref={(el) => {
                               if (el) hitRefs.current.set(seg.hit!.text + seg.hit!.offset, el);
                             }}
+                            className="awb-sensitive-highlight"
                             style={{
                               background: SENSITIVE_LEVEL_CONFIG[seg.hit.level].bg,
                               color: SENSITIVE_LEVEL_CONFIG[seg.hit.level].color,
-                              textDecoration: 'underline',
-                              textDecorationStyle: 'wavy',
-                              cursor: 'pointer',
-                              borderRadius: 'var(--radius-xs, 2px)',
-                              padding: '0 2px',
                             }}
                           >
                             {seg.text}
@@ -320,6 +312,16 @@ export default function AuditWorkbenchPage() {
                       ),
                     )}
                   </div>
+                  {!contentExpanded && (
+                    <button className="awb-expand-btn" onClick={() => setContentExpanded(true)}>
+                      {t('audit:expandContent')}
+                    </button>
+                  )}
+                  {contentExpanded && (
+                    <button className="awb-expand-btn" onClick={() => setContentExpanded(false)}>
+                      {t('audit:collapseContent')}
+                    </button>
+                  )}
                 </Card>
 
                 {history.length > 0 && (
@@ -329,16 +331,16 @@ export default function AuditWorkbenchPage() {
                         color: h.result === 'approve' ? 'green' : h.result === 'reject' ? 'red' : 'blue',
                         children: (
                           <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                            <div className="awb-history-row">
                               <Tag color={h.result === 'approve' ? 'success' : h.result === 'reject' ? 'error' : 'processing'}>
                                 {h.result === 'approve' ? t('audit:resultLabel.approved') : h.result === 'reject' ? t('audit:resultLabel.rejected') : t('audit:resultLabel.revise')}
                               </Tag>
-                              <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                              <span className="awb-history-meta">
                                 {h.operator} · {h.time}
                               </span>
                             </div>
                             {h.comment && (
-                              <p style={{ marginTop: 'var(--space-1)' }}>{h.comment}</p>
+                              <p className="awb-history-comment">{h.comment}</p>
                             )}
                           </div>
                         ),
@@ -348,9 +350,9 @@ export default function AuditWorkbenchPage() {
                 )}
 
                 <Card title={t('audit:operation.title')}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                      <label style={{ color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>{t('audit:operation.rejectReasonLabel')}</label>
+                  <div className="awb-operation-panel">
+                    <div className="awb-operation-row">
+                      <label className="awb-operation-label">{t('audit:operation.rejectReasonLabel')}</label>
                       <Select
                         value={rejectReason}
                         onChange={setRejectReason}

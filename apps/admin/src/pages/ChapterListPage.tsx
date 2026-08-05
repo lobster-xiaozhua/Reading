@@ -30,6 +30,7 @@ import {
   MoreOutlined,
   SaveOutlined,
   CloseOutlined,
+  FormOutlined,
 } from '@ant-design/icons';
 import {
   DndContext,
@@ -169,9 +170,10 @@ function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: str
     <Tooltip title={t('chapter:editTitleTooltip')}>
       <span
         onDoubleClick={() => setEditing(true)}
-        style={{ cursor: 'pointer', color: 'var(--color-text-primary)' }}
+        style={{ cursor: 'pointer', color: 'var(--color-text-primary)', display: 'inline-flex', alignItems: 'center', gap: 'var(--space-1)' }}
       >
         {value}
+        <FormOutlined style={{ fontSize: 12, color: 'var(--color-text-tertiary)', opacity: 0, transition: 'opacity 0.2s' }} className="b-chapter-edit-icon" />
       </span>
     </Tooltip>
   );
@@ -518,7 +520,6 @@ export default function ChapterListPage() {
         onBack={() => navigate(`/novel/${novelId}`)}
         extra={
           <Space>
-            {stats}
             {canCreate && (
               <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
                 {t('chapter:action.newChapter')}
@@ -527,6 +528,10 @@ export default function ChapterListPage() {
           </Space>
         }
       />
+
+      <div style={{ marginBottom: 'var(--space-3)' }}>
+        {stats}
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-3)', gap: 'var(--space-3)' }}>
         <Space>

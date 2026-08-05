@@ -487,6 +487,7 @@ export const FOLLOW_LIST: FollowItem[] = BOOKS.slice(0, 12).map((book, i) => {
     bookId: book.id,
     cover: book.cover,
     title: book.title,
+    author: book.author,
     latestChapterTitle: latest?.title ?? '暂无章节',
     latestTime: now - i * 4 * 3600 * 1000,
     status,

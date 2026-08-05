@@ -29,6 +29,8 @@ export default {
     deleteConfirm: '确认删除选中作品？',
     deleteWarningDetail: '删除后作品及其章节将无法恢复，此操作不可撤销。',
     total: '共 {count} 条',
+    loadError: '加载失败',
+    retryDesc: '数据加载出错，请检查网络后重试',
   },
   menu: {
     workbench: '工作台',
@@ -387,6 +389,8 @@ export default {
       commentTooShort: '驳回时审核意见需 ≥10 字',
       completed: '已{action}，通知将下发给作者',
     },
+    expandContent: '展开全文',
+    collapseContent: '收起全文',
   },
   charts: {
     title: '数据可视化看板',
@@ -611,7 +615,10 @@ export default {
     message: {
       success: '登录成功',
       failed: '登录失败，请检查用户名和密码',
+      authFailed: '认证失败，请检查用户名和密码',
+      networkError: '网络连接失败，请检查网络后重试',
     },
+    fill: '一键填充',
   },
   error: {
     loginFailed: '登录失败，请检查用户名和密码',

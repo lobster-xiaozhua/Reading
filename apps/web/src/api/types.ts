@@ -95,6 +95,7 @@ export interface UserProfile {
   id: string;
   nickname: string;
   avatar: string;
+  bio?: string;
   level: number;
   isVip: boolean;
   vipExpireAt?: number;
@@ -280,6 +281,7 @@ export interface FollowItem {
   bookId: string;
   cover: string;
   title: string;
+  author?: string;
   latestChapterTitle: string;
   latestTime: number;
   status: FollowStatus;

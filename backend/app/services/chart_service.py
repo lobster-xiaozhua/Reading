@@ -3,11 +3,11 @@
 提供工作台趋势、字数增长、阅读热力图、阅读漏斗、排行趋势、分类分布。
 """
 
-import logging
 import time
 from collections import defaultdict
 from datetime import date, timedelta
 
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,7 +24,7 @@ from app.schemas.chart import (
 )
 from app.schemas.enums import BOOK_CATEGORY_LABELS
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ChartService:
@@ -154,7 +154,6 @@ class ChartService:
         Returns:
             排行趋势数据点。
         """
-        """排行趋势（基于点击量近期增长，简化实现）。"""
         novels = await self._get_top_novels(10)
         return [
             TrendPoint(date=date.today().isoformat(), value=int(n.click_count))

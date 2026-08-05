@@ -1,0 +1,120 @@
+/* ============================================================
+ * PermissionPage 样式
+ * BEM 命名: pp = Permission Page
+ * ============================================================ */
+
+/* Layout */
+.pp-layout {
+  display: flex;
+  gap: var(--space-4);
+  min-height: 600px;
+}
+
+.pp-sidebar {
+  width: 30%;
+}
+
+.pp-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* List items */
+.pp-item {
+  cursor: pointer;
+  padding: var(--space-3) var(--space-4);
+  transition: background var(--dur-fast) var(--ease-out);
+  border-left: 3px solid transparent;
+}
+
+.pp-item--selected {
+  background: var(--color-brand-bg);
+  border-left-color: var(--color-brand);
+}
+
+.pp-item__inner {
+  width: 100%;
+}
+
+.pp-item__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-1);
+}
+
+.pp-item__meta {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+.pp-item__description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+.pp-item__footer {
+  margin-top: var(--space-1);
+}
+
+.pp-item__permission-count {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption, 13px);
+}
+
+/* Tree node */
+.pp-tree-node__title {
+  font-weight: 600;
+}
+
+.pp-tree-node__count {
+  color: var(--color-text-tertiary);
+  font-weight: normal;
+  margin-left: var(--space-2);
+}
+
+.pp-tree-node__tag {
+  font-size: var(--font-size-caption, 12px);
+}
+
+/* Subtitle */
+.pp-subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+  font-weight: normal;
+}
+
+/* Info panel */
+.pp-info-panel {
+  width: 100%;
+}
+
+/* Hint boxes */
+.pp-hint-warning {
+  padding: var(--space-3);
+  background: var(--color-feedback-warning-bg);
+  border-radius: var(--radius-md, 8px);
+  margin-bottom: var(--space-3);
+  color: var(--color-feedback-warning);
+}
+
+.pp-hint-info {
+  padding: var(--space-3);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md, 8px);
+  margin-bottom: var(--space-3);
+  color: var(--color-text-secondary);
+}
+
+/* Empty state */
+.pp-empty {
+  padding: var(--space-8);
+}
+
+/* Header extra */
+.pp-extra-text {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-caption, 13px);
+}

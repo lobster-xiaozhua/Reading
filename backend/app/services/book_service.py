@@ -5,9 +5,9 @@
 """
 
 import json
-import logging
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,7 +30,7 @@ from app.schemas.c_end import (
 from app.services._converters import novel_to_c_summary
 from app.utils.cache import cache_set
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _TTL_BOOK = 600       # 10 分钟
 _TTL_RATING = 600
@@ -174,7 +174,7 @@ class BookService:
             buckets.append(RatingBucket(star=star, count=count, percent=percent))
 
         dist = RatingDistribution(total=total, average=avg, buckets=buckets)
-        await self._cache_set(CacheKeys.book_rating(novel.id), dist, _TTL_RATING)
+        await cache_set(self.redis, CacheKeys.book_rating(novel.id), dist, _TTL_RATING)
         return dist
 
     # ── 内部工具 ─────────────────────────────────────────
@@ -191,8 +191,8 @@ class BookService:
         if not novel or novel.deleted or novel.status != "published":
             raise NotFoundError("作品不存在或已下架")
 
-        await self._cache_set(
-            CacheKeys.book(book_id),
+        await cache_set(
+            self.redis, CacheKeys.book(book_id),
             {
                 "id": novel.id,
                 "title": novel.title,
@@ -243,8 +243,7 @@ class BookService:
             for c in comments
         ]
 
-    async def _cache_set(self, key: str, data: object, ttl: int) -> None:
-        await cache_set(self.redis, key, data, ttl)
+
 
 
 def _chapter_to_list_item(ch: Chapter, novel_id: int) -> ChapterListItem:

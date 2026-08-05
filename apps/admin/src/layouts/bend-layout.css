@@ -107,6 +107,16 @@
   color: var(--color-text-primary);
 }
 
+.bend-header__collapse:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.bend-header__collapse:active {
+  transform: scale(0.95);
+}
+
 .bend-header__breadcrumb {
   flex: 1;
   min-width: 0;
@@ -144,6 +154,16 @@
   color: var(--color-text-primary);
 }
 
+.bend-header__icon-btn:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.bend-header__icon-btn:active {
+  transform: scale(0.95);
+}
+
 .bend-header__user {
   display: inline-flex;
   align-items: center;
@@ -158,6 +178,16 @@
 
 .bend-header__user:hover {
   background: var(--color-bg-subtle);
+}
+
+.bend-header__user:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.bend-header__user:active {
+  transform: scale(0.97);
 }
 
 .bend-header__username {
@@ -206,8 +236,16 @@
 .bend-layout__content {
   flex: 1;
   overflow-y: auto;
-  /* 焦点可见（无障碍） */
   outline: none;
+}
+
+.bend-layout__inner {
+  animation: bFadeIn 0.3s ease-out;
+}
+
+@keyframes bFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .bend-layout__inner {
@@ -221,4 +259,14 @@
 /* Sider 折叠动画对齐令牌 */
 .ant-layout-sider {
   transition: width var(--dur-normal) var(--ease-in-out), min-width var(--dur-normal) var(--ease-in-out);
+}
+
+/* Chapter edit icon hover visibility */
+.b-chapter-edit-icon {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+tr:hover .b-chapter-edit-icon {
+  opacity: 1;
 }

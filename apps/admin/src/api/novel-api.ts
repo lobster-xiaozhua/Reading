@@ -4,7 +4,7 @@
  * 数据模型对齐 @novel/types BNovelDetail
  * ============================================================ */
 
-import { http } from './http';
+import { http, requestSafe } from './http';
 import type { BNovelDetail, BNovelStatus, OfflineReason } from '@novel/types';
 
 /** 列表查询参数 */
@@ -38,6 +38,9 @@ export const NOVEL_CATEGORIES = [
   { label: '悬疑', value: 'suspense' },
   { label: '言情', value: 'romance' },
 ];
+
+/** 分类 value → label 映射 */
+export const CATEGORY_LABEL = Object.fromEntries(NOVEL_CATEGORIES.map((c) => [c.value, c.label])) as Record<string, string>;
 
 /** 状态选项 */
 export const NOVEL_STATUS_OPTIONS = [
@@ -132,14 +135,13 @@ export async function submitNovel(values: NovelFormValues): Promise<{ success: b
     isCompleted: values.status === 'published' ? true : values.isOnShelf,
     vipChapters: values.vipChapters ?? [],
   };
-  try {
-    const data = await (values.id
+  const result = await requestSafe(
+    values.id
       ? http.put<BackendNovel>(`/novels/${values.id}`, body)
-      : http.post<BackendNovel>('/novels', body));
-    return { success: true, id: String(data.id ?? values.id ?? '') };
-  } catch {
-    return { success: false, id: values.id ?? '' };
-  }
+      : http.post<BackendNovel>('/novels', body),
+  );
+  if (result.success) return { success: true, id: String(result.data.id ?? values.id ?? '') };
+  return { success: false, id: values.id ?? '' };
 }
 
 /** 批量操作（保留向后兼容，内部接入状态机校验） */

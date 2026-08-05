@@ -4,18 +4,20 @@
 """
 
 import contextlib
-import logging
 
+import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
 from app.core.database import engine
+from app.core.logging import setup_logging
+from app.middlewares.access_log import AccessLogMiddleware
 from app.middlewares.error_handler import register_exception_handlers
 from app.middlewares.trace import TraceMiddleware
 from app.models.base import Base
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @contextlib.asynccontextmanager
@@ -46,6 +48,8 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    setup_logging()
+
     app = FastAPI(
         title=settings.app_name,
         version="2.1.0",
@@ -65,6 +69,9 @@ def create_app() -> FastAPI:
         expose_headers=["X-Trace-Id"],
     )
     app.add_middleware(TraceMiddleware)
+
+    # 请求日志
+    app.add_middleware(AccessLogMiddleware)
 
     # 异常处理
     register_exception_handlers(app)

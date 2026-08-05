@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Tag, Dropdown, Button, Space, App, Modal, Radio, Input } from 'antd';
+import { Tag, Dropdown, Button, Space, App, Tooltip } from 'antd';
 import type { TableColumnsType } from 'antd';
 import { EditOutlined, MoreOutlined, EyeOutlined, ArrowDownOutlined, ArrowUpOutlined, AuditOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { BNovelDetail, BNovelStatus, OfflineReason } from '@novel/types';
@@ -19,20 +19,17 @@ import {
   reshelveNovel,
   NOVEL_CATEGORIES,
   NOVEL_STATUS_OPTIONS,
-  OFFLINE_REASON_OPTIONS,
+  CATEGORY_LABEL,
 } from '@/api/novel-api';
+import { ShelveModal } from '@/components/ShelveModal';
 import { useAuthStore } from '@/stores/authStore';
 
 const STATUS_TAG_MAP: Record<BNovelStatus, { color: string; text: string }> = {
-  draft: { color: 'default', text: '草稿' },
+  draft: { color: 'gold', text: '草稿' },
   pending: { color: 'processing', text: '待审核' },
   published: { color: 'success', text: '已发布' },
   offline: { color: 'error', text: '已下架' },
 };
-
-const CATEGORY_LABEL: Record<string, string> = Object.fromEntries(
-  NOVEL_CATEGORIES.map((c) => [c.value, c.label]),
-);
 
 export default function NovelListPage() {
   const { t } = useTranslation();
@@ -51,9 +48,6 @@ export default function NovelListPage() {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [shelveModalOpen, setShelveModalOpen] = useState(false);
   const [shelveTargetIds, setShelveTargetIds] = useState<string[]>([]);
-  const [shelveReason, setShelveReason] = useState<OfflineReason>('operation-adjust');
-  const [shelveComment, setShelveComment] = useState('');
-  const [shelveSubmitting, setShelveSubmitting] = useState(false);
   const { message } = App.useApp();
 
   const canCreate = hasPermission('novel.create');
@@ -126,25 +120,17 @@ export default function NovelListPage() {
 
   const handleBatchShelve = () => {
     setShelveTargetIds(selectedRowKeys.map(String));
-    setShelveReason('operation-adjust');
-    setShelveComment('');
     setShelveModalOpen(true);
   };
 
-  const handleShelveConfirm = async () => {
-    setShelveSubmitting(true);
-    try {
-      const res = await shelveNovel(shelveTargetIds, shelveReason, shelveComment);
-      if (res.success) {
-        message.success(t('novel:message.offlined'));
-        setShelveModalOpen(false);
-        setSelectedRowKeys([]);
-        loadData();
-      } else {
-        message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
-      }
-    } finally {
-      setShelveSubmitting(false);
+  const handleShelveConfirm = async (reason: string, note: string) => {
+    const res = await shelveNovel(shelveTargetIds, reason as OfflineReason, note);
+    if (res.success) {
+      message.success(t('novel:message.offlined'));
+      setSelectedRowKeys([]);
+      loadData();
+    } else {
+      message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
     }
   };
 
@@ -168,11 +154,14 @@ export default function NovelListPage() {
       title: t('novel:table.title'),
       dataIndex: 'title',
       key: 'title',
-      width: 200,
+      width: 300,
+      ellipsis: true,
       render: (title: string, record) => (
-        <a onClick={() => navigate(`/novel/${record.id}`)} style={{ color: 'var(--color-brand)' }}>
-          {title}
-        </a>
+        <Tooltip title={title}>
+          <a onClick={() => navigate(`/novel/${record.id}`)} style={{ color: 'var(--color-brand)' }}>
+            {title}
+          </a>
+        </Tooltip>
       ),
     },
     { title: t('novel:table.author'), dataIndex: 'author', key: 'author', width: 120 },
@@ -206,7 +195,12 @@ export default function NovelListPage() {
       dataIndex: 'lastUpdated',
       key: 'lastUpdated',
       width: 180,
-      render: (v: number) => new Date(v).toLocaleString('zh-CN'),
+      render: (v: number) => {
+        if (!v) return '-';
+        const d = new Date(v);
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      },
     },
     {
       title: t('novel:table.operation'),
@@ -250,8 +244,6 @@ export default function NovelListPage() {
                 });
               } else if (key === 'offline') {
                 setShelveTargetIds([record.id]);
-                setShelveReason('operation-adjust');
-                setShelveComment('');
                 setShelveModalOpen(true);
               } else if (key === 'reshelve') {
                 reshelveNovel([record.id]).then((res) => {
@@ -346,44 +338,12 @@ export default function NovelListPage() {
         onCreate={canCreate ? () => navigate('/novel/create') : undefined}
         canCreate={canCreate}
       />
-      <Modal
+      <ShelveModal
         open={shelveModalOpen}
         title={t('novel:offline.title', { count: shelveTargetIds.length })}
-        okText={t('novel:offline.confirm')}
-        cancelText={t('novel:offline.cancel')}
-        okType="danger"
-        confirmLoading={shelveSubmitting}
-        onOk={handleShelveConfirm}
-        onCancel={() => setShelveModalOpen(false)}
-      >
-        <div style={{ marginBottom: 'var(--space-3)' }}>
-          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.reasonRequired')}</p>
-          <Radio.Group
-            value={shelveReason}
-            onChange={(e) => setShelveReason(e.target.value as OfflineReason)}
-            buttonStyle="solid"
-          >
-            <Space direction="vertical">
-              {OFFLINE_REASON_OPTIONS.map((opt) => (
-                <Radio key={opt.value} value={opt.value}>
-                  <Tag color={opt.color} style={{ marginRight: 'var(--space-1)' }}>{opt.label}</Tag>
-                </Radio>
-              ))}
-            </Space>
-          </Radio.Group>
-        </div>
-        <div>
-          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.remark')}</p>
-          <Input.TextArea
-            value={shelveComment}
-            onChange={(e) => setShelveComment(e.target.value)}
-            rows={4}
-            placeholder={t('novel:offline.remarkPlaceholder')}
-            maxLength={200}
-            showCount
-          />
-        </div>
-      </Modal>
+        onClose={() => setShelveModalOpen(false)}
+        onConfirm={handleShelveConfirm}
+      />
     </>
   );
 }

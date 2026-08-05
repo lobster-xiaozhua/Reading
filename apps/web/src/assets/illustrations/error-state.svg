@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="ebg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFF1F0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFCCC7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="24" fill="url(#ebg2)"/>
+  <g transform="translate(60,30)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <circle cx="40" cy="50" r="30"/>
+    <line x1="40" y1="40" x2="40" y2="55"/>
+    <line x1="40" y1="63" x2="40" y2="66"/>
+    <path d="M10,105 L40,80 L70,105"/>
+  </g>
+  <text x="100" y="145" text-anchor="middle" font-family="system-ui" font-size="14" fill="currentColor" opacity="0.6">加载失败，请重试</text>
+</svg>

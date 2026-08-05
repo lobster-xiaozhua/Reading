@@ -5,9 +5,9 @@
 """
 
 import json
-import logging
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,7 +19,7 @@ from app.schemas.common import PagedResult
 from app.services._converters import novel_to_c_summary
 from app.utils.cache import cache_set
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _TTL_SUGGESTION = 60     # 1 分钟
 _TTL_HOT_SEARCH = 300    # 5 分钟
@@ -83,7 +83,7 @@ class SearchService:
             suggestions.append(SearchSuggestion(type="tag", text=name))
 
         result = suggestions[:_MAX_SUGGESTIONS]
-        await self._cache_set(key, result, _TTL_SUGGESTION)
+        await cache_set(self.redis, key, result, _TTL_SUGGESTION)
         return result
 
     # ── 书籍搜索 ─────────────────────────────────────────
@@ -125,8 +125,9 @@ class SearchService:
             hot = await self.redis.zrevrange(CacheKeys.SEARCH_HOT_ZSET, 0, limit - 1)
             result = [h for h in hot if h]
         except Exception:
+            logger.warning("Redis ZRevRange failed", exc_info=True)
             result = []
-        await self._cache_set(CacheKeys.HOT_SEARCHES, result, _TTL_HOT_SEARCH)
+        await cache_set(self.redis, CacheKeys.HOT_SEARCHES, result, _TTL_HOT_SEARCH)
         return result
 
     # ── 内部工具 ─────────────────────────────────────────
@@ -171,5 +172,4 @@ class SearchService:
         except Exception:
             logger.debug("搜索词频记录失败 keyword=%s", keyword, exc_info=True)
 
-    async def _cache_set(self, key: str, data: list, ttl: int) -> None:
-        await cache_set(self.redis, key, data, ttl)
+

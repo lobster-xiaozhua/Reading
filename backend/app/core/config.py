@@ -55,6 +55,9 @@ class Settings(BaseSettings):
     rate_limit_progress: int = 1
     rate_limit_reward: int = 1
 
+    # ── 日志 ─────────────────────────────────────────────
+    log_level: str = "INFO"
+
     # ── CORS ─────────────────────────────────────────────
     cors_origins: list[str] = Field(
         default_factory=lambda: ["*"]

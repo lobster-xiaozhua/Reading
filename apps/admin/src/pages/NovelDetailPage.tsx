@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button, Space, Progress, Tag, App, Steps, Modal, Radio, Input } from 'antd';
+import { Button, Space, Progress, Tag, App, Steps } from 'antd';
 import { EditOutlined, DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined, AuditOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import type { BNovelDetail, OfflineReason } from '@novel/types';
 import { DetailCardTemplate } from '@/templates/DetailCardTemplate';
@@ -13,13 +13,11 @@ import {
   approveNovel,
   shelveNovel,
   reshelveNovel,
-  OFFLINE_REASON_OPTIONS,
-  NOVEL_CATEGORIES,
+  CATEGORY_LABEL,
 } from '@/api/novel-api';
 import { http } from '@/api/http';
 import { useAuthStore } from '@/stores/authStore';
-
-const CATEGORY_LABEL = Object.fromEntries(NOVEL_CATEGORIES.map((c) => [c.value, c.label]));
+import { ShelveModal } from '@/components/ShelveModal';
 
 export default function NovelDetailPage() {
   const { t } = useTranslation();
@@ -31,9 +29,6 @@ export default function NovelDetailPage() {
   const [status, setStatus] = useState<DetailCardStatus>('loading');
   const [novel, setNovel] = useState<BNovelDetail | null>(null);
   const [shelveModalOpen, setShelveModalOpen] = useState(false);
-  const [shelveReason, setShelveReason] = useState<OfflineReason>('operation-adjust');
-  const [shelveComment, setShelveComment] = useState('');
-  const [shelveSubmitting, setShelveSubmitting] = useState(false);
 
   const [auditHistory, setAuditHistory] = useState<AuditHistoryItem[]>([]);
   const [comments, setComments] = useState<CommentItem[]>([]);
@@ -93,8 +88,6 @@ export default function NovelDetailPage() {
         else { message.error(t('novel:message.approveFailed', { msg: res.failed?.map((f) => f.reason).join('；') })); }
       });
     } else if (novel.status === 'published') {
-      setShelveReason('operation-adjust');
-      setShelveComment('');
       setShelveModalOpen(true);
     } else if (novel.status === 'offline') {
       reshelveNovel([novel.id]).then((res) => {
@@ -104,20 +97,14 @@ export default function NovelDetailPage() {
     }
   };
 
-  const handleShelveConfirm = async () => {
+  const handleShelveConfirm = async (reason: string, note: string) => {
     if (!novel) return;
-    setShelveSubmitting(true);
-    try {
-      const res = await shelveNovel([novel.id], shelveReason, shelveComment);
-      if (res.success) {
-        message.success(t('novel:message.offlined'));
-        setShelveModalOpen(false);
-        loadDetail();
-      } else {
-        message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
-      }
-    } finally {
-      setShelveSubmitting(false);
+    const res = await shelveNovel([novel.id], reason as OfflineReason, note);
+    if (res.success) {
+      message.success(t('novel:message.offlined'));
+      loadDetail();
+    } else {
+      message.error(t('novel:message.offlineFailed', { msg: res.failed?.map((f) => f.reason).join('；') }));
     }
   };
 
@@ -265,44 +252,12 @@ export default function NovelDetailPage() {
         auditHistory={auditHistory}
         comments={comments}
       />
-      <Modal
+      <ShelveModal
         open={shelveModalOpen}
         title={t('novel:action.offline')}
-        okText={t('novel:offline.confirm')}
-        cancelText={t('novel:offline.cancel')}
-        okType="danger"
-        confirmLoading={shelveSubmitting}
-        onOk={handleShelveConfirm}
-        onCancel={() => setShelveModalOpen(false)}
-      >
-        <div style={{ marginBottom: 'var(--space-3)' }}>
-          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.reasonRequired')}</p>
-          <Radio.Group
-            value={shelveReason}
-            onChange={(e) => setShelveReason(e.target.value as OfflineReason)}
-            buttonStyle="solid"
-          >
-            <Space direction="vertical">
-              {OFFLINE_REASON_OPTIONS.map((opt) => (
-                <Radio key={opt.value} value={opt.value}>
-                  <Tag color={opt.color} style={{ marginRight: 'var(--space-1)' }}>{opt.label}</Tag>
-                </Radio>
-              ))}
-            </Space>
-          </Radio.Group>
-        </div>
-        <div>
-          <p style={{ marginBottom: 'var(--space-2)' }}>{t('novel:offline.remark')}</p>
-          <Input.TextArea
-            value={shelveComment}
-            onChange={(e) => setShelveComment(e.target.value)}
-            rows={4}
-            placeholder={t('novel:offline.remarkPlaceholder')}
-            maxLength={200}
-            showCount
-          />
-        </div>
-      </Modal>
+        onClose={() => setShelveModalOpen(false)}
+        onConfirm={handleShelveConfirm}
+      />
     </>
   );
 }

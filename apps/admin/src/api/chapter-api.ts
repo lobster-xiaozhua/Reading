@@ -6,7 +6,7 @@
  * Source: 04 §5.5 / P5-1
  * ============================================================ */
 
-import { http, ApiError } from './http';
+import { http, requestSafe } from './http';
 import type { BChapterDetail, BChapterStatus } from '@novel/types';
 
 /** 章节列表查询参数 */
@@ -141,18 +141,15 @@ export interface ChapterFormValues {
 
 /** 新建章节 */
 export async function createChapter(values: ChapterFormValues): Promise<{ success: boolean; id: string }> {
-  try {
-    const data = await http.post<BackendChapter>('/chapters', {
-      novelId: values.bookId,
-      title: values.title,
-      content: values.content,
-      isVip: values.isVip,
-      auditLevel: 'first',
-    });
-    return { success: true, id: String(data.id) };
-  } catch {
-    return { success: false, id: '' };
-  }
+  const result = await requestSafe(http.post<BackendChapter>('/chapters', {
+    novelId: values.bookId,
+    title: values.title,
+    content: values.content,
+    isVip: values.isVip,
+    auditLevel: 'first',
+  }));
+  if (result.success) return { success: true, id: String(result.data.id) };
+  return { success: false, id: '' };
 }
 
 /** 更新章节（含行内标题编辑） */
@@ -160,16 +157,13 @@ export async function updateChapter(
   id: string,
   patch: Partial<Pick<BChapterDetail, 'title' | 'content' | 'isVip'>>,
 ): Promise<{ success: boolean }> {
-  try {
-    await http.patch(`/chapters/${id}`, {
-      ...(patch.title !== undefined ? { title: patch.title } : {}),
-      ...(patch.content !== undefined ? { content: patch.content } : {}),
-      ...(patch.isVip !== undefined ? { isVip: patch.isVip } : {}),
-    });
-    return { success: true };
-  } catch {
-    return { success: false };
-  }
+  const result = await requestSafe(http.patch(`/chapters/${id}`, {
+    ...(patch.title !== undefined ? { title: patch.title } : {}),
+    ...(patch.content !== undefined ? { content: patch.content } : {}),
+    ...(patch.isVip !== undefined ? { isVip: patch.isVip } : {}),
+  }));
+  if (result.success) return { success: true };
+  return { success: false };
 }
 
 /** 拖拽排序：批量更新 index（同页内重排） */
@@ -177,14 +171,11 @@ export async function reorderChapters(
   novelId: string,
   orderedIds: string[],
 ): Promise<{ success: boolean }> {
-  try {
-    await http.post(`/novels/${novelId}/chapters/reorder`, {
-      orderedIds: orderedIds.map(Number),
-    });
-    return { success: true };
-  } catch {
-    return { success: false };
-  }
+  const result = await requestSafe(http.post(`/novels/${novelId}/chapters/reorder`, {
+    orderedIds: orderedIds.map(Number),
+  }));
+  if (result.success) return { success: true };
+  return { success: false };
 }
 
 /** 章节状态流转（含合法性校验） */
@@ -192,13 +183,9 @@ export async function transitionChapterStatus(
   id: string,
   to: BChapterStatus,
 ): Promise<{ success: boolean; reason?: string }> {
-  try {
-    await http.post(`/chapters/${id}/transition`, { target: to });
-    return { success: true };
-  } catch (err) {
-    if (err instanceof ApiError) return { success: false, reason: err.message };
-    return { success: false, reason: '章节状态转换失败' };
-  }
+  const result = await requestSafe(http.post(`/chapters/${id}/transition`, { target: to }));
+  if (result.success) return { success: true };
+  return { success: false, reason: result.error ?? '章节状态转换失败' };
 }
 
 /** 批量操作 */
@@ -245,11 +232,7 @@ export async function deleteChapter(
   id: string,
   titleMatch?: string,
 ): Promise<{ success: boolean; reason?: string }> {
-  try {
-    await http.del(`/chapters/${id}`, titleMatch ? { titleMatch } : {});
-    return { success: true };
-  } catch (err) {
-    if (err instanceof ApiError) return { success: false, reason: err.message };
-    return { success: false, reason: '章节删除失败' };
-  }
+  const result = await requestSafe(http.del(`/chapters/${id}`, titleMatch ? { titleMatch } : {}));
+  if (result.success) return { success: true };
+  return { success: false, reason: result.error ?? '章节删除失败' };
 }

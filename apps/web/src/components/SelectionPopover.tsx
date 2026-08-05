@@ -5,6 +5,7 @@
  * ============================================================ */
 import { useCallback, useEffect, useState } from 'react';
 import { fetcher } from '@/api/fetcher';
+import { NavigationClose } from '@novel/icons';
 import './SelectionPopover.css';
 
 interface SelectionPopoverProps {
@@ -164,7 +165,7 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
             onClick={clearSelection}
             aria-label="关闭"
           >
-            ✕
+            <NavigationClose size="xs" aria-hidden="true" />
           </button>
         </>
       )}

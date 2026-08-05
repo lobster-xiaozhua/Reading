@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { EmptyState, Modal, Tabs, useAsyncState, type TabItem } from '@novel/components';
 import { NavigationBack } from '@novel/icons';
+import { LazyImage } from '@/components/LazyImage';
 import { fetcher } from '@/api/fetcher';
 import type { FollowItem } from '@/api/types';
 import './FollowPage.css';
@@ -20,17 +21,7 @@ const ACTION_WIDTH = 88;
 /** 骨架占位数量 */
 const SKELETON_COUNT = 4;
 
-/* ---------- 相对时间格式化 ---------- */
-function formatRelativeTime(ts: number): string {
-  const diff = Date.now() - ts;
-  if (diff < 60 * 1000) return '刚刚';
-  const hours = Math.floor(diff / (60 * 60 * 1000));
-  if (hours < 24) return `${hours}小时前`;
-  const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-  if (days < 7) return `${days}天前`;
-  const d = new Date(ts);
-  return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
+import { formatRelativeTime } from '@/utils/time';
 
 export default function FollowPage() {
   const navigate = useNavigate();
@@ -95,7 +86,7 @@ export default function FollowPage() {
   };
 
   return (
-    <div className="follow-page">
+    <div className="follow-page fade-in">
       {/* 顶部栏 */}
       <header className="follow-page__header">
         <button
@@ -213,6 +204,7 @@ function FollowListItem({
 }) {
   const [offset, setOffset] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const [confirmUnfollow, setConfirmUnfollow] = useState(false);
   const drag = useRef({
     startX: 0,
     startY: 0,
@@ -283,9 +275,9 @@ function FollowListItem({
       drag.current.captured = false;
     }
     setAnimating(true);
-    // 滑动距离 ≥ 阈值 → 触发取消追更
+    // 滑动距离 ≥ 阈值 → 显示确认取消，不直接取消
     if (drag.current.horizontal && drag.current.lastOffset <= -SWIPE_THRESHOLD) {
-      onUnfollow(item.bookId);
+      setConfirmUnfollow(true);
     }
     // 回弹（dur-fast 150ms）
     setOffset(0);
@@ -321,11 +313,18 @@ function FollowListItem({
     >
       <button
         type="button"
-        className="follow-page__item-action"
+        className={`follow-page__item-action ${confirmUnfollow ? 'is-confirm' : ''}`}
         aria-label={`取消追更 ${item.title}`}
-        onClick={() => onUnfollow(item.bookId)}
+        onClick={() => {
+          if (confirmUnfollow) {
+            onUnfollow(item.bookId);
+          } else {
+            setConfirmUnfollow(true);
+          }
+        }}
+        onMouseLeave={() => setConfirmUnfollow(false)}
       >
-        取消追更
+        {confirmUnfollow ? '确认取消' : '取消追更'}
       </button>
       <div
         className={`follow-page__item-content ${animating ? 'is-animating' : ''}`}
@@ -342,7 +341,7 @@ function FollowListItem({
           aria-label={`阅读 ${item.title}`}
         >
           <div className="follow-page__cover">
-            <img src={item.cover} alt={item.title} loading="lazy" />
+            <LazyImage src={item.cover} alt={item.title} />
             {showUnreadDot ? (
               <span className="follow-page__dot" aria-hidden>
                 {item.unreadCount}
@@ -351,6 +350,9 @@ function FollowListItem({
           </div>
           <div className="follow-page__info">
             <div className="follow-page__book-title">{item.title}</div>
+            {item.author ? (
+              <div className="follow-page__author">{item.author}</div>
+            ) : null}
             <div className="follow-page__latest">最新：{item.latestChapterTitle}</div>
             <div className="follow-page__time">{formatRelativeTime(item.latestTime)}</div>
             <div className="follow-page__badges">

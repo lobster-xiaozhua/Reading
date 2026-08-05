@@ -94,7 +94,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
   return (
     <div className="b-dashboard" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
       {/* 欢迎条 */}
-      <Card>
+      <div style={{ paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--color-border-subtle)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <h2 style={{ fontSize: 'var(--font-size-h3, 20px)', fontWeight: 600, margin: 0, color: 'var(--color-text-primary)' }}>
@@ -111,7 +111,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
             </div>
           )}
         </div>
-      </Card>
+      </div>
 
       {/* KPI 网格 4 列 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-4)' }}>

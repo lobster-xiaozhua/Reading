@@ -8,10 +8,6 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: light;
-}
-
 html,
 body {
   margin: 0;
@@ -19,6 +15,7 @@ body {
   font-family: var(--font-sans);
   background: var(--color-bg-page);
   color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -49,7 +46,8 @@ img {
 }
 
 /* ============================================================
- * B 端布局容器：PC 优先，最小 1280px，低于此横向滚动（04 §1.3）
+ * B 端布局容器：PC 优先，最小 1280px（B 端设计决策，低于此宽度横向滚动）
+ * 注意：min-width: 1280px 是 B 端保留的设计决策，不可删除
  * ============================================================ */
 .admin-layout {
   min-height: 100vh;

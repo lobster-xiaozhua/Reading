@@ -1,11 +1,10 @@
-import logging
-
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.system_config_repo import SystemConfigRepository
 from app.schemas.b_end import SystemConfig
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class SystemService:

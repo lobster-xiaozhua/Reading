@@ -6,10 +6,10 @@
 
 import contextlib
 import json
-import logging
 import time
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,7 +28,7 @@ from app.schemas.c_end import (
     Topic,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _TTL_PROGRESS = 90 * 24 * 3600  # 90 天
 
@@ -285,7 +285,6 @@ class InteractionService:
         Returns:
             话题列表。
         """
-        """基于标签热度生成话题列表。"""
         from app.models.novel import Tag
         stmt = select(Tag).order_by(Tag.ref_count.desc()).limit(limit)
         tags = list((await self.session.execute(stmt)).scalars().all())
@@ -303,7 +302,6 @@ class InteractionService:
         Returns:
             书单列表。
         """
-        """返回推荐书单（基于高评分作品聚合）。"""
         stmt = (
             select(Novel)
             .where(Novel.deleted == 0, Novel.status == "published")

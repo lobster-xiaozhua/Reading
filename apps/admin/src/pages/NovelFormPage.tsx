@@ -18,6 +18,12 @@ const CATEGORY_OPTIONS = NOVEL_CATEGORIES.filter((c) => c.value !== 'all').map((
   label: c.label,
 }));
 
+const TAG_SUGGESTIONS = [
+  '穿越', '重生', '系统', '修仙', '玄幻', '言情', '都市', '历史',
+  '科幻', '悬疑', '盗墓', '游戏', '竞技', '轻小说', '同人', '种田',
+  '争霸', '后宫', '无敌', '脑洞', '变身', '综漫', '腹黑', '扮猪吃虎',
+];
+
 export default function NovelFormPage() {
   const { t } = useTranslation();
   const { novelId } = useParams<{ novelId: string }>();
@@ -178,6 +184,7 @@ export default function NovelFormPage() {
             mode="tags"
             placeholder={t('novelForm:field.tagsPlaceholder')}
             tokenSeparators={[',']}
+            options={TAG_SUGGESTIONS.map((tag) => ({ value: tag, label: tag }))}
           />
         </Form.Item>
 
@@ -234,7 +241,7 @@ export default function NovelFormPage() {
         </Form.Item>
 
         <Form.Item name="price" label={t('novelForm:field.pricing')} initialValue={0}>
-          <InputNumber min={0} max={9999} step={10} style={{ width: 200 }} />
+          <InputNumber min={0} max={9999} step={1} style={{ width: 200 }} />
         </Form.Item>
 
         <Form.Item name="vipChapters" label={t('novelForm:field.vipChapter')} getValueFromEvent={(checkedKeys) => checkedKeys as string[]}>

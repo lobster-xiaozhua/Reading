@@ -4,8 +4,7 @@
 内置角色不可删除，仅 super-admin 可分配权限。
 """
 
-import logging
-
+import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
@@ -19,7 +18,7 @@ from app.schemas.b_end import (
 )
 from app.schemas.enums import BUILTIN_ROLE_PERMISSIONS
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class RoleService:

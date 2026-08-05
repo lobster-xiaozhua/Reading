@@ -1,0 +1,55 @@
+/* ============================================================
+ * WorkbenchPage 样式
+ * BEM 命名: wp = Workbench Page
+ * ============================================================ */
+
+/* Chart header */
+.wp-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.wp-chart-title {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body, 14px);
+}
+
+/* Metric button group */
+.wp-metric-group {
+  display: flex;
+  gap: var(--space-1);
+}
+
+/* Metric toggle buttons */
+.wp-metric-btn {
+  padding: 4px 12px;
+  font-size: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm, 4px);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+.wp-metric-btn--active {
+  border-color: var(--color-brand);
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+}
+
+.wp-chart-wrapper {
+  min-height: 340px;
+}
+
+.wp-chart-fade-in {
+  animation: wpFadeIn 0.4s ease-out;
+}
+
+@keyframes wpFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}

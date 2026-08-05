@@ -5,11 +5,11 @@
 """
 
 import json
-import logging
 import math
 from datetime import date, timedelta
 
 import redis.asyncio as redis
+import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -42,7 +42,7 @@ from app.schemas.enums import FollowStatus
 from app.services._converters import novel_to_c_summary
 from app.utils.cache import cache_set
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 _TTL_HEATMAP = 3600
 
@@ -253,7 +253,7 @@ class UserCenterService:
             HeatmapCell(date=s.stat_date.isoformat(), duration=s.duration_minutes)
             for s in stats
         ]
-        await self._cache_set(CacheKeys.heatmap(reader_id), result, _TTL_HEATMAP)
+        await cache_set(self.redis, CacheKeys.heatmap(reader_id), result, _TTL_HEATMAP)
         return result
 
     # ── 阅读偏好 ─────────────────────────────────────────
@@ -365,8 +365,7 @@ class UserCenterService:
         stmt = select(func.count()).where(Bookshelf.reader_id == reader_id)
         return (await self.session.execute(stmt)).scalar_one()
 
-    async def _cache_set(self, key: str, data: list, ttl: int) -> None:
-        await cache_set(self.redis, key, data, ttl)
+
 
 
 def _build_badges(overview: dict) -> list[Badge]:

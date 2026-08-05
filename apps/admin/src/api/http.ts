@@ -55,6 +55,7 @@ function handleUnauthorized(): void {
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getAccessToken();
+  const method = options.method ?? 'GET';
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, {
@@ -65,7 +66,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       },
       ...options,
     });
-  } catch {
+  } catch (err) {
+    console.error('[http] network error', { path, method, error: err });
     throw new ApiError(-1, '网络异常，请稍后重试');
   }
 
@@ -73,13 +75,19 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   try {
     body = (await res.json()) as ApiResponse<T>;
   } catch {
+    console.error('[http] parse error', { path, method, status: res.status });
     throw new ApiError(res.status, `服务响应异常（HTTP ${res.status}）`, res.status);
+  }
+
+  if (res.status >= 500) {
+    console.error('[http] server error', { path, method, status: res.status, traceId: body.traceId });
   }
 
   if (body.code !== 0) {
     if (body.code === 401 || body.code === 403) {
       handleUnauthorized();
     }
+    console.error('[http] biz error', { path, method, code: body.code, message: body.message, traceId: body.traceId });
     throw new ApiError(body.code, body.message || '请求失败', res.status, body.traceId);
   }
   return body.data as T;
@@ -97,6 +105,20 @@ function buildQuery(params: Record<string, unknown>): string {
   });
   const qs = search.toString();
   return qs ? `?${qs}` : '';
+}
+
+export async function requestSafe<T>(
+  promise: Promise<T>
+): Promise<{ success: true; data: T } | { success: false; error?: string }> {
+  try {
+    const data = await promise;
+    return { success: true, data };
+  } catch (err) {
+    if (err instanceof ApiError) {
+      return { success: false, error: err.message };
+    }
+    return { success: false, error: '操作失败' };
+  }
 }
 
 export const http = {

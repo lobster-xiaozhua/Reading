@@ -47,8 +47,6 @@ export const Icon = memo(function Icon({
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={dim}
-      height={dim}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -56,7 +54,7 @@ export const Icon = memo(function Icon({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      style={{ flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
+      style={{ width: dim, height: dim, flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
       {...a11y}
       {...rest}
     >

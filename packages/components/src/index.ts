@@ -120,3 +120,6 @@ export {
   type UseAsyncStateOptions,
   type UseAsyncStateReturn,
 } from './useAsyncState.js';
+
+// 工具函数
+export { initErrorMonitor } from './utils/error-monitor.js';

@@ -73,6 +73,15 @@
   box-shadow: 0 0 0 2px var(--color-brand-bg);
 }
 
+.novel-checkbox:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.novel-checkbox:active {
+  transform: scale(0.95);
+}
+
 .novel-checkbox.is-disabled {
   opacity: 0.5;
   cursor: not-allowed;

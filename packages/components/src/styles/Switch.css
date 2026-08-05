@@ -57,8 +57,14 @@
 }
 
 .novel-switch:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+.novel-switch:active .novel-switch__thumb {
+  transform: scale(0.92);
+}
+.novel-switch:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
 .novel-switch.is-disabled {

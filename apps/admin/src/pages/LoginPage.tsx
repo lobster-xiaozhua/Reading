@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Form, Input, Button, Checkbox, Card, App, Typography } from 'antd';
-import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Checkbox, Card, App, Typography, Tag } from 'antd';
+import { LockOutlined, UserOutlined, BookOutlined } from '@ant-design/icons';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/authStore';
@@ -8,9 +8,17 @@ import type { LoginCredentials } from '@/api/types';
 
 const { Title, Text } = Typography;
 
+const DEMO_ACCOUNTS = [
+  { label: '管理员', username: 'admin', password: 'admin123' },
+  { label: '内容管理员', username: 'content', password: 'content123' },
+  { label: '审核员', username: 'auditor', password: 'auditor123' },
+  { label: '运营', username: 'operation', password: 'operation123' },
+];
+
 export default function LoginPage() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
   const login = useAuthStore((s) => s.login);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -24,11 +32,21 @@ export default function LoginPage() {
       const redirect = searchParams.get('redirect');
       navigate(redirect ? decodeURIComponent(redirect) : '/workbench', { replace: true });
     } catch (err: unknown) {
-      const e = err as { message?: string };
-      message.error(e?.message || t('login:message.failed'));
+      const e = err as { message?: string; status?: number };
+      if (e?.status === 401 || e?.status === 403) {
+        message.error(t('login:message.authFailed'));
+      } else if (e?.message?.includes('NetworkError') || e?.message?.includes('Failed to fetch')) {
+        message.error(t('login:message.networkError'));
+      } else {
+        message.error(e?.message || t('login:message.failed'));
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  const fillDemoAccount = (username: string, password: string) => {
+    form.setFieldsValue({ username, password });
   };
 
   return (
@@ -47,6 +65,9 @@ export default function LoginPage() {
         styles={{ body: { padding: 'var(--space-8)' } }}
       >
         <div style={{ textAlign: 'center', marginBottom: 'var(--space-8)' }}>
+          <div style={{ fontSize: 40, color: 'var(--color-brand)', marginBottom: 'var(--space-3)' }}>
+            <BookOutlined />
+          </div>
           <Title level={2} style={{ marginBottom: 'var(--space-2)' }}>
             {t('login:title')}
           </Title>
@@ -54,6 +75,7 @@ export default function LoginPage() {
         </div>
 
         <Form<LoginCredentials>
+          form={form}
           name="login"
           layout="vertical"
           initialValues={{ remember: true }}
@@ -112,10 +134,18 @@ export default function LoginPage() {
             {t('login:demoAccount')}
           </Text>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', fontSize: 12, color: 'var(--color-text-tertiary)' }}>
-            <span>{t('login:demoAdmin')}</span>
-            <span>{t('login:demoContent')}</span>
-            <span>{t('login:demoAuditor')}</span>
-            <span>{t('login:demoOperation')}</span>
+            {DEMO_ACCOUNTS.map((acc) => (
+              <div key={acc.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
+                <span>{acc.label}: {acc.username} / {acc.password}</span>
+                <Tag
+                  color="blue"
+                  style={{ cursor: 'pointer', fontSize: 11 }}
+                  onClick={() => fillDemoAccount(acc.username, acc.password)}
+                >
+                  {t('login:fill')}
+                </Tag>
+              </div>
+            ))}
           </div>
         </div>
       </Card>
