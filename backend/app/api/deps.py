@@ -3,7 +3,6 @@
 from dataclasses import dataclass, field
 from typing import cast
 
-import redis.asyncio as redis
 import structlog
 from fastapi import Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,21 +38,23 @@ async def get_current_admin(
     request: Request,
     authorization: str = Header(default="", description="Bearer token"),
     db: AsyncSession = Depends(get_db),
-    redis_client: redis.Redis = Depends(get_redis_client),
 ) -> AdminContext:
     """解析当前登录管理员。
 
-    未携带 token 时降级为 demo 超级管理员（便于前端联调），生产环境必须移除。
+    未携带 token 时仅在 DEBUG 模式下降级为 demo 超级管理员（便于前端联调），
+    生产环境强制校验 token。
     """
     if not authorization or not authorization.startswith("Bearer "):
-        request.state.admin = AdminContext(
-            id=1,
-            username=settings.demo_admin_username,
-            nickname="演示管理员",
-            roles=["super-admin"],
-            permissions=ALL_PERMISSIONS,
-        )
-        return cast(AdminContext, request.state.admin)
+        if settings.debug:
+            request.state.admin = AdminContext(
+                id=1,
+                username=settings.demo_admin_username,
+                nickname="演示管理员",
+                roles=["super-admin"],
+                permissions=ALL_PERMISSIONS,
+            )
+            return cast(AdminContext, request.state.admin)
+        raise UnauthorizedError("未登录或登录已过期")
 
     token = authorization.removeprefix("Bearer ").strip()
     try:
@@ -67,6 +68,7 @@ async def get_current_admin(
         raise UnauthorizedError("Token 类型错误")
 
     admin_id_str = payload.get("sub")
+    redis_client = await get_redis_client()
     cached = await redis_client.get(f"auth:access:{token}")
     if not cached or cached != admin_id_str:
         raise UnauthorizedError("会话已失效，请重新登录")
@@ -87,15 +89,17 @@ async def get_current_admin(
 async def get_current_reader(
     request: Request,
     authorization: str = Header(default="", description="Bearer token"),
-    redis_client: redis.Redis = Depends(get_redis_client),
 ) -> int:
     """解析当前登录读者 ID。
 
-    未接入读者登录前使用 demo ID 降级，便于前端联调。
+    未携带 token 时仅在 DEBUG 模式下降级为 demo 读者（便于前端联调），
+    生产环境强制校验 token。
     """
     if not authorization or not authorization.startswith("Bearer "):
-        request.state.reader_id = settings.demo_reader_id
-        return settings.demo_reader_id
+        if settings.debug:
+            request.state.reader_id = settings.demo_reader_id
+            return settings.demo_reader_id
+        raise UnauthorizedError("未登录或登录已过期")
 
     token = authorization.removeprefix("Bearer ").strip()
     try:
@@ -109,6 +113,7 @@ async def get_current_reader(
         raise UnauthorizedError("Token 类型错误")
 
     reader_id_str = payload.get("sub")
+    redis_client = await get_redis_client()
     cached = await redis_client.get(f"auth:access:{token}")
     if not cached or cached != reader_id_str:
         raise UnauthorizedError("会话已失效，请重新登录")

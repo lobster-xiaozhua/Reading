@@ -124,18 +124,27 @@ async def read_all_follows(
     from app.models.reading import ReadingHistory
 
     subq = select(ReadingHistory.novel_id).where(ReadingHistory.reader_id == reader_id).subquery()
-    stmt = select(Novel.id).where(
-        Novel.deleted == 0, Novel.status == "published",
-        Novel.id.notin_(select(subq.c.novel_id)),
-    ).limit(100)
+    stmt = (
+        select(Novel.id)
+        .where(
+            Novel.deleted == 0,
+            Novel.status == "published",
+            Novel.id.notin_(select(subq.c.novel_id)),
+        )
+        .limit(100)
+    )
     rows = (await db.execute(stmt)).scalars().all()
     updated = 0
     now = int(time.time() * 1000)
     for novel_id in rows:
-        db.add(ReadingHistory(
-            reader_id=reader_id, novel_id=novel_id,
-            percent=0.0, read_at=now,
-        ))
+        db.add(
+            ReadingHistory(
+                reader_id=reader_id,
+                novel_id=novel_id,
+                percent=0.0,
+                read_at=now,
+            )
+        )
         updated += 1
     await db.commit()
     return ok(request, {"updatedCount": updated})

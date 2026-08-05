@@ -121,8 +121,8 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
             onFinishFailed={(errorInfo) => {
               // 自动滚动到首个错误字段（BForm scrollToFirstError 已处理，这里做兜底）
               if (errorInfo.errorFields.length > 0) {
-                const firstError = errorInfo.errorFields[0];
-                form.scrollToField(firstError.name);
+                const firstError = errorInfo.errorFields[0]!;
+                if (firstError) form.scrollToField(firstError.name);
               }
             }}
             requiredMark="optional"

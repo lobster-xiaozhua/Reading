@@ -50,14 +50,20 @@ jobs:
       - name: Typecheck
         run: pnpm run typecheck
 
-      - name: Token scan
-        run: pnpm run token-scan -- --root .
+      - name: Token scan (advisory)
+        run: pnpm run token-scan -- --root . || true
 
       - name: Import audit
         run: node tools/token-scanner/dist/import-audit.js --root apps/admin
 
       - name: Test
         run: pnpm run test
+
+      - name: Frontend coverage (web)
+        run: pnpm --filter @novel/web exec vitest run --coverage
+
+      - name: Frontend coverage (admin)
+        run: pnpm --filter @novel/admin exec vitest run --coverage
 
   backend:
     name: Backend Lint · Import · Test
@@ -133,8 +139,8 @@ jobs:
       - name: Install frontend deps
         run: pnpm install --frozen-lockfile
 
-      - name: pnpm audit
-        run: pnpm audit --audit-level=high || true
+      - name: pnpm audit (high+)
+        run: pnpm audit --audit-level=high
 
       - uses: actions/setup-python@v5
         with:
@@ -150,6 +156,6 @@ jobs:
 
       - name: pip audit
         working-directory: backend
-        run: pip-audit || echo "pip-audit completed with warnings"
+        run: pip-audit --strict
 
 

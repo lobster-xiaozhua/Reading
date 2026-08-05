@@ -59,24 +59,20 @@ class AuthService:
         # 颁发双 Token
         roles = ["super-admin"]  # demo：默认超管，生产环境查 admin_roles 表
         perms = ALL_PERMISSIONS
-        extra = {"username": admin.username, "nickname": admin.nickname,
-                 "roles": roles, "permissions": perms}
+        extra = {
+            "username": admin.username,
+            "nickname": admin.nickname,
+            "roles": roles,
+            "permissions": perms,
+        }
         access_ttl = settings.access_token_ttl
         refresh_ttl = settings.refresh_token_ttl_long if remember else settings.refresh_token_ttl
-        access_token, expires_at = create_token(
-            admin.id, "access", ttl=access_ttl, extra=extra
-        )
-        refresh_token, _ = create_token(
-            admin.id, "refresh", ttl=refresh_ttl, extra=extra
-        )
+        access_token, expires_at = create_token(admin.id, "access", ttl=access_ttl, extra=extra)
+        refresh_token, _ = create_token(admin.id, "refresh", ttl=refresh_ttl, extra=extra)
 
         # 存入 Redis
-        await self.redis.set(
-            CacheKeys.access_token(access_token), str(admin.id), ex=access_ttl
-        )
-        await self.redis.set(
-            CacheKeys.refresh_token(refresh_token), str(admin.id), ex=refresh_ttl
-        )
+        await self.redis.set(CacheKeys.access_token(access_token), str(admin.id), ex=access_ttl)
+        await self.redis.set(CacheKeys.refresh_token(refresh_token), str(admin.id), ex=refresh_ttl)
 
         # 更新最后登录时间
         admin.last_login_at = int(time.time() * 1000)
@@ -132,22 +128,18 @@ class AuthService:
 
         roles = ["super-admin"]
         perms = ALL_PERMISSIONS
-        extra = {"username": admin.username, "nickname": admin.nickname,
-                 "roles": roles, "permissions": perms}
+        extra = {
+            "username": admin.username,
+            "nickname": admin.nickname,
+            "roles": roles,
+            "permissions": perms,
+        }
         access_ttl = settings.access_token_ttl
         refresh_ttl = settings.refresh_token_ttl
-        access_token, expires_at = create_token(
-            admin.id, "access", ttl=access_ttl, extra=extra
-        )
-        new_refresh, _ = create_token(
-            admin.id, "refresh", ttl=refresh_ttl, extra=extra
-        )
-        await self.redis.set(
-            CacheKeys.access_token(access_token), str(admin.id), ex=access_ttl
-        )
-        await self.redis.set(
-            CacheKeys.refresh_token(new_refresh), str(admin.id), ex=refresh_ttl
-        )
+        access_token, expires_at = create_token(admin.id, "access", ttl=access_ttl, extra=extra)
+        new_refresh, _ = create_token(admin.id, "refresh", ttl=refresh_ttl, extra=extra)
+        await self.redis.set(CacheKeys.access_token(access_token), str(admin.id), ex=access_ttl)
+        await self.redis.set(CacheKeys.refresh_token(new_refresh), str(admin.id), ex=refresh_ttl)
 
         return LoginResponse(
             token=access_token,

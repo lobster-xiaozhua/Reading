@@ -95,7 +95,8 @@ async function evictIfNeeded(): Promise<void> {
   all.sort((a, b) => a.lastAccess - b.lastAccess);
   const removeCount = Math.max(1, Math.ceil(all.length * 0.2));
   for (let i = 0; i < removeCount; i++) {
-    await tx(STORE_CHAPTERS, 'readwrite', (s) => s.delete(all[i].key));
+    const item = all[i];
+    if (item) await tx(STORE_CHAPTERS, 'readwrite', (s) => s.delete(item.key));
   }
 }
 

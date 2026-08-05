@@ -21,8 +21,8 @@ from app.utils.cache import cache_set
 
 logger = structlog.get_logger(__name__)
 
-_TTL_SUGGESTION = 60     # 1 分钟
-_TTL_HOT_SEARCH = 300    # 5 分钟
+_TTL_SUGGESTION = 60  # 1 分钟
+_TTL_HOT_SEARCH = 300  # 5 分钟
 _MAX_SUGGESTIONS = 8
 
 
@@ -57,9 +57,7 @@ class SearchService:
         # 书名匹配
         novels = await self.novel_repo.search(keyword, limit=3)
         for n in novels:
-            suggestions.append(
-                SearchSuggestion(type="book", text=n.title, book_id=str(n.id))
-            )
+            suggestions.append(SearchSuggestion(type="book", text=n.title, book_id=str(n.id)))
         # 作者名匹配
         author_stmt = (
             select(Novel.author_name)
@@ -74,11 +72,7 @@ class SearchService:
         for name in (await self.session.execute(author_stmt)).scalars().all():
             suggestions.append(SearchSuggestion(type="author", text=name))
         # 标签匹配
-        tag_stmt = (
-            select(Tag.name)
-            .where(Tag.name.contains(keyword))
-            .limit(2)
-        )
+        tag_stmt = select(Tag.name).where(Tag.name.contains(keyword)).limit(2)
         for name in (await self.session.execute(tag_stmt)).scalars().all():
             suggestions.append(SearchSuggestion(type="tag", text=name))
 
@@ -161,9 +155,7 @@ class SearchService:
             )
             count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
             total = (await self.session.execute(count_stmt)).scalar_one()
-        result = await self.session.execute(
-            stmt.offset((page - 1) * page_size).limit(page_size)
-        )
+        result = await self.session.execute(stmt.offset((page - 1) * page_size).limit(page_size))
         return list(result.scalars().all()), total
 
     async def _record_search(self, keyword: str) -> None:
@@ -171,5 +163,3 @@ class SearchService:
             await self.redis.zincrby(CacheKeys.SEARCH_HOT_ZSET, 1.0, keyword)
         except Exception:
             logger.debug("搜索词频记录失败 keyword=%s", keyword, exc_info=True)
-
-

@@ -76,6 +76,7 @@ class TestAddWord:
 
     async def test_add_duplicate_word(self, svc, db_session):
         from sqlalchemy import select
+
         body1 = AddSensitiveWordBody(text="重复词", level=1, suggestion="高危")
         await svc.add_word(body1)
         body2 = AddSensitiveWordBody(text="重复词", level=2, suggestion="中危")

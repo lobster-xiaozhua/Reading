@@ -82,10 +82,18 @@ class TestGetBook:
         novel = await _create_published_novel(db_session)
         cache_key = CacheKeys.book(novel.id)
         cached = {
-            "id": novel.id, "title": "缓存标题", "author_name": "缓存作者",
-            "category": "xuanhuan", "status": "published", "word_count": 100,
-            "is_completed": 0, "rating": 4.0, "rating_count": 10,
-            "follow_count": 5, "click_count": 50, "flags": "",
+            "id": novel.id,
+            "title": "缓存标题",
+            "author_name": "缓存作者",
+            "category": "xuanhuan",
+            "status": "published",
+            "word_count": 100,
+            "is_completed": 0,
+            "rating": 4.0,
+            "rating_count": 10,
+            "follow_count": 5,
+            "click_count": 50,
+            "flags": "",
             "updated_at": 1000000,
         }
         await redis_client.set(cache_key, json.dumps(cached), ex=600)
@@ -209,6 +217,7 @@ class TestRatingDistribution:
     async def test_get_rating_distribution_cached(self, svc, db_session, redis_client):
         novel = await _create_published_novel(db_session)
         from app.schemas.c_end import RatingDistribution
+
         cached = RatingDistribution(total=10, average=4.0, buckets=[])
         await redis_client.set(CacheKeys.book_rating(novel.id), cached.model_dump_json(), ex=600)
         dist = await svc.get_rating_distribution(novel.id)

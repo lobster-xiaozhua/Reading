@@ -49,11 +49,7 @@ class ReviewRepository(BaseRepository[Review]):
 
     async def list_recent(self, limit: int = 20) -> list[Review]:
         """获取最近的书评列表，按时间降序排列。"""
-        stmt = (
-            select(Review)
-            .order_by(Review.created_at.desc())
-            .limit(limit)
-        )
+        stmt = select(Review).order_by(Review.created_at.desc()).limit(limit)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -72,9 +68,7 @@ class RewardRepository(BaseRepository[RewardRecord]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def create(
-        self, reader_id: int, novel_id: int, type_: str, amount: int
-    ) -> RewardRecord:
+    async def create(self, reader_id: int, novel_id: int, type_: str, amount: int) -> RewardRecord:
         """创建一条打赏记录。"""
         record = RewardRecord(
             reader_id=reader_id,

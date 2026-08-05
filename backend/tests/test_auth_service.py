@@ -119,7 +119,9 @@ class TestLogout:
 class TestGetCurrentUser:
     async def test_get_current_user(self, svc, db_session):
         await _create_admin(db_session)
-        ctx = AdminContext(id=1, username="admin", roles=["super-admin"], permissions=ALL_PERMISSIONS)
+        ctx = AdminContext(
+            id=1, username="admin", roles=["super-admin"], permissions=ALL_PERMISSIONS
+        )
         result = await svc.get_current_user(ctx)
         assert result.username == "admin"
 

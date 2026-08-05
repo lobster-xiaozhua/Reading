@@ -36,7 +36,12 @@ class NovelRepository(BaseRepository[Novel]):
             for tag in tags.split(","):
                 tag = tag.strip()
                 if tag:
-                    stmt = stmt.where(Novel.tags_str.contains(f",{tag},") | Novel.tags_str.like(f"{tag},%") | Novel.tags_str.like(f"%,{tag}") | (Novel.tags_str == tag))
+                    stmt = stmt.where(
+                        Novel.tags_str.contains(f",{tag},")
+                        | Novel.tags_str.like(f"{tag},%")
+                        | Novel.tags_str.like(f"%,{tag}")
+                        | (Novel.tags_str == tag)
+                    )
         stmt = stmt.order_by(sort_field)
         return await self.paginate(stmt, page, page_size)
 
@@ -59,9 +64,7 @@ class NovelRepository(BaseRepository[Novel]):
         if category and category != "all":
             stmt = stmt.where(Novel.category == category)
         if date_range and len(date_range) == 2:
-            stmt = stmt.where(
-                Novel.updated_at >= date_range[0], Novel.updated_at <= date_range[1]
-            )
+            stmt = stmt.where(Novel.updated_at >= date_range[0], Novel.updated_at <= date_range[1])
         stmt = stmt.order_by(Novel.updated_at.desc())
         return await self.paginate(stmt, page, page_size)
 
@@ -118,9 +121,7 @@ class NovelRepository(BaseRepository[Novel]):
 
     async def get_tags(self) -> list[Tag]:
         """获取全部标签，按引用次数降序排列。"""
-        result = await self.session.execute(
-            select(Tag).order_by(Tag.ref_count.desc())
-        )
+        result = await self.session.execute(select(Tag).order_by(Tag.ref_count.desc()))
         return list(result.scalars().all())
 
     async def get_banners(self) -> list[Banner]:

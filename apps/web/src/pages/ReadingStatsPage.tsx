@@ -14,6 +14,11 @@ import './ReadingStatsPage.css';
 const WEEKS = 53;
 const DAYS = 7;
 
+/** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo 每帧重算 */
+const EMPTY_CELLS: HeatmapCell[] = [];
+const EMPTY_PREFERENCES: PreferenceItem[] = [];
+const EMPTY_BADGES: Badge[] = [];
+
 /* ---------- 数字滚动：0 → target，dur-deliberate 540ms ease-out ---------- */
 function useCountUp(target: number, duration = 540): number {
   const [value, setValue] = useState(0);
@@ -125,7 +130,7 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
     y: number;
   } | null>(null);
 
-  const cells = state.data ?? [];
+  const cells = state.data ?? EMPTY_CELLS;
   const loading = state.loading && !state.loaded;
   const error = state.status === 'error';
 
@@ -141,7 +146,7 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
     const labels: string[] = [];
     let lastMonth = -1;
     for (let w = 0; w < weeks.length; w++) {
-      const first = weeks[w][0];
+      const first = weeks[w]?.[0];
       if (!first) {
         labels.push('');
         continue;
@@ -247,7 +252,7 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
 
 /* ---------- 3. 阅读偏好分布 ---------- */
 function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceItem[]> }) {
-  const preferences = state.data ?? [];
+  const preferences = state.data ?? EMPTY_PREFERENCES;
   const loading = state.loading && !state.loaded;
   const error = state.status === 'error';
   const [active, setActive] = useState<number | null>(null);
@@ -368,7 +373,7 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
 
 /* ---------- 4. 成就徽章墙 ---------- */
 function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
-  const badges = state.data ?? [];
+  const badges = state.data ?? EMPTY_BADGES;
   const loading = state.loading && !state.loaded;
   const error = state.status === 'error';
   const [activeId, setActiveId] = useState<string | null>(null);

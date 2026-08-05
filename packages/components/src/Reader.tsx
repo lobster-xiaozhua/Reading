@@ -218,6 +218,7 @@ export function Reader({
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
       const t = e.touches[0];
+      if (!t) return;
       touchStartX.current = t.clientX;
       touchStartY.current = t.clientY;
       touchStartTime.current = Date.now();
@@ -246,8 +247,10 @@ export function Reader({
       if (longPressFiredRef.current) return;
 
       if (touchStartX.current == null || touchStartY.current == null) return;
-      const endX = e.changedTouches[0].clientX;
-      const endY = e.changedTouches[0].clientY;
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const endX = touch.clientX;
+      const endY = touch.clientY;
       const dx = endX - touchStartX.current;
       const dy = endY - touchStartY.current;
       const threshold = 50;
@@ -292,6 +295,7 @@ export function Reader({
     (e: React.TouchEvent<HTMLDivElement>) => {
       if (touchStartX.current == null || touchStartY.current == null) return;
       const t = e.touches[0];
+      if (!t) return;
       const dx = Math.abs(t.clientX - touchStartX.current);
       const dy = Math.abs(t.clientY - touchStartY.current);
       if (dx > 10 || dy > 10) {

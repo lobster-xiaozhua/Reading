@@ -8,6 +8,7 @@ import json
 import time
 
 import structlog
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
@@ -46,7 +47,7 @@ class AuditService:
             level: 审核级别过滤（all/1/2/3）。
 
         Returns:
-            审核队列及统计信息。
+            审核队列及统计数据。
         """
         records, _ = await self.repo.list_queue(level=level, page=1, page_size=100)
         stats_data = await self.repo.stats(level=level)
@@ -55,7 +56,7 @@ class AuditService:
             today_processed=stats_data.get("today_processed", 0),
             by_level=stats_data.get("by_level", {}),
         )
-        items = [await self._record_to_item(r) for r in records]
+        items = await self._records_to_items(records)
         return AuditQueueResponse(items=items, stats=stats)
 
     # ── 审核历史 ─────────────────────────────────────────
@@ -95,14 +96,19 @@ class AuditService:
         Returns:
             审核提交结果（含下一条待审项 ID）。
         """
+
         async def _process_one(aid: str) -> None:
             audit_id = int(aid)
             record = await self.repo.get_by_id(audit_id)
             if not record or record.status != "pending":
                 raise NotFoundError("审核项不存在或已处理")
             await self._process_audit(
-                record, body.result, body.comment, body.reject_reason,
-                operator_id, operator_name,
+                record,
+                body.result,
+                body.comment,
+                body.reject_reason,
+                operator_id,
+                operator_name,
             )
             nonlocal next_id
             if not next_id:
@@ -139,8 +145,11 @@ class AuditService:
 
         # 写审核历史
         await self.repo.add_history(
-            record.id, operator_id, operator_name,
-            result.value, comment,
+            record.id,
+            operator_id,
+            operator_name,
+            result.value,
+            comment,
             reject_reason.value if reject_reason else "",
         )
 
@@ -159,6 +168,7 @@ class AuditService:
     async def _get_next_id(self, current_id: int) -> str | None:
         """获取下一条待审项 ID。"""
         from sqlalchemy import select
+
         stmt = (
             select(AuditRecord.id)
             .where(AuditRecord.status == "pending", AuditRecord.id != current_id)
@@ -169,7 +179,58 @@ class AuditService:
         nid = result.scalars().first()
         return str(nid) if nid else None
 
-    async def _record_to_item(self, record: AuditRecord) -> AuditItem:
+    async def _records_to_items(self, records: list[AuditRecord]) -> list[AuditItem]:
+        """批量转换审核记录为展示项（消除 N+1 查询）。"""
+        if not records:
+            return []
+
+        # ── 1. 收集全部需要查询的 ID ───────────────────────
+        novel_ids: set[int] = set()
+        chapter_ids: set[int] = set()
+        chapter_records: list[AuditRecord] = []  # 需要查章节的记录
+
+        for r in records:
+            if r.target_type == "novel":
+                novel_ids.add(r.target_id)
+            elif r.target_type == "chapter":
+                chapter_ids.add(r.target_id)
+                chapter_records.append(r)
+
+        # ── 2. 批量查询 Novel ───────────────────────────────
+        novels: dict[int, Novel] = {}
+        if novel_ids:
+            stmt = select(Novel).where(Novel.id.in_(novel_ids))
+            result = await self.session.execute(stmt)
+            for n in result.scalars().all():
+                novels[n.id] = n
+
+        # ── 3. 批量查询 Chapter + 级联 Novel ───────────────
+        chapters: dict[int, Chapter] = {}
+        if chapter_ids:
+            stmt = select(Chapter).where(Chapter.id.in_(chapter_ids))
+            result = await self.session.execute(stmt)
+            for c in result.scalars().all():
+                chapters[c.id] = c
+                novel_ids.add(c.novel_id)  # 章节关联的小说也需要加载
+
+            # 补充查询章节关联的小说（排除已加载的）
+            missing_novel_ids = novel_ids - novels.keys()
+            if missing_novel_ids:
+                stmt = select(Novel).where(Novel.id.in_(missing_novel_ids))
+                result = await self.session.execute(stmt)
+                for n in result.scalars().all():
+                    novels[n.id] = n
+
+        # ── 4. 组装结果 ────────────────────────────────────
+        return [self._record_to_item(r, novels, chapters) for r in records]
+
+    def _record_to_item(
+        self,
+        record: AuditRecord,
+        novels: dict[int, Novel],
+        chapters: dict[int, Chapter],
+    ) -> AuditItem:
+        """单条记录转换（使用预加载的字典，无额外查询）。"""
         target_title = ""
         chapter_title = ""
         novel_title = ""
@@ -177,19 +238,19 @@ class AuditService:
         content = ""
         word_count = 0
         if record.target_type == "novel":
-            novel = await self.session.get(Novel, record.target_id)
+            novel = novels.get(record.target_id)
             if novel:
                 target_title = novel.title
                 novel_title = novel.title
                 author = novel.author_name
         elif record.target_type == "chapter":
-            chapter = await self.session.get(Chapter, record.target_id)
+            chapter = chapters.get(record.target_id)
             if chapter:
                 target_title = chapter.title
                 chapter_title = chapter.title
                 content = chapter.content_text or chapter.content or ""
                 word_count = chapter.word_count or 0
-                novel = await self.session.get(Novel, chapter.novel_id)
+                novel = novels.get(chapter.novel_id)
                 if novel:
                     novel_title = novel.title
                     author = novel.author_name

@@ -6,9 +6,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  BookMeta,
-  BookCard,
-  Button,
   ChapterList,
   EmptyState,
   RewardButton,
@@ -19,7 +16,7 @@ import {
   type Chapter,
   type ChapterOrder,
 } from '@novel/components';
-import { NovelHeart, NovelHeartFilled, NovelComment, NavigationChevronLeft } from '@novel/icons';
+import { NovelHeart, NovelHeartFilled, NovelComment } from '@novel/icons';
 import { LazyImage } from '@/components/LazyImage';
 import { fetcher } from '@/api/fetcher';
 import type {
@@ -30,12 +27,18 @@ import type {
 } from '@/api/types';
 import { useUserStore } from '@/stores/userStore';
 import { useHistoryStore } from '@/stores/historyStore';
-import { toBook } from '@/utils/convert';
 import { formatRelativeTime } from '@/utils/time';
-import { RatingDistribution } from '@/components/RatingDistribution';
+import { BookDetailHero } from './BookDetailPage/BookDetailHero';
+import { BookDetailOverview } from './BookDetailPage/BookDetailOverview';
+import { BookDetailRelated } from './BookDetailPage/BookDetailRelated';
 import './BookDetailPage.css';
 
 type DetailTab = 'chapters' | 'comments' | 'reward';
+
+/** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo 每帧重算 */
+const EMPTY_CHAPTERS: ChapterSummary[] = [];
+const EMPTY_RELATED: BookSummary[] = [];
+const EMPTY_COMMENTS: Comment[] = [];
 
 function toChapter(c: ChapterSummary, readChapterIds: Set<string>): Chapter {
   return {
@@ -86,9 +89,9 @@ export default function BookDetailPage() {
   );
 
   const book = bookState.data ?? null;
-  const chapters = chaptersState.data ?? [];
-  const related = relatedState.data ?? [];
-  const comments = commentsState.data ?? [];
+  const chapters = chaptersState.data ?? EMPTY_CHAPTERS;
+  const related = relatedState.data ?? EMPTY_RELATED;
+  const comments = commentsState.data ?? EMPTY_COMMENTS;
   const rating = ratingState.data ?? null;
 
   /* ---------- 已读章节集合（来自历史） ---------- */
@@ -164,90 +167,16 @@ export default function BookDetailPage() {
       </nav>
 
       {/* 顶部：封面 + 元信息 + 操作 */}
-      <section className="book-detail__hero container-page">
-        <div className="book-detail__cover">
-          <LazyImage src={book.cover} alt={book.title} eager />
-          {book.flags.includes('vip') ? <span className="book-detail__flag book-detail__flag--vip">VIP</span> : null}
-          {book.flags.includes('free-limited') ? <span className="book-detail__flag book-detail__flag--free">限免</span> : null}
-        </div>
-        <div className="book-detail__meta">
-          <BookMeta
-            title={book.title}
-            author={book.author}
-            wordCount={book.wordCount}
-            chapterCount={chapters.length || undefined}
-            status={book.status}
-            updatedAt={book.lastUpdated}
-            tags={book.tags}
-            size="detailed"
-          />
-          <div className="book-detail__stats">
-            <div className="book-detail__stat">
-              <span className="book-detail__stat-value">{book.rating.toFixed(1)}</span>
-              <span className="book-detail__stat-label">评分</span>
-            </div>
-            <div className="book-detail__stat">
-              <span className="book-detail__stat-value">{(book.followCount / 10000).toFixed(1)}万</span>
-              <span className="book-detail__stat-label">收藏</span>
-            </div>
-            <div className="book-detail__stat">
-              <span className="book-detail__stat-value">{(book.clickCount / 10000).toFixed(0)}万</span>
-              <span className="book-detail__stat-label">点击</span>
-            </div>
-          </div>
-          <div className="book-detail__actions">
-            <Button variant="primary" size="lg" onClick={handleStartReading} className="book-detail__read-btn">
-              {historyEntry ? '继续阅读' : '开始阅读'}
-            </Button>
-            <Button
-              variant={isInBookshelf ? 'secondary' : 'ghost'}
-              size="lg"
-              onClick={handleToggleShelf}
-            >
-              {isInBookshelf ? '已在书架' : '加入书架'}
-            </Button>
-          </div>
-          {historyEntry ? (
-            <div className="book-detail__last-read">
-              <div className="book-detail__last-read-info">
-                <span className="book-detail__last-read-label">上次读到</span>
-                <span className="book-detail__last-read-text">
-                  第{historyEntry.chapterIndex}章 {historyEntry.chapterTitle}
-                </span>
-              </div>
-              <div className="book-detail__last-read-progress">
-                <div className="book-detail__last-read-track">
-                  <div
-                    className="book-detail__last-read-fill"
-                    style={{ width: `${historyEntry.percent}%` }}
-                  />
-                </div>
-                <span className="book-detail__last-read-pct">{historyEntry.percent}%</span>
-              </div>
-              <button
-                type="button"
-                className="book-detail__last-read-btn"
-                onClick={handleStartReading}
-              >
-                <NavigationChevronLeft size="xs" />
-                继续阅读
-              </button>
-            </div>
-          ) : null}
-        </div>
-      </section>
+      <BookDetailHero
+        book={book}
+        chapters={chapters}
+        isInBookshelf={isInBookshelf}
+        historyEntry={historyEntry}
+        onToggleShelf={handleToggleShelf}
+        onStartReading={handleStartReading}
+      />
 
-      {/* 简介 */}
-      <section className="book-detail__intro container-page">
-        <h2 className="book-detail__section-title">内容简介</h2>
-        <p className="book-detail__intro-text">{book.intro}</p>
-      </section>
-
-      {/* 评分分布 */}
-      <section className="book-detail__rating container-page">
-        <h2 className="book-detail__section-title">评分分布</h2>
-        {rating ? <RatingDistribution data={rating} /> : <Skeleton rows={3} />}
-      </section>
+      <BookDetailOverview intro={book.intro} rating={rating} />
 
       {/* 目录 / 评论 / 打赏 Tab */}
       <section className="book-detail__tabs container-page">
@@ -295,20 +224,7 @@ export default function BookDetailPage() {
       </section>
 
       {/* 相关推荐 */}
-      <section className="book-detail__related container-page">
-        <h2 className="book-detail__section-title">相关推荐</h2>
-        {relatedState.loading && related.length === 0 ? (
-          <Skeleton rows={4} />
-        ) : related.length === 0 ? (
-          <EmptyState title="暂无相关推荐" />
-        ) : (
-          <div className="book-detail__related-grid">
-            {related.map((b) => (
-              <BookCard key={b.id} book={toBook(b)} variant="grid" size="sm" />
-            ))}
-          </div>
-        )}
-      </section>
+      <BookDetailRelated related={related} loading={relatedState.loading} />
     </div>
   );
 }

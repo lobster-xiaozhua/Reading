@@ -10,5 +10,15 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.stories.tsx', 'src/main.tsx', 'src/**/index.ts'],
+      thresholds: {
+        lines: 3,
+        functions: 19,
+        branches: 38,
+      },
+    },
   },
 });

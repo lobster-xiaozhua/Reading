@@ -7,6 +7,7 @@ import { registerServiceWorker } from './sw-register';
 import { initPerfObservers } from './utils/perf';
 import { initErrorMonitor } from '@novel/components';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { UpdatePrompt } from './components/UpdatePrompt';
 import './styles/global.css';
 
 // P7-6 离线阅读：注册 Service Worker（生产环境）
@@ -20,6 +21,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
       <FeedbackProvider>
+        <UpdatePrompt />
         <RouterProvider router={router} />
       </FeedbackProvider>
     </ErrorBoundary>

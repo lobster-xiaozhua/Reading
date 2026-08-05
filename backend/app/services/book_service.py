@@ -32,7 +32,7 @@ from app.utils.cache import cache_set
 
 logger = structlog.get_logger(__name__)
 
-_TTL_BOOK = 600       # 10 分钟
+_TTL_BOOK = 600  # 10 分钟
 _TTL_RATING = 600
 
 
@@ -192,7 +192,8 @@ class BookService:
             raise NotFoundError("作品不存在或已下架")
 
         await cache_set(
-            self.redis, CacheKeys.book(book_id),
+            self.redis,
+            CacheKeys.book(book_id),
             {
                 "id": novel.id,
                 "title": novel.title,
@@ -220,9 +221,7 @@ class BookService:
         except Exception:
             logger.debug("点击计数失败 book_id=%s", book_id, exc_info=True)
 
-    async def _list_comments_with_users(
-        self, novel_id: int, limit: int
-    ) -> list[Comment]:
+    async def _list_comments_with_users(self, novel_id: int, limit: int) -> list[Comment]:
         stmt = (
             select(CommentModel)
             .where(CommentModel.novel_id == novel_id, CommentModel.status == 1)
@@ -242,8 +241,6 @@ class BookService:
             )
             for c in comments
         ]
-
-
 
 
 def _chapter_to_list_item(ch: Chapter, novel_id: int) -> ChapterListItem:

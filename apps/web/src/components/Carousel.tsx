@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { Banner } from '@/api/types';
 import './Carousel.css';
@@ -18,8 +18,12 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pausedRef = useRef(false);
 
-  const next = () => setActive((i) => (i + 1) % banners.length);
-  const prev = () => setActive((i) => (i - 1 + banners.length) % banners.length);
+  const next = useCallback(() => {
+    setActive((i) => (i + 1) % banners.length);
+  }, [banners.length]);
+  const prev = useCallback(() => {
+    setActive((i) => (i - 1 + banners.length) % banners.length);
+  }, [banners.length]);
 
   useEffect(() => {
     if (!interval || banners.length <= 1) return;
@@ -29,7 +33,7 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [interval, banners.length]);
+  }, [interval, banners.length, next]);
 
   if (banners.length === 0) {
     return <div className="novel-carousel__placeholder" aria-label="Banner 加载中" />;

@@ -35,9 +35,12 @@ async def register(
 ):
     from sqlalchemy import select
 
-    existing = (await db.execute(select(Reader).where(Reader.username == body.username))).scalar_one_or_none()
+    existing = (
+        await db.execute(select(Reader).where(Reader.username == body.username))
+    ).scalar_one_or_none()
     if existing:
         from app.core.exceptions import BizError, ErrorCode
+
         raise BizError(ErrorCode.PARAM_INVALID, "用户名已存在")
 
     reader = Reader(
@@ -50,7 +53,13 @@ async def register(
     await db.refresh(reader)
 
     token, _ = create_token(reader.id, token_type="access", extra={"username": reader.username})
-    return ok(request, LoginResponse(token=token, user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname}))
+    return ok(
+        request,
+        LoginResponse(
+            token=token,
+            user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname},
+        ),
+    )
 
 
 @router.post("/login")
@@ -63,7 +72,9 @@ async def login(
 
     from app.core.exceptions import BizError, ErrorCode
 
-    reader = (await db.execute(select(Reader).where(Reader.username == body.username))).scalar_one_or_none()
+    reader = (
+        await db.execute(select(Reader).where(Reader.username == body.username))
+    ).scalar_one_or_none()
     if not reader:
         raise BizError(ErrorCode.PARAM_INVALID, "用户名或密码错误")
 
@@ -71,7 +82,13 @@ async def login(
         raise BizError(ErrorCode.PARAM_INVALID, "用户名或密码错误")
 
     token, _ = create_token(reader.id, token_type="access", extra={"username": reader.username})
-    return ok(request, LoginResponse(token=token, user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname}))
+    return ok(
+        request,
+        LoginResponse(
+            token=token,
+            user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname},
+        ),
+    )
 
 
 @router.get("/me")
@@ -85,5 +102,14 @@ async def get_me(
     reader = (await db.execute(select(Reader).where(Reader.id == reader_id))).scalar_one_or_none()
     if not reader:
         from app.core.exceptions import BizError, ErrorCode
+
         raise BizError(ErrorCode.RESOURCE_NOT_FOUND, "用户不存在")
-    return ok(request, {"id": str(reader.id), "username": reader.username, "nickname": reader.nickname, "avatar": reader.avatar})
+    return ok(
+        request,
+        {
+            "id": str(reader.id),
+            "username": reader.username,
+            "nickname": reader.nickname,
+            "avatar": reader.avatar,
+        },
+    )

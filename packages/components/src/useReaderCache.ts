@@ -106,10 +106,10 @@ export function useReaderCache({
   const [error, setError] = useState<Error | null>(null);
 
   const currentIndex = chapters.findIndex((c) => c.id === currentId);
-  const prevId = currentIndex > 0 ? chapters[currentIndex - 1].id : null;
+  const prevId = currentIndex > 0 ? chapters[currentIndex - 1]!.id : null;
   const nextId =
     currentIndex >= 0 && currentIndex < chapters.length - 1
-      ? chapters[currentIndex + 1].id
+      ? chapters[currentIndex + 1]!.id
       : null;
 
   /** 拉取单章并写入缓存；返回 cached chapter */
@@ -181,7 +181,7 @@ export function useReaderCache({
     const start = Math.max(0, currentIndex - preloadRadius);
     const end = Math.min(chapters.length - 1, currentIndex + preloadRadius);
     for (let i = start; i <= end; i++) {
-      const id = chapters[i].id;
+      const id = chapters[i]!.id;
       if (!cacheRef.current.has(id) && !inflightRef.current.has(id)) {
         // 静默预加载，错误吞掉（不影响当前章）
         loadChapter(id).catch(() => {

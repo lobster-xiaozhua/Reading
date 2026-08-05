@@ -92,9 +92,7 @@ class RoleService:
         return await self.get_detail(role_key)
 
     # ── 更新角色元信息 ─────────────────────────────────────
-    async def update_meta(
-        self, role_key: str, body: UpdateRoleMetaBody
-    ) -> RoleDetail:
+    async def update_meta(self, role_key: str, body: UpdateRoleMetaBody) -> RoleDetail:
         """更新角色元信息（名称、描述、数据范围）。
 
         Args:

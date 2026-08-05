@@ -106,9 +106,7 @@ class TestReadingHeatmap:
 
     async def test_with_data(self, svc, db_session):
         today = date.today()
-        stats = ReadingStatsDaily(
-            reader_id=1, stat_date=today, duration_minutes=30, words=500
-        )
+        stats = ReadingStatsDaily(reader_id=1, stat_date=today, duration_minutes=30, words=500)
         db_session.add(stats)
         await db_session.flush()
         result = await svc.get_reading_heatmap()

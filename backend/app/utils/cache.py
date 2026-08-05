@@ -11,9 +11,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
-async def cache_set(
-    redis_client: object, key: str, data: object, ttl: int
-) -> None:
+async def cache_set(redis_client: object, key: str, data: object, ttl: int) -> None:
     """写入 Redis 缓存，失败时仅记录警告。
 
     Args:

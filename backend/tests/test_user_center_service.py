@@ -111,10 +111,24 @@ class TestGetReadingHistory:
     async def test_with_data(self, svc, db_session):
         await _create_reader(db_session)
         novel = await _create_novel(db_session)
-        chapter = Chapter(novel_id=novel.id, index=1, title="第一章", content="内容", status="published", word_count=500)
+        chapter = Chapter(
+            novel_id=novel.id,
+            index=1,
+            title="第一章",
+            content="内容",
+            status="published",
+            word_count=500,
+        )
         db_session.add(chapter)
         await db_session.flush()
-        history = ReadingHistory(reader_id=1001, novel_id=novel.id, chapter_id=chapter.id, chapter_index=1, percent=0.5, read_at=int(time.time() * 1000))
+        history = ReadingHistory(
+            reader_id=1001,
+            novel_id=novel.id,
+            chapter_id=chapter.id,
+            chapter_index=1,
+            percent=0.5,
+            read_at=int(time.time() * 1000),
+        )
         db_session.add(history)
         await db_session.flush()
         items = await svc.get_reading_history(1001)
@@ -131,7 +145,14 @@ class TestRewardRecords:
         await _create_reader(db_session)
         novel = await _create_novel(db_session)
         from app.models.interaction import RewardRecord as RewardModel
-        reward = RewardModel(reader_id=1001, novel_id=novel.id, type="ticket", amount=1, created_at=int(time.time() * 1000))
+
+        reward = RewardModel(
+            reader_id=1001,
+            novel_id=novel.id,
+            type="ticket",
+            amount=1,
+            created_at=int(time.time() * 1000),
+        )
         db_session.add(reward)
         await db_session.flush()
         records = await svc.get_reward_records(1001)
@@ -173,6 +194,7 @@ class TestHeatmap:
     async def test_redis_cache(self, svc, db_session, redis_client):
         await _create_reader(db_session)
         from app.schemas.c_end import HeatmapCell
+
         cached = [HeatmapCell(date="2026-01-01", duration=10)]
         await redis_client.set(
             "cache:heatmap:1001",
@@ -190,7 +212,9 @@ class TestPreferences:
     async def test_with_data(self, svc, db_session):
         await _create_reader(db_session)
         await _create_novel(db_session, category="xuanhuan")
-        stats = ReadingStatsDaily(reader_id=1001, stat_date=date.today(), duration_minutes=30, words=500)
+        stats = ReadingStatsDaily(
+            reader_id=1001, stat_date=date.today(), duration_minutes=30, words=500
+        )
         db_session.add(stats)
         await db_session.flush()
         prefs = await svc.get_preferences(1001)
@@ -204,7 +228,9 @@ class TestBadges:
         assert all(b.unlocked is False for b in badges)
 
     async def test_build_badges_unlocked(self):
-        badges = _build_badges({"reading_days": 30, "total_reading_minutes": 1000, "total_read_words": 1_000_000})
+        badges = _build_badges(
+            {"reading_days": 30, "total_reading_minutes": 1000, "total_read_words": 1_000_000}
+        )
         unlocked = [b for b in badges if b.unlocked]
         assert len(unlocked) == 4
 

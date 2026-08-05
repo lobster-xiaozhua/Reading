@@ -50,9 +50,7 @@ class PagedResult(CamelModel, Generic[T]):
     hasMore: bool = False
 
     @classmethod
-    def build(
-        cls, items: list[T], total: int, page: int, page_size: int
-    ) -> "PagedResult[T]":
+    def build(cls, items: list[T], total: int, page: int, page_size: int) -> "PagedResult[T]":
         return cls(
             items=items,
             total=total,

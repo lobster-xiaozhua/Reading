@@ -148,13 +148,12 @@ class RoyaltyService:
         """
         if not ids:
             return
-        stmt = select(RoyaltyDetail.id, RoyaltyDetail.status).where(
-            RoyaltyDetail.id.in_(ids)
-        )
+        stmt = select(RoyaltyDetail.id, RoyaltyDetail.status).where(RoyaltyDetail.id.in_(ids))
         rows = (await self.session.execute(stmt)).all()
         invalid_ids = [str(rid) for rid, status in rows if status != expected]
         if invalid_ids:
             from app.core.exceptions import BizError, ErrorCode
+
             raise BizError(
                 ErrorCode.NOVEL_STATUS_INVALID,
                 f"记录 {', '.join(invalid_ids)} 状态不是 {expected}，无法执行操作",

@@ -88,9 +88,7 @@ async def create_comment(
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    comment_id = await svc.create_comment(
-        reader_id, book_id, body.content, body.rating
-    )
+    comment_id = await svc.create_comment(reader_id, book_id, body.content, body.rating)
     return ok(request, {"id": comment_id})
 
 
@@ -114,9 +112,7 @@ async def create_reward(
     db: AsyncSession = Depends(get_db),
 ):
     svc = InteractionService(db, await get_redis_client())
-    record_id = await svc.create_reward(
-        reader_id, book_id, body.type, body.amount
-    )
+    record_id = await svc.create_reward(reader_id, book_id, body.type, body.amount)
     return ok(request, {"id": record_id})
 
 

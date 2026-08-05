@@ -12,9 +12,7 @@ class Bookshelf(Base, IdMixin):
     """书架。"""
 
     __tablename__ = "bookshelves"
-    __table_args__ = (
-        UniqueConstraint("reader_id", "novel_id", name="uq_bookshelf_reader_novel"),
-    )
+    __table_args__ = (UniqueConstraint("reader_id", "novel_id", name="uq_bookshelf_reader_novel"),)
 
     reader_id: Mapped[int] = mapped_column(BigInteger)
     novel_id: Mapped[int] = mapped_column(BigInteger)
@@ -42,9 +40,7 @@ class ReadingStatsDaily(Base, IdMixin):
     """每日阅读统计（热力图 / 偏好 / 徽章）。"""
 
     __tablename__ = "reading_stats_daily"
-    __table_args__ = (
-        UniqueConstraint("reader_id", "stat_date", name="uq_stats_reader_date"),
-    )
+    __table_args__ = (UniqueConstraint("reader_id", "stat_date", name="uq_stats_reader_date"),)
 
     reader_id: Mapped[int] = mapped_column(BigInteger)
     stat_date: Mapped[date] = mapped_column(Date)

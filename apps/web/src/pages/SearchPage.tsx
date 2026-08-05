@@ -22,6 +22,10 @@ import './SearchPage.css';
 const DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
 
+/** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo 每帧重算 */
+const EMPTY_SUGGESTIONS: SearchSuggestion[] = [];
+const EMPTY_HOT: string[] = [];
+
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') ?? '';
@@ -44,7 +48,7 @@ export default function SearchPage() {
     () => fetcher.getHotSearches(),
     { initial: [] as string[], loadingDelay: 200 },
   );
-  const hotSearches = hotState.data ?? [];
+  const hotSearches = hotState.data ?? EMPTY_HOT;
 
   /* ---------- 联想建议（防抖 300ms） ---------- */
   useEffect(() => {
@@ -64,7 +68,7 @@ export default function SearchPage() {
     fetchSuggestions,
     { deps: [debouncedInput], initial: [] as SearchSuggestion[], loadingDelay: 150 },
   );
-  const suggestions = suggestState.data ?? [];
+  const suggestions = suggestState.data ?? EMPTY_SUGGESTIONS;
 
   /* ---------- 搜索结果（累积分页） ---------- */
   const [results, setResults] = useState<BookSummary[]>([]);
@@ -188,7 +192,8 @@ export default function SearchPage() {
       case 'Enter':
         e.preventDefault();
         if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
-          handleSelectSuggestion(suggestions[activeSuggestionIndex]);
+          const suggestion = suggestions[activeSuggestionIndex]!;
+          handleSelectSuggestion(suggestion);
         }
         break;
       case 'Escape':

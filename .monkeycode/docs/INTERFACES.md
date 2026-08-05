@@ -138,6 +138,25 @@
 | PUT | `/me/notes/{note_id}` | 更新笔记 |
 | DELETE | `/me/notes/{note_id}` | 删除笔记 |
 
+### RUM `/api/v1/c/rum`
+
+前端性能指标（Web Vitals）与运行时错误匿名埋点，`sendBeacon` / `fetch keepalive` 上报，不鉴权、不落库（后端记日志供可观测性消费）。
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/rum` | 上报单条事件 |
+
+请求体（camelCase）：
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| type | `"perf" \| "error"` | 事件类型 |
+| name | string | 指标/错误名（如 `LCP`、`TypeError`） |
+| value | number? | 指标值（ms） |
+| rating | string? | 指标评级 `good/needs-improvement/poor` |
+| message | string? | 错误消息 |
+| meta | object? | 附加上下文（path/method/status 等） |
+
 ---
 
 ## B 端 API（管理后台）

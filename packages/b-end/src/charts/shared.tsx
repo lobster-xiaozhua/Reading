@@ -45,12 +45,12 @@ export function getChartColors(): string[] {
   }
   const root = getComputedStyle(document.documentElement);
   return [
-    root.getPropertyValue('--color-chart-1').trim() || CHART_COLOR_FALLBACKS[0],
-    root.getPropertyValue('--color-chart-2').trim() || CHART_COLOR_FALLBACKS[1],
-    root.getPropertyValue('--color-chart-3').trim() || CHART_COLOR_FALLBACKS[2],
-    root.getPropertyValue('--color-chart-4').trim() || CHART_COLOR_FALLBACKS[3],
-    root.getPropertyValue('--color-chart-5').trim() || CHART_COLOR_FALLBACKS[4],
-    root.getPropertyValue('--color-chart-6').trim() || CHART_COLOR_FALLBACKS[5],
+    root.getPropertyValue('--color-chart-1').trim() || CHART_COLOR_FALLBACKS[0]!,
+    root.getPropertyValue('--color-chart-2').trim() || CHART_COLOR_FALLBACKS[1]!,
+    root.getPropertyValue('--color-chart-3').trim() || CHART_COLOR_FALLBACKS[2]!,
+    root.getPropertyValue('--color-chart-4').trim() || CHART_COLOR_FALLBACKS[3]!,
+    root.getPropertyValue('--color-chart-5').trim() || CHART_COLOR_FALLBACKS[4]!,
+    root.getPropertyValue('--color-chart-6').trim() || CHART_COLOR_FALLBACKS[5]!,
   ];
 }
 

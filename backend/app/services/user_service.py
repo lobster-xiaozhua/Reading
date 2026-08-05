@@ -42,16 +42,13 @@ class UserService:
         stmt = select(Reader).where(Reader.deleted == 0)
         if search_key:
             stmt = stmt.where(
-                Reader.username.contains(search_key)
-                | Reader.nickname.contains(search_key)
+                Reader.username.contains(search_key) | Reader.nickname.contains(search_key)
             )
         stmt = stmt.order_by(Reader.created_at.desc())
 
         count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
         total = (await self.session.execute(count_stmt)).scalar_one()
-        result = await self.session.execute(
-            stmt.offset((page - 1) * page_size).limit(page_size)
-        )
+        result = await self.session.execute(stmt.offset((page - 1) * page_size).limit(page_size))
         readers = list(result.scalars().all())
         items = [
             UserListItem(

@@ -157,8 +157,9 @@ export function Select({
     if (selectedArr.length === 0) {
       return <span className="novel-select__placeholder">{placeholder}</span>;
     }
-    const opt = optionMap.get(selectedArr[0]);
-    return <span className="novel-select__value">{opt?.label ?? selectedArr[0]}</span>;
+    const selected = selectedArr[0]!;
+    const opt = optionMap.get(selected);
+    return <span className="novel-select__value">{opt?.label ?? selected}</span>;
   };
 
   return (

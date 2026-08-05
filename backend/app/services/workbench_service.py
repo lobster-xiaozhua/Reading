@@ -38,16 +38,17 @@ class WorkbenchService:
             return WorkbenchKpi.model_validate_json(cached)
 
         total_novels = await self._count(Novel, Novel.deleted == 0)
-        published = await self._count(
-            Novel, Novel.deleted == 0, Novel.status == "published"
-        )
+        published = await self._count(Novel, Novel.deleted == 0, Novel.status == "published")
         pending = await self._count(Novel, Novel.deleted == 0, Novel.status == "pending")
         total_authors = await self._count(Author, Author.deleted == 0)
         total_readers = await self._count(Reader, Reader.deleted == 0)
 
         from app.models.interaction import RewardRecord
+
         today_start = int(time.mktime(date.today().timetuple())) * 1000
-        today_revenue = await self._sum(RewardRecord, RewardRecord.amount, RewardRecord.created_at >= today_start)
+        today_revenue = await self._sum(
+            RewardRecord, RewardRecord.amount, RewardRecord.created_at >= today_start
+        )
 
         kpi = WorkbenchKpi(
             total_novels=total_novels,
@@ -125,7 +126,12 @@ class WorkbenchService:
             {"key": "totalChapters", "label": "章节总数", "value": total_chapters, "icon": "file"},
             {"key": "pendingAudit", "label": "待审核", "value": pending_audit, "icon": "clock"},
             {"key": "todayRewards", "label": "今日打赏", "value": today_rewards, "icon": "star"},
-            {"key": "todayComments", "label": "今日评论", "value": today_comments, "icon": "message"},
+            {
+                "key": "todayComments",
+                "label": "今日评论",
+                "value": today_comments,
+                "icon": "message",
+            },
         ]
 
     # ── 内部工具 ─────────────────────────────────────────

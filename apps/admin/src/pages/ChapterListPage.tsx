@@ -160,8 +160,8 @@ function InlineEditableTitle({ value, onSave }: { value: string; onSave: (v: str
           style={{ width: 280 }}
           disabled={saving}
         />
-        <Button type="link" size="small" icon={<SaveOutlined />} onClick={commit} disabled={saving} />
-        <Button type="link" size="small" icon={<CloseOutlined />} onClick={cancel} disabled={saving} />
+        <Button type="link" size="small" icon={<SaveOutlined />} onClick={commit} disabled={saving} aria-label={t('common:save')} />
+        <Button type="link" size="small" icon={<CloseOutlined />} onClick={cancel} disabled={saving} aria-label={t('common:cancel')} />
       </Space>
     );
   }

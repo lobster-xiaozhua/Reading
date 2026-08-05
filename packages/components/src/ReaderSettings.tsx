@@ -86,8 +86,8 @@ export function ReaderSettings({
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         );
         if (focusables.length === 0) return;
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
+        const first = focusables[0]!;
+        const last = focusables[focusables.length - 1]!;
         if (e.shiftKey && document.activeElement === first) {
           e.preventDefault();
           last.focus();
@@ -148,10 +148,10 @@ export function ReaderSettings({
                 type="button"
                 className="novel-reader-settings__step-btn"
                 aria-label="减小字号"
-                disabled={settings.fontSize <= FONT_SIZE_OPTIONS[0]}
+                disabled={settings.fontSize <= (FONT_SIZE_OPTIONS[0] ?? 0)}
                 onClick={() => {
                   const idx = FONT_SIZE_OPTIONS.indexOf(settings.fontSize);
-                  if (idx > 0) updateField('fontSize', FONT_SIZE_OPTIONS[idx - 1]);
+                  if (idx > 0) updateField('fontSize', FONT_SIZE_OPTIONS[idx - 1] ?? settings.fontSize);
                 }}
               >
                 A-
@@ -165,7 +165,7 @@ export function ReaderSettings({
                 value={FONT_SIZE_OPTIONS.indexOf(settings.fontSize)}
                 onChange={(e) => {
                   const idx = Number(e.target.value);
-                  updateField('fontSize', FONT_SIZE_OPTIONS[idx]);
+                  updateField('fontSize', FONT_SIZE_OPTIONS[idx] ?? settings.fontSize);
                 }}
                 aria-label="字号"
               />
@@ -173,11 +173,11 @@ export function ReaderSettings({
                 type="button"
                 className="novel-reader-settings__step-btn"
                 aria-label="增大字号"
-                disabled={settings.fontSize >= FONT_SIZE_OPTIONS[FONT_SIZE_OPTIONS.length - 1]}
+                disabled={settings.fontSize >= (FONT_SIZE_OPTIONS[FONT_SIZE_OPTIONS.length - 1] ?? settings.fontSize)}
                 onClick={() => {
                   const idx = FONT_SIZE_OPTIONS.indexOf(settings.fontSize);
                   if (idx < FONT_SIZE_OPTIONS.length - 1)
-                    updateField('fontSize', FONT_SIZE_OPTIONS[idx + 1]);
+                    updateField('fontSize', FONT_SIZE_OPTIONS[idx + 1] ?? settings.fontSize);
                 }}
               >
                 A+

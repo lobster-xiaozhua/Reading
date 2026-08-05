@@ -77,8 +77,12 @@ class TestAuditQueue:
         assert result.stats.pending_count == 1
 
     async def test_get_queue_filters_by_level(self, svc, db_session):
-        await _create_audit_record(db_session, target_type="novel", target_id=1, level=AuditLevel.SECOND)
-        await _create_audit_record(db_session, target_type="novel", target_id=2, level=AuditLevel.FINAL)
+        await _create_audit_record(
+            db_session, target_type="novel", target_id=1, level=AuditLevel.SECOND
+        )
+        await _create_audit_record(
+            db_session, target_type="novel", target_id=2, level=AuditLevel.FINAL
+        )
         result = await svc.get_queue(level="second")
         assert len(result.items) == 1
         assert result.items[0].level == AuditLevel.SECOND
@@ -92,6 +96,7 @@ class TestAuditHistory:
 
     async def test_get_history_with_data(self, svc, db_session):
         from app.repositories.audit_repo import AuditRepository
+
         repo = AuditRepository(db_session)
         record = await _create_audit_record(db_session)
         await repo.add_history(record.id, 1, "管理员", "approved", "内容合格", "")
@@ -106,7 +111,9 @@ class TestAuditSubmit:
         novel = await _create_novel(db_session)
         chapter = await _create_chapter(db_session, novel.id)
         record = await _create_audit_record(
-            db_session, target_type="chapter", target_id=chapter.id,
+            db_session,
+            target_type="chapter",
+            target_id=chapter.id,
         )
         body = AuditSubmitBody(ids=[str(record.id)], result="approve", comment="通过")
         result = await svc.submit_audit(body, 1, "审核员")
@@ -118,9 +125,13 @@ class TestAuditSubmit:
         novel = await _create_novel(db_session)
         chapter = await _create_chapter(db_session, novel.id)
         record = await _create_audit_record(
-            db_session, target_type="chapter", target_id=chapter.id,
+            db_session,
+            target_type="chapter",
+            target_id=chapter.id,
         )
-        body = AuditSubmitBody(ids=[str(record.id)], result="reject", comment="内容不符", reject_reason="other")
+        body = AuditSubmitBody(
+            ids=[str(record.id)], result="reject", comment="内容不符", reject_reason="other"
+        )
         result = await svc.submit_audit(body, 1, "审核员")
         assert result.success is True
         await db_session.refresh(chapter)
@@ -150,7 +161,9 @@ class TestAuditSubmit:
         r1 = await _create_audit_record(db_session, target_type="novel", target_id=1)
         chapter = await _create_chapter(db_session, novel.id)
         r2 = await _create_audit_record(
-            db_session, target_type="chapter", target_id=chapter.id,
+            db_session,
+            target_type="chapter",
+            target_id=chapter.id,
         )
         body = AuditSubmitBody(ids=[str(r1.id), str(r2.id)], result="approve", comment="批量通过")
         result = await svc.submit_audit(body, 1, "审核员")
@@ -158,10 +171,14 @@ class TestAuditSubmit:
 
 
 class TestRecordToItem:
+    async def _to_item(self, svc, record):
+        items = await svc._records_to_items([record])
+        return items[0]
+
     async def test_novel_record_to_item(self, svc, db_session):
         novel = await _create_novel(db_session)
         record = await _create_audit_record(db_session, target_type="novel", target_id=novel.id)
-        item = await svc._record_to_item(record)
+        item = await self._to_item(svc, record)
         assert item.target_type == "novel"
         assert item.novel_title == novel.title
         assert item.author == novel.author_name
@@ -170,9 +187,11 @@ class TestRecordToItem:
         novel = await _create_novel(db_session)
         chapter = await _create_chapter(db_session, novel.id, content_text="第一章内容", content="")
         record = await _create_audit_record(
-            db_session, target_type="chapter", target_id=chapter.id,
+            db_session,
+            target_type="chapter",
+            target_id=chapter.id,
         )
-        item = await svc._record_to_item(record)
+        item = await self._to_item(svc, record)
         assert item.target_type == "chapter"
         assert item.chapter_title == chapter.title
         assert item.novel_title == novel.title
@@ -180,22 +199,31 @@ class TestRecordToItem:
 
     async def test_record_with_sensitive_hits(self, svc, db_session):
         import json
-        hits = json.dumps([
-            {"text": "违规词", "level": 1, "offset": 0, "suggestion": "删除"},
-        ])
-        record = await _create_audit_record(
-            db_session, target_type="novel", target_id=1, sensitive_hits=hits,
+
+        hits = json.dumps(
+            [
+                {"text": "违规词", "level": 1, "offset": 0, "suggestion": "删除"},
+            ]
         )
-        item = await svc._record_to_item(record)
+        record = await _create_audit_record(
+            db_session,
+            target_type="novel",
+            target_id=1,
+            sensitive_hits=hits,
+        )
+        item = await self._to_item(svc, record)
         assert len(item.sensitive_hits) == 1
         assert item.sensitive_hits[0].text == "违规词"
         assert item.sensitive_hits[0].level == 1
 
     async def test_record_with_invalid_sensitive_hits(self, svc, db_session):
         record = await _create_audit_record(
-            db_session, target_type="novel", target_id=1, sensitive_hits="invalid json",
+            db_session,
+            target_type="novel",
+            target_id=1,
+            sensitive_hits="invalid json",
         )
-        item = await svc._record_to_item(record)
+        item = await self._to_item(svc, record)
         assert len(item.sensitive_hits) == 0
 
     async def test_record_not_found(self, svc, db_session):
@@ -203,8 +231,27 @@ class TestRecordToItem:
         record = await _create_audit_record(db_session, target_type="novel", target_id=999)
         await db_session.delete(novel)
         await db_session.flush()
-        item = await svc._record_to_item(record)
+        item = await self._to_item(svc, record)
         assert item.target_title == ""
+
+
+class TestGetQueueNoNPlusOne:
+    async def test_get_queue_query_count_bounded(self, svc, db_session, db_query_counter):
+        """批量转换记录不应随条数线性增加 DB 查询（N+1 回归防护）。"""
+        counts, reset = db_query_counter
+        novel = await _create_novel(db_session)
+        chapters = [await _create_chapter(db_session, novel.id, index=i) for i in range(1, 31)]
+        for _ in range(30):
+            await _create_audit_record(db_session, target_type="novel", target_id=novel.id)
+        for c in chapters:
+            await _create_audit_record(db_session, target_type="chapter", target_id=c.id)
+
+        reset()
+        result = await svc.get_queue()
+
+        assert result.stats.pending_count == 60
+        # 批量加载实现下查询次数有恒定上界（list_queue + stats + 2~3 次 in_ 查询）
+        assert counts[0] <= 15
 
 
 class TestGetNextId:

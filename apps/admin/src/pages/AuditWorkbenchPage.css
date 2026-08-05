@@ -15,6 +15,11 @@
   overflow: auto;
 }
 
+/* 侧栏筛选 Select 固定宽度 */
+.awb-sidebar-filter {
+  width: 120px;
+}
+
 .awb-content-area {
   flex: 1;
   display: flex;
@@ -189,6 +194,11 @@
 .awb-operation-label {
   color: var(--color-text-secondary);
   white-space: nowrap;
+}
+
+/* 驳回原因 Select 固定宽度 */
+.awb-reject-reason {
+  width: 200px;
 }
 
 /* Empty state */

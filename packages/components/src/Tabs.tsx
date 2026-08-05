@@ -83,13 +83,14 @@ export function Tabs({
         return;
     }
     e.preventDefault();
-    onChange?.(enabledKeys[next]);
+    const nextKey = enabledKeys[next]!;
+    onChange?.(nextKey);
     // 移动焦点
     requestAnimationFrame(() => {
       const list = tabListRef.current;
       if (!list) return;
       const btn = list.querySelector<HTMLButtonElement>(
-        `[data-tab-key="${enabledKeys[next]}"]`,
+        `[data-tab-key="${nextKey}"]`,
       );
       btn?.focus();
     });

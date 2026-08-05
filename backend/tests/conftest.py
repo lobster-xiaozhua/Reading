@@ -9,11 +9,12 @@ import fakeredis.aioredis as fakeredis_aio
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-# 确保使用测试配置：内存 SQLite + fakeredis 降级
+# 确保使用测试配置：内存 SQLite + DEBUG 模式（允许 demo 降级）
 os.environ["DB_URL"] = "sqlite+aiosqlite:///:memory:"
-os.environ["REDIS_FALLBACK"] = "true"
+os.environ["DEBUG"] = "true"
 
 # 将 backend 目录加入 sys.path（确保 from app 导入可用）
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -66,6 +67,31 @@ async def redis_client():
     fake = fakeredis_aio.FakeRedis(decode_responses=True)
     yield fake
     await fake.aclose()
+
+
+@pytest_asyncio.fixture
+def db_query_counter(db_session):
+    """提供 DB 查询计数器（用于 N+1 查询断言）。
+
+    Returns:
+        tuple[list[int], Callable]: (计数列表, reset() 清零函数)。
+        预热数据后调用 reset() 清零，再执行被测操作。
+    """
+    counts = [0]
+
+    def _before(*_args, **_kwargs):
+        counts[0] += 1
+
+    def reset():
+        counts[0] = 0
+
+    engine = db_session.get_bind()
+    # AsyncEngine → 取其 sync_engine；sync Engine 直接用
+    if hasattr(engine, "sync_engine"):
+        engine = engine.sync_engine
+    event.listen(engine, "before_cursor_execute", _before)
+    yield counts, reset
+    event.remove(engine, "before_cursor_execute", _before)
 
 
 @pytest_asyncio.fixture

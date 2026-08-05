@@ -1,12 +1,12 @@
 """B 端 API 集成测试。"""
 
 
-
 class TestBEndAuth:
     async def test_login_demo_admin(self, client, db_session):
         """demo 管理员登录（需先建管理员记录）。"""
         from app.core.security import hash_password
         from app.models.user import Admin
+
         admin = Admin(
             username="admin",
             nickname="管理员",
@@ -16,11 +16,14 @@ class TestBEndAuth:
         db_session.add(admin)
         await db_session.commit()
 
-        resp = await client.post("/api/v1/b/auth/login", json={
-            "username": "admin",
-            "password": "admin123",
-            "remember": False,
-        })
+        resp = await client.post(
+            "/api/v1/b/auth/login",
+            json={
+                "username": "admin",
+                "password": "admin123",
+                "remember": False,
+            },
+        )
         body = resp.json()
         assert body["code"] == 0
         assert "token" in body["data"]
@@ -29,13 +32,12 @@ class TestBEndAuth:
     async def test_login_wrong_password(self, client, db_session):
         from app.core.security import hash_password
         from app.models.user import Admin
-        db_session.add(Admin(
-            username="admin2", password_hash=hash_password("correct"), enabled=1
-        ))
+
+        db_session.add(Admin(username="admin2", password_hash=hash_password("correct"), enabled=1))
         await db_session.commit()
-        resp = await client.post("/api/v1/b/auth/login", json={
-            "username": "admin2", "password": "wrong"
-        })
+        resp = await client.post(
+            "/api/v1/b/auth/login", json={"username": "admin2", "password": "wrong"}
+        )
         body = resp.json()
         assert body["code"] != 0
         assert "密码" in body["message"] or "错误" in body["message"]
@@ -71,11 +73,14 @@ class TestBEndNovels:
 
     async def test_create_and_list_novel(self, client):
         # 创建
-        resp = await client.post("/api/v1/b/novels", json={
-            "title": "测试作品",
-            "category": "xuanhuan",
-            "intro": "简介",
-        })
+        resp = await client.post(
+            "/api/v1/b/novels",
+            json={
+                "title": "测试作品",
+                "category": "xuanhuan",
+                "intro": "简介",
+            },
+        )
         body = resp.json()
         assert body["code"] == 0
         novel_id = body["data"]["id"]
@@ -93,13 +98,13 @@ class TestBEndNovels:
         assert body["data"]["title"] == "测试作品"
 
     async def test_batch_submit_audit(self, client):
-        resp = await client.post("/api/v1/b/novels", json={
-            "title": "待审核作品", "category": "urban"
-        })
+        resp = await client.post(
+            "/api/v1/b/novels", json={"title": "待审核作品", "category": "urban"}
+        )
         novel_id = resp.json()["data"]["id"]
-        resp = await client.post("/api/v1/b/novels/submit-audit", json={
-            "ids": [int(novel_id)], "action": "submit-audit"
-        })
+        resp = await client.post(
+            "/api/v1/b/novels/submit-audit", json={"ids": [int(novel_id)], "action": "submit-audit"}
+        )
         body = resp.json()
         assert body["code"] == 0
         assert body["data"]["success"] is True
@@ -108,15 +113,19 @@ class TestBEndNovels:
 class TestBEndChapters:
     async def test_create_chapter(self, client, db_session):
         from app.models.novel import Novel
+
         novel = Novel(title="测试", status="draft", word_count=0)
         db_session.add(novel)
         await db_session.commit()
 
-        resp = await client.post("/api/v1/b/chapters", json={
-            "novelId": str(novel.id),
-            "title": "第一章",
-            "content": "这是正文",
-        })
+        resp = await client.post(
+            "/api/v1/b/chapters",
+            json={
+                "novelId": str(novel.id),
+                "title": "第一章",
+                "content": "这是正文",
+            },
+        )
         body = resp.json()
         assert body["code"] == 0
         assert body["data"]["title"] == "第一章"
@@ -160,9 +169,10 @@ class TestBEndSensitive:
 
     async def test_add_and_remove_word(self, client):
         # 新增
-        resp = await client.post("/api/v1/b/sensitive-words", json={
-            "text": "测试敏感词", "level": 1, "suggestion": "高危"
-        })
+        resp = await client.post(
+            "/api/v1/b/sensitive-words",
+            json={"text": "测试敏感词", "level": 1, "suggestion": "高危"},
+        )
         body = resp.json()
         assert body["code"] == 0
         assert body["data"]["text"] == "测试敏感词"

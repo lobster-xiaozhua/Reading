@@ -1,10 +1,12 @@
 /* ============================================================
  * perf · P8 性能指标埋点（03 §9.1）
  * 采集 LCP / INP / CLS / TTI / 章节切换耗时，统一上报
- *   - 上报通道：navigator.sendBeacon（不可用时回退 fetch keepalive）
+ *   - 上报通道：sendRum（sendBeacon，不可用时回退 fetch keepalive）
  *   - 采样：开发环境控制台输出，生产环境上报到 RUM 端点
  *   - 指标阈值：LCP<1.5s / INP<200ms / CLS<0.1 / TTI<3s / 章节切换<300ms
  * ============================================================ */
+
+import { sendRum } from './report';
 
 interface PerfMetric {
   name: string;
@@ -39,17 +41,8 @@ function report(metric: PerfMetric): void {
       window.dispatchEvent(new CustomEvent('perf-metric', { detail: metric }));
     }
   } else {
-    // 生产环境：sendBeacon 上报
-    const payload = JSON.stringify(metric);
-    try {
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/rum', payload);
-      } else {
-        void fetch('/api/rum', { method: 'POST', body: payload, keepalive: true }).catch(() => {});
-      }
-    } catch {
-      /* 上报失败忽略 */
-    }
+    // 生产环境：统一经 sendRum 上报 RUM 端点
+    sendRum({ type: 'perf', name: metric.name, value: metric.value, rating: metric.rating });
   }
 }
 

@@ -60,13 +60,14 @@ class AuditRepository(BaseRepository[AuditRecord]):
         base = select(AuditRecord).where(AuditRecord.status == "pending")
         if level != "all":
             base = base.where(AuditRecord.level == level)
-        pending = (await self.session.execute(
-            select(func.count()).select_from(base.subquery())
-        )).scalar_one()
+        pending = (
+            await self.session.execute(select(func.count()).select_from(base.subquery()))
+        ).scalar_one()
 
-        today_start = int(
-            datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
-        ) * 1000
+        today_start = (
+            int(datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
+            * 1000
+        )
         today_stmt = select(func.count()).where(
             AuditRecord.processed_at >= today_start,
             AuditRecord.status != "pending",
@@ -78,10 +79,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
             .where(AuditRecord.status == "pending")
             .group_by(AuditRecord.level)
         )
-        by_level = {
-            r[0]: r[1]
-            for r in (await self.session.execute(by_level_stmt)).all()
-        }
+        by_level = {r[0]: r[1] for r in (await self.session.execute(by_level_stmt)).all()}
         return {
             "pending_count": pending or 0,
             "today_processed": today_processed or 0,
@@ -97,9 +95,7 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         result = await self.session.execute(select(SensitiveWord))
         return list(result.scalars().all())
 
-    async def add(
-        self, text: str, level: int, suggestion: str, version: str
-    ) -> SensitiveWord:
+    async def add(self, text: str, level: int, suggestion: str, version: str) -> SensitiveWord:
         """新增一条敏感词记录。"""
         word = SensitiveWord(
             text=text,

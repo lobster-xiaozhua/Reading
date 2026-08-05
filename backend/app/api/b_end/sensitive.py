@@ -47,10 +47,13 @@ async def check_sensitive_words(
         return ok(request, {"hasSensitive": False, "hits": []})
     svc = SensitiveService(db, await get_redis_client())
     hits = await svc.scan(body.text)
-    return ok(request, {
-        "hasSensitive": len(hits) > 0,
-        "hits": [h.model_dump(by_alias=True) for h in hits],
-    })
+    return ok(
+        request,
+        {
+            "hasSensitive": len(hits) > 0,
+            "hits": [h.model_dump(by_alias=True) for h in hits],
+        },
+    )
 
 
 @router.delete("")

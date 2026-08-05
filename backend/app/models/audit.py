@@ -42,9 +42,7 @@ class SensitiveWord(Base, IdMixin, TimestampMixin):
     """敏感词库。"""
 
     __tablename__ = "sensitive_words"
-    __table_args__ = (
-        UniqueConstraint("text", "level", name="uq_sensitive_text_level"),
-    )
+    __table_args__ = (UniqueConstraint("text", "level", name="uq_sensitive_text_level"),)
 
     text: Mapped[str] = mapped_column(String(64))
     level: Mapped[int] = mapped_column(Integer, default=3, comment="1 高危 2 警告 3 提示")

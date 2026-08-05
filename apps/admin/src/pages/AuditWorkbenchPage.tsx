@@ -71,7 +71,7 @@ export default function AuditWorkbenchPage() {
       setPendingCount(stats.pendingCount);
       setTodayProcessed(stats.todayProcessed);
       if (list.length > 0 && !list.find((i) => i.id === selectedId)) {
-        setSelectedId(list[0].id);
+        setSelectedId(list[0]!.id);
       } else if (list.length === 0) {
         setSelectedId(null);
       }
@@ -189,7 +189,7 @@ export default function AuditWorkbenchPage() {
                 value={filterLevel}
                 onChange={(v) => { setFilterLevel(v); }}
                 options={AUDIT_LEVEL_OPTIONS}
-                style={{ width: 120 }}
+                className="awb-sidebar-filter"
               />
             }
             className="awb-sidebar"
@@ -358,7 +358,7 @@ export default function AuditWorkbenchPage() {
                         onChange={setRejectReason}
                         options={REJECT_REASON_OPTIONS}
                         placeholder={t('audit:operation.rejectReasonPlaceholder')}
-                        style={{ width: 200 }}
+                        className="awb-reject-reason"
                         allowClear
                       />
                     </div>

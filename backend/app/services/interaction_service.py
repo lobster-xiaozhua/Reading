@@ -116,9 +116,7 @@ class InteractionService:
             logger.debug("阅读进度写入 Redis 失败 reader=%s", reader_id, exc_info=True)
 
         # 同步落库
-        await self.history_repo.upsert(
-            reader_id, novel_id, chapter_id, chapter_index, percent
-        )
+        await self.history_repo.upsert(reader_id, novel_id, chapter_id, chapter_index, percent)
         await self.session.commit()
         return True
 
@@ -212,9 +210,7 @@ class InteractionService:
         return str(record.id)
 
     # ── 评分 ──────────────────────────────────────────
-    async def submit_rating(
-        self, reader_id: int, novel_id: int, rating: int
-    ) -> bool:
+    async def submit_rating(self, reader_id: int, novel_id: int, rating: int) -> bool:
         """提交评分（1-5），并失效评分分布缓存。
 
         Args:
@@ -263,9 +259,7 @@ class InteractionService:
             Review(
                 id=str(r.id),
                 user=CommentUser(id=str(r.reader_id), nickname="", avatar=""),
-                book=ReviewBookRef(
-                    id=str(n.id), title=n.title, cover=n.cover
-                ),
+                book=ReviewBookRef(id=str(n.id), title=n.title, cover=n.cover),
                 rating=r.rating,
                 content=r.content,
                 likes=r.likes,
@@ -286,11 +280,10 @@ class InteractionService:
             话题列表。
         """
         from app.models.novel import Tag
+
         stmt = select(Tag).order_by(Tag.ref_count.desc()).limit(limit)
         tags = list((await self.session.execute(stmt)).scalars().all())
-        return [
-            Topic(id=str(t.id), name=t.name, count=t.ref_count) for t in tags
-        ]
+        return [Topic(id=str(t.id), name=t.name, count=t.ref_count) for t in tags]
 
     # ── 书单 ──────────────────────────────────────────
     async def get_book_lists(self, limit: int = 10) -> list[BookList]:
@@ -318,6 +311,7 @@ class InteractionService:
 
         result: list[BookList] = []
         from app.schemas.enums import BOOK_CATEGORY_LABELS
+
         for cat, books in list(by_category.items())[:limit]:
             name = BOOK_CATEGORY_LABELS.get(cat, "精选")
             result.append(

@@ -38,9 +38,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
 
     async def add(self, reader_id: int, novel_id: int) -> Bookshelf:
         """将作品加入读者书架。"""
-        shelf = Bookshelf(
-            reader_id=reader_id, novel_id=novel_id, added_at=int(time.time() * 1000)
-        )
+        shelf = Bookshelf(reader_id=reader_id, novel_id=novel_id, added_at=int(time.time() * 1000))
         self.session.add(shelf)
         await self.session.flush()
         return shelf
@@ -95,9 +93,7 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         await self.session.flush()
         return h
 
-    async def get_by_reader_novel(
-        self, reader_id: int, novel_id: int
-    ) -> ReadingHistory | None:
+    async def get_by_reader_novel(self, reader_id: int, novel_id: int) -> ReadingHistory | None:
         """根据读者 ID 和作品 ID 获取单条阅读历史。"""
         stmt = select(ReadingHistory).where(
             ReadingHistory.reader_id == reader_id, ReadingHistory.novel_id == novel_id
@@ -122,14 +118,11 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
 
     async def get_overview(self, reader_id: int) -> dict:
         """获取读者阅读概览：总时长/总字数/阅读天数。"""
-        stmt = (
-            select(
-                func.sum(ReadingStatsDaily.duration_minutes),
-                func.sum(ReadingStatsDaily.words),
-                func.count(),
-            )
-            .where(ReadingStatsDaily.reader_id == reader_id)
-        )
+        stmt = select(
+            func.sum(ReadingStatsDaily.duration_minutes),
+            func.sum(ReadingStatsDaily.words),
+            func.count(),
+        ).where(ReadingStatsDaily.reader_id == reader_id)
         result = await self.session.execute(stmt)
         row = result.one()
         return {
@@ -140,9 +133,7 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
 
     async def get_current_streak(self, reader_id: int) -> int:
         """计算读者当前连续阅读天数。"""
-        stmt = select(ReadingStatsDaily.stat_date).where(
-            ReadingStatsDaily.reader_id == reader_id
-        )
+        stmt = select(ReadingStatsDaily.stat_date).where(ReadingStatsDaily.reader_id == reader_id)
         result = await self.session.execute(stmt)
         dates = set(result.scalars().all())
         today = date.today()

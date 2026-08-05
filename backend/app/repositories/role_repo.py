@@ -23,9 +23,7 @@ class RoleRepository:
 
     async def get_permissions(self, role_key: str) -> list[str]:
         """获取指定角色的权限点列表。"""
-        stmt = select(RolePermission.perm_key).where(
-            RolePermission.role_key == role_key
-        )
+        stmt = select(RolePermission.perm_key).where(RolePermission.role_key == role_key)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 

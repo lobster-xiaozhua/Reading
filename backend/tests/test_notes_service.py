@@ -36,8 +36,12 @@ async def _create_note(session, **kwargs):
 class TestCreateNote:
     async def test_create_success(self, svc):
         body = NoteCreateBody(
-            novel_id=1, chapter_id=1, text="精彩段落",
-            paragraph_index=0, offset_start=0, offset_end=10,
+            novel_id=1,
+            chapter_id=1,
+            text="精彩段落",
+            paragraph_index=0,
+            offset_start=0,
+            offset_end=10,
         )
         note_id = await svc.create_note(1001, body)
         assert note_id is not None
@@ -55,7 +59,9 @@ class TestCreateNote:
 
     async def test_create_with_annotation(self, svc):
         body = NoteCreateBody(
-            novel_id=1, chapter_id=1, text="好句",
+            novel_id=1,
+            chapter_id=1,
+            text="好句",
             annotation="这是重点",
         )
         note_id = await svc.create_note(1001, body)

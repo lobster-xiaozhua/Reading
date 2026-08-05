@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,16 +35,15 @@ class Settings(BaseSettings):
 
     # ── Redis ─────────────────────────────────────────────
     redis_url: str = "redis://localhost:6379/0"
-    # 测试环境无 Redis 时降级为内存模拟
-    redis_fallback: bool = True
 
     # ── 鉴权 ──────────────────────────────────────────────
+    # 生产环境必须通过环境变量 / .env 提供强随机密钥（>=32 字节），否则启动失败
     jwt_secret: str = "change-me-in-production-min-32-bytes!!"
     jwt_algorithm: str = "HS256"
-    access_token_ttl: int = 8 * 3600          # 8 小时
-    refresh_token_ttl: int = 30 * 24 * 3600   # 30 天
+    access_token_ttl: int = 8 * 3600  # 8 小时
+    refresh_token_ttl: int = 30 * 24 * 3600  # 30 天
     refresh_token_ttl_long: int = 90 * 24 * 3600  # remember=true 时 90 天
-    # 演示读者 ID（未接入读者登录前用于联调）
+    # 演示读者 ID / 管理员账号（仅 DEBUG 模式联调使用，生产禁止）
     demo_reader_id: int = 1001
     demo_admin_username: str = "admin"
     demo_admin_password: str = "admin123"
@@ -59,9 +58,19 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # ── CORS ─────────────────────────────────────────────
-    cors_origins: list[str] = Field(
-        default_factory=lambda: ["*"]
-    )
+    cors_origins: list[str] = Field(default_factory=lambda: ["*"])
+
+    @model_validator(mode="after")
+    def _validate_production_secrets(self):
+        """生产环境（非 DEBUG）强制校验密钥强度，阻止默认弱密钥上线。"""
+        if self.debug:
+            return self
+        weak_secrets = {"", "change-me-in-production-min-32-bytes!!"}
+        if self.jwt_secret in weak_secrets:
+            raise ValueError("生产环境必须通过 JWT_SECRET 环境变量配置强随机密钥（>=32 字节）")
+        if len(self.jwt_secret) < 32:
+            raise ValueError("JWT_SECRET 长度不足 32 字节，存在被暴力破解风险")
+        return self
 
 
 @lru_cache

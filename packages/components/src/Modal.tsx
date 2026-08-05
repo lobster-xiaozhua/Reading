@@ -44,11 +44,11 @@ export function Modal({
     if (open) {
       setExiting(false);
       setReady(false);
-    } else {
-      setExiting(true);
-      const id = setTimeout(() => setExiting(false), 240);
-      return () => clearTimeout(id);
+      return;
     }
+    setExiting(true);
+    const id = setTimeout(() => setExiting(false), 240);
+    return () => clearTimeout(id);
   }, [open]);
 
   useEffect(() => {
@@ -74,6 +74,7 @@ export function Modal({
         document.body.style.overflow = prev;
       };
     }
+    return;
   }, [open]);
 
   if (!open && !exiting) return null;

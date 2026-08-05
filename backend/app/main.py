@@ -22,11 +22,12 @@ logger = structlog.get_logger(__name__)
 
 @contextlib.asynccontextmanager
 async def lifespan(app: FastAPI):
-    """应用生命周期：启动时建表并自动写入种子数据（开发模式）。"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
+    """应用生命周期：建表（DEBUG 模式自动建表便于开发）并自动写入种子数据。"""
     if settings.debug:
+        # 开发模式：自动建表 + 种子数据（生产环境使用 alembic upgrade head 迁移）
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
         try:
             from sqlalchemy import select
 
@@ -37,12 +38,16 @@ async def lifespan(app: FastAPI):
                 exists = (await db.execute(select(Novel).limit(1))).scalars().first()
                 if not exists:
                     from scripts.seed import seed
+
                     await seed()
                     logger.info("种子数据已自动写入")
                 else:
                     logger.debug("种子数据已存在，跳过")
         except Exception:
             logger.warning("种子数据写入失败（非阻塞）", exc_info=True)
+    else:
+        # 生产模式：不自动建表，依赖 alembic 迁移
+        logger.info("生产模式启动：依赖 alembic upgrade head 完成建表")
 
     yield
 

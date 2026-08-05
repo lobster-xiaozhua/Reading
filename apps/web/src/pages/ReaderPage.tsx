@@ -28,6 +28,9 @@ import { markChapterStart, markChapterEnd } from '@/utils/perf';
 import { SelectionPopover } from '@/components/SelectionPopover';
 import './ReaderPage.css';
 
+/** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo/useCallback 每帧重算 */
+const EMPTY_CHAPTERS: ChapterSummary[] = [];
+
 /** 把章节正文段落转为 HTML（首段为章节标题，跳过） */
 function chapterToHtml(ch: ChapterContent): string {
   return ch.paragraphs
@@ -63,7 +66,7 @@ export default function ReaderPage() {
     () => fetcher.getChapters(bookId),
     { deps: [bookId], initial: [] as ChapterSummary[], loadingDelay: 200 },
   );
-  const chapters = chaptersState.data ?? [];
+  const chapters = chaptersState.data ?? EMPTY_CHAPTERS;
 
   const chapterRefs: ChapterRef[] = useMemo(
     () => chapters.map((c) => ({ id: c.id })),
@@ -103,6 +106,9 @@ export default function ReaderPage() {
     return () => {
       markChapterEnd(current.id);
     };
+    // cache omitted: object recreated on every render, would cause effect re-run every frame
+    // current.id 变化已作为依赖，切章埋点即可准确触发
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cache.current?.id]);
 
   /* ---------- 初始章节定位 ---------- */
@@ -110,7 +116,7 @@ export default function ReaderPage() {
     if (chapters.length === 0) return;
     const target = chapterId && chapters.some((c) => c.id === chapterId)
       ? chapterId
-      : chapters[0].id;
+      : chapters[0]!.id;
     cache.goto(target);
     // chapters omitted: reference changes on every fetch, would re-navigate to first chapter
     // cache omitted: object recreated on every render, would cause infinite re-runs
@@ -131,7 +137,9 @@ export default function ReaderPage() {
       percent: chapterPercent,
       readAt: Date.now(),
     });
-  }, [cache.current?.id, bookId, chapters, cache.currentIndex, chapterPercent, recordReading, cache.current]);
+    // cache omitted: object recreated on every render; 依赖 cache.current 的 .id / .currentIndex 已覆盖切章场景
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cache.current?.id, bookId, chapters, cache.currentIndex, chapterPercent, recordReading]);
 
   /* ---------- 导航 ---------- */
   const handlePrev = useCallback(() => {

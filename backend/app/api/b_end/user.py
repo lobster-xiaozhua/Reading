@@ -38,5 +38,6 @@ async def set_user_status(
     result = await svc.set_status(reader_id, status)
     if not result:
         from app.core.exceptions import NotFoundError
+
         raise NotFoundError("用户不存在")
     return ok(request, True)

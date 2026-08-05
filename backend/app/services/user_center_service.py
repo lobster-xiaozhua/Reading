@@ -92,9 +92,7 @@ class UserCenterService:
         )
 
     # ── 书架 ──────────────────────────────────────────
-    async def get_bookshelf(
-        self, reader_id: int, tab: str = "all"
-    ) -> list[BookshelfItem]:
+    async def get_bookshelf(self, reader_id: int, tab: str = "all") -> list[BookshelfItem]:
         """获取读者书架列表。
 
         Args:
@@ -135,7 +133,9 @@ class UserCenterService:
         return items
 
     # ── 阅读历史 ─────────────────────────────────────────
-    async def get_reading_history(self, reader_id: int, limit: int = 20) -> list[ReadingHistoryItem]:
+    async def get_reading_history(
+        self, reader_id: int, limit: int = 20
+    ) -> list[ReadingHistoryItem]:
         """获取阅读历史记录。
 
         Args:
@@ -183,6 +183,7 @@ class UserCenterService:
             打赏记录列表。
         """
         from app.models.interaction import RewardRecord as RewardModel
+
         stmt = (
             select(RewardModel, Novel.title)
             .join(Novel, RewardModel.novel_id == Novel.id)
@@ -250,8 +251,7 @@ class UserCenterService:
 
         stats = await self.stats_repo.get_heatmap(reader_id, days)
         result = [
-            HeatmapCell(date=s.stat_date.isoformat(), duration=s.duration_minutes)
-            for s in stats
+            HeatmapCell(date=s.stat_date.isoformat(), duration=s.duration_minutes) for s in stats
         ]
         await cache_set(self.redis, CacheKeys.heatmap(reader_id), result, _TTL_HEATMAP)
         return result
@@ -364,8 +364,6 @@ class UserCenterService:
     async def _count_shelf(self, reader_id: int) -> int:
         stmt = select(func.count()).where(Bookshelf.reader_id == reader_id)
         return (await self.session.execute(stmt)).scalar_one()
-
-
 
 
 def _build_badges(overview: dict) -> list[Badge]:

@@ -21,9 +21,17 @@ const SHELL_ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  // 不自动 skipWaiting：由前端决定何时接管（首次安装静默、更新时提示后接管）
   event.waitUntil(
-    caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_ASSETS)).then(() => self.skipWaiting()),
+    caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_ASSETS)),
   );
+});
+
+// 收到前端 SKIP_WAITING 消息后接管页面
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', (event) => {

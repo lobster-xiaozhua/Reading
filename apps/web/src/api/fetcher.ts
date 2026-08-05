@@ -54,8 +54,6 @@ interface BookshelfItem {
 }
 
 /** 后端评论（user.nickname 可能为空串） */
-interface BackendComment extends Comment {}
-
 function toChapterSummary(c: ChapterListItem): ChapterSummary {
   return { ...c };
 }
@@ -154,7 +152,7 @@ export const fetcher = {
   },
 
   async getComments(bookId: string): Promise<Comment[]> {
-    return http.get<BackendComment[]>(`/books/${bookId}/comments`, { limit: 50 });
+    return http.get<Comment[]>(`/books/${bookId}/comments`, { limit: 50 });
   },
 
   async getRatingDistribution(bookId: string): Promise<RatingDistribution> {

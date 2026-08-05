@@ -49,7 +49,11 @@ def novel_to_c_summary(novel: Novel) -> BookSummary:
 
 def novel_to_b_detail(novel: Novel) -> BNovelDetail:
     """ORM Novel → B 端 BNovelDetail。"""
-    status = BNovelStatus(novel.status) if novel.status in BNovelStatus._value2member_map_ else BNovelStatus.DRAFT
+    status = (
+        BNovelStatus(novel.status)
+        if novel.status in BNovelStatus._value2member_map_
+        else BNovelStatus.DRAFT
+    )
     return BNovelDetail(
         id=str(novel.id),
         title=novel.title,

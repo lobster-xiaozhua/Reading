@@ -1,3 +1,5 @@
+import { reportError } from '@/utils/report';
+
 const AUTH_KEY = 'atlas-reader-auth';
 
 export interface ApiResponse<T = unknown> {
@@ -44,7 +46,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       ...options,
     });
   } catch (err) {
-    console.error('[http] network error', { path, method, error: err });
+    reportError(err, { path, method, kind: 'network' });
     throw new ApiError(-1, '网络异常，请稍后重试');
   }
 
@@ -52,16 +54,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   try {
     body = (await res.json()) as ApiResponse<T>;
   } catch {
-    console.error('[http] parse error', { path, method, status: res.status });
+    reportError(new Error('服务响应解析失败'), { path, method, status: res.status, kind: 'parse' });
     throw new ApiError(res.status, `服务响应异常（HTTP ${res.status}）`);
   }
 
   if (res.status >= 500) {
-    console.error('[http] server error', { path, method, status: res.status, traceId: body.traceId });
+    reportError(new Error(body?.message ?? '服务端错误'), {
+      path, method, status: res.status, traceId: body?.traceId, kind: 'server',
+    });
   }
 
   if (body.code !== 0) {
-    console.error('[http] biz error', { path, method, code: body.code, message: body.message, traceId: body.traceId });
+    reportError(new Error(body.message || '请求失败'), {
+      path, method, code: body.code, traceId: body.traceId, kind: 'biz',
+    });
     throw new ApiError(body.code, body.message || '请求失败', body.traceId);
   }
   return body.data as T;

@@ -29,14 +29,14 @@ from app.utils.cache import cache_set
 logger = structlog.get_logger(__name__)
 
 # 缓存 TTL（秒）
-_TTL_BANNERS = 300          # 5 分钟
+_TTL_BANNERS = 300  # 5 分钟
 _TTL_HOT_BOOKS = 300
 _TTL_FREE_LIMITED = 300
 _TTL_EDITOR_PICKS = 300
-_TTL_RANKING = 600           # 10 分钟
+_TTL_RANKING = 600  # 10 分钟
 _TTL_CATEGORIES = 3600
 _TTL_TAGS = 3600
-_TTL_HOME = 300              # 聚合接口取各模块最小 TTL
+_TTL_HOME = 300  # 聚合接口取各模块最小 TTL
 
 
 class DiscoveryService:
@@ -96,7 +96,9 @@ class DiscoveryService:
 
         banners = await self.novel_repo.get_banners()
         result = [_banner_to_schema(b) for b in banners]
-        await cache_set(self.redis, CacheKeys.BANNERS, [b.model_dump(mode="json") for b in result], _TTL_BANNERS)
+        await cache_set(
+            self.redis, CacheKeys.BANNERS, [b.model_dump(mode="json") for b in result], _TTL_BANNERS
+        )
         return result
 
     # ── 热门 / 限免 / 编辑推荐 ────────────────────────────
@@ -139,10 +141,14 @@ class DiscoveryService:
 
         novels = await self.novel_repo.by_flag("editor-pick", limit)
         result = [
-            RecommendBook(book=novel_to_c_summary(n), match_score=_match_score(n))
-            for n in novels
+            RecommendBook(book=novel_to_c_summary(n), match_score=_match_score(n)) for n in novels
         ]
-        await cache_set(self.redis, CacheKeys.EDITOR_PICKS, [r.model_dump(mode="json") for r in result], _TTL_EDITOR_PICKS)
+        await cache_set(
+            self.redis,
+            CacheKeys.EDITOR_PICKS,
+            [r.model_dump(mode="json") for r in result],
+            _TTL_EDITOR_PICKS,
+        )
         return result
 
     # ── 排行榜 ──────────────────────────────────────────
@@ -178,7 +184,12 @@ class DiscoveryService:
 
         categories = await self.novel_repo.get_categories()
         result = _build_category_tree(categories)
-        await cache_set(self.redis, CacheKeys.CATEGORIES, [c.model_dump(mode="json") for c in result], _TTL_CATEGORIES)
+        await cache_set(
+            self.redis,
+            CacheKeys.CATEGORIES,
+            [c.model_dump(mode="json") for c in result],
+            _TTL_CATEGORIES,
+        )
         return result
 
     # ── 标签云 ──────────────────────────────────────────
@@ -189,10 +200,10 @@ class DiscoveryService:
             return [TagItem.model_validate(t) for t in json.loads(cached)]
 
         tags = await self.novel_repo.get_tags()
-        result = [
-            TagItem(id=str(t.id), name=t.name, count=t.ref_count) for t in tags
-        ]
-        await cache_set(self.redis, CacheKeys.TAGS, [t.model_dump(mode="json") for t in result], _TTL_TAGS)
+        result = [TagItem(id=str(t.id), name=t.name, count=t.ref_count) for t in tags]
+        await cache_set(
+            self.redis, CacheKeys.TAGS, [t.model_dump(mode="json") for t in result], _TTL_TAGS
+        )
         return result
 
     # ── 推荐书单 ─────────────────────────────────────────
@@ -200,8 +211,7 @@ class DiscoveryService:
         """基于编辑推荐 + 高评分生成推荐列表。"""
         novels = await self.novel_repo.ranking("hot", limit)
         return [
-            RecommendBook(book=novel_to_c_summary(n), match_score=_match_score(n))
-            for n in novels
+            RecommendBook(book=novel_to_c_summary(n), match_score=_match_score(n)) for n in novels
         ]
 
     # ── 内部工具 ─────────────────────────────────────────
@@ -216,8 +226,6 @@ class DiscoveryService:
         result = [novel_to_c_summary(n) for n in novels]
         await cache_set(self.redis, cache_key, [b.model_dump(mode="json") for b in result], ttl)
         return result
-
-
 
 
 def _banner_to_schema(b: BannerModel) -> Banner:

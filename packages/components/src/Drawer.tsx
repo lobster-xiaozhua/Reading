@@ -51,11 +51,11 @@ export function Drawer({
     if (open) {
       setExiting(false);
       setReady(false);
-    } else {
-      setExiting(true);
-      const id = setTimeout(() => setExiting(false), 200);
-      return () => clearTimeout(id);
+      return;
     }
+    setExiting(true);
+    const id = setTimeout(() => setExiting(false), 200);
+    return () => clearTimeout(id);
   }, [open]);
 
   // Esc 关闭
@@ -70,13 +70,12 @@ export function Drawer({
 
   // 锁定 body 滚动
   useEffect(() => {
-    if (open) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => {
-        document.body.style.overflow = prev;
-      };
-    }
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   if (!open && !exiting) return null;

@@ -15,14 +15,14 @@ describe('authStore', () => {
 
   it('setAuth stores token and user', () => {
     const user = { id: '1', username: 'reader', nickname: '读者' };
-    useAuthStore.getState().setAuth('token123', user as any);
+    useAuthStore.getState().setAuth('token123', user);
     const state = useAuthStore.getState();
     expect(state.token).toBe('token123');
     expect(state.user).toEqual(user);
   });
 
   it('logout clears auth', () => {
-    useAuthStore.getState().setAuth('token123', { id: '1' } as any);
+    useAuthStore.getState().setAuth('token123', { id: '1', username: 'reader', nickname: '读者' });
     useAuthStore.getState().logout();
     const state = useAuthStore.getState();
     expect(state.token).toBeNull();

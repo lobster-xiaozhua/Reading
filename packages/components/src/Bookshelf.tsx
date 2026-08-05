@@ -107,7 +107,7 @@ function groupBooks(books: Book[], groupBy: BookshelfGroupBy): ShelfGroup[] {
     let label: string;
     if (groupBy === 'status') {
       groupKey = b.status ?? '__unknown';
-      label = STATUS_GROUP_LABEL[groupKey] ?? STATUS_GROUP_LABEL.__unknown;
+      label = STATUS_GROUP_LABEL[groupKey] ?? STATUS_GROUP_LABEL.__unknown ?? '未分类';
     } else {
       // tag：按第一个 tag 分组；无 tag 归「未分类」
       const t = b.tags?.[0];

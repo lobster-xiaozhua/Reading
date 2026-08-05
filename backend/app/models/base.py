@@ -26,9 +26,7 @@ class IdMixin:
 class TimestampMixin:
     """创建/更新时间戳（毫秒）。"""
 
-    created_at: Mapped[int] = mapped_column(
-        BigInteger, default=lambda: int(time.time() * 1000)
-    )
+    created_at: Mapped[int] = mapped_column(BigInteger, default=lambda: int(time.time() * 1000))
     updated_at: Mapped[int] = mapped_column(
         BigInteger,
         default=lambda: int(time.time() * 1000),

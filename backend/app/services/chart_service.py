@@ -46,13 +46,11 @@ class ChartService:
         start = date.today() - timedelta(days=days)
         start_ts = int(time.mktime(start.timetuple())) * 1000
         # 作品新增趋势
-        novel_stmt = (
-            select(Novel.created_at)
-            .where(Novel.deleted == 0, Novel.created_at >= start_ts)
+        novel_stmt = select(Novel.created_at).where(
+            Novel.deleted == 0, Novel.created_at >= start_ts
         )
-        reader_stmt = (
-            select(Reader.created_at)
-            .where(Reader.deleted == 0, Reader.created_at >= start_ts)
+        reader_stmt = select(Reader.created_at).where(
+            Reader.deleted == 0, Reader.created_at >= start_ts
         )
         novel_ts = list((await self.session.execute(novel_stmt)).scalars().all())
         reader_ts = list((await self.session.execute(reader_stmt)).scalars().all())
@@ -63,10 +61,7 @@ class ChartService:
                 day = date.fromtimestamp(ts / 1000).isoformat()
                 daily_map[day] += 1
 
-        return [
-            TrendPoint(date=d, value=daily_map.get(d, 0))
-            for d in sorted(daily_map)
-        ]
+        return [TrendPoint(date=d, value=daily_map.get(d, 0)) for d in sorted(daily_map)]
 
     # ── 字数增长 ─────────────────────────────────────────
     async def get_word_count_growth(self, days: int = 30) -> WordCountTrend:
@@ -110,8 +105,11 @@ class ChartService:
     # ── 阅读热力图（7×24） ─────────────────────────────────
     async def get_reading_heatmap(self) -> list[ChartHeatmapCell]:
         """获取阅读热力图（7×24 网格）。"""
-        stmt = select(ReadingStatsDaily.reader_id, ReadingStatsDaily.stat_date,
-                      ReadingStatsDaily.duration_minutes)
+        stmt = select(
+            ReadingStatsDaily.reader_id,
+            ReadingStatsDaily.stat_date,
+            ReadingStatsDaily.duration_minutes,
+        )
         rows = (await self.session.execute(stmt)).all()
         # 聚合为 7(周) × 24(小时) 网格，但数据只有日级，简化为按周几聚合
         grid: dict[tuple[int, int], int] = defaultdict(int)
@@ -155,10 +153,7 @@ class ChartService:
             排行趋势数据点。
         """
         novels = await self._get_top_novels(10)
-        return [
-            TrendPoint(date=date.today().isoformat(), value=int(n.click_count))
-            for n in novels
-        ]
+        return [TrendPoint(date=date.today().isoformat(), value=int(n.click_count)) for n in novels]
 
     # ── 分类分布 ─────────────────────────────────────────
     async def get_category_distribution(self) -> list[CategoryDistribution]:

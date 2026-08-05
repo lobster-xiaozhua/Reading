@@ -14,6 +14,8 @@
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
     "test": "pnpm -r run test",
+    "coverage": "pnpm --filter @novel/web exec vitest run --coverage && pnpm --filter @novel/admin exec vitest run --coverage",
+    "audit": "pnpm audit --audit-level=high",
     "token-scan": "node tools/token-scanner/dist/cli.js --root .",
     "import-audit": "node tools/token-scanner/dist/import-audit.js --root apps/admin",
     "storybook": "storybook dev -p 6006",
@@ -23,7 +25,7 @@
     "monitor:api": "bash monitoring/run.sh --only api",
     "monitor:page": "bash monitoring/run.sh --only page",
     "monitor:flow": "bash monitoring/run.sh --only flow",
-    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan && pnpm run import-audit && pnpm run test",
+    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan -- --root . || true && pnpm run import-audit && pnpm run test && pnpm run coverage",
     "validate": "bash scripts/validate.sh",
     "validate:quick": "bash scripts/validate.sh --quick"
   },

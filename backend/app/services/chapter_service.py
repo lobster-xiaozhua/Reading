@@ -180,6 +180,7 @@ class ChapterService:
         Returns:
             批量操作结果。
         """
+
         async def _process_chapter(cid: int) -> None:
             chapter = await self._get_chapter(cid)
             target_map = {"submit": "pending", "publish": "published"}
@@ -258,6 +259,7 @@ def _count_words(content: str) -> tuple[int, int, int]:
     if not content:
         return 0, 0, 0
     import re
+
     # 去除 HTML 标签
     text = re.sub(r"<[^>]+>", "", content)
     # 含标点字数：非空白字符

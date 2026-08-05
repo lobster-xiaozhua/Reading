@@ -58,7 +58,7 @@ export default function PermissionPage() {
       const list = await fetchRoleList();
       setRoles(list);
       if (list.length > 0 && !list.find((r) => r.key === selectedRoleKey)) {
-        setSelectedRoleKey(list[0].key);
+        setSelectedRoleKey(list[0]!.key);
       } else if (list.length === 0) {
         setSelectedRoleKey(null);
       }

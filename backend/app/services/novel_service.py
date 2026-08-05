@@ -74,12 +74,15 @@ class NovelService:
         detail = novel_to_b_detail(novel)
         # 补全章节数
         from app.repositories.chapter_repo import ChapterRepository
+
         chapters = await ChapterRepository(self.session).list_by_novel(novel_id)
         detail.chapter_count = len(chapters)
         return detail
 
     # ── 新建/编辑作品 ───────────────────────────────────────
-    async def submit_novel(self, body: NovelSubmitBody, novel_id: int | None = None) -> BNovelDetail:
+    async def submit_novel(
+        self, body: NovelSubmitBody, novel_id: int | None = None
+    ) -> BNovelDetail:
         """新建或编辑作品。
 
         Args:
@@ -141,9 +144,7 @@ class NovelService:
         async def _run(nid: int) -> None:
             await handler(nid, reason=reason, comment=comment)
 
-        _, failed = await batch_execute(
-            ids, _run, logger_name="novel_service.batch_operate"
-        )
+        _, failed = await batch_execute(ids, _run, logger_name="novel_service.batch_operate")
         await self.session.commit()
         return BatchOperateResponse(success=len(failed) == 0, failed=failed or None)
 
@@ -183,7 +184,9 @@ class NovelService:
         novel.published_at = int(time.time() * 1000)
 
     # ── 批量下架 ─────────────────────────────────────────
-    async def _batch_shelve(self, novel_id: int, *, reason: str = "", comment: str = "", **kwargs) -> None:
+    async def _batch_shelve(
+        self, novel_id: int, *, reason: str = "", comment: str = "", **kwargs
+    ) -> None:
         novel = await self._get_novel(novel_id)
         NovelStateMachine.assert_transition(novel.status, "offline")
         novel.status = "offline"
