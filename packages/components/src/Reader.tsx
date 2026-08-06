@@ -16,16 +16,23 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
-} from 'react';
+} from "react";
 import {
   type ReaderSettings as ReaderSettingsValue,
   LINE_HEIGHT_VALUE,
   FONT_FAMILY_VAR,
   THEME_VARS,
-} from './useReaderSettings.js';
-import { ReadingProgress } from './ReadingProgress.js';
-import { ReaderSettings } from './ReaderSettings.js';
-import { NavigationChevronLeft, NavigationChevronRight, NavigationMenu, SystemSettings, NovelMoon, NovelSun } from '@novel/icons';
+} from "./useReaderSettings.js";
+import { ReadingProgress } from "./ReadingProgress.js";
+import { ReaderSettings } from "./ReaderSettings.js";
+import {
+  NavigationChevronLeft,
+  NavigationChevronRight,
+  NavigationMenu,
+  SystemSettings,
+  NovelMoon,
+  NovelSun,
+} from "@novel/icons";
 
 export interface ReaderChapter {
   id: string;
@@ -70,8 +77,6 @@ export interface ReaderProps {
   className?: string;
 }
 
-
-
 /* ============================================================
  * Reader
  * ============================================================ */
@@ -107,17 +112,18 @@ export function Reader({
 
   const containerStyle: CSSProperties = {
     // 切换主题仅改这一层 L2 变量，dur-instant 90ms 避免色彩流动
-    ['--novel-read-bg' as string]: themeVars.bg,
-    ['--novel-read-text' as string]: themeVars.text,
-    ['--novel-read-text-secondary' as string]: themeVars.secondary,
-    ['--reader-font-family' as string]: fontFamilyVar,
-    background: 'var(--novel-read-bg)',
-    color: 'var(--novel-read-text)',
-    transition: 'background var(--dur-instant) var(--ease-standard), color var(--dur-instant) var(--ease-standard)',
+    ["--novel-read-bg" as string]: themeVars.bg,
+    ["--novel-read-text" as string]: themeVars.text,
+    ["--novel-read-text-secondary" as string]: themeVars.secondary,
+    ["--reader-font-family" as string]: fontFamilyVar,
+    background: "var(--novel-read-bg)",
+    color: "var(--novel-read-text)",
+    transition:
+      "background var(--dur-instant) var(--ease-standard), color var(--dur-instant) var(--ease-standard)",
   };
 
   const contentStyle: CSSProperties = {
-    fontFamily: 'var(--reader-font-family)',
+    fontFamily: "var(--reader-font-family)",
     fontSize: `${settings.fontSize}px`,
     lineHeight: lineHeightVal,
   };
@@ -148,7 +154,7 @@ export function Reader({
 
   /* ---------- 翻页方式：scroll 用原生滚动监听进度 ---------- */
   const handleScroll = useCallback(() => {
-    if (settings.pageMode !== 'scroll') return;
+    if (settings.pageMode !== "scroll") return;
     const el = contentRef.current;
     if (!el) return;
     const { scrollTop, scrollHeight, clientHeight } = el;
@@ -163,7 +169,7 @@ export function Reader({
   /* ---------- 翻页：click 模式点击左/右半屏 ---------- */
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (settings.pageMode !== 'click') {
+      if (settings.pageMode !== "click") {
         // 非点击翻页模式：点击中央区域唤出控制栏
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -195,7 +201,7 @@ export function Reader({
   const toggleNight = useCallback(() => {
     onSettingsChange({
       ...settings,
-      theme: settings.theme === 'night' ? 'day' : 'night',
+      theme: settings.theme === "night" ? "day" : "night",
     });
   }, [settings, onSettingsChange]);
 
@@ -224,7 +230,7 @@ export function Reader({
       touchStartTime.current = Date.now();
       longPressFiredRef.current = false;
       // 长按 500ms 触发（仅 click/slide 模式；scroll 模式长按可能误触）
-      if (settings.pageMode !== 'scroll') {
+      if (settings.pageMode !== "scroll") {
         if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current);
         longPressTimerRef.current = setTimeout(() => {
           longPressFiredRef.current = true;
@@ -261,7 +267,7 @@ export function Reader({
       const absDy = Math.abs(dy);
       if (absDx > threshold && absDx > absDy) {
         // 左右滑
-        if (settings.pageMode === 'slide') {
+        if (settings.pageMode === "slide") {
           if (dx > threshold) onPrev?.();
           else if (dx < -threshold) onNext?.();
         }
@@ -291,22 +297,19 @@ export function Reader({
   );
 
   /* ---------- 手指移动超阈值时取消长按（避免误触） ---------- */
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      if (touchStartX.current == null || touchStartY.current == null) return;
-      const t = e.touches[0];
-      if (!t) return;
-      const dx = Math.abs(t.clientX - touchStartX.current);
-      const dy = Math.abs(t.clientY - touchStartY.current);
-      if (dx > 10 || dy > 10) {
-        if (longPressTimerRef.current) {
-          clearTimeout(longPressTimerRef.current);
-          longPressTimerRef.current = null;
-        }
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current == null || touchStartY.current == null) return;
+    const t = e.touches[0];
+    if (!t) return;
+    const dx = Math.abs(t.clientX - touchStartX.current);
+    const dy = Math.abs(t.clientY - touchStartY.current);
+    if (dx > 10 || dy > 10) {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
       }
-    },
-    [],
-  );
+    }
+  }, []);
 
   /* ---------- P8-A2 键盘导航矩阵 ---------- */
   /* ←/→：上下章；↑/↓：滚动；Space：下一章（Shift+Space 上一章）；
@@ -316,67 +319,80 @@ export function Reader({
       // 设置面板打开时让 ReaderSettings 自己处理 Tab/Esc，避免抢焦点
       if (settingsVisible) return;
       switch (e.key) {
-        case 'ArrowLeft':
-          if (onPrev) { e.preventDefault(); onPrev(); }
+        case "ArrowLeft":
+          if (onPrev) {
+            e.preventDefault();
+            onPrev();
+          }
           break;
-        case 'ArrowRight':
-        case ' ':
-          if (e.key === ' ' && e.shiftKey) {
-            if (onPrev) { e.preventDefault(); onPrev(); }
+        case "ArrowRight":
+        case " ":
+          if (e.key === " " && e.shiftKey) {
+            if (onPrev) {
+              e.preventDefault();
+              onPrev();
+            }
           } else if (onNext) {
             e.preventDefault();
             onNext();
           }
           break;
-        case 'Escape':
+        case "Escape":
           if (controlsVisible) {
             e.preventDefault();
             setControlsVisible(false);
           }
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           showControls();
           break;
         // ↑/↓ 交由原生滚动，不拦截
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onPrev, onNext, controlsVisible, settingsVisible, showControls]);
 
   /* ---------- 章节切换时重置滚动位置 ---------- */
   useEffect(() => {
-    if (contentRef.current && settings.pageMode === 'scroll') {
+    if (contentRef.current && settings.pageMode === "scroll") {
       contentRef.current.scrollTop = 0;
     }
   }, [chapter?.id, settings.pageMode]);
 
   /* ---------- 渲染 ---------- */
   const rootCls = [
-    'novel-reader',
+    "novel-reader",
     `novel-reader--${settings.pageMode}`,
     `novel-reader--theme-${settings.theme}`,
-    controlsVisible ? 'is-controls-visible' : 'is-controls-hidden',
-    loading ? 'is-loading' : '',
-    className ?? '',
+    controlsVisible ? "is-controls-visible" : "is-controls-hidden",
+    loading ? "is-loading" : "",
+    className ?? "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const hasProgress = currentIndex != null && totalChapters != null;
 
   return (
     <div className={rootCls} style={containerStyle}>
       {/* P8-A1 屏幕阅读器翻页播报：aria-live 章节切换通知 */}
-      <div className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+      <div
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {chapter
           ? `已加载章节：${chapter.title}${
-              hasProgress ? `，第 ${currentIndex} 章，共 ${totalChapters} 章` : ''
+              hasProgress
+                ? `，第 ${currentIndex} 章，共 ${totalChapters} 章`
+                : ""
             }`
           : loading
-            ? '章节加载中'
-            : ''}
+            ? "章节加载中"
+            : ""}
       </div>
 
       {/* 顶部进度条（始终可见，不挤压正文） */}
@@ -392,7 +408,11 @@ export function Reader({
 
       {/* 章节加载条（缓存未命中时显示，不遮挡正文） */}
       {loading ? (
-        <div className="novel-reader__loading-bar" role="status" aria-label="章节加载中">
+        <div
+          className="novel-reader__loading-bar"
+          role="status"
+          aria-label="章节加载中"
+        >
           <div className="novel-reader__loading-bar-fill" />
         </div>
       ) : null}
@@ -451,10 +471,16 @@ export function Reader({
       </div>
 
       {/* 点击翻页模式：左右半屏点击区视觉提示 */}
-      {settings.pageMode === 'click' && chapter ? (
+      {settings.pageMode === "click" && chapter ? (
         <>
-          <div className="novel-reader__tap-zone novel-reader__tap-zone--left" aria-hidden />
-          <div className="novel-reader__tap-zone novel-reader__tap-zone--right" aria-hidden />
+          <div
+            className="novel-reader__tap-zone novel-reader__tap-zone--left"
+            aria-hidden
+          />
+          <div
+            className="novel-reader__tap-zone novel-reader__tap-zone--right"
+            aria-hidden
+          />
         </>
       ) : null}
 
@@ -468,9 +494,7 @@ export function Reader({
         >
           <NavigationChevronLeft size="lg" aria-hidden="true" />
         </button>
-        <div className="novel-reader__topbar-title">
-          {chapter?.title ?? ''}
-        </div>
+        <div className="novel-reader__topbar-title">{chapter?.title ?? ""}</div>
         <div className="novel-reader__topbar-right">
           {topBarExtra ?? (
             <button
@@ -479,7 +503,7 @@ export function Reader({
               aria-label="阅读设置"
               onClick={() => setSettingsVisible(true)}
             >
-<SystemSettings size="lg" aria-hidden="true" />
+              <SystemSettings size="lg" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -518,11 +542,15 @@ export function Reader({
         <button
           type="button"
           className="novel-reader__bar-btn"
-          aria-label={settings.theme === 'night' ? '切换日间' : '切换夜间'}
+          aria-label={settings.theme === "night" ? "切换日间" : "切换夜间"}
           onClick={toggleNight}
         >
-          {settings.theme === 'night' ? <NovelSun size="lg" aria-hidden="true" /> : <NovelMoon size="lg" aria-hidden="true" />}
-          <span>{settings.theme === 'night' ? '日间' : '夜间'}</span>
+          {settings.theme === "night" ? (
+            <NovelSun size="lg" aria-hidden="true" />
+          ) : (
+            <NovelMoon size="lg" aria-hidden="true" />
+          )}
+          <span>{settings.theme === "night" ? "日间" : "夜间"}</span>
         </button>
         <button
           type="button"

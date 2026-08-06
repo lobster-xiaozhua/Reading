@@ -8,10 +8,12 @@
  * ============================================================ */
 
 /** 中文/日文/韩文统一表意文字 + 扩展区 */
-const CJK_RE = /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]/;
+const CJK_RE =
+  /[\u4e00-\u9fff\u3400-\u4dbf\u3040-\u309f\u30a0-\u30ff\uac00-\ud7af]/;
 
 /** 标点符号（中英文） */
-const PUNCTUATION_RE = /[\s\u3000-\u303f\uff00-\uffef，。、；：？！,.;:!?"'""''（）()【】《》〈〉…—\-\.]/;
+const PUNCTUATION_RE =
+  /[\s\u3000-\u303f\uff00-\uffef，。、；：？！,.;:!?"'""''（）()【】《》〈〉…—./]/;
 
 /**
  * 纯文字字数（不含标点）
@@ -23,7 +25,7 @@ const PUNCTUATION_RE = /[\s\u3000-\u303f\uff00-\uffef，。、；：？！,.;:!?
 export function countPureWords(text: string): number {
   if (!text) return 0;
   // 先剥离 HTML 标签（章节正文是 HTML）
-  const plain = text.replace(/<[^>]*>/g, '');
+  const plain = text.replace(/<[^>]*>/g, "");
   let count = 0;
   let inLatinWord = false;
   let inDigitWord = false;
@@ -73,7 +75,7 @@ export function countPureWords(text: string): number {
  */
 export function countWithPunctuation(text: string): number {
   if (!text) return 0;
-  const plain = text.replace(/<[^>]*>/g, '');
+  const plain = text.replace(/<[^>]*>/g, "");
   let count = 0;
   for (const ch of plain) {
     // 空白不计

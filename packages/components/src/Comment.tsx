@@ -4,9 +4,9 @@
  * replies 缩进竖线；超 3 条折叠；软删除占位；depth 限制 2 层
  * ============================================================ */
 
-import { useState } from 'react';
-import { Avatar } from './Avatar.js';
-import { RatingStars } from './RatingStars.js';
+import { useState } from "react";
+import { Avatar } from "./Avatar.js";
+import { RatingStars } from "./RatingStars.js";
 
 export interface CommentData {
   id: string;
@@ -40,9 +40,9 @@ const COLLAPSE_THRESHOLD = 3;
 /** 相对时间格式化 */
 function formatRelative(ts: number): string {
   const diff = Date.now() - ts;
-  if (Number.isNaN(diff) || diff < 0) return '';
+  if (Number.isNaN(diff) || diff < 0) return "";
   const min = Math.floor(diff / 60000);
-  if (min < 1) return '刚刚';
+  if (min < 1) return "刚刚";
   if (min < 60) return `${min} 分钟前`;
   const hour = Math.floor(min / 60);
   if (hour < 24) return `${hour} 小时前`;
@@ -50,8 +50,8 @@ function formatRelative(ts: number): string {
   if (day < 30) return `${day} 天前`;
   const d = new Date(ts);
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const dd = String(d.getDate()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${dd}`;
 }
 
@@ -65,7 +65,9 @@ export function Comment({
   className,
 }: CommentProps) {
   return (
-    <div className={['novel-comment', className ?? ''].filter(Boolean).join(' ')}>
+    <div
+      className={["novel-comment", className ?? ""].filter(Boolean).join(" ")}
+    >
       <CommentNode
         comment={comment}
         showReplies={showReplies}
@@ -105,7 +107,9 @@ function CommentNode({
   const showRepliesList = showReplies && canNest && replies.length > 0;
   const collapsedCount = replies.length - COLLAPSE_THRESHOLD;
   const visibleReplies =
-    expanded || collapsedCount <= 0 ? replies : replies.slice(0, COLLAPSE_THRESHOLD);
+    expanded || collapsedCount <= 0
+      ? replies
+      : replies.slice(0, COLLAPSE_THRESHOLD);
 
   const node = (
     <div className="novel-comment__node">
@@ -124,19 +128,21 @@ function CommentNode({
         </div>
         <div className="novel-comment__content">{comment.content}</div>
         <div className="novel-comment__actions">
-          <span className="novel-comment__time">{formatRelative(comment.createdAt)}</span>
+          <span className="novel-comment__time">
+            {formatRelative(comment.createdAt)}
+          </span>
           <button
             type="button"
-            className={`novel-comment__action ${comment.liked ? 'is-liked' : ''}`}
+            className={`novel-comment__action ${comment.liked ? "is-liked" : ""}`}
             aria-pressed={comment.liked}
-            aria-label={comment.liked ? '取消点赞' : '点赞'}
+            aria-label={comment.liked ? "取消点赞" : "点赞"}
             onClick={onLike ? () => onLike(comment.id) : undefined}
           >
             <svg
               viewBox="0 0 24 24"
               width="16"
               height="16"
-              fill={comment.liked ? 'currentColor' : 'none'}
+              fill={comment.liked ? "currentColor" : "none"}
               stroke="currentColor"
               strokeWidth="1.8"
               strokeLinejoin="round"

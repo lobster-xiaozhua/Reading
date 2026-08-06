@@ -21,7 +21,7 @@
     "build": "tsc -p tsconfig.build.json",
     "dev": "tsc -p tsconfig.build.json --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'lint placeholder'",
+    "lint": "eslint src/ --max-warnings=0",
     "test": "echo 'no tests'"
   },
   "peerDependencies": {
@@ -58,6 +58,11 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tsx": "^4.23.1",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "eslint": "^9.10.0",
+    "@eslint/js": "^9.10.0",
+    "typescript-eslint": "^8.5.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.1.0"
   }
 }

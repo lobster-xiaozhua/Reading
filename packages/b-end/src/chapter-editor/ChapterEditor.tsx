@@ -8,8 +8,8 @@
  * Source: 04-B端开发计划.md P2-19
  * ============================================================ */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Modal, Tooltip, Divider, Space } from 'antd';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Button, Modal, Tooltip, Divider, Space } from "antd";
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -22,17 +22,20 @@ import {
   UndoOutlined,
   RedoOutlined,
   LineOutlined,
-} from '@ant-design/icons';
-import type { Editor } from '@tiptap/core';
-import { useEditorState } from '@tiptap/react';
-import { EditorCore } from './EditorCore.js';
-import { useAutoSave } from './useAutoSave.js';
-import type { SensitiveWord } from './sensitive-decorations.js';
-import { countPureWords, countWithPunctuation } from '../data-model/word-count.js';
-import { scanText, type SensitiveHit } from '../data-model/sensitive-filter.js';
+} from "@ant-design/icons";
+import type { Editor } from "@tiptap/core";
+import { useEditorState } from "@tiptap/react";
+import { EditorCore } from "./EditorCore.js";
+import { useAutoSave } from "./useAutoSave.js";
+import type { SensitiveWord } from "./sensitive-decorations.js";
+import {
+  countPureWords,
+  countWithPunctuation,
+} from "../data-model/word-count.js";
+import { scanText, type SensitiveHit } from "../data-model/sensitive-filter.js";
 
 /** 编辑模式 */
-export type ChapterEditorMode = 'create' | 'draft' | 'published';
+export type ChapterEditorMode = "create" | "draft" | "published";
 
 export interface ChapterEditorProps {
   /** 受控 HTML 内容 */
@@ -48,7 +51,10 @@ export interface ChapterEditorProps {
   /** 自动保存节流间隔（ms），默认 30000 */
   autoSaveInterval?: number;
   /** 字数变更回调（双口径） */
-  onWordCountChange?: (count: { pure: number; withPunctuation: number }) => void;
+  onWordCountChange?: (count: {
+    pure: number;
+    withPunctuation: number;
+  }) => void;
   /** 是否启用敏感词检测，默认 false */
   sensitiveCheck?: boolean;
   /** 敏感词列表（sensitiveCheck=true 时生效） */
@@ -81,16 +87,18 @@ interface WordCountInfo {
 /** 状态栏自动保存文案 */
 function autoSaveLabel(status: string, lastSavedAt: number | null): string {
   switch (status) {
-    case 'saving':
-      return '保存中…';
-    case 'saved':
+    case "saving":
+      return "保存中…";
+    case "saved":
       return lastSavedAt
-        ? `已保存 ${new Date(lastSavedAt).toLocaleTimeString('zh-CN')}`
-        : '已保存';
-    case 'error':
-      return '保存失败';
+        ? `已保存 ${new Date(lastSavedAt).toLocaleTimeString("zh-CN")}`
+        : "已保存";
+    case "error":
+      return "保存失败";
     default:
-      return lastSavedAt ? `上次保存 ${new Date(lastSavedAt).toLocaleTimeString('zh-CN')}` : '未保存';
+      return lastSavedAt
+        ? `上次保存 ${new Date(lastSavedAt).toLocaleTimeString("zh-CN")}`
+        : "未保存";
   }
 }
 
@@ -104,7 +112,7 @@ export function ChapterEditor(props: ChapterEditorProps) {
   const {
     value,
     onChange,
-    mode = 'create',
+    mode = "create",
     autoSave = false,
     onSave,
     autoSaveInterval,
@@ -131,18 +139,15 @@ export function ChapterEditor(props: ChapterEditorProps) {
 
   // 实际生效的敏感词列表
   const effectiveSensitiveWords = useMemo<SensitiveWord[]>(
-    () => (sensitiveCheck ? sensitiveWords ?? [] : []),
+    () => (sensitiveCheck ? (sensitiveWords ?? []) : []),
     [sensitiveCheck, sensitiveWords],
   );
 
   // 自动保存：始终调用 hook（规则要求），onSave 内按 autoSave 开关决定是否真正保存
-  const handleAutoSave = useCallback(
-    async (html: string) => {
-      if (!autoSaveRef.current) return;
-      await onSaveRef.current?.(html);
-    },
-    [],
-  );
+  const handleAutoSave = useCallback(async (html: string) => {
+    if (!autoSaveRef.current) return;
+    await onSaveRef.current?.(html);
+  }, []);
   const autoSaveState = useAutoSave(editor, {
     onSave: handleAutoSave,
     interval: autoSaveInterval,
@@ -154,17 +159,17 @@ export function ChapterEditor(props: ChapterEditorProps) {
     selector: ({ editor: ed }) => {
       if (!ed) return null;
       return {
-        bold: ed.isActive('bold'),
-        italic: ed.isActive('italic'),
-        underline: ed.isActive('underline'),
-        strike: ed.isActive('strike'),
-        h2: ed.isActive('heading', { level: 2 }),
-        h3: ed.isActive('heading', { level: 3 }),
-        bulletList: ed.isActive('bulletList'),
-        orderedList: ed.isActive('orderedList'),
-        blockquote: ed.isActive('blockquote'),
-        codeBlock: ed.isActive('codeBlock'),
-        link: ed.isActive('link'),
+        bold: ed.isActive("bold"),
+        italic: ed.isActive("italic"),
+        underline: ed.isActive("underline"),
+        strike: ed.isActive("strike"),
+        h2: ed.isActive("heading", { level: 2 }),
+        h3: ed.isActive("heading", { level: 3 }),
+        bulletList: ed.isActive("bulletList"),
+        orderedList: ed.isActive("orderedList"),
+        blockquote: ed.isActive("blockquote"),
+        codeBlock: ed.isActive("codeBlock"),
+        link: ed.isActive("link"),
         canUndo: ed.can().undo(),
         canRedo: ed.can().redo(),
       };
@@ -213,16 +218,16 @@ export function ChapterEditor(props: ChapterEditorProps) {
   const confirmPublishedEdit = useCallback(
     (html: string): boolean => {
       // 非 published 或已确认 → 直接放行
-      if (mode !== 'published' || publishedConfirmedRef.current) {
+      if (mode !== "published" || publishedConfirmedRef.current) {
         return true;
       }
       // 拦截：弹确认框
       pendingHtmlRef.current = html;
       Modal.confirm({
-        title: '修改已发布章节',
-        content: '该章节已发布，修改将覆盖线上内容。是否继续编辑？',
-        okText: '继续编辑',
-        cancelText: '取消',
+        title: "修改已发布章节",
+        content: "该章节已发布，修改将覆盖线上内容。是否继续编辑？",
+        okText: "继续编辑",
+        cancelText: "取消",
         onOk: () => {
           publishedConfirmedRef.current = true;
           if (pendingHtmlRef.current !== null) {
@@ -233,7 +238,7 @@ export function ChapterEditor(props: ChapterEditorProps) {
         onCancel: () => {
           // 取消：回退编辑器内容到原 value
           if (editor) {
-            editor.commands.setContent(value || '', false);
+            editor.commands.setContent(value || "", false);
           }
           pendingHtmlRef.current = null;
         },
@@ -264,85 +269,172 @@ export function ChapterEditor(props: ChapterEditorProps) {
 
   const handleLink = useCallback(() => {
     if (!editor) return;
-    const previous = editor.getAttributes('link').href as string | undefined;
+    const previous = editor.getAttributes("link").href as string | undefined;
     // 简单实现：用浏览器 prompt 收集 URL（B 端后台可接受）
-    const href = typeof window !== 'undefined'
-      ? window.prompt('请输入链接地址（留空取消链接）', previous ?? 'https://')
-      : previous ?? '';
+    const href =
+      typeof window !== "undefined"
+        ? window.prompt(
+            "请输入链接地址（留空取消链接）",
+            previous ?? "https://",
+          )
+        : (previous ?? "");
     if (href === null) return;
-    if (href === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    if (href === "") {
+      editor.chain().focus().extendMarkRange("link").unsetLink().run();
       return;
     }
-    editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
+    editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
   }, [editor]);
 
   const buttons: ToolButton[] = useMemo(() => {
     const s = toolbarState;
     return [
-      { key: 'bold', label: '粗体', icon: <BoldOutlined />, active: s?.bold, onClick: () => run((e) => e.chain().toggleBold().run()) },
-      { key: 'italic', label: '斜体', icon: <ItalicOutlined />, active: s?.italic, onClick: () => run((e) => e.chain().toggleItalic().run()) },
-      { key: 'underline', label: '下划线', icon: <UnderlineOutlined />, active: s?.underline, onClick: () => run((e) => e.chain().toggleUnderline().run()) },
-      { key: 'strike', label: '删除线', icon: <StrikethroughOutlined />, active: s?.strike, onClick: () => run((e) => e.chain().toggleStrike().run()) },
-      { key: 'h2', label: '标题2', text: 'H2', active: s?.h2, onClick: () => run((e) => e.chain().toggleHeading({ level: 2 }).run()) },
-      { key: 'h3', label: '标题3', text: 'H3', active: s?.h3, onClick: () => run((e) => e.chain().toggleHeading({ level: 3 }).run()) },
-      { key: 'bulletList', label: '无序列表', icon: <UnorderedListOutlined />, active: s?.bulletList, onClick: () => run((e) => e.chain().toggleBulletList().run()) },
-      { key: 'orderedList', label: '有序列表', icon: <OrderedListOutlined />, active: s?.orderedList, onClick: () => run((e) => e.chain().toggleOrderedList().run()) },
-      { key: 'blockquote', label: '引用', text: '“”', active: s?.blockquote, onClick: () => run((e) => e.chain().toggleBlockquote().run()) },
-      { key: 'codeBlock', label: '代码块', icon: <CodeOutlined />, active: s?.codeBlock, onClick: () => run((e) => e.chain().toggleCodeBlock().run()) },
-      { key: 'hr', label: '分割线', icon: <LineOutlined />, onClick: () => run((e) => e.chain().setHorizontalRule().run()) },
-      { key: 'link', label: '链接', icon: <LinkOutlined />, active: s?.link, onClick: handleLink },
-      { key: 'undo', label: '撤销', icon: <UndoOutlined />, disabled: !s?.canUndo, onClick: () => run((e) => e.chain().undo().run()) },
-      { key: 'redo', label: '重做', icon: <RedoOutlined />, disabled: !s?.canRedo, onClick: () => run((e) => e.chain().redo().run()) },
+      {
+        key: "bold",
+        label: "粗体",
+        icon: <BoldOutlined />,
+        active: s?.bold,
+        onClick: () => run((e) => e.chain().toggleBold().run()),
+      },
+      {
+        key: "italic",
+        label: "斜体",
+        icon: <ItalicOutlined />,
+        active: s?.italic,
+        onClick: () => run((e) => e.chain().toggleItalic().run()),
+      },
+      {
+        key: "underline",
+        label: "下划线",
+        icon: <UnderlineOutlined />,
+        active: s?.underline,
+        onClick: () => run((e) => e.chain().toggleUnderline().run()),
+      },
+      {
+        key: "strike",
+        label: "删除线",
+        icon: <StrikethroughOutlined />,
+        active: s?.strike,
+        onClick: () => run((e) => e.chain().toggleStrike().run()),
+      },
+      {
+        key: "h2",
+        label: "标题2",
+        text: "H2",
+        active: s?.h2,
+        onClick: () => run((e) => e.chain().toggleHeading({ level: 2 }).run()),
+      },
+      {
+        key: "h3",
+        label: "标题3",
+        text: "H3",
+        active: s?.h3,
+        onClick: () => run((e) => e.chain().toggleHeading({ level: 3 }).run()),
+      },
+      {
+        key: "bulletList",
+        label: "无序列表",
+        icon: <UnorderedListOutlined />,
+        active: s?.bulletList,
+        onClick: () => run((e) => e.chain().toggleBulletList().run()),
+      },
+      {
+        key: "orderedList",
+        label: "有序列表",
+        icon: <OrderedListOutlined />,
+        active: s?.orderedList,
+        onClick: () => run((e) => e.chain().toggleOrderedList().run()),
+      },
+      {
+        key: "blockquote",
+        label: "引用",
+        text: "“”",
+        active: s?.blockquote,
+        onClick: () => run((e) => e.chain().toggleBlockquote().run()),
+      },
+      {
+        key: "codeBlock",
+        label: "代码块",
+        icon: <CodeOutlined />,
+        active: s?.codeBlock,
+        onClick: () => run((e) => e.chain().toggleCodeBlock().run()),
+      },
+      {
+        key: "hr",
+        label: "分割线",
+        icon: <LineOutlined />,
+        onClick: () => run((e) => e.chain().setHorizontalRule().run()),
+      },
+      {
+        key: "link",
+        label: "链接",
+        icon: <LinkOutlined />,
+        active: s?.link,
+        onClick: handleLink,
+      },
+      {
+        key: "undo",
+        label: "撤销",
+        icon: <UndoOutlined />,
+        disabled: !s?.canUndo,
+        onClick: () => run((e) => e.chain().undo().run()),
+      },
+      {
+        key: "redo",
+        label: "重做",
+        icon: <RedoOutlined />,
+        disabled: !s?.canRedo,
+        onClick: () => run((e) => e.chain().redo().run()),
+      },
     ];
   }, [toolbarState, run, handleLink]);
 
   // ---------- 渲染 ----------
   const toolbarStyle: React.CSSProperties = {
-    position: 'sticky',
+    position: "sticky",
     top: 0,
-    zIndex: 'var(--z-index-sticky)' as unknown as number,
-    background: 'var(--color-bg-subtle)',
-    borderBottom: '1px solid var(--color-border-subtle)',
-    padding: 'var(--space-2) var(--space-3)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'var(--space-1)',
-    flexWrap: 'wrap',
+    zIndex: "var(--z-index-sticky)" as unknown as number,
+    background: "var(--color-bg-subtle)",
+    borderBottom: "1px solid var(--color-border-subtle)",
+    padding: "var(--space-2) var(--space-3)",
+    display: "flex",
+    alignItems: "center",
+    gap: "var(--space-1)",
+    flexWrap: "wrap",
   };
 
   const statusBarStyle: React.CSSProperties = {
-    position: 'sticky',
+    position: "sticky",
     bottom: 0,
-    zIndex: 'var(--z-index-sticky)' as unknown as number,
-    background: 'var(--color-bg-subtle)',
-    borderTop: '1px solid var(--color-border-subtle)',
-    padding: 'var(--space-2) var(--space-3)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    fontFamily: 'var(--font-mono)',
-    fontSize: 'var(--font-size-caption, 13px)',
-    color: 'var(--color-text-secondary)',
+    zIndex: "var(--z-index-sticky)" as unknown as number,
+    background: "var(--color-bg-subtle)",
+    borderTop: "1px solid var(--color-border-subtle)",
+    padding: "var(--space-2) var(--space-3)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    fontFamily: "var(--font-mono)",
+    fontSize: "var(--font-size-caption, 13px)",
+    color: "var(--color-text-secondary)",
   };
 
   return (
     <div
       className={className}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        border: '1px solid var(--color-border-default)',
-        borderRadius: 'var(--radius-md)',
-        background: 'var(--color-bg-surface)',
-        overflow: 'hidden',
+        display: "flex",
+        flexDirection: "column",
+        border: "1px solid var(--color-border-default)",
+        borderRadius: "var(--radius-md)",
+        background: "var(--color-bg-surface)",
+        overflow: "hidden",
       }}
     >
       {/* 工具栏 sticky 顶部 */}
       <div className="chapter-editor__toolbar" style={toolbarStyle}>
         <Space size={2} wrap>
           {buttons.map((btn) => (
-            <span key={btn.key} style={{ display: 'inline-flex' }}>
+            <span key={btn.key} style={{ display: "inline-flex" }}>
               <Tooltip title={btn.label}>
                 <Button
                   type="text"
@@ -353,28 +445,31 @@ export function ChapterEditor(props: ChapterEditorProps) {
                   style={{
                     minWidth: 32,
                     height: 32,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    display: "inline-flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                     color: btn.active
-                      ? 'var(--color-brand)'
-                      : 'var(--color-text-primary)',
+                      ? "var(--color-brand)"
+                      : "var(--color-text-primary)",
                     background: btn.active
-                      ? 'var(--color-brand-bg)'
-                      : 'transparent',
+                      ? "var(--color-brand-bg)"
+                      : "transparent",
                   }}
                 >
                   {btn.icon ?? btn.text}
                 </Button>
               </Tooltip>
               {/* 分组分隔：在 strike/h3/orderedList/blockquote/codeBlock/hr/redo 前插入分隔线 */}
-              {(btn.key === 'h2' ||
-                btn.key === 'bulletList' ||
-                btn.key === 'blockquote' ||
-                btn.key === 'codeBlock' ||
-                btn.key === 'hr' ||
-                btn.key === 'undo') && (
-                <Divider type="vertical" style={{ margin: '0 var(--space-1)' }} />
+              {(btn.key === "h2" ||
+                btn.key === "bulletList" ||
+                btn.key === "blockquote" ||
+                btn.key === "codeBlock" ||
+                btn.key === "hr" ||
+                btn.key === "undo") && (
+                <Divider
+                  type="vertical"
+                  style={{ margin: "0 var(--space-1)" }}
+                />
               )}
             </span>
           ))}
@@ -385,9 +480,9 @@ export function ChapterEditor(props: ChapterEditorProps) {
       <div
         className="chapter-editor__body"
         style={{
-          padding: 'var(--space-6) var(--space-8)',
+          padding: "var(--space-6) var(--space-8)",
           minHeight: 400,
-          overflowY: 'auto',
+          overflowY: "auto",
         }}
       >
         <EditorCore
@@ -436,18 +531,41 @@ export function ChapterEditor(props: ChapterEditorProps) {
       {/* 状态栏底部固定：纯文字 N / 含标点 M，var(--font-mono) */}
       <div className="chapter-editor__statusbar" style={statusBarStyle}>
         <span>
-          纯文字 <strong style={{ color: 'var(--color-text-primary)' }}>{wordCount.pure}</strong>
-          <span style={{ margin: '0 var(--space-2)', color: 'var(--color-text-tertiary)' }}>·</span>
-          含标点 <strong style={{ color: 'var(--color-text-primary)' }}>{wordCount.withPunctuation}</strong>
+          纯文字{" "}
+          <strong style={{ color: "var(--color-text-primary)" }}>
+            {wordCount.pure}
+          </strong>
+          <span
+            style={{
+              margin: "0 var(--space-2)",
+              color: "var(--color-text-tertiary)",
+            }}
+          >
+            ·
+          </span>
+          含标点{" "}
+          <strong style={{ color: "var(--color-text-primary)" }}>
+            {wordCount.withPunctuation}
+          </strong>
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+          }}
+        >
           {autoSave && (
-            <span style={{ color: 'var(--color-text-tertiary)' }}>
+            <span style={{ color: "var(--color-text-tertiary)" }}>
               {autoSaveLabel(autoSaveState.status, autoSaveState.lastSavedAt)}
             </span>
           )}
-          <span style={{ color: 'var(--color-text-tertiary)' }}>
-            {mode === 'published' ? '已发布' : mode === 'draft' ? '草稿' : '新建'}
+          <span style={{ color: "var(--color-text-tertiary)" }}>
+            {mode === "published"
+              ? "已发布"
+              : mode === "draft"
+                ? "草稿"
+                : "新建"}
           </span>
         </span>
       </div>

@@ -6,8 +6,8 @@
  * Source: 04 §5.5 / P5-1
  * ============================================================ */
 
-import { http, requestSafe } from './http';
-import type { BChapterDetail, BChapterStatus } from '@novel/types';
+import { http, requestSafe } from "./http";
+import type { BChapterDetail, BChapterStatus } from "@novel/types";
 
 /** 章节列表查询参数 */
 export interface ChapterListParams {
@@ -15,8 +15,8 @@ export interface ChapterListParams {
   page: number;
   pageSize: number;
   searchKey?: string;
-  status?: BChapterStatus | 'all';
-  sortBy?: 'index' | 'updatedAt';
+  status?: BChapterStatus | "all";
+  sortBy?: "index" | "updatedAt";
 }
 
 /** 章节列表响应 */
@@ -33,19 +33,22 @@ export interface ChapterListResponse {
 
 /** 章节状态选项 */
 export const CHAPTER_STATUS_OPTIONS = [
-  { label: '全部', value: 'all' as const },
-  { label: '草稿', value: 'draft' as const },
-  { label: '待审核', value: 'pending' as const },
-  { label: '已发布', value: 'published' as const },
-  { label: '已下架', value: 'offline' as const },
+  { label: "全部", value: "all" as const },
+  { label: "草稿", value: "draft" as const },
+  { label: "待审核", value: "pending" as const },
+  { label: "已发布", value: "published" as const },
+  { label: "已下架", value: "offline" as const },
 ];
 
 /** 状态 Tag 配色 */
-export const CHAPTER_STATUS_TAG: Record<BChapterStatus, { color: string; text: string }> = {
-  draft: { color: 'default', text: '草稿' },
-  pending: { color: 'processing', text: '待审核' },
-  published: { color: 'success', text: '已发布' },
-  offline: { color: 'error', text: '已下架' },
+export const CHAPTER_STATUS_TAG: Record<
+  BChapterStatus,
+  { color: string; text: string }
+> = {
+  draft: { color: "default", text: "草稿" },
+  pending: { color: "processing", text: "待审核" },
+  published: { color: "success", text: "已发布" },
+  offline: { color: "error", text: "已下架" },
 };
 
 /** 后端章节项（novelId → bookId） */
@@ -68,15 +71,15 @@ interface BackendChapter {
 
 function mapChapter(raw: BackendChapter): BChapterDetail {
   return {
-    id: String(raw.id ?? ''),
-    bookId: String(raw.novelId ?? ''),
+    id: String(raw.id ?? ""),
+    bookId: String(raw.novelId ?? ""),
     index: Number(raw.index ?? 0),
-    title: raw.title ?? '',
+    title: raw.title ?? "",
     wordCount: Number(raw.wordCount ?? 0),
     isVip: Boolean(raw.isVip),
     publishedAt: Number(raw.publishedAt ?? 0) || 0,
-    status: raw.status ?? 'draft',
-    content: raw.content ?? '',
+    status: raw.status ?? "draft",
+    content: raw.content ?? "",
     pureWordCount: Number(raw.pureWordCount ?? 0),
     punctuationWordCount: Number(raw.punctuationWordCount ?? 0),
     createdAt: Number(raw.createdAt ?? 0),
@@ -85,8 +88,12 @@ function mapChapter(raw: BackendChapter): BChapterDetail {
 }
 
 /** 查询章节列表（后端无分页，前端过滤/排序/分页） */
-export async function fetchChapterList(params: ChapterListParams): Promise<ChapterListResponse> {
-  const data = await http.get<{ list: BackendChapter[]; novelStatus?: string }>(`/novels/${params.novelId}/chapters`);
+export async function fetchChapterList(
+  params: ChapterListParams,
+): Promise<ChapterListResponse> {
+  const data = await http.get<{ list: BackendChapter[]; novelStatus?: string }>(
+    `/novels/${params.novelId}/chapters`,
+  );
   const rawList = Array.isArray(data) ? data : (data.list ?? []);
   const chapters = rawList.map(mapChapter);
 
@@ -95,10 +102,10 @@ export async function fetchChapterList(params: ChapterListParams): Promise<Chapt
     const q = params.searchKey.toLowerCase();
     filtered = filtered.filter((c) => c.title.toLowerCase().includes(q));
   }
-  if (params.status && params.status !== 'all') {
+  if (params.status && params.status !== "all") {
     filtered = filtered.filter((c) => c.status === params.status);
   }
-  if (params.sortBy === 'updatedAt') {
+  if (params.sortBy === "updatedAt") {
     filtered = filtered.sort((a, b) => b.updatedAt - a.updatedAt);
   } else {
     filtered = filtered.sort((a, b) => a.index - b.index);
@@ -115,12 +122,15 @@ export async function fetchChapterList(params: ChapterListParams): Promise<Chapt
     page: params.page,
     pageSize: params.pageSize,
     totalWords,
-    novelStatus: !Array.isArray(data) && data.novelStatus ? data.novelStatus : 'published',
+    novelStatus:
+      !Array.isArray(data) && data.novelStatus ? data.novelStatus : "published",
   };
 }
 
 /** 查询单条章节详情 */
-export async function fetchChapterDetail(id: string): Promise<BChapterDetail | null> {
+export async function fetchChapterDetail(
+  id: string,
+): Promise<BChapterDetail | null> {
   try {
     const data = await http.get<BackendChapter>(`/chapters/${id}`);
     return mapChapter(data);
@@ -140,28 +150,34 @@ export interface ChapterFormValues {
 }
 
 /** 新建章节 */
-export async function createChapter(values: ChapterFormValues): Promise<{ success: boolean; id: string }> {
-  const result = await requestSafe(http.post<BackendChapter>('/chapters', {
-    novelId: values.bookId,
-    title: values.title,
-    content: values.content,
-    isVip: values.isVip,
-    auditLevel: 'first',
-  }));
+export async function createChapter(
+  values: ChapterFormValues,
+): Promise<{ success: boolean; id: string }> {
+  const result = await requestSafe(
+    http.post<BackendChapter>("/chapters", {
+      novelId: values.bookId,
+      title: values.title,
+      content: values.content,
+      isVip: values.isVip,
+      auditLevel: "first",
+    }),
+  );
   if (result.success) return { success: true, id: String(result.data.id) };
-  return { success: false, id: '' };
+  return { success: false, id: "" };
 }
 
 /** 更新章节（含行内标题编辑） */
 export async function updateChapter(
   id: string,
-  patch: Partial<Pick<BChapterDetail, 'title' | 'content' | 'isVip'>>,
+  patch: Partial<Pick<BChapterDetail, "title" | "content" | "isVip">>,
 ): Promise<{ success: boolean }> {
-  const result = await requestSafe(http.patch(`/chapters/${id}`, {
-    ...(patch.title !== undefined ? { title: patch.title } : {}),
-    ...(patch.content !== undefined ? { content: patch.content } : {}),
-    ...(patch.isVip !== undefined ? { isVip: patch.isVip } : {}),
-  }));
+  const result = await requestSafe(
+    http.patch(`/chapters/${id}`, {
+      ...(patch.title !== undefined ? { title: patch.title } : {}),
+      ...(patch.content !== undefined ? { content: patch.content } : {}),
+      ...(patch.isVip !== undefined ? { isVip: patch.isVip } : {}),
+    }),
+  );
   if (result.success) return { success: true };
   return { success: false };
 }
@@ -171,9 +187,11 @@ export async function reorderChapters(
   novelId: string,
   orderedIds: string[],
 ): Promise<{ success: boolean }> {
-  const result = await requestSafe(http.post(`/novels/${novelId}/chapters/reorder`, {
-    orderedIds: orderedIds.map(Number),
-  }));
+  const result = await requestSafe(
+    http.post(`/novels/${novelId}/chapters/reorder`, {
+      orderedIds: orderedIds.map(Number),
+    }),
+  );
   if (result.success) return { success: true };
   return { success: false };
 }
@@ -183,38 +201,43 @@ export async function transitionChapterStatus(
   id: string,
   to: BChapterStatus,
 ): Promise<{ success: boolean; reason?: string }> {
-  const result = await requestSafe(http.post(`/chapters/${id}/transition`, { target: to }));
+  const result = await requestSafe(
+    http.post(`/chapters/${id}/transition`, { target: to }),
+  );
   if (result.success) return { success: true };
-  return { success: false, reason: result.error ?? '章节状态转换失败' };
+  return { success: false, reason: result.error ?? "章节状态转换失败" };
 }
 
 /** 批量操作 */
 export async function batchOperateChapters(
   ids: string[],
-  action: 'publish' | 'offline' | 'delete' | 'submit-audit',
+  action: "publish" | "offline" | "delete" | "submit-audit",
 ): Promise<{ success: boolean; failed?: string[] }> {
   const failed: string[] = [];
   const numericIds = ids.map(Number);
 
   try {
-    if (action === 'publish' || action === 'submit-audit') {
-      const data = await http.post<{ success: boolean; failed?: { id: string; reason: string }[] }>(
-        '/chapters/batch-operate',
-        { ids: numericIds, action: action === 'submit-audit' ? 'submit' : 'publish' },
-      );
+    if (action === "publish" || action === "submit-audit") {
+      const data = await http.post<{
+        success: boolean;
+        failed?: { id: string; reason: string }[];
+      }>("/chapters/batch-operate", {
+        ids: numericIds,
+        action: action === "submit-audit" ? "submit" : "publish",
+      });
       if (!data.success && data.failed) {
         return { success: false, failed: data.failed.map((f) => String(f.id)) };
       }
       return { success: true };
     }
-    if (action === 'offline') {
+    if (action === "offline") {
       for (const id of ids) {
-        const res = await transitionChapterStatus(id, 'offline');
+        const res = await transitionChapterStatus(id, "offline");
         if (!res.success) failed.push(id);
       }
       return { success: failed.length === 0, failed };
     }
-    if (action === 'delete') {
+    if (action === "delete") {
       for (const id of ids) {
         const res = await deleteChapter(id);
         if (!res.success) failed.push(id);
@@ -232,7 +255,9 @@ export async function deleteChapter(
   id: string,
   titleMatch?: string,
 ): Promise<{ success: boolean; reason?: string }> {
-  const result = await requestSafe(http.del(`/chapters/${id}`, titleMatch ? { titleMatch } : {}));
+  const result = await requestSafe(
+    http.del(`/chapters/${id}`, titleMatch ? { titleMatch } : {}),
+  );
   if (result.success) return { success: true };
-  return { success: false, reason: result.error ?? '章节删除失败' };
+  return { success: false, reason: result.error ?? "章节删除失败" };
 }

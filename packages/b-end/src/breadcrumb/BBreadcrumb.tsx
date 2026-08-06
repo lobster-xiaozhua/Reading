@@ -4,10 +4,10 @@
  * Source: 04 §6.15
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import type { ComponentProps } from 'react';
-import { Breadcrumb } from 'antd';
-import type { BreadcrumbProps } from 'antd';
+import { forwardRef } from "react";
+import type { ComponentProps } from "react";
+import { Breadcrumb } from "antd";
+import type { BreadcrumbProps } from "antd";
 
 export interface BBreadcrumbItem {
   /** 显示文案 */
@@ -17,7 +17,10 @@ export interface BBreadcrumbItem {
   onClick?: () => void;
 }
 
-export interface BBreadcrumbProps extends Omit<ComponentProps<typeof Breadcrumb>, 'items'> {
+export interface BBreadcrumbProps extends Omit<
+  ComponentProps<typeof Breadcrumb>,
+  "items"
+> {
   items: BBreadcrumbItem[];
 }
 
@@ -28,7 +31,7 @@ export interface BBreadcrumbProps extends Omit<ComponentProps<typeof Breadcrumb>
  */
 export const BBreadcrumb = forwardRef<HTMLDivElement, BBreadcrumbProps>(
   function BBreadcrumb({ items, ...rest }, ref) {
-    const antdItems: BreadcrumbProps['items'] = items.map((item) => {
+    const antdItems: BreadcrumbProps["items"] = items.map((item) => {
       const isLink = Boolean(item.href || item.onClick);
       return {
         title: isLink ? (
@@ -40,12 +43,14 @@ export const BBreadcrumb = forwardRef<HTMLDivElement, BBreadcrumbProps>(
                 item.onClick();
               }
             }}
-            style={{ color: 'var(--color-brand)' }}
+            style={{ color: "var(--color-brand)" }}
           >
             {item.title}
           </a>
         ) : (
-          <span style={{ color: 'var(--color-text-primary)' }}>{item.title}</span>
+          <span style={{ color: "var(--color-text-primary)" }}>
+            {item.title}
+          </span>
         ),
       };
     });

@@ -4,14 +4,18 @@
  * Source: 04 §6.3
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import type { ReactNode } from 'react';
-import { Card, Skeleton, Typography } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined, MinusOutlined } from '@ant-design/icons';
+import { forwardRef } from "react";
+import type { ReactNode } from "react";
+import { Card, Skeleton, Typography } from "antd";
+import {
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  MinusOutlined,
+} from "@ant-design/icons";
 
 const { Text } = Typography;
 
-export type StatisticTrend = 'up' | 'down' | 'flat';
+export type StatisticTrend = "up" | "down" | "flat";
 
 export interface BStatisticCardProps {
   /** 指标标题 */
@@ -37,23 +41,23 @@ export interface BStatisticCardProps {
 /** 趋势色映射 */
 function getTrendColor(trend: StatisticTrend): string {
   switch (trend) {
-    case 'up':
-      return 'var(--color-feedback-success)';
-    case 'down':
-      return 'var(--color-feedback-error)';
-    case 'flat':
+    case "up":
+      return "var(--color-feedback-success)";
+    case "down":
+      return "var(--color-feedback-error)";
+    case "flat":
     default:
-      return 'var(--color-text-tertiary)';
+      return "var(--color-text-tertiary)";
   }
 }
 
 function getTrendIcon(trend: StatisticTrend) {
   switch (trend) {
-    case 'up':
+    case "up":
       return <ArrowUpOutlined />;
-    case 'down':
+    case "down":
       return <ArrowDownOutlined />;
-    case 'flat':
+    case "flat":
     default:
       return <MinusOutlined />;
   }
@@ -67,7 +71,17 @@ function getTrendIcon(trend: StatisticTrend) {
  */
 export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
   function BStatisticCard(
-    { title, value, prefix, suffix, trend, trendText, trendLabel, loading, onClick },
+    {
+      title,
+      value,
+      prefix,
+      suffix,
+      trend,
+      trendText,
+      trendLabel,
+      loading,
+      onClick,
+    },
     ref,
   ) {
     return (
@@ -76,13 +90,16 @@ export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
         hoverable={Boolean(onClick)}
         onClick={onClick}
         className="b-statistic-card"
-        styles={{ body: { padding: 'var(--space-5)' } }}
+        styles={{ body: { padding: "var(--space-5)" } }}
       >
         {loading ? (
           <Skeleton active paragraph={{ rows: 2 }} />
         ) : (
           <>
-            <Text type="secondary" style={{ fontSize: 'var(--font-size-caption, 13px)' }}>
+            <Text
+              type="secondary"
+              style={{ fontSize: "var(--font-size-caption, 13px)" }}
+            >
               {title}
             </Text>
             <div
@@ -91,30 +108,50 @@ export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
                 fontSize: 30,
                 fontWeight: 600,
                 lineHeight: 1.35,
-                marginTop: 'var(--space-2)',
-                color: 'var(--color-text-primary)',
+                marginTop: "var(--space-2)",
+                color: "var(--color-text-primary)",
               }}
             >
               {prefix && <span style={{ marginRight: 4 }}>{prefix}</span>}
               {value}
-              {suffix && <span style={{ marginLeft: 4, fontSize: 'var(--font-size-body, 14px)' }}>{suffix}</span>}
+              {suffix && (
+                <span
+                  style={{
+                    marginLeft: 4,
+                    fontSize: "var(--font-size-body, 14px)",
+                  }}
+                >
+                  {suffix}
+                </span>
+              )}
             </div>
             {trend && (
               <div
                 className="b-statistic-card__trend"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-1)',
-                  marginTop: 'var(--space-2)',
-                  fontSize: 'var(--font-size-caption, 13px)',
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-1)",
+                  marginTop: "var(--space-2)",
+                  fontSize: "var(--font-size-caption, 13px)",
                 }}
               >
-                <span style={{ color: getTrendColor(trend), display: 'inline-flex', alignItems: 'center', gap: 2 }}>
+                <span
+                  style={{
+                    color: getTrendColor(trend),
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 2,
+                  }}
+                >
                   {getTrendIcon(trend)}
                   {trendText}
                 </span>
-                {trendLabel && <Text style={{ color: 'var(--color-text-tertiary)' }}>{trendLabel}</Text>}
+                {trendLabel && (
+                  <Text style={{ color: "var(--color-text-tertiary)" }}>
+                    {trendLabel}
+                  </Text>
+                )}
               </div>
             )}
           </>

@@ -3,9 +3,9 @@
  * 5 语义色；可选关闭
  * ============================================================ */
 
-import { forwardRef, type HTMLAttributes, type MouseEvent } from 'react';
+import { forwardRef, type HTMLAttributes, type MouseEvent } from "react";
 
-export type TagColor = 'default' | 'success' | 'warning' | 'error' | 'primary';
+export type TagColor = "default" | "success" | "warning" | "error" | "primary";
 
 export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
   color?: TagColor;
@@ -15,10 +15,19 @@ export interface TagProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 export const Tag = forwardRef<HTMLSpanElement, TagProps>(function Tag(
-  { color = 'default', closable = false, onClose, className, children, ...rest },
+  {
+    color = "default",
+    closable = false,
+    onClose,
+    className,
+    children,
+    ...rest
+  },
   ref,
 ) {
-  const cls = ['novel-tag', `novel-tag--${color}`, className ?? ''].filter(Boolean).join(' ');
+  const cls = ["novel-tag", `novel-tag--${color}`, className ?? ""]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <span ref={ref} className={cls} {...rest}>
@@ -38,7 +47,7 @@ export const Tag = forwardRef<HTMLSpanElement, TagProps>(function Tag(
           tabIndex={0}
           onClick={onClose}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+            if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
               onClose?.(e as unknown as MouseEvent<SVGSVGElement>);
             }

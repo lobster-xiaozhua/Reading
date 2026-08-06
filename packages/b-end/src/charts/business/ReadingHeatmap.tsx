@@ -4,9 +4,9 @@
  * Source: 02 §4.5 / P7-8
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Heatmap } from '@ant-design/charts';
-import type { HeatmapConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Heatmap } from "@ant-design/charts";
+import type { HeatmapConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -15,7 +15,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from '../shared';
+} from "../shared";
 
 export interface ReadingHeatmapDatum {
   /** 0-6（周一到周日） */
@@ -33,7 +33,7 @@ export interface ReadingHeatmapProps {
   config?: Partial<HeatmapConfig>;
 }
 
-const DAY_LABELS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+const DAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"];
 
 export function ReadingHeatmap({
   data,
@@ -45,20 +45,26 @@ export function ReadingHeatmap({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription ?? '暂无阅读数据'} height={height} />;
+    return (
+      <ChartWrapper
+        empty
+        emptyDescription={emptyDescription ?? "暂无阅读数据"}
+        height={height}
+      />
+    );
   }
 
   const mergedConfig: HeatmapConfig = {
     data,
-    xField: 'hour',
-    yField: 'day',
-    colorField: 'duration',
+    xField: "hour",
+    yField: "day",
+    colorField: "duration",
     height,
-    theme: dark ? 'classicDark' : 'classic',
-    type: 'intensity',
+    theme: dark ? "classicDark" : "classic",
+    type: "intensity",
     // 5 档离散色阶
     color: {
-      type: 'quantize',
+      type: "quantize",
       domain: [0, 1],
       range: colors,
     },
@@ -75,7 +81,7 @@ export function ReadingHeatmap({
         labelFormatter: (h: number) => `${h}时`,
       },
     },
-    interactions: [{ type: 'tooltip' }],
+    interactions: [{ type: "tooltip" }],
     ...config,
   } as HeatmapConfig;
 

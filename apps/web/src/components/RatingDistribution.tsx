@@ -1,6 +1,6 @@
-import type { RatingDistribution as RatingDistributionData } from '@/api/types';
-import { RatingStars } from '@novel/components';
-import './RatingDistribution.css';
+import type { RatingDistribution as RatingDistributionData } from "@/api/types";
+import { RatingStars } from "@novel/components";
+import "./RatingDistribution.css";
 
 interface Props {
   data: RatingDistributionData;
@@ -13,9 +13,13 @@ export function RatingDistribution({ data }: Props) {
   return (
     <div className="novel-rating-dist">
       <div className="novel-rating-dist__summary">
-        <div className="novel-rating-dist__score">{data.average.toFixed(1)}</div>
+        <div className="novel-rating-dist__score">
+          {data.average.toFixed(1)}
+        </div>
         <RatingStars value={data.average} size="md" />
-        <div className="novel-rating-dist__count">{data.total.toLocaleString()} 人评分</div>
+        <div className="novel-rating-dist__count">
+          {data.total.toLocaleString()} 人评分
+        </div>
       </div>
       <div className="novel-rating-dist__bars">
         {data.buckets.map((b) => (

@@ -4,9 +4,9 @@
  * Source: 02 §4.5 / P7-11
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Pie } from '@ant-design/charts';
-import type { PieConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Pie } from "@ant-design/charts";
+import type { PieConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -14,7 +14,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from '../shared';
+} from "../shared";
 
 export interface CategoryDatum {
   /** 分类名 */
@@ -43,7 +43,13 @@ export function CategoryDistributionChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription ?? '暂无分类数据'} height={height} />;
+    return (
+      <ChartWrapper
+        empty
+        emptyDescription={emptyDescription ?? "暂无分类数据"}
+        height={height}
+      />
+    );
   }
 
   // Top6 后合并「其他」
@@ -51,58 +57,59 @@ export function CategoryDistributionChart({
   const top = sorted.slice(0, topN);
   const others = sorted.slice(topN);
   const othersTotal = others.reduce((sum, d) => sum + d.count, 0);
-  const processed = othersTotal > 0 ? [...top, { category: '其他', count: othersTotal }] : top;
+  const processed =
+    othersTotal > 0 ? [...top, { category: "其他", count: othersTotal }] : top;
   const total = processed.reduce((sum, d) => sum + d.count, 0);
 
   const mergedConfig: PieConfig = {
     data: processed,
-    angleField: 'count',
-    colorField: 'category',
+    angleField: "count",
+    colorField: "category",
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     color: colors,
     innerRadius: 0.6,
     legend: commonLegendStyle.legend,
     tooltip: commonTooltipStyle.tooltip,
     label: {
-      text: 'percentage',
+      text: "percentage",
       style: {
         fontSize: 12,
-        fill: 'var(--color-text-secondary)',
+        fill: "var(--color-text-secondary)",
       },
     },
     // 中心显示总数
     annotations: [
       {
-        type: 'text',
+        type: "text",
         style: {
           text: `${total.toLocaleString()}`,
-          x: '50%',
-          y: '46%',
-          textAlign: 'center',
+          x: "50%",
+          y: "46%",
+          textAlign: "center",
           fontSize: 24,
           fontWeight: 600,
-          fill: 'var(--color-text-primary)',
+          fill: "var(--color-text-primary)",
         },
       },
       {
-        type: 'text',
+        type: "text",
         style: {
-          text: '总数',
-          x: '50%',
-          y: '58%',
-          textAlign: 'center',
+          text: "总数",
+          x: "50%",
+          y: "58%",
+          textAlign: "center",
           fontSize: 13,
-          fill: 'var(--color-text-secondary)',
+          fill: "var(--color-text-secondary)",
         },
       },
     ],
     // 扇区间隔 2px
     style: {
-      stroke: 'var(--color-bg-container)',
+      stroke: "var(--color-bg-container)",
       lineWidth: 2,
     },
-    interactions: [{ type: 'tooltip' }, { type: 'legend-filter' }],
+    interactions: [{ type: "tooltip" }, { type: "legend-filter" }],
     ...config,
   } as PieConfig;
 

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import type { Banner } from '@/api/types';
-import './Carousel.css';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import type { Banner } from "@/api/types";
+import "./Carousel.css";
 
 interface CarouselProps {
   banners: Banner[];
@@ -36,7 +36,9 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
   }, [interval, banners.length, next]);
 
   if (banners.length === 0) {
-    return <div className="novel-carousel__placeholder" aria-label="Banner 加载中" />;
+    return (
+      <div className="novel-carousel__placeholder" aria-label="Banner 加载中" />
+    );
   }
 
   return (
@@ -53,10 +55,13 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
           <Link
             key={b.id}
             to={`/book/${b.bookId}`}
-            className={`novel-carousel__slide ${i === active ? 'is-active' : ''}`}
+            className={`novel-carousel__slide ${i === active ? "is-active" : ""}`}
             aria-hidden={i !== active}
             aria-label={`${b.title} - ${b.subtitle}`}
-            style={{ transform: `translateX(-${active * 100}%)`, backgroundImage: `url(${b.cover})` }}
+            style={{
+              transform: `translateX(-${active * 100}%)`,
+              backgroundImage: `url(${b.cover})`,
+            }}
           >
             <div className="novel-carousel__overlay" />
             <div className="novel-carousel__caption">
@@ -84,12 +89,16 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
         ›
       </button>
 
-      <div className="novel-carousel__dots" role="tablist" aria-label="Banner 切换">
+      <div
+        className="novel-carousel__dots"
+        role="tablist"
+        aria-label="Banner 切换"
+      >
         {banners.map((b, i) => (
           <button
             key={b.id}
             type="button"
-            className={`novel-carousel__dot ${i === active ? 'is-active' : ''}`}
+            className={`novel-carousel__dot ${i === active ? "is-active" : ""}`}
             role="tab"
             aria-selected={i === active}
             aria-label={`第 ${i + 1} 张`}

@@ -207,12 +207,7 @@ class DiscoveryService:
         return result
 
     # ── 推荐书单 ─────────────────────────────────────────
-    async def get_recommendations(self, limit: int = 6) -> list[RecommendBook]:
-        """基于编辑推荐 + 高评分生成推荐列表。"""
-        novels = await self.novel_repo.ranking("hot", limit)
-        return [
-            RecommendBook(book=novel_to_c_summary(n), match_score=_match_score(n)) for n in novels
-        ]
+    # 个性化推荐已迁移至 recommend_service.RecommendService（协同过滤 + 冷启动）
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _get_flag_books(

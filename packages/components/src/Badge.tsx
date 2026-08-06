@@ -3,7 +3,7 @@
  * 计数 / 小红点 / 溢出 99+
  * ============================================================ */
 
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export interface BadgeProps {
   /** 计数；与 dot 互斥。> overflow 显示 `${overflow}+` */
@@ -15,7 +15,12 @@ export interface BadgeProps {
   children?: ReactNode;
 }
 
-export function Badge({ count, overflow = 99, dot = false, children }: BadgeProps) {
+export function Badge({
+  count,
+  overflow = 99,
+  dot = false,
+  children,
+}: BadgeProps) {
   let label: string | null = null;
   if (!dot && count != null) {
     label = count > overflow ? `${overflow}+` : String(count);
@@ -27,7 +32,9 @@ export function Badge({ count, overflow = 99, dot = false, children }: BadgeProp
       {dot ? (
         <span className="novel-badge__dot" aria-label="有新内容" />
       ) : label != null ? (
-        <span className="novel-badge__count" aria-label={`${label} 条未读`}>{label}</span>
+        <span className="novel-badge__count" aria-label={`${label} 条未读`}>
+          {label}
+        </span>
       ) : null}
     </span>
   );

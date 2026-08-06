@@ -5,10 +5,16 @@
  * Source: 04 §6.2
  * ============================================================ */
 
-import { forwardRef, useState, useMemo } from 'react';
-import type { ReactNode } from 'react';
-import { Input, Button, Space, Drawer, Form, Badge } from 'antd';
-import { SearchOutlined, FilterOutlined, DownOutlined, UpOutlined, ReloadOutlined } from '@ant-design/icons';
+import { forwardRef, useState, useMemo } from "react";
+import type { ReactNode } from "react";
+import { Input, Button, Space, Drawer, Form, Badge } from "antd";
+import {
+  SearchOutlined,
+  FilterOutlined,
+  DownOutlined,
+  UpOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 
 export interface FilterField {
   /** 字段 key */
@@ -55,7 +61,7 @@ export const BFilterBar = forwardRef<HTMLDivElement, BFilterBarProps>(
     {
       searchKey,
       onSearch,
-      searchPlaceholder = '请输入关键词搜索',
+      searchPlaceholder = "请输入关键词搜索",
       filters = [],
       advancedFilters = [],
       advancedValues,
@@ -79,7 +85,11 @@ export const BFilterBar = forwardRef<HTMLDivElement, BFilterBarProps>(
     const advancedCount = useMemo(() => {
       if (!advancedValues) return 0;
       return Object.values(advancedValues).filter(
-        (v) => v !== undefined && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0),
+        (v) =>
+          v !== undefined &&
+          v !== null &&
+          v !== "" &&
+          !(Array.isArray(v) && v.length === 0),
       ).length;
     }, [advancedValues]);
 
@@ -94,18 +104,20 @@ export const BFilterBar = forwardRef<HTMLDivElement, BFilterBarProps>(
         ref={ref}
         className="b-filter-bar"
         style={{
-          display: 'flex',
-          alignItems: 'flex-start',
-          gap: 'var(--space-3)',
-          flexWrap: 'wrap',
-          marginBottom: 'var(--space-4)',
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "var(--space-3)",
+          flexWrap: "wrap",
+          marginBottom: "var(--space-4)",
         }}
       >
         <Input
           value={searchKey}
           onChange={(e) => onSearch?.(e.target.value)}
           placeholder={searchPlaceholder}
-          prefix={<SearchOutlined style={{ color: 'var(--color-text-tertiary)' }} />}
+          prefix={
+            <SearchOutlined style={{ color: "var(--color-text-tertiary)" }} />
+          }
           allowClear
           style={{ width: 240 }}
           onPressEnter={(e) => onSearch?.((e.target as HTMLInputElement).value)}
@@ -113,8 +125,22 @@ export const BFilterBar = forwardRef<HTMLDivElement, BFilterBarProps>(
         />
 
         {visibleFilters.map((field) => (
-          <div key={field.name} className="b-filter-bar__field" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-            <label style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-body, 14px)', whiteSpace: 'nowrap' }}>
+          <div
+            key={field.name}
+            className="b-filter-bar__field"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-2)",
+            }}
+          >
+            <label
+              style={{
+                color: "var(--color-text-secondary)",
+                fontSize: "var(--font-size-body, 14px)",
+                whiteSpace: "nowrap",
+              }}
+            >
               {field.label}
             </label>
             {field.control}
@@ -122,22 +148,40 @@ export const BFilterBar = forwardRef<HTMLDivElement, BFilterBarProps>(
         ))}
 
         {collapsible && filters.length > 2 && (
-          <Button type="link" onClick={() => setExpanded((v) => !v)} aria-label={expanded ? '收起筛选' : '展开筛选'}>
+          <Button
+            type="link"
+            onClick={() => setExpanded((v) => !v)}
+            aria-label={expanded ? "收起筛选" : "展开筛选"}
+          >
             {expanded ? <UpOutlined /> : <DownOutlined />}
-            {expanded ? '收起' : '展开'}
+            {expanded ? "收起" : "展开"}
           </Button>
         )}
 
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+          }}
+        >
           {advancedFilters.length > 0 && (
             <Badge count={advancedCount} size="small" offset={[-4, 4]}>
-              <Button icon={<FilterOutlined />} onClick={() => setDrawerOpen(true)}>
+              <Button
+                icon={<FilterOutlined />}
+                onClick={() => setDrawerOpen(true)}
+              >
                 高级筛选
               </Button>
             </Badge>
           )}
           {onReset && (
-            <Button icon={<ReloadOutlined />} onClick={onReset} aria-label="重置筛选">
+            <Button
+              icon={<ReloadOutlined />}
+              onClick={onReset}
+              aria-label="重置筛选"
+            >
               重置
             </Button>
           )}

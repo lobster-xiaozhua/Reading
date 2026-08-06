@@ -3,8 +3,8 @@
  * 左侧分类树 + 标签筛选 + 排序 Tab + 书籍网格 + 分页
  * URL 参数同步：?cat=玄幻&sort=hot&tag=热血,热血&status=ongoing
  * ============================================================ */
-import { useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   BookCard,
   EmptyState,
@@ -12,23 +12,23 @@ import {
   Skeleton,
   Tag,
   useAsyncState,
-} from '@novel/components';
-import { fetcher } from '@/api/fetcher';
-import { toBook } from '@/utils/convert';
-import type { Category, SortKey, Tag as TagType } from '@/api/types';
-import './CategoryPage.css';
+} from "@novel/components";
+import { fetcher } from "@/api/fetcher";
+import { toBook } from "@/utils/convert";
+import type { Category, SortKey, Tag as TagType } from "@/api/types";
+import "./CategoryPage.css";
 
 const SORT_TABS: { key: SortKey; label: string }[] = [
-  { key: 'hot', label: '人气' },
-  { key: 'follow', label: '收藏' },
-  { key: 'latest', label: '最新' },
-  { key: 'completed', label: '完结' },
+  { key: "hot", label: "人气" },
+  { key: "follow", label: "收藏" },
+  { key: "latest", label: "最新" },
+  { key: "completed", label: "完结" },
 ];
 
-const STATUS_OPTIONS: { key: '' | 'ongoing' | 'completed'; label: string }[] = [
-  { key: '', label: '全部' },
-  { key: 'ongoing', label: '连载' },
-  { key: 'completed', label: '完结' },
+const STATUS_OPTIONS: { key: "" | "ongoing" | "completed"; label: string }[] = [
+  { key: "", label: "全部" },
+  { key: "ongoing", label: "连载" },
+  { key: "completed", label: "完结" },
 ];
 
 const PAGE_SIZE = 12;
@@ -36,28 +36,29 @@ const PAGE_SIZE = 12;
 export default function CategoryPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const category = searchParams.get('cat') ?? 'all';
-  const sort = (searchParams.get('sort') as SortKey) ?? 'hot';
-  const status = (searchParams.get('status') as '' | 'ongoing' | 'completed') ?? '';
-  const tagParam = searchParams.get('tag') ?? '';
-  const selectedTags = tagParam ? tagParam.split(',').filter(Boolean) : [];
-  const page = Number(searchParams.get('page') ?? '1');
+  const category = searchParams.get("cat") ?? "all";
+  const sort = (searchParams.get("sort") as SortKey) ?? "hot";
+  const status =
+    (searchParams.get("status") as "" | "ongoing" | "completed") ?? "";
+  const tagParam = searchParams.get("tag") ?? "";
+  const selectedTags = tagParam ? tagParam.split(",").filter(Boolean) : [];
+  const page = Number(searchParams.get("page") ?? "1");
 
   /* ---------- 分类 & 标签 ---------- */
   const categoriesState = useAsyncState<Category[]>(
     () => fetcher.getCategories(),
     { initial: [] as Category[], loadingDelay: 200 },
   );
-  const tagsState = useAsyncState<TagType[]>(
-    () => fetcher.getTags(),
-    { initial: [] as TagType[], loadingDelay: 200 },
-  );
+  const tagsState = useAsyncState<TagType[]>(() => fetcher.getTags(), {
+    initial: [] as TagType[],
+    loadingDelay: 200,
+  });
 
   /* ---------- 书籍列表 ---------- */
   const booksState = useAsyncState(
     () =>
       fetcher.getCategoryBooks({
-        category: category === 'all' ? undefined : category,
+        category: category === "all" ? undefined : category,
         tags: selectedTags,
         sort,
         status: status || undefined,
@@ -83,7 +84,7 @@ export default function CategoryPage() {
     if (value) next.set(key, value);
     else next.delete(key);
     // 切换分类/排序/标签/状态时重置页码
-    if (key !== 'page') next.delete('page');
+    if (key !== "page") next.delete("page");
     setSearchParams(next, { replace: false });
   };
 
@@ -91,28 +92,28 @@ export default function CategoryPage() {
     const next = selectedTags.includes(tagName)
       ? selectedTags.filter((t) => t !== tagName)
       : [...selectedTags, tagName];
-    updateParam('tag', next.join(','));
+    updateParam("tag", next.join(","));
   };
 
   const handlePageChange = (p: number) => {
-    updateParam('page', String(p));
+    updateParam("page", String(p));
     // 滚动到顶部
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   // 页码超出范围时回退
   useEffect(() => {
     if (totalPages > 0 && page > totalPages) {
-      updateParam('page', '1');
+      updateParam("page", "1");
     }
     // updateParam omitted: local function recreated on every render, adding it would cause infinite re-runs
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [totalPages, page]);
 
   const loading = booksState.loading && books.length === 0;
-  const loadError = booksState.status === 'error';
+  const loadError = booksState.status === "error";
 
   return (
     <div className="category-page container-page">
@@ -126,21 +127,23 @@ export default function CategoryPage() {
             <li>
               <button
                 type="button"
-                className={`category-page__cat-item ${category === 'all' ? 'is-active' : ''}`}
-                onClick={() => updateParam('cat', 'all')}
+                className={`category-page__cat-item ${category === "all" ? "is-active" : ""}`}
+                onClick={() => updateParam("cat", "all")}
               >
                 <span>全部分类</span>
               </button>
             </li>
             {categoriesState.loading && categories.length === 0 ? (
-              <li className="category-page__sidebar-loading"><Skeleton rows={6} /></li>
+              <li className="category-page__sidebar-loading">
+                <Skeleton rows={6} />
+              </li>
             ) : (
               categories.map((c) => (
                 <li key={c.id}>
                   <button
                     type="button"
-                    className={`category-page__cat-item ${category === c.name ? 'is-active' : ''}`}
-                    onClick={() => updateParam('cat', c.name)}
+                    className={`category-page__cat-item ${category === c.name ? "is-active" : ""}`}
+                    onClick={() => updateParam("cat", c.name)}
                   >
                     <span>{c.name}</span>
                     <span className="category-page__cat-count">{c.count}</span>
@@ -152,12 +155,14 @@ export default function CategoryPage() {
                           <button
                             type="button"
                             className={`category-page__cat-sub-item ${
-                              category === sub.name ? 'is-active' : ''
+                              category === sub.name ? "is-active" : ""
                             }`}
-                            onClick={() => updateParam('cat', sub.name)}
+                            onClick={() => updateParam("cat", sub.name)}
                           >
                             {sub.name}
-                            <span className="category-page__cat-count">{sub.count}</span>
+                            <span className="category-page__cat-count">
+                              {sub.count}
+                            </span>
                           </button>
                         </li>
                       ))}
@@ -173,27 +178,35 @@ export default function CategoryPage() {
         <section className="category-page__main" aria-label="书籍列表">
           {/* 排序 + 状态 */}
           <div className="category-page__toolbar">
-            <div className="category-page__sort-tabs" role="tablist" aria-label="排序方式">
+            <div
+              className="category-page__sort-tabs"
+              role="tablist"
+              aria-label="排序方式"
+            >
               {SORT_TABS.map((t) => (
                 <button
                   key={t.key}
                   type="button"
                   role="tab"
                   aria-selected={sort === t.key}
-                  className={`category-page__sort-tab ${sort === t.key ? 'is-active' : ''}`}
-                  onClick={() => updateParam('sort', t.key)}
+                  className={`category-page__sort-tab ${sort === t.key ? "is-active" : ""}`}
+                  onClick={() => updateParam("sort", t.key)}
                 >
                   {t.label}
                 </button>
               ))}
             </div>
-            <div className="category-page__status-group" role="group" aria-label="连载状态">
+            <div
+              className="category-page__status-group"
+              role="group"
+              aria-label="连载状态"
+            >
               {STATUS_OPTIONS.map((s) => (
                 <button
                   key={s.key}
                   type="button"
-                  className={`category-page__status-btn ${status === s.key ? 'is-active' : ''}`}
-                  onClick={() => updateParam('status', s.key)}
+                  className={`category-page__status-btn ${status === s.key ? "is-active" : ""}`}
+                  onClick={() => updateParam("status", s.key)}
                 >
                   {s.label}
                 </button>
@@ -215,7 +228,7 @@ export default function CategoryPage() {
                       className="category-page__tag-btn"
                       onClick={() => toggleTag(t.name)}
                     >
-                      <Tag color={active ? 'primary' : 'default'}>{t.name}</Tag>
+                      <Tag color={active ? "primary" : "default"}>{t.name}</Tag>
                     </button>
                   );
                 })}
@@ -224,7 +237,7 @@ export default function CategoryPage() {
                 <button
                   type="button"
                   className="category-page__tags-clear"
-                  onClick={() => updateParam('tag', '')}
+                  onClick={() => updateParam("tag", "")}
                 >
                   清空
                 </button>
@@ -235,8 +248,10 @@ export default function CategoryPage() {
           {/* 结果统计 */}
           <div className="category-page__result-meta">
             共 <strong>{total}</strong> 本
-            {category !== 'all' ? <span>· 分类：{category}</span> : null}
-            {selectedTags.length > 0 ? <span>· 标签：{selectedTags.join('、')}</span> : null}
+            {category !== "all" ? <span>· 分类：{category}</span> : null}
+            {selectedTags.length > 0 ? (
+              <span>· 标签：{selectedTags.join("、")}</span>
+            ) : null}
           </div>
 
           {/* 书籍网格 */}
@@ -259,7 +274,13 @@ export default function CategoryPage() {
           ) : loading ? (
             <div className="category-page__grid">
               {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-                <BookCard key={i} book={{ id: `s-${i}`, title: '', author: '' }} variant="grid" size="md" loading />
+                <BookCard
+                  key={i}
+                  book={{ id: `s-${i}`, title: "", author: "" }}
+                  variant="grid"
+                  size="md"
+                  loading
+                />
               ))}
             </div>
           ) : books.length === 0 ? (
@@ -270,7 +291,9 @@ export default function CategoryPage() {
                 <button
                   type="button"
                   className="category-page__reset-btn"
-                  onClick={() => setSearchParams(new URLSearchParams(), { replace: false })}
+                  onClick={() =>
+                    setSearchParams(new URLSearchParams(), { replace: false })
+                  }
                 >
                   重置筛选
                 </button>
@@ -279,7 +302,11 @@ export default function CategoryPage() {
           ) : (
             <div className="category-page__grid">
               {books.map((b) => (
-                <Link key={b.id} to={`/book/${b.id}`} className="category-page__book-link">
+                <Link
+                  key={b.id}
+                  to={`/book/${b.id}`}
+                  className="category-page__book-link"
+                >
                   <BookCard book={toBook(b)} variant="grid" size="md" />
                 </Link>
               ))}

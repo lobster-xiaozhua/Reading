@@ -1,13 +1,16 @@
-import { BookCard, EmptyState, Skeleton } from '@novel/components';
-import { toBook } from '@/utils/convert';
-import type { BookSummary } from '@/api/types';
+import { BookCard, EmptyState, Skeleton } from "@novel/components";
+import { toBook } from "@/utils/convert";
+import type { BookSummary } from "@/api/types";
 
 interface BookDetailRelatedProps {
   related: BookSummary[];
   loading: boolean;
 }
 
-export function BookDetailRelated({ related, loading }: BookDetailRelatedProps) {
+export function BookDetailRelated({
+  related,
+  loading,
+}: BookDetailRelatedProps) {
   return (
     <section className="book-detail__related container-page">
       <h2 className="book-detail__section-title">相关推荐</h2>

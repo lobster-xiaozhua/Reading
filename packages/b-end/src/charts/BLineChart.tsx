@@ -4,9 +4,9 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Line } from '@ant-design/charts';
-import type { LineConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Line } from "@ant-design/charts";
+import type { LineConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -15,7 +15,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BLineChartProps {
   /** 数据源 */
@@ -56,7 +56,9 @@ export function BLineChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: LineConfig = {
@@ -65,7 +67,7 @@ export function BLineChart({
     yField,
     seriesField,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     colorField: seriesField,
     color: seriesField ? colors : colors[0],
     smooth,
@@ -73,16 +75,19 @@ export function BLineChart({
     tooltip: commonTooltipStyle.tooltip,
     axis: commonAxisStyle.axis,
     interactions: [
-      { type: 'tooltip' },
-      { type: 'legend-filter' },
+      { type: "tooltip" },
+      { type: "legend-filter" },
       // X 轴拖拽缩放（P7-4）
-      { type: 'brush-x' },
+      { type: "brush-x" },
     ],
     onReady: (chart) => {
       if (onPointClick) {
-        chart.on('element:click', (e: { data?: { data?: Record<string, unknown> } }) => {
-          if (e.data?.data) onPointClick(e.data.data);
-        });
+        chart.on(
+          "element:click",
+          (e: { data?: { data?: Record<string, unknown> } }) => {
+            if (e.data?.data) onPointClick(e.data.data);
+          },
+        );
       }
     },
     ...config,

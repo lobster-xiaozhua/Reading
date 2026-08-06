@@ -8,27 +8,62 @@
  * Source: 04-B端开发计划.md P2-19-c
  * ============================================================ */
 
-import type { EditorView } from '@tiptap/pm/view';
-import type { Slice } from '@tiptap/pm/model';
-import { DOMParser as ProseMirrorDOMParser } from '@tiptap/pm/model';
+import type { EditorView } from "@tiptap/pm/view";
+import type { Slice } from "@tiptap/pm/model";
+import { DOMParser as ProseMirrorDOMParser } from "@tiptap/pm/model";
 
 /** 粘贴内容字符上限：超出则截断，防止恶意超长粘贴拖垮编辑器 */
 export const PASTE_MAX_CHARS = 50000;
 
 /** 允许保留的语义标签白名单（其余标签做 unwrap 处理） */
 const ALLOWED_TAGS = new Set([
-  'P', 'H2', 'H3', 'H4', 'H5', 'H6',
-  'UL', 'OL', 'LI',
-  'BLOCKQUOTE', 'PRE', 'CODE', 'BR', 'HR',
-  'A', 'STRONG', 'B', 'EM', 'I', 'U', 'S', 'STRIKE',
-  'SPAN',
+  "P",
+  "H2",
+  "H3",
+  "H4",
+  "H5",
+  "H6",
+  "UL",
+  "OL",
+  "LI",
+  "BLOCKQUOTE",
+  "PRE",
+  "CODE",
+  "BR",
+  "HR",
+  "A",
+  "STRONG",
+  "B",
+  "EM",
+  "I",
+  "U",
+  "S",
+  "STRIKE",
+  "SPAN",
 ]);
 
 /** 需要直接移除（连同内容）的标签：Office 命名空间、脚本、样式、meta */
 const DROP_TAGS = new Set([
-  'SCRIPT', 'STYLE', 'HEAD', 'META', 'LINK', 'TITLE',
-  'O:P', 'O:SMARTTAGTYPE', 'ST1:PLACE', 'ST1:PLACENAME', 'ST1:PLACETYPE',
-  'V:SHAPETYPE', 'V:SHAPE', 'IMG', 'FIGURE', 'IFRAME', 'OBJECT', 'EMBED', 'VIDEO', 'AUDIO',
+  "SCRIPT",
+  "STYLE",
+  "HEAD",
+  "META",
+  "LINK",
+  "TITLE",
+  "O:P",
+  "O:SMARTTAGTYPE",
+  "ST1:PLACE",
+  "ST1:PLACENAME",
+  "ST1:PLACETYPE",
+  "V:SHAPETYPE",
+  "V:SHAPE",
+  "IMG",
+  "FIGURE",
+  "IFRAME",
+  "OBJECT",
+  "EMBED",
+  "VIDEO",
+  "AUDIO",
 ]);
 
 /**
@@ -39,9 +74,9 @@ const DROP_TAGS = new Set([
  * - 截断超长内容
  */
 export function sanitizeClipboardHTML(html: string): string {
-  if (!html) return '';
+  if (!html) return "";
   const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
+  const doc = parser.parseFromString(html, "text/html");
 
   // 先整体截断：基于 body 纯文本长度判断
   const body = doc.body;
@@ -95,7 +130,10 @@ function cleanNode(node: HTMLElement): void {
       const attrs = Array.from(el.attributes);
       for (const attr of attrs) {
         const name = attr.name.toLowerCase();
-        if (tag === 'A' && (name === 'href' || name === 'target' || name === 'rel')) {
+        if (
+          tag === "A" &&
+          (name === "href" || name === "target" || name === "rel")
+        ) {
           continue;
         }
         el.removeAttribute(attr.name);
@@ -151,7 +189,7 @@ export function createPasteHandler() {
     const clipboardData = event.clipboardData;
     if (!clipboardData) return false;
 
-    const html = clipboardData.getData('text/html');
+    const html = clipboardData.getData("text/html");
     if (!html) return false;
 
     const cleaned = sanitizeClipboardHTML(html);
@@ -160,8 +198,10 @@ export function createPasteHandler() {
     // 用编辑器 schema 重新解析净化后的 HTML
     try {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(cleaned, 'text/html');
-      const slice = ProseMirrorDOMParser.fromSchema(view.state.schema).parseSlice(doc.body);
+      const doc = parser.parseFromString(cleaned, "text/html");
+      const slice = ProseMirrorDOMParser.fromSchema(
+        view.state.schema,
+      ).parseSlice(doc.body);
 
       const tr = view.state.tr.replaceSelection(slice);
       view.dispatch(tr.scrollIntoView());

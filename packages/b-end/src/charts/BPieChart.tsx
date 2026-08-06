@@ -5,9 +5,9 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Pie } from '@ant-design/charts';
-import type { PieConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Pie } from "@ant-design/charts";
+import type { PieConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -15,7 +15,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BPieChartProps {
   data: Array<Record<string, unknown>>;
@@ -56,7 +56,9 @@ export function BPieChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: PieConfig = {
@@ -64,17 +66,17 @@ export function BPieChart({
     angleField,
     colorField,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     color: colors,
     innerRadius: ring ? innerRadius : 0,
     legend: showLegend ? commonLegendStyle.legend : false,
     tooltip: commonTooltipStyle.tooltip,
     label: showLabel
       ? {
-          text: 'percentage',
+          text: "percentage",
           style: {
             fontSize: 12,
-            fill: 'var(--color-text-secondary)',
+            fill: "var(--color-text-secondary)",
           },
         }
       : false,
@@ -83,25 +85,28 @@ export function BPieChart({
       ? {
           annotations: [
             {
-              type: 'text',
+              type: "text",
               style: {
                 text: statisticTitle,
-                x: '50%',
-                y: '50%',
-                textAlign: 'center',
+                x: "50%",
+                y: "50%",
+                textAlign: "center",
                 fontSize: 14,
-                fill: 'var(--color-text-secondary)',
+                fill: "var(--color-text-secondary)",
               },
             },
           ],
         }
       : {}),
-    interactions: [{ type: 'tooltip' }, { type: 'legend-filter' }],
+    interactions: [{ type: "tooltip" }, { type: "legend-filter" }],
     onReady: (chart) => {
       if (onPointClick) {
-        chart.on('element:click', (e: { data?: { data?: Record<string, unknown> } }) => {
-          if (e.data?.data) onPointClick(e.data.data);
-        });
+        chart.on(
+          "element:click",
+          (e: { data?: { data?: Record<string, unknown> } }) => {
+            if (e.data?.data) onPointClick(e.data.data);
+          },
+        );
       }
     },
     ...config,

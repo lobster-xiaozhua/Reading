@@ -3,10 +3,16 @@
  * line / card 两种样式；键盘导航（← → Home End）
  * ============================================================ */
 
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 
-export type TabsType = 'line' | 'card';
-export type TabsSize = 'sm' | 'md' | 'lg';
+export type TabsType = "line" | "card";
+export type TabsSize = "sm" | "md" | "lg";
 
 export interface TabItem {
   key: string;
@@ -26,8 +32,8 @@ export interface TabsProps {
 export function Tabs({
   activeKey,
   items,
-  type = 'line',
-  size = 'md',
+  type = "line",
+  size = "md",
   onChange,
 }: TabsProps) {
   const tabListRef = useRef<HTMLDivElement | null>(null);
@@ -39,7 +45,7 @@ export function Tabs({
 
   // line 样式：底部指示条跟随激活项
   useLayoutEffect(() => {
-    if (type !== 'line') {
+    if (type !== "line") {
       setIndicatorStyle(null);
       return;
     }
@@ -58,7 +64,7 @@ export function Tabs({
   useEffect(() => {
     const el = activeTabRef.current;
     if (!el) return;
-    el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    el.scrollIntoView({ block: "nearest", inline: "nearest" });
   }, [activeKey]);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -67,16 +73,16 @@ export function Tabs({
     const idx = enabledKeys.indexOf(activeKey);
     let next = idx;
     switch (e.key) {
-      case 'ArrowRight':
+      case "ArrowRight":
         next = (idx + 1) % enabledKeys.length;
         break;
-      case 'ArrowLeft':
+      case "ArrowLeft":
         next = (idx - 1 + enabledKeys.length) % enabledKeys.length;
         break;
-      case 'Home':
+      case "Home":
         next = 0;
         break;
-      case 'End':
+      case "End":
         next = enabledKeys.length - 1;
         break;
       default:
@@ -119,7 +125,7 @@ export function Tabs({
               aria-selected={isActive}
               aria-disabled={it.disabled}
               tabIndex={isActive ? 0 : -1}
-              className={`novel-tabs__tab ${isActive ? 'is-active' : ''} ${it.disabled ? 'is-disabled' : ''}`}
+              className={`novel-tabs__tab ${isActive ? "is-active" : ""} ${it.disabled ? "is-disabled" : ""}`}
               disabled={it.disabled}
               onClick={() => !it.disabled && onChange?.(it.key)}
             >
@@ -127,10 +133,13 @@ export function Tabs({
             </button>
           );
         })}
-        {type === 'line' && indicatorStyle ? (
+        {type === "line" && indicatorStyle ? (
           <span
             className="novel-tabs__indicator"
-            style={{ transform: `translateX(${indicatorStyle.left}px)`, width: indicatorStyle.width }}
+            style={{
+              transform: `translateX(${indicatorStyle.left}px)`,
+              width: indicatorStyle.width,
+            }}
             aria-hidden
           />
         ) : null}

@@ -3,21 +3,24 @@
  * 渲染 Button / Tag / Modal 三类典型组件
  * ============================================================ */
 
-import type { Meta, StoryObj } from '@storybook/react';
-import { Button, Tag, Space, Card, Typography, Modal, App } from 'antd';
-import { CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Button, Tag, Space, Card, Typography, Modal, App } from "antd";
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+import { useState } from "react";
 
 const { Title, Text } = Typography;
 
 const meta: Meta = {
-  title: 'P0/AntD-Token-Bridge',
-  tags: ['autodocs'],
+  title: "P0/AntD-Token-Bridge",
+  tags: ["autodocs"],
   parameters: {
     docs: {
       description: {
         component:
-          '验证 AntD 5.x 与 Atlas Design Tokens 桥接：切换 light/dark 主题，组件应跟随切换。详见 [token-map.md](../../apps/admin/src/theme/token-map.md)。',
+          "验证 AntD 5.x 与 Atlas Design Tokens 桥接：切换 light/dark 主题，组件应跟随切换。详见 [token-map.md](../../apps/admin/src/theme/token-map.md)。",
       },
     },
   },

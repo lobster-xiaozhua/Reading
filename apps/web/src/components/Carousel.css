@@ -101,7 +101,8 @@
   border-radius: var(--radius-full);
   background: var(--color-overlay-dot);
   cursor: pointer;
-  transition: width var(--dur-fast) var(--ease-standard),
+  transition:
+    width var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
   padding: 0;
 }
@@ -118,8 +119,12 @@
   animation: novel-carousel-shimmer 1.5s linear infinite;
 }
 @keyframes novel-carousel-shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @media (max-width: 768px) {

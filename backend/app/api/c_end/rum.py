@@ -1,17 +1,20 @@
 """C 端 RUM（前端性能指标 / 运行时错误）上报端点。
 
 前端通过 sendBeacon / fetch keepalive 批量上报 Web Vitals 与错误事件，
-本端点负责接收并落日志，供可观测性链路消费（不落库、不鉴权，属匿名埋点）。
+本端点接收事件并落库（匿名埋点、不鉴权），供 B 端可观测性查询消费。
 """
 
 from typing import Literal
 
 import structlog
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from pydantic import Field
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok
+from app.core.database import get_db
 from app.schemas.common import CamelModel
+from app.services.rum_service import RumService
 
 router = APIRouter(prefix="/rum", tags=["RUM"])
 
@@ -32,8 +35,12 @@ class RumEventBody(CamelModel):
 
 
 @router.post("")
-async def ingest_rum(request: Request, body: RumEventBody):
-    """接收并记录一条前端上报事件。"""
+async def ingest_rum(
+    request: Request,
+    body: RumEventBody,
+    db: AsyncSession = Depends(get_db),
+):
+    """接收并落库一条前端上报事件。"""
     logger.info(
         "rum_event",
         type=body.type,
@@ -43,4 +50,5 @@ async def ingest_rum(request: Request, body: RumEventBody):
         message=body.message,
         meta=body.meta,
     )
+    await RumService(db).ingest(body)
     return ok(request)

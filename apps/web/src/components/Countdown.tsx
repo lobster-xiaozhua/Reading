@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { ContentHistory } from '@novel/icons';
-import './Countdown.css';
+import { useEffect, useState } from "react";
+import { ContentHistory } from "@novel/icons";
+import "./Countdown.css";
 
 interface CountdownProps {
   /** 截止时间戳（ms） */
@@ -10,13 +10,13 @@ interface CountdownProps {
 }
 
 function format(ms: number): string {
-  if (ms <= 0) return '00:00:00';
+  if (ms <= 0) return "00:00:00";
   const s = Math.floor(ms / 1000);
   const days = Math.floor(s / 86400);
   const hours = Math.floor((s % 86400) / 3600);
   const mins = Math.floor((s % 3600) / 60);
   const secs = s % 60;
-  const pad = (n: number) => String(n).padStart(2, '0');
+  const pad = (n: number) => String(n).padStart(2, "0");
   if (days > 0) return `${days}天 ${pad(hours)}:${pad(mins)}:${pad(secs)}`;
   return `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
 }
@@ -25,7 +25,10 @@ function format(ms: number): string {
  * 限免倒计时（03 §6.2 Countdown）
  * 紧急态 rose 脉冲
  */
-export function Countdown({ deadline, urgentThreshold = 3600 * 1000 }: CountdownProps) {
+export function Countdown({
+  deadline,
+  urgentThreshold = 3600 * 1000,
+}: CountdownProps) {
   const [remaining, setRemaining] = useState(deadline - Date.now());
 
   useEffect(() => {
@@ -39,11 +42,15 @@ export function Countdown({ deadline, urgentThreshold = 3600 * 1000 }: Countdown
 
   return (
     <span
-      className={`novel-countdown ${urgent ? 'is-urgent' : ''}`}
+      className={`novel-countdown ${urgent ? "is-urgent" : ""}`}
       role="timer"
       aria-label={`剩余 ${format(remaining)}`}
     >
-      <ContentHistory size="sm" aria-hidden="true" className="novel-countdown__icon" />
+      <ContentHistory
+        size="sm"
+        aria-hidden="true"
+        className="novel-countdown__icon"
+      />
       <span className="novel-countdown__time">{format(remaining)}</span>
     </span>
   );

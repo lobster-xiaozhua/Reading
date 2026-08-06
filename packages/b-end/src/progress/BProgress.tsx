@@ -7,8 +7,8 @@
  * type 支持：line / circle / dashboard
  * ============================================================ */
 
-import { forwardRef, type ComponentRef } from 'react';
-import { Progress, type ProgressProps } from 'antd';
+import { forwardRef, type ComponentRef } from "react";
+import { Progress, type ProgressProps } from "antd";
 
 export type BProgressProps = ProgressProps;
 export type BProgressRef = ComponentRef<typeof Progress>;

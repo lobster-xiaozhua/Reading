@@ -4,9 +4,9 @@
  * Source: 04-B端开发计划.md P2-8
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import { Form as AntForm } from 'antd';
-import type { FormItemProps } from 'antd';
+import { forwardRef } from "react";
+import { Form as AntForm } from "antd";
+import type { FormItemProps } from "antd";
 
 export type BFormItemProps = FormItemProps;
 
@@ -27,4 +27,4 @@ export const BFormItem = forwardRef<HTMLDivElement, BFormItemProps>(
   ),
 );
 
-BFormItem.displayName = 'BFormItem';
+BFormItem.displayName = "BFormItem";

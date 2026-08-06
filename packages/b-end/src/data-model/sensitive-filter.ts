@@ -7,7 +7,10 @@
  * Source: 04 §13.1 / P8-1-1~3
  * ============================================================ */
 
-import type { SensitiveLevel, SensitiveWord } from '../chapter-editor/sensitive-decorations.js';
+import type {
+  SensitiveLevel,
+  SensitiveWord,
+} from "../chapter-editor/sensitive-decorations.js";
 
 /** 敏感词命中（带正文偏移，供高亮定位） */
 export interface SensitiveHit {
@@ -22,40 +25,46 @@ export interface SensitiveHit {
 }
 
 /** 过滤动作（对应三级策略） */
-export type FilterAction = 'block' | 'require-audit' | 'hint';
+export type FilterAction = "block" | "require-audit" | "hint";
 
 /** 等级 → 动作映射（P8-1-2） */
 export const LEVEL_POLICY: Record<SensitiveLevel, FilterAction> = {
-  1: 'block',
-  2: 'require-audit',
-  3: 'hint',
+  1: "block",
+  2: "require-audit",
+  3: "hint",
 };
 
 /** 等级元数据：配色 / 标签 / 默认建议（P8-1-3） */
 export const SENSITIVE_LEVEL_META: Record<
   SensitiveLevel,
-  { color: string; bg: string; label: string; action: FilterAction; defaultSuggestion: string }
+  {
+    color: string;
+    bg: string;
+    label: string;
+    action: FilterAction;
+    defaultSuggestion: string;
+  }
 > = {
   1: {
-    color: 'var(--color-feedback-error)',
-    bg: 'var(--color-feedback-error-bg)',
-    label: '严禁',
-    action: 'block',
-    defaultSuggestion: '禁止发布，请删除或替换后重试',
+    color: "var(--color-feedback-error)",
+    bg: "var(--color-feedback-error-bg)",
+    label: "严禁",
+    action: "block",
+    defaultSuggestion: "禁止发布，请删除或替换后重试",
   },
   2: {
-    color: 'var(--color-feedback-warning)',
-    bg: 'var(--color-feedback-warning-bg)',
-    label: '警告',
-    action: 'require-audit',
-    defaultSuggestion: '可保存但需人工审核',
+    color: "var(--color-feedback-warning)",
+    bg: "var(--color-feedback-warning-bg)",
+    label: "警告",
+    action: "require-audit",
+    defaultSuggestion: "可保存但需人工审核",
   },
   3: {
-    color: 'var(--color-text-tertiary)',
-    bg: 'var(--color-bg-subtle)',
-    label: '提示',
-    action: 'hint',
-    defaultSuggestion: '建议自查，不影响发布',
+    color: "var(--color-text-tertiary)",
+    bg: "var(--color-bg-subtle)",
+    label: "提示",
+    action: "hint",
+    defaultSuggestion: "建议自查，不影响发布",
   },
 };
 
@@ -67,11 +76,11 @@ export function getFilterAction(level: SensitiveLevel): FilterAction {
 /** 剥离 HTML 标签，得到纯文本（与 word-count 口径一致） */
 function stripHtml(html: string): string {
   return html
-    .replace(/<[^>]+>/g, '')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'");
 }
@@ -83,7 +92,10 @@ function stripHtml(html: string): string {
  * @param text 纯文本或 HTML（自动剥标签）
  * @param words 敏感词库
  */
-export function scanText(text: string, words: readonly SensitiveWord[]): SensitiveHit[] {
+export function scanText(
+  text: string,
+  words: readonly SensitiveWord[],
+): SensitiveHit[] {
   if (!words || words.length === 0 || !text) return [];
   const plain = stripHtml(text);
   const hits: SensitiveHit[] = [];
@@ -97,7 +109,8 @@ export function scanText(text: string, words: readonly SensitiveWord[]): Sensiti
         text: w.text,
         level: w.level,
         offset: from,
-        suggestion: w.suggestion ?? SENSITIVE_LEVEL_META[w.level].defaultSuggestion,
+        suggestion:
+          w.suggestion ?? SENSITIVE_LEVEL_META[w.level].defaultSuggestion,
       });
       from = hay.indexOf(needle, from + needle.length);
     }
@@ -113,7 +126,7 @@ export function shouldBlockSave(hits: readonly SensitiveHit[]): {
   blocked: boolean;
   firstBlockHit?: SensitiveHit;
 } {
-  const first = hits.find((h) => getFilterAction(h.level) === 'block');
+  const first = hits.find((h) => getFilterAction(h.level) === "block");
   return { blocked: !!first, firstBlockHit: first };
 }
 
@@ -121,7 +134,7 @@ export function shouldBlockSave(hits: readonly SensitiveHit[]): {
  * 是否存在需人工审核的命中（二级）。
  */
 export function hasRequireAudit(hits: readonly SensitiveHit[]): boolean {
-  return hits.some((h) => getFilterAction(h.level) === 'require-audit');
+  return hits.some((h) => getFilterAction(h.level) === "require-audit");
 }
 
 /** 内容拆段（供正文内高亮渲染） */

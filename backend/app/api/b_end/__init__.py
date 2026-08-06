@@ -10,6 +10,7 @@ from app.api.b_end import (
     novel,
     role,
     royalty,
+    rum,
     sensitive,
     system,
     user,
@@ -28,5 +29,6 @@ router.include_router(sensitive.router, tags=["敏感词"])
 router.include_router(chart.router, tags=["图表数据"])
 router.include_router(system.router, tags=["系统设置"])
 router.include_router(user.router, tags=["用户管理"])
+router.include_router(rum.router, tags=["可观测性"])
 
 __all__ = ["router"]

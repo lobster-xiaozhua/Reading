@@ -3,26 +3,31 @@
  * 权益卡 + 套餐选择 + 支付方式 + 吸底提交栏
  * VIP 区域统一 accent-orange 暖橙主调（区别于普通页 brand 蓝）
  * ============================================================ */
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Skeleton, useAsyncState, useFeedback } from '@novel/components';
-import { StatusSuccess, StatusPending, NavigationBack, NovelCrown } from '@novel/icons';
-import { fetcher } from '@/api/fetcher';
-import type { PaymentMethodItem, UserProfile, VipPlan } from '@/api/types';
-import './VipPage.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Skeleton, useAsyncState, useFeedback } from "@novel/components";
+import {
+  StatusSuccess,
+  StatusPending,
+  NavigationBack,
+  NovelCrown,
+} from "@novel/icons";
+import { fetcher } from "@/api/fetcher";
+import type { PaymentMethodItem, UserProfile, VipPlan } from "@/api/types";
+import "./VipPage.css";
 
 const BENEFITS = [
-  '全站 VIP 章节免费读',
-  '去广告 · 双倍月票',
-  '专属徽章 · 优先催更',
-  '专属客服 · 离线下载',
+  "全站 VIP 章节免费读",
+  "去广告 · 双倍月票",
+  "专属徽章 · 优先催更",
+  "专属客服 · 离线下载",
 ];
 
 function formatDate(ts: number): string {
   const d = new Date(ts);
   const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
 }
 
@@ -31,21 +36,22 @@ export default function VipPage() {
   const { message } = useFeedback();
 
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(
+    null,
+  );
 
   /* ---------- 数据加载 ---------- */
-  const plansState = useAsyncState<VipPlan[]>(
-    () => fetcher.getVipPlans(),
-    { initial: [] as VipPlan[], loadingDelay: 200 },
-  );
+  const plansState = useAsyncState<VipPlan[]>(() => fetcher.getVipPlans(), {
+    initial: [] as VipPlan[],
+    loadingDelay: 200,
+  });
   const paymentsState = useAsyncState<PaymentMethodItem[]>(
     () => fetcher.getPaymentMethods(),
     { initial: [] as PaymentMethodItem[], loadingDelay: 200 },
   );
-  const userState = useAsyncState<UserProfile>(
-    () => fetcher.getCurrentUser(),
-    { loadingDelay: 200 },
-  );
+  const userState = useAsyncState<UserProfile>(() => fetcher.getCurrentUser(), {
+    loadingDelay: 200,
+  });
 
   const plans = plansState.data ?? [];
   const payments = paymentsState.data ?? [];
@@ -58,14 +64,14 @@ export default function VipPage() {
   /* ---------- 提交 ---------- */
   const handleSubmit = () => {
     if (!selectedPlanId) {
-      message('warning', '请选择套餐');
+      message("warning", "请选择套餐");
       return;
     }
     if (!selectedPaymentId) {
-      message('warning', '请选择支付方式');
+      message("warning", "请选择支付方式");
       return;
     }
-    message('info', '正在跳转支付...');
+    message("info", "正在跳转支付...");
   };
 
   const handleSelectPlan = (plan: VipPlan) => {
@@ -90,7 +96,8 @@ export default function VipPage() {
       {user?.isVip ? (
         <div className="vip-page__vip-banner" role="status">
           <span className="vip-page__vip-banner-text">
-            您已是 VIP 会员，到期时间 {user.vipExpireAt ? formatDate(user.vipExpireAt) : '—'}
+            您已是 VIP 会员，到期时间{" "}
+            {user.vipExpireAt ? formatDate(user.vipExpireAt) : "—"}
           </span>
           <button
             type="button"
@@ -106,14 +113,20 @@ export default function VipPage() {
       {/* 1. VIP 权益卡 */}
       <section className="vip-page__benefit" aria-label="VIP 权益">
         <h1 className="vip-page__benefit-title">
-          <span className="vip-page__benefit-star" aria-hidden><NovelCrown size="sm" aria-hidden="true" /></span>
+          <span className="vip-page__benefit-star" aria-hidden>
+            <NovelCrown size="sm" aria-hidden="true" />
+          </span>
           <span>VIP 会员 尊享全站精品</span>
         </h1>
         <ul className="vip-page__benefit-list">
           {BENEFITS.map((b) => (
             <li key={b} className="vip-page__benefit-item">
               {user?.isVip ? (
-                <StatusSuccess size="sm" className="vip-page__benefit-icon is-unlocked" aria-hidden="true" />
+                <StatusSuccess
+                  size="sm"
+                  className="vip-page__benefit-icon is-unlocked"
+                  aria-hidden="true"
+                />
               ) : (
                 <span className="vip-page__benefit-icon is-pending" aria-hidden>
                   <StatusPending size="sm" />
@@ -133,18 +146,22 @@ export default function VipPage() {
             <Skeleton rows={4} />
           </div>
         ) : (
-          <div className="vip-page__plans" role="radiogroup" aria-label="VIP 套餐">
+          <div
+            className="vip-page__plans"
+            role="radiogroup"
+            aria-label="VIP 套餐"
+          >
             {plans.map((plan) => {
               const selected = plan.id === selectedPlanId;
               const expired = plan.expired === true;
               const cls = [
-                'vip-page__plan',
-                selected ? 'is-selected' : '',
-                expired ? 'is-expired' : '',
-                plan.recommended ? 'is-recommended' : '',
+                "vip-page__plan",
+                selected ? "is-selected" : "",
+                expired ? "is-expired" : "",
+                plan.recommended ? "is-recommended" : "",
               ]
                 .filter(Boolean)
-                .join(' ');
+                .join(" ");
               return (
                 <button
                   key={plan.id}
@@ -157,7 +174,9 @@ export default function VipPage() {
                   onClick={() => handleSelectPlan(plan)}
                 >
                   {plan.recommended ? (
-                    <span className="vip-page__plan-badge" aria-hidden>省最多</span>
+                    <span className="vip-page__plan-badge" aria-hidden>
+                      省最多
+                    </span>
                   ) : null}
                   {plan.originalPrice > plan.pricePerMonth ? (
                     <span className="vip-page__plan-save" aria-hidden>
@@ -167,20 +186,26 @@ export default function VipPage() {
                   <span className="vip-page__plan-name">{plan.name}</span>
                   <span className="vip-page__plan-price">
                     <span className="vip-page__plan-currency">¥</span>
-                    <span className="vip-page__plan-num">{plan.pricePerMonth}</span>
+                    <span className="vip-page__plan-num">
+                      {plan.pricePerMonth}
+                    </span>
                     <span className="vip-page__plan-unit">/月</span>
                   </span>
                   <span className="vip-page__plan-original">
                     原价 ¥{plan.originalPrice}/月
                   </span>
                   {plan.discount ? (
-                    <span className="vip-page__plan-discount">{plan.discount}</span>
+                    <span className="vip-page__plan-discount">
+                      {plan.discount}
+                    </span>
                   ) : null}
                   {expired ? (
                     <span className="vip-page__plan-expired-tag">已过期</span>
                   ) : null}
                   {selected && !expired ? (
-                    <span className="vip-page__plan-check" aria-hidden><StatusSuccess size="sm" aria-hidden="true" /></span>
+                    <span className="vip-page__plan-check" aria-hidden>
+                      <StatusSuccess size="sm" aria-hidden="true" />
+                    </span>
                   ) : null}
                 </button>
               );
@@ -192,7 +217,11 @@ export default function VipPage() {
       {/* 3. 支付方式 */}
       <section className="vip-page__section" aria-label="选择支付方式">
         <h2 className="vip-page__section-title">支付方式</h2>
-        <div className="vip-page__payments" role="radiogroup" aria-label="支付方式">
+        <div
+          className="vip-page__payments"
+          role="radiogroup"
+          aria-label="支付方式"
+        >
           {payments.map((m) => {
             const selected = m.id === selectedPaymentId;
             return (
@@ -202,10 +231,12 @@ export default function VipPage() {
                 role="radio"
                 aria-checked={selected}
                 aria-label={m.name}
-                className={`vip-page__payment ${selected ? 'is-selected' : ''}`}
+                className={`vip-page__payment ${selected ? "is-selected" : ""}`}
                 onClick={() => setSelectedPaymentId(m.id)}
               >
-                <span className="vip-page__payment-icon" aria-hidden>{m.icon}</span>
+                <span className="vip-page__payment-icon" aria-hidden>
+                  {m.icon}
+                </span>
                 <span className="vip-page__payment-name">{m.name}</span>
                 <span className="vip-page__payment-dot" aria-hidden />
               </button>
@@ -225,7 +256,7 @@ export default function VipPage() {
             <span className="vip-page__total-num">¥{totalPrice}</span>
           </span>
           <span className="vip-page__total-plan">
-            {selectedPlan ? selectedPlan.name : '未选择套餐'}
+            {selectedPlan ? selectedPlan.name : "未选择套餐"}
           </span>
         </div>
         <button

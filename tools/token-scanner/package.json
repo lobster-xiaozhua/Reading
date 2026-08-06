@@ -13,11 +13,14 @@
     "start": "node dist/cli.js",
     "audit": "node dist/import-audit.js --root apps/admin",
     "typecheck": "tsc --noEmit",
-    "lint": "echo 'lint placeholder'",
+    "lint": "eslint src/ --max-warnings=0",
     "test": "node --import tsx --test src/__tests__/"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
-    "typescript": "^5.6.0"
+    "typescript": "^5.6.0",
+    "eslint": "^9.10.0",
+    "@eslint/js": "^9.10.0",
+    "typescript-eslint": "^8.5.0"
   }
 }

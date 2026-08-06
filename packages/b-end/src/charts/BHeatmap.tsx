@@ -5,9 +5,9 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Heatmap } from '@ant-design/charts';
-import type { HeatmapConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Heatmap } from "@ant-design/charts";
+import type { HeatmapConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -16,7 +16,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BHeatmapProps {
   data: Array<Record<string, unknown>>;
@@ -28,7 +28,7 @@ export interface BHeatmapProps {
   colorField: string;
   height?: number;
   /** 色阶类型 */
-  type?: 'intensity' | 'size';
+  type?: "intensity" | "size";
   showLegend?: boolean;
   emptyDescription?: string;
   config?: Partial<HeatmapConfig>;
@@ -40,7 +40,7 @@ export function BHeatmap({
   yField,
   colorField,
   height = CHART_DEFAULT_HEIGHT,
-  type = 'intensity',
+  type = "intensity",
   showLegend = true,
   emptyDescription,
   config,
@@ -49,7 +49,9 @@ export function BHeatmap({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: HeatmapConfig = {
@@ -58,13 +60,13 @@ export function BHeatmap({
     yField,
     colorField,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     type,
     color: colors,
     legend: showLegend ? commonLegendStyle.legend : false,
     tooltip: commonTooltipStyle.tooltip,
     axis: commonAxisStyle.axis,
-    interactions: [{ type: 'tooltip' }],
+    interactions: [{ type: "tooltip" }],
     ...config,
   } as HeatmapConfig;
 

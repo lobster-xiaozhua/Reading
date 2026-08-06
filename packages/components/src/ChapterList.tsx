@@ -4,7 +4,7 @@
  * 列表项固定 48px，虚拟滚动仅渲染可视区 + 上下各 5 条缓冲
  * ============================================================ */
 
-import { useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useMemo, useRef, useState, type CSSProperties } from "react";
 
 /** 章节领域模型 */
 export interface Chapter {
@@ -18,7 +18,7 @@ export interface Chapter {
   read?: boolean;
 }
 
-export type ChapterOrder = 'asc' | 'desc';
+export type ChapterOrder = "asc" | "desc";
 
 export interface ChapterListProps {
   chapters: Chapter[];
@@ -64,8 +64,10 @@ function SortIcon({ desc }: { desc: boolean }) {
       strokeLinejoin="round"
       aria-hidden
     >
-      <path d={desc ? 'M7 4v16M7 4L4 7M7 4l3 3' : 'M17 4v16M17 20l-3-3M17 20l3-3'} />
-      <path d={desc ? 'M17 20V4' : 'M7 4v16'} opacity="0.4" />
+      <path
+        d={desc ? "M7 4v16M7 4L4 7M7 4l3 3" : "M17 4v16M17 20l-3-3M17 20l3-3"}
+      />
+      <path d={desc ? "M17 20V4" : "M7 4v16"} opacity="0.4" />
     </svg>
   );
 }
@@ -109,7 +111,7 @@ function Spinner() {
 
 export function ChapterList({
   chapters,
-  order = 'asc',
+  order = "asc",
   activeId,
   onSelect,
   virtual = false,
@@ -126,7 +128,7 @@ export function ChapterList({
 
   // 排序后的章节（倒序仅在展示层翻转，不修改源数据）
   const ordered = useMemo(() => {
-    if (order === 'desc') return [...chapters].reverse();
+    if (order === "desc") return [...chapters].reverse();
     return chapters;
   }, [chapters, order]);
 
@@ -148,10 +150,12 @@ export function ChapterList({
     onSelect?.(ch);
   };
 
-  const rootCls = ['novel-chapter-list', className ?? ''].filter(Boolean).join(' ');
+  const rootCls = ["novel-chapter-list", className ?? ""]
+    .filter(Boolean)
+    .join(" ");
 
   const viewportStyle: CSSProperties = virtual
-    ? { height: `${viewportHeight}px`, overflowY: 'auto' }
+    ? { height: `${viewportHeight}px`, overflowY: "auto" }
     : {};
 
   // 虚拟滚动总高占位
@@ -165,11 +169,11 @@ export function ChapterList({
           <button
             type="button"
             className="novel-chapter-list__order-btn"
-            onClick={() => onOrderChange(order === 'asc' ? 'desc' : 'asc')}
-            aria-label={order === 'asc' ? '切换为倒序' : '切换为正序'}
+            onClick={() => onOrderChange(order === "asc" ? "desc" : "asc")}
+            aria-label={order === "asc" ? "切换为倒序" : "切换为正序"}
           >
-            <SortIcon desc={order === 'desc'} />
-            <span>{order === 'asc' ? '正序' : '倒序'}</span>
+            <SortIcon desc={order === "desc"} />
+            <span>{order === "asc" ? "正序" : "倒序"}</span>
           </button>
           <span className="novel-chapter-list__count">共 {total} 章</span>
         </div>
@@ -179,12 +183,14 @@ export function ChapterList({
         ref={scrollRef}
         className="novel-chapter-list__viewport"
         style={viewportStyle}
-        onScroll={virtual ? (e) => setScrollTop(e.currentTarget.scrollTop) : undefined}
+        onScroll={
+          virtual ? (e) => setScrollTop(e.currentTarget.scrollTop) : undefined
+        }
         role="listbox"
         aria-label="章节目录"
       >
         {virtual ? (
-          <div style={{ height: `${totalH}px`, position: 'relative' }}>
+          <div style={{ height: `${totalH}px`, position: "relative" }}>
             <div style={{ transform: `translateY(${offsetTop}px)` }}>
               {visible.map((ch, i) => (
                 <ChapterItem
@@ -219,7 +225,7 @@ export function ChapterList({
                   disabled={loading}
                 >
                   {loading ? <Spinner /> : null}
-                  {loading ? '加载中…' : '加载更多'}
+                  {loading ? "加载中…" : "加载更多"}
                 </button>
               </div>
             ) : null}
@@ -246,12 +252,12 @@ function ChapterItem({
   onSelect: (ch: Chapter) => void;
 }) {
   const cls = [
-    'novel-chapter-list__item',
-    active ? 'is-active' : '',
-    chapter.read ? 'is-read' : '',
+    "novel-chapter-list__item",
+    active ? "is-active" : "",
+    chapter.read ? "is-read" : "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
     <button
@@ -266,13 +272,18 @@ function ChapterItem({
       <span className="novel-chapter-list__index">{index + 1}</span>
       <span className="novel-chapter-list__title">{chapter.title}</span>
       {showVip && chapter.isVip ? (
-        <span className="novel-chapter-list__vip" aria-label="VIP 章节，需要 VIP 会员">
+        <span
+          className="novel-chapter-list__vip"
+          aria-label="VIP 章节，需要 VIP 会员"
+        >
           <LockIcon />
           <span aria-hidden>VIP</span>
         </span>
       ) : null}
       {chapter.wordCount != null ? (
-        <span className="novel-chapter-list__meta">{formatWordCount(chapter.wordCount)}</span>
+        <span className="novel-chapter-list__meta">
+          {formatWordCount(chapter.wordCount)}
+        </span>
       ) : null}
     </button>
   );

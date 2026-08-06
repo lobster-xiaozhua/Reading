@@ -30,7 +30,8 @@
   background: var(--color-bg-surface);
   font-size: 15px;
   color: var(--color-text-primary);
-  transition: border-color var(--dur-fast) var(--ease-standard),
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
 }
 .search-page__input:focus {
@@ -299,7 +300,9 @@
   text-decoration: none;
   color: inherit;
   display: block;
-  transition: transform var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
   border-radius: var(--radius-md);
 }
 .search-page__result-item:hover {

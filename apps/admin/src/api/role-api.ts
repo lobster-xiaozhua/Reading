@@ -4,9 +4,9 @@
  * Source: 04 §10.7 / P6-7
  * ============================================================ */
 
-import { http, requestSafe } from './http';
-import type { AdminRole, Permission } from '@/api/types';
-import { ALL_PERMISSIONS, PERMISSION_LIST } from '@/constants/permissions';
+import { http, requestSafe } from "./http";
+import type { AdminRole, Permission } from "@/api/types";
+import { ALL_PERMISSIONS, PERMISSION_LIST } from "@/constants/permissions";
 
 /** 角色元信息 */
 export interface RoleMeta {
@@ -14,7 +14,7 @@ export interface RoleMeta {
   name: string;
   description: string;
   /** 数据范围 */
-  dataScope: 'all' | 'department' | 'self';
+  dataScope: "all" | "department" | "self";
   /** 是否内置（不可删除） */
   builtin: boolean;
   /** 该角色拥有的权限点 */
@@ -37,8 +37,8 @@ function mapRole(raw: BackendRole): RoleMeta {
   return {
     key: raw.roleKey as AdminRole,
     name: raw.name ?? raw.roleKey,
-    description: raw.description ?? '',
-    dataScope: (raw.dataScope as RoleMeta['dataScope']) ?? 'all',
+    description: raw.description ?? "",
+    dataScope: (raw.dataScope as RoleMeta["dataScope"]) ?? "all",
     builtin: Boolean(raw.builtin),
     permissions: (raw.permissions ?? []) as Permission[],
     userCount: Number(raw.userCount ?? 0),
@@ -47,12 +47,14 @@ function mapRole(raw: BackendRole): RoleMeta {
 
 /** 拉取角色列表 */
 export async function fetchRoleList(): Promise<RoleMeta[]> {
-  const data = await http.get<BackendRole[]>('/roles');
+  const data = await http.get<BackendRole[]>("/roles");
   return (data ?? []).map(mapRole);
 }
 
 /** 拉取单个角色详情 */
-export async function fetchRoleDetail(key: AdminRole): Promise<RoleMeta | null> {
+export async function fetchRoleDetail(
+  key: AdminRole,
+): Promise<RoleMeta | null> {
   try {
     const data = await http.get<BackendRole>(`/roles/${key}`);
     return mapRole(data);
@@ -66,24 +68,28 @@ export async function updateRolePermissions(
   key: AdminRole,
   permissions: Permission[],
 ): Promise<{ success: boolean; reason?: string }> {
-  if (key === 'super-admin') {
-    return { success: false, reason: '超级管理员权限不可修改' };
+  if (key === "super-admin") {
+    return { success: false, reason: "超级管理员权限不可修改" };
   }
-  const result = await requestSafe(http.put(`/roles/${key}/permissions`, { permissions }));
+  const result = await requestSafe(
+    http.put(`/roles/${key}/permissions`, { permissions }),
+  );
   if (result.success) return { success: true };
-  return { success: false, reason: result.error ?? '权限更新失败' };
+  return { success: false, reason: result.error ?? "权限更新失败" };
 }
 
 /** 更新角色信息（名称/描述/数据范围） */
 export async function updateRoleMeta(
   key: AdminRole,
-  patch: Partial<Pick<RoleMeta, 'name' | 'description' | 'dataScope'>>,
+  patch: Partial<Pick<RoleMeta, "name" | "description" | "dataScope">>,
 ): Promise<{ success: boolean }> {
-  const result = await requestSafe(http.patch(`/roles/${key}`, {
-    name: patch.name ?? undefined,
-    description: patch.description ?? undefined,
-    dataScope: patch.dataScope ?? undefined,
-  }));
+  const result = await requestSafe(
+    http.patch(`/roles/${key}`, {
+      name: patch.name ?? undefined,
+      description: patch.description ?? undefined,
+      dataScope: patch.dataScope ?? undefined,
+    }),
+  );
   if (result.success) return { success: true };
   return { success: false };
 }
@@ -91,9 +97,10 @@ export async function updateRoleMeta(
 /** 全量权限点（用于权限分配树） */
 export async function fetchAllPermissions() {
   try {
-    const data = await http.get<{ key: string; label: string; module: string; description?: string }[]>(
-      '/permissions',
-    );
+    const data =
+      await http.get<
+        { key: string; label: string; module: string; description?: string }[]
+      >("/permissions");
     if (data && data.length > 0) {
       return data.map((p) => ({
         key: p.key as Permission,

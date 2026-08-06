@@ -3,9 +3,9 @@
  * 遮罩 + 缩放渐显；Esc 关闭；focus trap（简化版）
  * ============================================================ */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-import { NavigationClose } from '@novel/icons';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { NavigationClose } from "@novel/icons";
 
 export interface ModalProps {
   open: boolean;
@@ -17,8 +17,6 @@ export interface ModalProps {
   footer?: ReactNode | null;
   children?: ReactNode;
 }
-
-
 
 export function Modal({
   open,
@@ -54,14 +52,14 @@ export function Modal({
   useEffect(() => {
     if (!open) return;
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCancel?.();
+      if (e.key === "Escape") onCancel?.();
     };
-    document.addEventListener('keydown', onEsc);
+    document.addEventListener("keydown", onEsc);
     // 简易 focus trap：打开后聚焦 modal
     const prevActive = document.activeElement as HTMLElement | null;
     modalRef.current?.focus();
     return () => {
-      document.removeEventListener('keydown', onEsc);
+      document.removeEventListener("keydown", onEsc);
       prevActive?.focus?.();
     };
   }, [open, onCancel]);
@@ -69,7 +67,7 @@ export function Modal({
   useEffect(() => {
     if (open) {
       const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = prev;
       };
@@ -79,39 +77,46 @@ export function Modal({
 
   if (!open && !exiting) return null;
 
-  const widthStyle = typeof width === 'number' ? `${width}px` : width;
+  const widthStyle = typeof width === "number" ? `${width}px` : width;
 
-  return typeof document === 'undefined' ? null : createPortal(
-    <>
-      <div
-        className={`novel-modal__mask ${ready ? 'is-ready' : ''}`}
-        onClick={() => maskClosable && onCancel?.()}
-      />
-      <div
-        ref={modalRef}
-        className={`novel-modal ${ready ? 'is-ready' : ''}`}
-        style={{ width: widthStyle }}
-        role="dialog"
-        aria-modal="true"
-        aria-label={typeof title === 'string' ? title : undefined}
-        tabIndex={-1}
-      >
-        {(title != null || closable) && (
-          <div className="novel-modal__header">
-            <div>{title}</div>
-            {closable ? (
-              <button type="button" className="novel-modal__close" onClick={onCancel} aria-label="关闭">
-                <NavigationClose size="sm" aria-hidden="true" />
-              </button>
+  return typeof document === "undefined"
+    ? null
+    : createPortal(
+        <>
+          <div
+            className={`novel-modal__mask ${ready ? "is-ready" : ""}`}
+            onClick={() => maskClosable && onCancel?.()}
+          />
+          <div
+            ref={modalRef}
+            className={`novel-modal ${ready ? "is-ready" : ""}`}
+            style={{ width: widthStyle }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={typeof title === "string" ? title : undefined}
+            tabIndex={-1}
+          >
+            {(title != null || closable) && (
+              <div className="novel-modal__header">
+                <div>{title}</div>
+                {closable ? (
+                  <button
+                    type="button"
+                    className="novel-modal__close"
+                    onClick={onCancel}
+                    aria-label="关闭"
+                  >
+                    <NavigationClose size="sm" aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+            )}
+            <div className="novel-modal__body">{children}</div>
+            {footer !== null ? (
+              <div className="novel-modal__footer">{footer}</div>
             ) : null}
           </div>
-        )}
-        <div className="novel-modal__body">{children}</div>
-        {footer !== null ? (
-          <div className="novel-modal__footer">{footer}</div>
-        ) : null}
-      </div>
-    </>,
-    document.body,
-  );
+        </>,
+        document.body,
+      );
 }

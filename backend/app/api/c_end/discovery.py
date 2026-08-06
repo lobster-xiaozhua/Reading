@@ -8,11 +8,12 @@ getTopics / getBookLists / getReviews。
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import ok
+from app.api.deps import get_current_reader, ok
 from app.core.database import get_db
 from app.core.redis import get_redis_client
 from app.services.discovery_service import DiscoveryService
 from app.services.interaction_service import InteractionService
+from app.services.recommend_service import RecommendService
 
 router = APIRouter()
 
@@ -89,10 +90,11 @@ async def get_tags(request: Request, db: AsyncSession = Depends(get_db)):
 async def get_recommendations(
     request: Request,
     limit: int = Query(6, ge=1, le=50),
+    reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
-    return ok(request, await svc.get_recommendations(limit))
+    svc = RecommendService(db, await get_redis_client())
+    return ok(request, await svc.get_recommendations(reader_id, limit))
 
 
 @router.get("/topics")

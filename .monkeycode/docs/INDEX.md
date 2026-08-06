@@ -10,6 +10,7 @@
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | 系统架构总览：Monorepo 结构、分层设计、技术选型与架构决策 |
 | [INTERFACES.md](./INTERFACES.md) | 接口文档：API 端点、统一响应格式、鉴权机制、WebSocket |
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | 开发者指南：环境搭建、构建、测试、部署、CI/CD |
+| [ROADMAP.md](./ROADMAP.md) | 发展方向与优化方向规划：P0 基础加固、P1 产品体验、P2 生态扩展 |
 
 ## 专有概念
 

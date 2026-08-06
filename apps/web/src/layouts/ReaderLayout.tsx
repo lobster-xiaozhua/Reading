@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet } from "react-router-dom";
 
 /**
  * 阅读器独立全屏布局
@@ -6,7 +6,7 @@ import { Outlet } from 'react-router-dom';
  */
 export function ReaderLayout() {
   return (
-    <div className="reader-layout" style={{ minHeight: '100vh' }}>
+    <div className="reader-layout" style={{ minHeight: "100vh" }}>
       <Outlet />
     </div>
   );

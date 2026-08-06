@@ -13,10 +13,10 @@
  * DecorationSet 的操作使用 any 绕过部分推断，对外保持类型清晰。
  * ============================================================ */
 
-import { Extension } from '@tiptap/core';
-import { Plugin, PluginKey, type Transaction } from '@tiptap/pm/state';
-import { Decoration, DecorationSet, type EditorView } from '@tiptap/pm/view';
-import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
+import { Extension } from "@tiptap/core";
+import { Plugin, PluginKey, type Transaction } from "@tiptap/pm/state";
+import { Decoration, DecorationSet, type EditorView } from "@tiptap/pm/view";
+import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 
 /** 敏感词分级 */
 export type SensitiveLevel = 1 | 2 | 3;
@@ -41,7 +41,9 @@ interface SensitiveState {
 const THROTTLE_MS = 300;
 
 /** 唯一插件 key */
-const sensitivePluginKey = new PluginKey<SensitiveState>('chapterSensitiveDecorations');
+const sensitivePluginKey = new PluginKey<SensitiveState>(
+  "chapterSensitiveDecorations",
+);
 
 /** 按分级返回内联装饰样式（使用 CSS 语义令牌，禁止裸色值） */
 function styleForLevel(level: SensitiveLevel): string {
@@ -49,27 +51,27 @@ function styleForLevel(level: SensitiveLevel): string {
     case 1:
       // 严禁：错误底 + 错误字
       return (
-        'background-color: var(--color-feedback-error-bg);' +
-        'color: var(--color-feedback-error);' +
-        'border-radius: var(--radius-xs);' +
-        'padding: 0 2px;'
+        "background-color: var(--color-feedback-error-bg);" +
+        "color: var(--color-feedback-error);" +
+        "border-radius: var(--radius-xs);" +
+        "padding: 0 2px;"
       );
     case 2:
       // 警告：警告底 + 警告字
       return (
-        'background-color: var(--color-feedback-warning-bg);' +
-        'color: var(--color-feedback-warning);' +
-        'border-radius: var(--radius-xs);' +
-        'padding: 0 2px;'
+        "background-color: var(--color-feedback-warning-bg);" +
+        "color: var(--color-feedback-warning);" +
+        "border-radius: var(--radius-xs);" +
+        "padding: 0 2px;"
       );
     case 3:
     default:
       // 提示：subtle 底 + 三级文本字
       return (
-        'background-color: var(--color-bg-subtle);' +
-        'color: var(--color-text-tertiary);' +
-        'border-radius: var(--radius-xs);' +
-        'padding: 0 2px;'
+        "background-color: var(--color-bg-subtle);" +
+        "color: var(--color-text-tertiary);" +
+        "border-radius: var(--radius-xs);" +
+        "padding: 0 2px;"
       );
   }
 }
@@ -78,7 +80,11 @@ function styleForLevel(level: SensitiveLevel): string {
  * 对单个节点递归扫描文本，生成 inline decoration。
  * 仅在文本节点内做不区分大小写的子串匹配。
  */
-function scanNode(node: ProseMirrorNode, pos: number, words: SensitiveWord[]): Decoration[] {
+function scanNode(
+  node: ProseMirrorNode,
+  pos: number,
+  words: SensitiveWord[],
+): Decoration[] {
   const decorations: Decoration[] = [];
 
   node.descendants((child, offset) => {
@@ -109,7 +115,10 @@ function scanNode(node: ProseMirrorNode, pos: number, words: SensitiveWord[]): D
 }
 
 /** 全量扫描 doc，生成新的装饰集合 */
-function buildDecorations(doc: ProseMirrorNode, words: SensitiveWord[]): DecorationSet {
+function buildDecorations(
+  doc: ProseMirrorNode,
+  words: SensitiveWord[],
+): DecorationSet {
   if (!words || words.length === 0) return DecorationSet.empty;
   const decos = scanNode(doc, 0, words);
   return DecorationSet.create(doc, decos);
@@ -132,7 +141,7 @@ export function createSensitivePlugin(words: SensitiveWord[]) {
     .map((w) => ({ text: w.text, level: w.level, suggestion: w.suggestion }));
 
   return Extension.create({
-    name: 'sensitiveDecorations',
+    name: "sensitiveDecorations",
 
     addProseMirrorPlugins() {
       return [
@@ -168,7 +177,9 @@ export function createSensitivePlugin(words: SensitiveWord[]) {
           },
           props: {
             decorations(state) {
-              return sensitivePluginKey.getState(state)?.set ?? DecorationSet.empty;
+              return (
+                sensitivePluginKey.getState(state)?.set ?? DecorationSet.empty
+              );
             },
           },
         }),
@@ -184,7 +195,10 @@ export function createSensitivePlugin(words: SensitiveWord[]) {
  * 这里提供一个工具：通过 view 派发一个带 meta 的空事务，
  * 插件可识别 meta 后强制重算。为保持实现简洁，直接读取当前 state 重建。
  */
-export function refreshSensitiveDecorations(view: EditorView, words: SensitiveWord[]): void {
+export function refreshSensitiveDecorations(
+  view: EditorView,
+  words: SensitiveWord[],
+): void {
   const state = view.state;
   const set = buildDecorations(state.doc, words);
   // 直接通过 state field 的重设无法做到，这里通过派发空事务触发 apply；

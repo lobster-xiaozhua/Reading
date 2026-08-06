@@ -2,8 +2,8 @@
  * P5 · 搜索历史 Store
  * localStorage 持久化，最近 10 条
  * ============================================================ */
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface SearchState {
   history: string[];
@@ -23,9 +23,11 @@ export const useSearchStore = create<SearchState>()(
         set({ history: [k, ...prev].slice(0, 10) });
       },
       removeHistory: (keyword) =>
-        set((state) => ({ history: state.history.filter((h) => h !== keyword) })),
+        set((state) => ({
+          history: state.history.filter((h) => h !== keyword),
+        })),
       clearHistory: () => set({ history: [] }),
     }),
-    { name: 'atlas-search-store' },
+    { name: "atlas-search-store" },
   ),
 );

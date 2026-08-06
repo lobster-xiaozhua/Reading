@@ -1,1 +1,1 @@
-import './icons.test.ts';
+import "./icons.test.ts";

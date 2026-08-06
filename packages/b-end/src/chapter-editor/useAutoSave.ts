@@ -7,11 +7,11 @@
  * Source: 04-B端开发计划.md P2-19-e
  * ============================================================ */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Editor } from '@tiptap/core';
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Editor } from "@tiptap/core";
 
 /** 自动保存状态 */
-export type AutoSaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+export type AutoSaveStatus = "idle" | "saving" | "saved" | "error";
 
 /** useAutoSave 配置 */
 export interface UseAutoSaveOptions {
@@ -47,7 +47,7 @@ export function useAutoSave(
 ): UseAutoSaveResult {
   const { onSave, interval = 30000 } = options;
 
-  const [status, setStatus] = useState<AutoSaveStatus>('idle');
+  const [status, setStatus] = useState<AutoSaveStatus>("idle");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
 
   // 是否有未保存的变更
@@ -66,15 +66,15 @@ export function useAutoSave(
     if (!dirtyRef.current) return;
 
     savingRef.current = true;
-    setStatus('saving');
+    setStatus("saving");
     try {
       const html = editor.getHTML();
       await onSaveRef.current(html);
       dirtyRef.current = false;
       setLastSavedAt(Date.now());
-      setStatus('saved');
+      setStatus("saved");
     } catch {
-      setStatus('error');
+      setStatus("error");
       // 保留 dirty，下次重试
     } finally {
       savingRef.current = false;
@@ -96,7 +96,7 @@ export function useAutoSave(
 
     const handleUpdate = () => {
       dirtyRef.current = true;
-      setStatus((prev) => (prev === 'saved' ? 'idle' : prev));
+      setStatus((prev) => (prev === "saved" ? "idle" : prev));
 
       // 节流：清掉旧定时器，重新计时
       if (timerRef.current) {
@@ -107,9 +107,9 @@ export function useAutoSave(
       }, interval);
     };
 
-    editor.on('update', handleUpdate);
+    editor.on("update", handleUpdate);
     return () => {
-      editor.off('update', handleUpdate);
+      editor.off("update", handleUpdate);
     };
   }, [editor, interval, doSave]);
 
@@ -119,12 +119,12 @@ export function useAutoSave(
       if (dirtyRef.current) {
         // 浏览器规范：需设置 returnValue 触发原生确认
         event.preventDefault();
-        event.returnValue = '';
+        event.returnValue = "";
       }
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, []);
 

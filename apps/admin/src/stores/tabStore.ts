@@ -5,9 +5,9 @@
  * 04 §8.5
  * ============================================================ */
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { HOME_TAB_KEY } from '@/layouts/menu-config';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { HOME_TAB_KEY } from "@/layouts/menu-config";
 
 export interface TabItem {
   /** 路由 path，作为 key */
@@ -34,7 +34,7 @@ interface TabState {
 /** 首页 Tab（工作台，不可关闭） */
 const HOME_TAB: TabItem = {
   key: HOME_TAB_KEY,
-  label: '工作台',
+  label: "工作台",
   closable: false,
 };
 
@@ -63,7 +63,8 @@ export const useTabStore = create<TabState>()(
         // 关闭的是当前激活 Tab，则激活相邻 Tab
         let nextActive = activeKey;
         if (activeKey === key) {
-          const neighbor = nextTabs[Math.min(idx, nextTabs.length - 1)] ?? HOME_TAB;
+          const neighbor =
+            nextTabs[Math.min(idx, nextTabs.length - 1)] ?? HOME_TAB;
           nextActive = neighbor.key;
         }
         set({ tabs: nextTabs, activeKey: nextActive });
@@ -71,9 +72,7 @@ export const useTabStore = create<TabState>()(
 
       closeOthers: (key) => {
         const { tabs } = get();
-        const keep = tabs.filter(
-          (t) => t.key === key || !t.closable,
-        );
+        const keep = tabs.filter((t) => t.key === key || !t.closable);
         set({ tabs: keep, activeKey: key });
       },
 
@@ -98,7 +97,7 @@ export const useTabStore = create<TabState>()(
       setActive: (key) => set({ activeKey: key }),
     }),
     {
-      name: 'atlas-admin-tabs',
+      name: "atlas-admin-tabs",
       partialize: (state) => ({ tabs: state.tabs, activeKey: state.activeKey }),
     },
   ),

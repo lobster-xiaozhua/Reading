@@ -13,13 +13,13 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
+} from "react";
 
 /* ---------- 类型 ---------- */
 
-export type UITheme = 'light' | 'dark' | 'system';
-export type ResolvedUITheme = 'light' | 'dark';
-export type ReaderTheme = 'day' | 'night' | 'sepia' | 'parchment';
+export type UITheme = "light" | "dark" | "system";
+export type ResolvedUITheme = "light" | "dark";
+export type ReaderTheme = "day" | "night" | "sepia" | "parchment";
 
 export interface ThemeContextValue {
   /** 用户设置的 UI 主题（含 system） */
@@ -34,40 +34,45 @@ export interface ThemeContextValue {
 
 /* ---------- 常量 ---------- */
 
-const UI_THEME_STORAGE_KEY = 'novel:ui-theme';
-const READER_THEME_STORAGE_KEY = 'novel:reader-theme';
+const UI_THEME_STORAGE_KEY = "novel:ui-theme";
+const READER_THEME_STORAGE_KEY = "novel:reader-theme";
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 /* ---------- 工具 ---------- */
 
-const isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+const isBrowser =
+  typeof window !== "undefined" && typeof document !== "undefined";
 
 function getSystemTheme(): ResolvedUITheme {
-  if (!isBrowser) return 'light';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (!isBrowser) return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }
 
 function readStoredUITheme(): UITheme {
-  if (!isBrowser) return 'system';
+  if (!isBrowser) return "system";
   const v = window.localStorage.getItem(UI_THEME_STORAGE_KEY);
-  return v === 'light' || v === 'dark' || v === 'system' ? v : 'system';
+  return v === "light" || v === "dark" || v === "system" ? v : "system";
 }
 
 function readStoredReaderTheme(): ReaderTheme {
-  if (!isBrowser) return 'day';
+  if (!isBrowser) return "day";
   const v = window.localStorage.getItem(READER_THEME_STORAGE_KEY);
-  return v === 'day' || v === 'night' || v === 'sepia' || v === 'parchment' ? v : 'day';
+  return v === "day" || v === "night" || v === "sepia" || v === "parchment"
+    ? v
+    : "day";
 }
 
 function applyUITheme(resolved: ResolvedUITheme): void {
   if (!isBrowser) return;
-  document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.setAttribute("data-theme", resolved);
 }
 
 function applyReaderTheme(theme: ReaderTheme): void {
   if (!isBrowser) return;
-  document.documentElement.setAttribute('data-reader-theme', theme);
+  document.documentElement.setAttribute("data-reader-theme", theme);
 }
 
 /* ---------- Provider ---------- */
@@ -81,13 +86,14 @@ export interface ThemeProviderProps {
 }
 
 export function ThemeProvider({
-  defaultUITheme = 'system',
-  defaultReaderTheme = 'day',
+  defaultUITheme = "system",
+  defaultReaderTheme = "day",
   children,
 }: ThemeProviderProps) {
   const [uiTheme, setUIThemeState] = useState<UITheme>(defaultUITheme);
-  const [readerTheme, setReaderThemeState] = useState<ReaderTheme>(defaultReaderTheme);
-  const [systemTheme, setSystemTheme] = useState<ResolvedUITheme>('light');
+  const [readerTheme, setReaderThemeState] =
+    useState<ReaderTheme>(defaultReaderTheme);
+  const [systemTheme, setSystemTheme] = useState<ResolvedUITheme>("light");
 
   /* 挂载时从 localStorage 读取并订阅系统主题变化 */
   useEffect(() => {
@@ -95,15 +101,16 @@ export function ThemeProvider({
     setReaderThemeState(readStoredReaderTheme());
     setSystemTheme(getSystemTheme());
 
-    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = (e: MediaQueryListEvent) => {
-      setSystemTheme(e.matches ? 'dark' : 'light');
+      setSystemTheme(e.matches ? "dark" : "light");
     };
-    mql.addEventListener('change', onChange);
-    return () => mql.removeEventListener('change', onChange);
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  const resolvedUITheme: ResolvedUITheme = uiTheme === 'system' ? systemTheme : uiTheme;
+  const resolvedUITheme: ResolvedUITheme =
+    uiTheme === "system" ? systemTheme : uiTheme;
 
   /* 应用 UI 主题到 <html data-theme> */
   useEffect(() => {
@@ -126,11 +133,19 @@ export function ThemeProvider({
   };
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ uiTheme, resolvedUITheme, readerTheme, setUITheme, setReaderTheme }),
+    () => ({
+      uiTheme,
+      resolvedUITheme,
+      readerTheme,
+      setUITheme,
+      setReaderTheme,
+    }),
     [uiTheme, resolvedUITheme, readerTheme],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
 }
 
 /* ---------- Hooks ---------- */
@@ -138,7 +153,7 @@ export function ThemeProvider({
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
-    throw new Error('useTheme 必须在 <ThemeProvider> 内使用');
+    throw new Error("useTheme 必须在 <ThemeProvider> 内使用");
   }
   return ctx;
 }

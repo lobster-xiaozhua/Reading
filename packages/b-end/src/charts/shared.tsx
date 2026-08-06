@@ -8,18 +8,18 @@
  * Source: 04 §7 / 02 §4 / P7-3~6
  * ============================================================ */
 
-import { Empty } from 'antd';
-import type { CSSProperties } from 'react';
-import { tokens } from '@novel/tokens';
+import { Empty } from "antd";
+import type { CSSProperties } from "react";
+import { tokens } from "@novel/tokens";
 
 /** 图表默认高度（04 §7.2） */
 export const CHART_DEFAULT_HEIGHT = 320;
 
 /** 图表容器默认样式 */
 export const CHART_CONTAINER_STYLE: CSSProperties = {
-  width: '100%',
+  width: "100%",
   height: CHART_DEFAULT_HEIGHT,
-  padding: 'var(--space-4)',
+  padding: "var(--space-4)",
 };
 
 /**
@@ -40,24 +40,30 @@ const CHART_COLOR_FALLBACKS: ReadonlyArray<string> = [
  * 用于将 `var(--color-chart-1)` 解析为实际色值传给 @ant-design/charts
  */
 export function getChartColors(): string[] {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return [...CHART_COLOR_FALLBACKS];
   }
   const root = getComputedStyle(document.documentElement);
   return [
-    root.getPropertyValue('--color-chart-1').trim() || CHART_COLOR_FALLBACKS[0]!,
-    root.getPropertyValue('--color-chart-2').trim() || CHART_COLOR_FALLBACKS[1]!,
-    root.getPropertyValue('--color-chart-3').trim() || CHART_COLOR_FALLBACKS[2]!,
-    root.getPropertyValue('--color-chart-4').trim() || CHART_COLOR_FALLBACKS[3]!,
-    root.getPropertyValue('--color-chart-5').trim() || CHART_COLOR_FALLBACKS[4]!,
-    root.getPropertyValue('--color-chart-6').trim() || CHART_COLOR_FALLBACKS[5]!,
+    root.getPropertyValue("--color-chart-1").trim() ||
+      CHART_COLOR_FALLBACKS[0]!,
+    root.getPropertyValue("--color-chart-2").trim() ||
+      CHART_COLOR_FALLBACKS[1]!,
+    root.getPropertyValue("--color-chart-3").trim() ||
+      CHART_COLOR_FALLBACKS[2]!,
+    root.getPropertyValue("--color-chart-4").trim() ||
+      CHART_COLOR_FALLBACKS[3]!,
+    root.getPropertyValue("--color-chart-5").trim() ||
+      CHART_COLOR_FALLBACKS[4]!,
+    root.getPropertyValue("--color-chart-6").trim() ||
+      CHART_COLOR_FALLBACKS[5]!,
   ];
 }
 
 /** 检测当前是否暗黑模式（data-theme='dark'） */
 export function isDarkMode(): boolean {
-  if (typeof document === 'undefined') return false;
-  return document.documentElement.getAttribute('data-theme') === 'dark';
+  if (typeof document === "undefined") return false;
+  return document.documentElement.getAttribute("data-theme") === "dark";
 }
 
 /** 通用坐标轴样式（04 §7.2） */
@@ -65,13 +71,13 @@ export const commonAxisStyle = {
   axis: {
     x: {
       labelFontSize: 12,
-      labelFill: 'var(--color-text-tertiary)',
-      lineStroke: 'var(--color-border-subtle)',
+      labelFill: "var(--color-text-tertiary)",
+      lineStroke: "var(--color-border-subtle)",
     },
     y: {
       labelFontSize: 12,
-      labelFill: 'var(--color-text-tertiary)',
-      gridStroke: 'var(--color-border-subtle)',
+      labelFill: "var(--color-text-tertiary)",
+      gridStroke: "var(--color-border-subtle)",
       gridLineDash: [2, 2],
     },
   },
@@ -82,7 +88,7 @@ export const commonLegendStyle = {
   legend: {
     color: {
       itemLabelFontSize: 13,
-      itemLabelFill: 'var(--color-text-secondary)',
+      itemLabelFill: "var(--color-text-secondary)",
       itemMarkerSize: 10,
     },
   },
@@ -93,24 +99,24 @@ export const commonTooltipStyle = {
   tooltip: {
     style: {
       fontSize: 13,
-      background: 'var(--color-bg-elevated)',
-      color: 'var(--color-text-inverse)',
-      boxShadow: 'var(--sh-2)',
-      borderRadius: 'var(--radius-md, 8px)',
-      padding: '8px 12px',
+      background: "var(--color-bg-elevated)",
+      color: "var(--color-text-inverse)",
+      boxShadow: "var(--sh-2)",
+      borderRadius: "var(--radius-md, 8px)",
+      padding: "8px 12px",
     },
   },
 } as const;
 
 /** 空数据占位（P7-5） */
-export function renderChartEmpty(description = '暂无数据'): React.ReactNode {
+export function renderChartEmpty(description = "暂无数据"): React.ReactNode {
   return (
     <div
       style={{
         height: CHART_DEFAULT_HEIGHT,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <Empty description={description} />
@@ -130,13 +136,25 @@ export interface ChartWrapperProps {
   children?: React.ReactNode;
 }
 
-export function ChartWrapper({ empty, emptyDescription, height = CHART_DEFAULT_HEIGHT, children }: ChartWrapperProps) {
+export function ChartWrapper({
+  empty,
+  emptyDescription,
+  height = CHART_DEFAULT_HEIGHT,
+  children,
+}: ChartWrapperProps) {
   if (empty) {
     return (
-      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Empty description={emptyDescription ?? '暂无数据'} />
+      <div
+        style={{
+          height,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Empty description={emptyDescription ?? "暂无数据"} />
       </div>
     );
   }
-  return <div style={{ width: '100%', height }}>{children}</div>;
+  return <div style={{ width: "100%", height }}>{children}</div>;
 }

@@ -7,10 +7,10 @@
  * Source: 04-B端开发计划.md P2-19-b
  * ============================================================ */
 
-import StarterKit from '@tiptap/starter-kit';
-import Underline from '@tiptap/extension-underline';
-import Link from '@tiptap/extension-link';
-import type { Extensions } from '@tiptap/core';
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Link from "@tiptap/extension-link";
+import type { Extensions } from "@tiptap/core";
 
 /**
  * 章节编辑器扩展集合。
@@ -35,8 +35,8 @@ export const extensions: Extensions = [
     autolink: false,
     linkOnPaste: false,
     HTMLAttributes: {
-      rel: 'noopener noreferrer nofollow',
-      target: '_blank',
+      rel: "noopener noreferrer nofollow",
+      target: "_blank",
     },
   }),
 ];

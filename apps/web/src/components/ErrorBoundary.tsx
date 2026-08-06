@@ -1,6 +1,6 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { ErrorState } from './ErrorState';
-import { reportError } from '@/utils/report';
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { ErrorState } from "./ErrorState";
+import { reportError } from "@/utils/report";
 
 interface Props {
   children: ReactNode;
@@ -23,7 +23,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    reportError(error, { kind: 'react-boundary', componentStack: errorInfo.componentStack });
+    reportError(error, {
+      kind: "react-boundary",
+      componentStack: errorInfo.componentStack,
+    });
   }
 
   handleRetry = () => {
@@ -36,7 +39,7 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <ErrorState
           title="页面渲染异常"
-          description={this.state.error?.message ?? '发生未知错误'}
+          description={this.state.error?.message ?? "发生未知错误"}
           onRetry={this.handleRetry}
         />
       );

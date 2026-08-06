@@ -4,9 +4,9 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Area } from '@ant-design/charts';
-import type { AreaConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Area } from "@ant-design/charts";
+import type { AreaConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -15,7 +15,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BAreaChartProps {
   data: Array<Record<string, unknown>>;
@@ -53,7 +53,9 @@ export function BAreaChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: AreaConfig = {
@@ -63,7 +65,7 @@ export function BAreaChart({
     seriesField,
     isStack,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     colorField: seriesField,
     color: seriesField ? colors : colors[0],
     style: { fillOpacity: areaOpacity },
@@ -71,12 +73,19 @@ export function BAreaChart({
     legend: showLegend ? commonLegendStyle.legend : false,
     tooltip: commonTooltipStyle.tooltip,
     axis: commonAxisStyle.axis,
-    interactions: [{ type: 'tooltip' }, { type: 'legend-filter' }, { type: 'brush-x' }],
+    interactions: [
+      { type: "tooltip" },
+      { type: "legend-filter" },
+      { type: "brush-x" },
+    ],
     onReady: (chart) => {
       if (onPointClick) {
-        chart.on('element:click', (e: { data?: { data?: Record<string, unknown> } }) => {
-          if (e.data?.data) onPointClick(e.data.data);
-        });
+        chart.on(
+          "element:click",
+          (e: { data?: { data?: Record<string, unknown> } }) => {
+            if (e.data?.data) onPointClick(e.data.data);
+          },
+        );
       }
     },
     ...config,

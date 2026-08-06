@@ -36,7 +36,8 @@
   color: var(--color-brand);
   font-size: 14px;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
 }
 

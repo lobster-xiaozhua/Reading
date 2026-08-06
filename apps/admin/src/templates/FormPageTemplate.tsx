@@ -5,21 +5,21 @@
  * Source: 04 §5.4（表单页所有断点保持 720px 居中，不随屏幕拉伸）
  * ============================================================ */
 
-import { Form, Button, Space, Result, Skeleton, Affix } from 'antd';
-import type { FormInstance } from 'antd';
-import { CheckOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
-import { BPageHeader } from '@novel/b-end';
-import type { BPageHeaderProps } from '@novel/b-end';
+import { Form, Button, Space, Result, Skeleton, Affix } from "antd";
+import type { FormInstance } from "antd";
+import { CheckOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
+import { BPageHeader } from "@novel/b-end";
+import type { BPageHeaderProps } from "@novel/b-end";
 
-export type FormPageStatus = 'loading' | 'editing' | 'submitting' | 'success';
+export type FormPageStatus = "loading" | "editing" | "submitting" | "success";
 
 export interface FormPageTemplateProps {
   /** 页面标题 */
   title: string;
   /** 面包屑 */
-  breadcrumb?: BPageHeaderProps['breadcrumb'];
+  breadcrumb?: BPageHeaderProps["breadcrumb"];
   /** 返回回调 */
-  onBack?: BPageHeaderProps['onBack'];
+  onBack?: BPageHeaderProps["onBack"];
 
   /** 状态 */
   status: FormPageStatus;
@@ -69,19 +69,25 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
     onFinish,
     onCancel,
     onSuccessContinue,
-    submitText = '提交',
-    draftText = '保存草稿',
+    submitText = "提交",
+    draftText = "保存草稿",
     showDraft = false,
     onDraft,
     children,
   } = props;
 
   // 提交成功态
-  if (status === 'success') {
+  if (status === "success") {
     return (
       <div className="b-form-page">
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
-        <div style={{ maxWidth: 720, margin: '0 auto', paddingTop: 'var(--space-8)' }}>
+        <div
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            paddingTop: "var(--space-8)",
+          }}
+        >
           <Result
             status="success"
             title="提交成功"
@@ -91,9 +97,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                 <Button type="primary" onClick={onSuccessContinue}>
                   继续操作
                 </Button>
-                {onBack && (
-                  <Button onClick={onBack}>返回列表</Button>
-                )}
+                {onBack && <Button onClick={onBack}>返回列表</Button>}
               </Space>
             }
           />
@@ -102,14 +106,14 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
     );
   }
 
-  const isSubmitting = status === 'submitting';
-  const isLoading = status === 'loading';
+  const isSubmitting = status === "submitting";
+  const isLoading = status === "loading";
 
   return (
     <div className="b-form-page">
       <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
 
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
         {isLoading ? (
           <Skeleton active paragraph={{ rows: 10 }} />
         ) : (
@@ -134,26 +138,35 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
               <div
                 className="b-form-page__footer"
                 style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  alignItems: 'center',
-                  gap: 'var(--space-3)',
-                  padding: 'var(--space-3) var(--space-5)',
-                  background: 'var(--color-bg-elevated)',
-                  borderTop: '1px solid var(--color-border-subtle)',
-                  boxShadow: 'var(--sh-2)',
-                  margin: 'var(--space-5) calc(var(--space-5) * -1) calc(var(--space-5) * -1)',
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: "var(--space-3)",
+                  padding: "var(--space-3) var(--space-5)",
+                  background: "var(--color-bg-elevated)",
+                  borderTop: "1px solid var(--color-border-subtle)",
+                  boxShadow: "var(--sh-2)",
+                  margin:
+                    "var(--space-5) calc(var(--space-5) * -1) calc(var(--space-5) * -1)",
                 }}
                 role="toolbar"
                 aria-label="表单操作"
               >
                 {onCancel && (
-                  <Button icon={<CloseOutlined />} onClick={onCancel} disabled={isSubmitting}>
+                  <Button
+                    icon={<CloseOutlined />}
+                    onClick={onCancel}
+                    disabled={isSubmitting}
+                  >
                     取消
                   </Button>
                 )}
                 {showDraft && onDraft && (
-                  <Button icon={<SaveOutlined />} onClick={onDraft} disabled={isSubmitting}>
+                  <Button
+                    icon={<SaveOutlined />}
+                    onClick={onDraft}
+                    disabled={isSubmitting}
+                  >
                     {draftText}
                   </Button>
                 )}

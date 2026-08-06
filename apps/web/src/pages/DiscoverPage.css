@@ -29,7 +29,10 @@
   border-radius: var(--radius-lg);
   text-decoration: none;
   color: var(--color-text-primary);
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth), border-color var(--transition-smooth);
+  transition:
+    transform var(--transition-smooth),
+    box-shadow var(--transition-smooth),
+    border-color var(--transition-smooth);
 }
 .discover-page__pick-card:hover {
   transform: translateY(-2px);
@@ -142,7 +145,9 @@
 }
 .discover-page__hot-scroll > * {
   flex-shrink: 0;
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  transition:
+    transform var(--transition-smooth),
+    box-shadow var(--transition-smooth);
 }
 .discover-page__hot-scroll > *:hover {
   transform: translateY(-4px);
@@ -196,7 +201,9 @@
   padding: var(--space-3) var(--space-2);
   border-radius: var(--radius-lg);
   text-decoration: none;
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  transition:
+    transform var(--transition-smooth),
+    box-shadow var(--transition-smooth);
 }
 .discover-page__category-item:hover {
   transform: translateY(-3px);
@@ -235,7 +242,9 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
-  transition: color var(--transition-smooth), border-color var(--transition-smooth);
+  transition:
+    color var(--transition-smooth),
+    border-color var(--transition-smooth);
 }
 .discover-page__rank-tab:hover {
   color: var(--color-brand);

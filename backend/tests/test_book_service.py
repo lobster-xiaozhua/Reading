@@ -161,6 +161,32 @@ class TestGetChapter:
         assert result.next_id == str(c2.id)
         assert result.prev_id is None
 
+    async def test_chapter_cache_hit(self, svc, db_session, redis_client):
+        novel = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, novel.id, title="缓存章节")
+        await svc.get_chapter(novel.id, chapter.id)
+        cached = await redis_client.get(CacheKeys.chapter(chapter.id))
+        assert cached is not None
+        result = await svc.get_chapter(novel.id, chapter.id)
+        assert result.title == "缓存章节"
+
+    async def test_chapter_cache_books_isolated(self, svc, db_session, redis_client):
+        novel = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, novel.id)
+        await svc.get_chapter(novel.id, chapter.id)
+        await redis_client.set(
+            CacheKeys.chapter(chapter.id), json.dumps({"novel_id": 999, "content": {}})
+        )
+        result = await svc.get_chapter(novel.id, chapter.id)
+        assert result.title == "第一章"
+
+    async def test_chapter_vip_lock_survives_cache(self, svc, db_session, redis_client):
+        novel = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, novel.id, is_vip=1)
+        await svc.get_chapter(novel.id, chapter.id, reader_vip=True)
+        with pytest.raises(BizError):
+            await svc.get_chapter(novel.id, chapter.id)
+
 
 class TestRelatedBooks:
     async def test_get_related_books(self, svc, db_session):

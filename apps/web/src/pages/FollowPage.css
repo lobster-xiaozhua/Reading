@@ -37,7 +37,8 @@
   color: var(--color-text-primary);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 .follow-page__back:hover {
@@ -68,7 +69,8 @@
   font-size: var(--font-size-caption);
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-standard),
+  transition:
+    color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
 }
 .follow-page__read-all:hover:not(:disabled) {
@@ -110,7 +112,8 @@
   font-family: var(--font-mono);
   border-radius: var(--radius-full);
   line-height: 1;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 .novel-tabs__tab.is-active .follow-page__tab-count {
@@ -326,7 +329,8 @@
   border-radius: var(--radius-md);
   font-size: var(--font-size-caption);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard),
     filter var(--dur-fast) var(--ease-standard);
@@ -392,8 +396,12 @@
   animation: follow-page-shimmer var(--dur-slow) var(--ease-standard) infinite;
 }
 @keyframes follow-page-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ---------- 响应式 ---------- */

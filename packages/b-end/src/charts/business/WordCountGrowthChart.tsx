@@ -5,9 +5,9 @@
  * Source: 02 §4.5 / P7-7
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { DualAxes } from '@ant-design/charts';
-import type { DualAxesConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { DualAxes } from "@ant-design/charts";
+import type { DualAxesConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -16,7 +16,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from '../shared';
+} from "../shared";
 
 export interface WordCountGrowthDatum {
   /** 日期（YYYY-MM-DD） */
@@ -47,24 +47,30 @@ export function WordCountGrowthChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription ?? '暂无字数数据'} height={height} />;
+    return (
+      <ChartWrapper
+        empty
+        emptyDescription={emptyDescription ?? "暂无字数数据"}
+        height={height}
+      />
+    );
   }
 
   const mergedConfig: DualAxesConfig = {
     data: [data, data],
-    xField: 'date',
-    yField: ['dailyWords', 'totalWords'],
+    xField: "date",
+    yField: ["dailyWords", "totalWords"],
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     geometryOptions: [
       {
-        geometry: 'area',
+        geometry: "area",
         color: colors[0],
         style: { fillOpacity: 0.15 },
         smooth: true,
       },
       {
-        geometry: 'line',
+        geometry: "line",
         color: colors[2],
         smooth: true,
         lineStyle: {
@@ -78,26 +84,30 @@ export function WordCountGrowthChart({
       ...commonAxisStyle.axis,
       y: {
         ...commonAxisStyle.axis.y,
-        title: '日更字数',
+        title: "日更字数",
       },
       yRight: {
-        title: '累计字数',
+        title: "累计字数",
         labelFontSize: 12,
-        labelFill: 'var(--color-text-tertiary)',
+        labelFill: "var(--color-text-tertiary)",
       },
     },
     // 警戒线（日更 <2000）
     annotations: [
       {
-        type: 'lineY',
+        type: "lineY",
         yField: warningThreshold,
         style: {
-          stroke: 'var(--color-feedback-warning)',
+          stroke: "var(--color-feedback-warning)",
           lineDash: [4, 4],
         },
       },
     ],
-    interactions: [{ type: 'tooltip' }, { type: 'legend-filter' }, { type: 'brush-x' }],
+    interactions: [
+      { type: "tooltip" },
+      { type: "legend-filter" },
+      { type: "brush-x" },
+    ],
     ...config,
   } as DualAxesConfig;
 

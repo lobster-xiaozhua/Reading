@@ -8,13 +8,13 @@
  * Source: 04-B端开发计划.md P2-19-a
  * ============================================================ */
 
-import { useEffect, useMemo, useRef } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import type { Editor } from '@tiptap/core';
-import { extensions as baseExtensions } from './extensions.js';
-import { createPasteHandler } from './sanitize-clipboard.js';
-import { createSensitivePlugin } from './sensitive-decorations.js';
-import type { SensitiveWord } from './sensitive-decorations.js';
+import { useEffect, useMemo, useRef } from "react";
+import { useEditor, EditorContent } from "@tiptap/react";
+import type { Editor } from "@tiptap/core";
+import { extensions as baseExtensions } from "./extensions.js";
+import { createPasteHandler } from "./sanitize-clipboard.js";
+import { createSensitivePlugin } from "./sensitive-decorations.js";
+import type { SensitiveWord } from "./sensitive-decorations.js";
 
 export interface EditorCoreProps {
   /** 受控 HTML 内容 */
@@ -77,13 +77,13 @@ export function EditorCore(props: EditorCoreProps) {
       // 粘贴净化：去除 Word 命名空间 / inline style / class / id
       handlePaste: createPasteHandler(),
       attributes: {
-        class: 'chapter-editor__content',
-        'data-placeholder': placeholder ?? '',
+        class: "chapter-editor__content",
+        "data-placeholder": placeholder ?? "",
         style:
-          'font-size: 18px;' +
-          'line-height: 1.8;' +
-          'color: var(--color-text-primary);' +
-          'font-family: var(--novel-font-family, var(--font-serif));',
+          "font-size: 18px;" +
+          "line-height: 1.8;" +
+          "color: var(--color-text-primary);" +
+          "font-family: var(--novel-font-family, var(--font-serif));",
       },
     },
     onUpdate: ({ editor: ed }) => {
@@ -110,7 +110,7 @@ export function EditorCore(props: EditorCoreProps) {
     }
     if (editor.getHTML() !== value) {
       // emitUpdate=false 防止触发 onUpdate 死循环
-      editor.commands.setContent(value || '', false);
+      editor.commands.setContent(value || "", false);
     }
   }, [value, editor]);
 
@@ -123,7 +123,7 @@ export function EditorCore(props: EditorCoreProps) {
   }, [editor, onEditorReady]);
 
   return (
-    <div className={className} style={{ position: 'relative' }}>
+    <div className={className} style={{ position: "relative" }}>
       <EditorContent editor={editor} />
     </div>
   );

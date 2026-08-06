@@ -3,23 +3,25 @@
  * 监听文本选中事件，在选中区域上方弹出操作菜单
  * 支持：添加笔记、划线标记
  * ============================================================ */
-import { useCallback, useEffect, useState } from 'react';
-import { fetcher } from '@/api/fetcher';
-import { NavigationClose } from '@novel/icons';
-import './SelectionPopover.css';
+import { useCallback, useEffect, useState } from "react";
+import { fetcher } from "@/api/fetcher";
+import { NavigationClose } from "@novel/icons";
+import "./SelectionPopover.css";
 
 interface SelectionPopoverProps {
   bookId: string;
   chapterId: string;
 }
 
-type Action = 'note' | 'highlight';
+type Action = "note" | "highlight";
 
 export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
-  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(null);
-  const [selectedText, setSelectedText] = useState('');
+  const [anchor, setAnchor] = useState<{ top: number; left: number } | null>(
+    null,
+  );
+  const [selectedText, setSelectedText] = useState("");
   const [activeAction, setActiveAction] = useState<Action | null>(null);
-  const [noteText, setNoteText] = useState('');
+  const [noteText, setNoteText] = useState("");
   const [saving, setSaving] = useState(false);
 
   const handleSelection = useCallback(() => {
@@ -28,7 +30,7 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.toString().trim()) {
       setAnchor(null);
-      setSelectedText('');
+      setSelectedText("");
       return;
     }
 
@@ -48,20 +50,21 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
   }, [activeAction]);
 
   useEffect(() => {
-    document.addEventListener('selectionchange', handleSelection);
-    return () => document.removeEventListener('selectionchange', handleSelection);
+    document.addEventListener("selectionchange", handleSelection);
+    return () =>
+      document.removeEventListener("selectionchange", handleSelection);
   }, [handleSelection]);
 
   const clearSelection = useCallback(() => {
     window.getSelection()?.removeAllRanges();
     setAnchor(null);
-    setSelectedText('');
+    setSelectedText("");
     setActiveAction(null);
-    setNoteText('');
+    setNoteText("");
   }, []);
 
   const handleNote = useCallback(() => {
-    setActiveAction('note');
+    setActiveAction("note");
   }, []);
 
   const handleHighlight = useCallback(async () => {
@@ -101,7 +104,7 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
 
   const handleCancelNote = useCallback(() => {
     setActiveAction(null);
-    setNoteText('');
+    setNoteText("");
   }, []);
 
   if (!anchor) return null;
@@ -111,10 +114,11 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
       className="selection-popover"
       style={{ top: `${anchor.top}px`, left: `${anchor.left}px` }}
     >
-      {activeAction === 'note' ? (
+      {activeAction === "note" ? (
         <div className="selection-popover__note">
           <div className="selection-popover__quote">
-            &ldquo;{selectedText.slice(0, 30)}{selectedText.length > 30 ? '...' : ''}&rdquo;
+            &ldquo;{selectedText.slice(0, 30)}
+            {selectedText.length > 30 ? "..." : ""}&rdquo;
           </div>
           <textarea
             autoFocus

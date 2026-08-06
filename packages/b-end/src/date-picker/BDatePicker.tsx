@@ -10,9 +10,9 @@ import {
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
-} from 'react';
-import { DatePicker as AntDatePicker } from 'antd';
-import dayjs, { type Dayjs } from 'dayjs';
+} from "react";
+import { DatePicker as AntDatePicker } from "antd";
+import dayjs, { type Dayjs } from "dayjs";
 
 /**
  * disabledDate 工具：禁用未来日期（B 端查询 / 筛选常用）。
@@ -20,7 +20,7 @@ import dayjs, { type Dayjs } from 'dayjs';
  * @example <BDatePicker disabledDate={disabledFutureDate} />
  */
 export function disabledFutureDate(current: Dayjs): boolean {
-  return current.isAfter(dayjs().endOf('day'));
+  return current.isAfter(dayjs().endOf("day"));
 }
 
 /**
@@ -29,7 +29,7 @@ export function disabledFutureDate(current: Dayjs): boolean {
  * @example <BRangePicker disabledDate={(d) => disabledBefore(d, 30)} />
  */
 export function disabledBefore(current: Dayjs, days: number): boolean {
-  return current.isBefore(dayjs().subtract(days, 'day').startOf('day'));
+  return current.isBefore(dayjs().subtract(days, "day").startOf("day"));
 }
 
 export type BDatePickerProps = ComponentProps<typeof AntDatePicker>;
@@ -43,20 +43,22 @@ export type BDatePickerProps = ComponentProps<typeof AntDatePicker>;
 export const BDatePicker: ForwardRefExoticComponent<
   BDatePickerProps & RefAttributes<ComponentRef<typeof AntDatePicker>>
 > = forwardRef<ComponentRef<typeof AntDatePicker>, BDatePickerProps>(
-  ({ format = 'YYYY-MM-DD', ...rest }, ref) => (
+  ({ format = "YYYY-MM-DD", ...rest }, ref) => (
     <AntDatePicker ref={ref} format={format} {...rest} />
   ),
 );
-BDatePicker.displayName = 'BDatePicker';
+BDatePicker.displayName = "BDatePicker";
 
-export type BRangePickerProps = ComponentProps<typeof AntDatePicker.RangePicker>;
+export type BRangePickerProps = ComponentProps<
+  typeof AntDatePicker.RangePicker
+>;
 
 /** B 端默认范围预设：今天 / 本周 / 本月 / 近30天（dayjs 计算） */
 const DEFAULT_RANGES: Record<string, () => [Dayjs, Dayjs]> = {
   今天: () => [dayjs(), dayjs()],
-  本周: () => [dayjs().startOf('week'), dayjs().endOf('week')],
-  本月: () => [dayjs().startOf('month'), dayjs().endOf('month')],
-  近30天: () => [dayjs().subtract(29, 'day'), dayjs()],
+  本周: () => [dayjs().startOf("week"), dayjs().endOf("week")],
+  本月: () => [dayjs().startOf("month"), dayjs().endOf("month")],
+  近30天: () => [dayjs().subtract(29, "day"), dayjs()],
 };
 
 /**
@@ -66,10 +68,12 @@ const DEFAULT_RANGES: Record<string, () => [Dayjs, Dayjs]> = {
  * - 默认 ranges 预设：今天 / 本周 / 本月 / 近30天（dayjs 计算）
  */
 export const BRangePicker: ForwardRefExoticComponent<
-  BRangePickerProps & RefAttributes<ComponentRef<typeof AntDatePicker.RangePicker>>
-> = forwardRef<ComponentRef<typeof AntDatePicker.RangePicker>, BRangePickerProps>(
-  ({ ranges = DEFAULT_RANGES, ...rest }, ref) => (
-    <AntDatePicker.RangePicker ref={ref} ranges={ranges} {...rest} />
-  ),
-);
-BRangePicker.displayName = 'BRangePicker';
+  BRangePickerProps &
+    RefAttributes<ComponentRef<typeof AntDatePicker.RangePicker>>
+> = forwardRef<
+  ComponentRef<typeof AntDatePicker.RangePicker>,
+  BRangePickerProps
+>(({ ranges = DEFAULT_RANGES, ...rest }, ref) => (
+  <AntDatePicker.RangePicker ref={ref} ranges={ranges} {...rest} />
+));
+BRangePicker.displayName = "BRangePicker";

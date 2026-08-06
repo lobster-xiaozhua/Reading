@@ -6,8 +6,8 @@
  * B 端默认：showSearch=true（左右两栏均支持搜索）
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import { Transfer, type TransferProps } from 'antd';
+import { forwardRef } from "react";
+import { Transfer, type TransferProps } from "antd";
 
 export type BTransferProps = TransferProps;
 

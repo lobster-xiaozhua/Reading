@@ -4,7 +4,7 @@
  * Source: 04-B端开发计划.md P2-21 / 04-B端专项设计.md §6.21
  * ============================================================ */
 
-import type { BookFlag } from './enums.js';
+import type { BookFlag } from "./enums.js";
 
 /** 跨端共享：书籍基础字段（C/B 端一致） */
 export interface NovelBase {
@@ -21,10 +21,10 @@ export interface NovelBase {
 }
 
 /** C 端阅读侧状态（只关心是否完结） */
-export type CNovelStatus = 'ongoing' | 'completed';
+export type CNovelStatus = "ongoing" | "completed";
 
 /** B 端运营侧状态（含完整生命周期） */
-export type BNovelStatus = 'draft' | 'pending' | 'published' | 'offline';
+export type BNovelStatus = "draft" | "pending" | "published" | "offline";
 
 /** C 端书籍摘要 = NovelBase + C 端状态 + 读者侧统计 */
 export interface CNovelSummary extends NovelBase {
@@ -62,7 +62,7 @@ export interface ChapterBase {
 }
 
 /** B 端章节状态（C 端不关心） */
-export type BChapterStatus = 'draft' | 'pending' | 'published' | 'offline';
+export type BChapterStatus = "draft" | "pending" | "published" | "offline";
 
 /** B 端章节详情 = ChapterBase + B 端状态 + 正文 */
 export interface BChapterDetail extends ChapterBase {

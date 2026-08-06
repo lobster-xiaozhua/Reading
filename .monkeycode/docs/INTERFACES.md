@@ -262,6 +262,13 @@
 | GET | `/system/config` | 获取系统配置 |
 | PUT | `/system/config` | 更新系统配置 |
 
+### 可观测性 `/api/v1/b/rum`
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | `/rum/stats` | RUM 事件统计（total / errorCount / avgLcp / byType） |
+| GET | `/rum/events` | 分页查询 RUM 事件明细（支持 type 过滤） |
+
 ### 用户管理 `/api/v1/b/users`
 
 | 方法 | 路径 | 说明 |

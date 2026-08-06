@@ -5,9 +5,9 @@
  * Source: 04 §10.3 / P6-3
  * ============================================================ */
 
-import type { ReactNode } from 'react';
-import type { Permission } from '@/api/types';
-import { usePermission } from '@/hooks/usePermission';
+import type { ReactNode } from "react";
+import type { Permission } from "@/api/types";
+import { usePermission } from "@/hooks/usePermission";
 
 export interface AuthorizedProps {
   /** 所需权限点（单个） */
@@ -17,7 +17,7 @@ export interface AuthorizedProps {
   /** 所需权限点（多个，全部持有才通过） */
   allOf?: Permission[];
   /** 所需角色 */
-  role?: Parameters<ReturnType<typeof usePermission>['hasRole']>[0];
+  role?: Parameters<ReturnType<typeof usePermission>["hasRole"]>[0];
   /** 通过权限渲染的内容 */
   children: ReactNode;
   /** 无权限时的兜底渲染（默认 null） */

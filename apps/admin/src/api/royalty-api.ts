@@ -6,8 +6,8 @@
  * Source: 04 §13.2 / P8-2-1~5
  * ============================================================ */
 
-import { http, ApiError } from './http';
-import type { ContractType, SettlementStatus } from '@novel/types';
+import { http, ApiError } from "./http";
+import type { ContractType, SettlementStatus } from "@novel/types";
 
 /** 稿费明细行（P8-2-4） */
 export interface RoyaltyDetail {
@@ -60,61 +60,64 @@ export interface SettlementFlowNode {
   title: string;
   description: string;
   /** 节点状态：进行中 / 待审 / 通过 / 驳回 */
-  status: 'waiting' | 'processing' | 'approved' | 'rejected';
+  status: "waiting" | "processing" | "approved" | "rejected";
 }
 
 /** 结算流程定义 */
 export const SETTLEMENT_FLOW: SettlementFlowNode[] = [
   {
-    key: 'generate',
-    title: '月初生成账单',
-    description: '系统按月汇总各作品字数与订阅收入，自动生成结算账单',
-    status: 'approved',
+    key: "generate",
+    title: "月初生成账单",
+    description: "系统按月汇总各作品字数与订阅收入，自动生成结算账单",
+    status: "approved",
   },
   {
-    key: 'pending',
-    title: '待结算',
-    description: '账单进入待结算队列，等待财务核对',
-    status: 'approved',
+    key: "pending",
+    title: "待结算",
+    description: "账单进入待结算队列，等待财务核对",
+    status: "approved",
   },
   {
-    key: 'verify',
-    title: '财务核对',
-    description: '财务确认字数口径与分成比例无误',
-    status: 'processing',
+    key: "verify",
+    title: "财务核对",
+    description: "财务确认字数口径与分成比例无误",
+    status: "processing",
   },
   {
-    key: 'settled',
-    title: '已结算',
-    description: '金额计入作者余额，可发起提现',
-    status: 'waiting',
+    key: "settled",
+    title: "已结算",
+    description: "金额计入作者余额，可发起提现",
+    status: "waiting",
   },
   {
-    key: 'withdraw-request',
-    title: '作者提现申请',
-    description: '作者在 C 端发起提现申请',
-    status: 'waiting',
+    key: "withdraw-request",
+    title: "作者提现申请",
+    description: "作者在 C 端发起提现申请",
+    status: "waiting",
   },
   {
-    key: 'withdrawn',
-    title: '已提现',
-    description: '提现到账，流程结束',
-    status: 'waiting',
+    key: "withdrawn",
+    title: "已提现",
+    description: "提现到账，流程结束",
+    status: "waiting",
   },
 ];
 
 /** 结算状态标签映射 */
-export const SETTLEMENT_STATUS_LABEL: Record<SettlementStatus, { text: string; color: string }> = {
-  pending: { text: '待结算', color: 'warning' },
-  settled: { text: '已结算', color: 'processing' },
-  withdrawn: { text: '已提现', color: 'success' },
+export const SETTLEMENT_STATUS_LABEL: Record<
+  SettlementStatus,
+  { text: string; color: string }
+> = {
+  pending: { text: "待结算", color: "warning" },
+  settled: { text: "已结算", color: "processing" },
+  withdrawn: { text: "已提现", color: "success" },
 };
 
 /** 签约模式标签 */
 export const CONTRACT_TYPE_LABEL: Record<ContractType, string> = {
-  buyout: '买断',
-  share: '分成',
-  'guarantee-share': '保底+分成',
+  buyout: "买断",
+  share: "分成",
+  "guarantee-share": "保底+分成",
 };
 
 /** 生成 mock 稿费明细 */
@@ -155,7 +158,7 @@ interface BackendRoyaltyList {
 
 export interface RoyaltyListParams {
   month?: string;
-  status?: SettlementStatus | 'all';
+  status?: SettlementStatus | "all";
   author?: string;
   page?: number;
   pageSize?: number;
@@ -178,7 +181,8 @@ function mapItem(raw: BackendRoyaltyItem): RoyaltyDetail {
     wordCount: raw.wordCount,
     contractType: raw.contractType as ContractType,
     rate: raw.rate ?? 0,
-    subscriptionRevenue: raw.contractType !== 'buyout' ? raw.subscriptionRevenue : undefined,
+    subscriptionRevenue:
+      raw.contractType !== "buyout" ? raw.subscriptionRevenue : undefined,
     amount: raw.amount,
     status: raw.status as SettlementStatus,
     settledAt: raw.settledAt ?? undefined,
@@ -187,12 +191,14 @@ function mapItem(raw: BackendRoyaltyItem): RoyaltyDetail {
 }
 
 /** 拉取稿费明细列表 */
-export async function fetchRoyaltyList(params: RoyaltyListParams = {}): Promise<RoyaltyListResponse> {
-  const { month, status = 'all', author, page = 1, pageSize = 20 } = params;
-  const data = await http.get<BackendRoyaltyList>('/royalties', {
-    month: month ?? '',
+export async function fetchRoyaltyList(
+  params: RoyaltyListParams = {},
+): Promise<RoyaltyListResponse> {
+  const { month, status = "all", author, page = 1, pageSize = 20 } = params;
+  const data = await http.get<BackendRoyaltyList>("/royalties", {
+    month: month ?? "",
     status,
-    author_name: author ?? '',
+    author_name: author ?? "",
     page,
     page_size: pageSize,
   });
@@ -212,9 +218,11 @@ export async function fetchRoyaltyList(params: RoyaltyListParams = {}): Promise<
 }
 
 /** 批量结算 */
-export async function batchSettle(ids: string[]): Promise<{ success: boolean }> {
+export async function batchSettle(
+  ids: string[],
+): Promise<{ success: boolean }> {
   try {
-    await http.post('/royalties/batch-settle', { ids: ids.map(Number) });
+    await http.post("/royalties/batch-settle", { ids: ids.map(Number) });
     return { success: true };
   } catch (err) {
     if (err instanceof ApiError) return { success: false };
@@ -223,9 +231,11 @@ export async function batchSettle(ids: string[]): Promise<{ success: boolean }> 
 }
 
 /** 标记已提现 */
-export async function markWithdrawn(ids: string[]): Promise<{ success: boolean }> {
+export async function markWithdrawn(
+  ids: string[],
+): Promise<{ success: boolean }> {
   try {
-    await http.post('/royalties/mark-withdrawn', { ids: ids.map(Number) });
+    await http.post("/royalties/mark-withdrawn", { ids: ids.map(Number) });
     return { success: true };
   } catch {
     return { success: false };

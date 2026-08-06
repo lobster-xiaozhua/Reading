@@ -4,18 +4,35 @@
  * ============================================================ */
 
 /** 管理员角色 */
-export type AdminRole = 'super-admin' | 'content-admin' | 'operation-admin' | 'finance-admin' | 'auditor';
+export type AdminRole =
+  | "super-admin"
+  | "content-admin"
+  | "operation-admin"
+  | "finance-admin"
+  | "auditor";
 
 /** 管理员权限点（P6 阶段细化） */
 export type Permission =
-  | 'novel.list' | 'novel.create' | 'novel.edit' | 'novel.delete' | 'novel.shelve'
-  | 'chapter.list' | 'chapter.create' | 'chapter.edit' | 'chapter.delete'
-  | 'audit.list' | 'audit.approve' | 'audit.reject'
-  | 'author.list' | 'author.edit'
-  | 'royalty.list' | 'royalty.export'
-  | 'user.list' | 'user.edit'
-  | 'permission.assign'
-  | 'system.config';
+  | "novel.list"
+  | "novel.create"
+  | "novel.edit"
+  | "novel.delete"
+  | "novel.shelve"
+  | "chapter.list"
+  | "chapter.create"
+  | "chapter.edit"
+  | "chapter.delete"
+  | "audit.list"
+  | "audit.approve"
+  | "audit.reject"
+  | "author.list"
+  | "author.edit"
+  | "royalty.list"
+  | "royalty.export"
+  | "user.list"
+  | "user.edit"
+  | "permission.assign"
+  | "system.config";
 
 /** 管理员用户信息 */
 export interface AdminUser {

@@ -5,10 +5,15 @@
  * - 401 拦截器配合处理会话过期
  * ============================================================ */
 
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { AdminUser, LoginCredentials, LoginResponse, Permission } from '@/api/types';
-import { fetcher } from '@/api/fetcher';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type {
+  AdminUser,
+  LoginCredentials,
+  LoginResponse,
+  Permission,
+} from "@/api/types";
+import { fetcher } from "@/api/fetcher";
 
 interface AuthState {
   token: string | null;
@@ -24,7 +29,7 @@ interface AuthState {
   logout: () => void;
   refresh: () => Promise<void>;
   hasPermission: (perm: Permission) => boolean;
-  hasRole: (role: AdminUser['roles'][number]) => boolean;
+  hasRole: (role: AdminUser["roles"][number]) => boolean;
 }
 
 /** 默认 token 有效期 8 小时 */
@@ -84,7 +89,7 @@ export const useAuthStore = create<AuthState>()(
         const { user } = get();
         if (!user) return false;
         // 超级管理员拥有全部权限
-        if (user.roles.includes('super-admin')) return true;
+        if (user.roles.includes("super-admin")) return true;
         return user.permissions.includes(perm);
       },
 
@@ -94,7 +99,7 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'atlas-admin-auth',
+      name: "atlas-admin-auth",
       partialize: (state) => ({
         token: state.token,
         user: state.user,
@@ -107,7 +112,10 @@ export const useAuthStore = create<AuthState>()(
 );
 
 /** 工具：检查 token 是否临近过期（用于 RequireAuth 自动 refresh） */
-export function isTokenNearExpiry(expiresAt: number | null, threshold = REFRESH_THRESHOLD): boolean {
+export function isTokenNearExpiry(
+  expiresAt: number | null,
+  threshold = REFRESH_THRESHOLD,
+): boolean {
   if (!expiresAt) return false;
   return expiresAt - Date.now() < threshold;
 }

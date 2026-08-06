@@ -145,6 +145,13 @@ class TestChapterServiceUpdate:
         detail = await svc.update_chapter(chapters[0].id, body)
         assert detail.word_count > 0
 
+    async def test_update_is_vip_flag(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 1)
+        detail = await svc.update_chapter(chapters[0].id, ChapterUpdateBody(is_vip=True))
+        assert detail.is_vip is True
+        detail2 = await svc.update_chapter(chapters[0].id, ChapterUpdateBody(is_vip=False))
+        assert detail2.is_vip is False
+
 
 class TestChapterServiceReorder:
     async def test_reorder(self, svc, db_session):
@@ -170,6 +177,60 @@ class TestChapterServiceTransition:
         body = ChapterTransitionBody(target="published")
         with pytest.raises(BizError):
             await svc.transition(chapters[0].id, body)
+
+    async def test_transition_to_published_sets_published_at(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 1)
+        await svc.transition(chapters[0].id, ChapterTransitionBody(target="pending"))
+        detail = await svc.transition(chapters[0].id, ChapterTransitionBody(target="published"))
+        assert detail.status == "published"
+        assert detail.published_at > 0
+
+
+class TestChapterServiceBatch:
+    async def test_batch_submit(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 3)
+        from app.schemas.b_end import ChapterBatchOperateBody
+
+        result = await svc.batch_operate(
+            ChapterBatchOperateBody(ids=[c.id for c in chapters], action="submit")
+        )
+        assert result.success is True
+        assert result.affected == 3
+        items = await svc.list_chapters(_novel.id)
+        assert all(i.status == "pending" for i in items)
+
+    async def test_batch_publish(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 2)
+        from app.schemas.b_end import ChapterBatchOperateBody
+
+        await svc.batch_operate(ChapterBatchOperateBody(ids=[c.id for c in chapters], action="submit"))
+        result = await svc.batch_operate(
+            ChapterBatchOperateBody(ids=[c.id for c in chapters], action="publish")
+        )
+        assert result.success is True
+        assert result.affected == 2
+
+    async def test_batch_invalid_action_collects_failures(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 1)
+        from app.schemas.b_end import ChapterBatchOperateBody
+
+        result = await svc.batch_operate(
+            ChapterBatchOperateBody(ids=[chapters[0].id], action="explode")
+        )
+        assert result.success is False
+        assert result.affected == 0
+        assert result.failed and result.failed[0]["reason"].startswith("不支持的操作")
+
+    async def test_batch_mixed_missing_id(self, svc, db_session):
+        _novel, chapters = await _create_novel_and_chapters(db_session, 2)
+        from app.schemas.b_end import ChapterBatchOperateBody
+
+        result = await svc.batch_operate(
+            ChapterBatchOperateBody(ids=[chapters[0].id, 99999], action="submit")
+        )
+        assert result.success is False
+        assert result.affected == 1
+        assert len(result.failed or []) == 1
 
 
 class TestChapterServiceDelete:

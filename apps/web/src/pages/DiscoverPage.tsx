@@ -1,22 +1,27 @@
-import { useState, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BookCard, EmptyState, Skeleton, useAsyncState } from '@novel/components';
-import { Carousel } from '@/components/Carousel';
-import { LazyImage } from '@/components/LazyImage';
-import { SectionTitle } from '@/components/SectionTitle';
-import { Countdown } from '@/components/Countdown';
-import { ErrorState } from '@/components/ErrorState';
-import { DiscoverModule } from '@/components/DiscoverModule';
-import { fetcher } from '@/api/fetcher';
-import type { Category, DiscoverHome, RankType } from '@/api/types';
-import { toBook } from '@/utils/convert';
-import './DiscoverPage.css';
+import { useState, useCallback } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  BookCard,
+  EmptyState,
+  Skeleton,
+  useAsyncState,
+} from "@novel/components";
+import { Carousel } from "@/components/Carousel";
+import { LazyImage } from "@/components/LazyImage";
+import { SectionTitle } from "@/components/SectionTitle";
+import { Countdown } from "@/components/Countdown";
+import { ErrorState } from "@/components/ErrorState";
+import { DiscoverModule } from "@/components/DiscoverModule";
+import { fetcher } from "@/api/fetcher";
+import type { Category, DiscoverHome, RankType } from "@/api/types";
+import { toBook } from "@/utils/convert";
+import "./DiscoverPage.css";
 
 const RANK_TABS: { key: RankType; label: string }[] = [
-  { key: 'hot', label: '人气榜' },
-  { key: 'follow', label: '收藏榜' },
-  { key: 'ticket', label: '月票榜' },
-  { key: 'new', label: '新书榜' },
+  { key: "hot", label: "人气榜" },
+  { key: "follow", label: "收藏榜" },
+  { key: "ticket", label: "月票榜" },
+  { key: "new", label: "新书榜" },
 ];
 
 const EMPTY_HOME: DiscoverHome = {
@@ -38,9 +43,9 @@ export default function DiscoverPage() {
 
   const home = homeState.data ?? EMPTY_HOME;
   const pageLoading = homeState.loading && !homeState.loaded;
-  const pageError = homeState.status === 'error';
+  const pageError = homeState.status === "error";
 
-  const [rankType, setRankType] = useState<RankType>('hot');
+  const [rankType, setRankType] = useState<RankType>("hot");
 
   return (
     <div className="discover-page">
@@ -69,51 +74,75 @@ export default function DiscoverPage() {
                 <EmptyState title="暂无精选推荐" />
               ) : (
                 <div className="discover-page__picks-grid">
-                  {home.editorPicks.filter(Boolean).slice(0, 6).map((b) => (
-                    <Link
-                      key={b.id}
-                      to={`/book/${b.id}`}
-                      className="discover-page__pick-card"
-                    >
-                      <div className="discover-page__pick-cover-wrap">
-                        <LazyImage
-                          src={b.cover}
-                          alt={b.title}
-                          className="discover-page__pick-cover"
-                        />
-                        <div className="discover-page__pick-overlay">
-                          <span className="discover-page__pick-read">立即阅读</span>
-                        </div>
-                      </div>
-                      <div className="discover-page__pick-info">
-                        <h3 className="discover-page__pick-title">{b.title}</h3>
-                        <p className="discover-page__pick-intro">{b.intro}</p>
-                        <div className="discover-page__pick-meta">
-                          <span className="discover-page__pick-author">{b.author}</span>
-                          {b.rating ? (
-                            <span className="discover-page__pick-rating">
-                              <span className="discover-page__pick-star" aria-hidden>{'\u2605'}</span>
-                              {b.rating}
+                  {home.editorPicks
+                    .filter(Boolean)
+                    .slice(0, 6)
+                    .map((b) => (
+                      <Link
+                        key={b.id}
+                        to={`/book/${b.id}`}
+                        className="discover-page__pick-card"
+                      >
+                        <div className="discover-page__pick-cover-wrap">
+                          <LazyImage
+                            src={b.cover}
+                            alt={b.title}
+                            className="discover-page__pick-cover"
+                          />
+                          <div className="discover-page__pick-overlay">
+                            <span className="discover-page__pick-read">
+                              立即阅读
                             </span>
-                          ) : null}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                        <div className="discover-page__pick-info">
+                          <h3 className="discover-page__pick-title">
+                            {b.title}
+                          </h3>
+                          <p className="discover-page__pick-intro">{b.intro}</p>
+                          <div className="discover-page__pick-meta">
+                            <span className="discover-page__pick-author">
+                              {b.author}
+                            </span>
+                            {b.rating ? (
+                              <span className="discover-page__pick-rating">
+                                <span
+                                  className="discover-page__pick-star"
+                                  aria-hidden
+                                >
+                                  {"\u2605"}
+                                </span>
+                                {b.rating}
+                              </span>
+                            ) : null}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
                 </div>
               )}
             </DiscoverModule>
           </section>
 
           <section className="discover-page__section container-page">
-            <SectionTitle title="本周热门" subtitle="HOT" moreTo="/category?sort=hot" />
+            <SectionTitle
+              title="本周热门"
+              subtitle="HOT"
+              moreTo="/category?sort=hot"
+            />
             <DiscoverModule loading={pageLoading} skeletonRows={3}>
               {home.hotBooks.length === 0 ? (
                 <EmptyState title="暂无热门推荐" />
               ) : (
                 <div className="discover-page__hot-scroll scroll-x">
                   {home.hotBooks.filter(Boolean).map((b) => (
-                    <BookCard key={b.id} book={toBook(b)} variant="horizontal" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
+                    <BookCard
+                      key={b.id}
+                      book={toBook(b)}
+                      variant="horizontal"
+                      size="sm"
+                      onClick={() => navigate(`/book/${b.id}`)}
+                    />
                   ))}
                 </div>
               )}
@@ -121,7 +150,11 @@ export default function DiscoverPage() {
           </section>
 
           <section className="discover-page__section container-page">
-            <SectionTitle title="限免专区" subtitle="FREE" moreTo="/category?tag=free-limited" />
+            <SectionTitle
+              title="限免专区"
+              subtitle="FREE"
+              moreTo="/category?tag=free-limited"
+            />
             <DiscoverModule loading={pageLoading} skeletonRows={3}>
               {home.freeBooks.length === 0 ? (
                 <EmptyState title="暂无限免书籍" />
@@ -129,12 +162,19 @@ export default function DiscoverPage() {
                 <div className="discover-page__free-grid">
                   {home.freeBooks.filter(Boolean).map((b) => (
                     <div key={b.id} className="discover-page__free-item">
-                      <BookCard book={toBook(b)} variant="grid" size="sm" onClick={() => navigate(`/book/${b.id}`)} />
+                      <BookCard
+                        book={toBook(b)}
+                        variant="grid"
+                        size="sm"
+                        onClick={() => navigate(`/book/${b.id}`)}
+                      />
                       <div className="discover-page__free-meta">
                         {b.freeDeadline ? (
                           <Countdown deadline={b.freeDeadline} />
                         ) : (
-                          <span className="discover-page__free-badge">限免中</span>
+                          <span className="discover-page__free-badge">
+                            限免中
+                          </span>
                         )}
                       </div>
                     </div>
@@ -145,7 +185,11 @@ export default function DiscoverPage() {
           </section>
 
           <section className="discover-page__section container-page">
-            <SectionTitle title="分类入口" subtitle="CATEGORY" moreTo="/category" />
+            <SectionTitle
+              title="分类入口"
+              subtitle="CATEGORY"
+              moreTo="/category"
+            />
             {pageLoading ? (
               <Skeleton rows={3} />
             ) : home.categories.length === 0 ? null : (
@@ -157,21 +201,30 @@ export default function DiscoverPage() {
             <SectionTitle title="排行榜" subtitle="RANKING" />
             <DiscoverModule loading={pageLoading} skeletonRows={5}>
               <div className="discover-page__rank-header">
-                <div className="discover-page__rank-tabs" role="tablist" aria-label="排行榜切换">
+                <div
+                  className="discover-page__rank-tabs"
+                  role="tablist"
+                  aria-label="排行榜切换"
+                >
                   {RANK_TABS.map((t) => (
                     <button
                       key={t.key}
                       type="button"
                       role="tab"
                       aria-selected={rankType === t.key}
-                      className={`discover-page__rank-tab ${rankType === t.key ? 'is-active' : ''}`}
+                      className={`discover-page__rank-tab ${rankType === t.key ? "is-active" : ""}`}
                       onClick={() => setRankType(t.key)}
                     >
                       {t.label}
                     </button>
                   ))}
                 </div>
-                <Link to="/category?sort=hot" className="discover-page__rank-more">完整榜单 ›</Link>
+                <Link
+                  to="/category?sort=hot"
+                  className="discover-page__rank-more"
+                >
+                  完整榜单 ›
+                </Link>
               </div>
               {(home.rankings[rankType] ?? []).length === 0 ? (
                 <EmptyState title="暂无榜单数据" />
@@ -180,17 +233,26 @@ export default function DiscoverPage() {
                   {(home.rankings[rankType] ?? []).slice(0, 10).map((b, i) => (
                     <li key={b?.id ?? i} className="discover-page__rank-item">
                       <span
-                        className={`discover-page__rank-num ${i < 3 ? `is-top-${i + 1}` : ''}`}
+                        className={`discover-page__rank-num ${i < 3 ? `is-top-${i + 1}` : ""}`}
                         aria-hidden
                       >
                         {i + 1}
                       </span>
-                      <Link to={`/book/${b?.id}`} className="discover-page__rank-info">
-                        <span className="discover-page__rank-title">{b?.title ?? ""}</span>
-                        <span className="discover-page__rank-author">{b?.author ?? ""}</span>
+                      <Link
+                        to={`/book/${b?.id}`}
+                        className="discover-page__rank-info"
+                      >
+                        <span className="discover-page__rank-title">
+                          {b?.title ?? ""}
+                        </span>
+                        <span className="discover-page__rank-author">
+                          {b?.author ?? ""}
+                        </span>
                       </Link>
                       {b?.rating ? (
-                        <span className="discover-page__rank-score">{b.rating}</span>
+                        <span className="discover-page__rank-score">
+                          {b.rating}
+                        </span>
                       ) : null}
                     </li>
                   ))}
@@ -205,12 +267,12 @@ export default function DiscoverPage() {
 }
 
 const CATEGORY_COLORS = [
-  'var(--color-brand-bg)',
-  'var(--color-accent-orange-bg)',
-  'var(--color-rose-bg)',
-  'var(--color-feedback-success-bg)',
-  'var(--color-feedback-warning-bg)',
-  'var(--color-feedback-info-bg)',
+  "var(--color-brand-bg)",
+  "var(--color-accent-orange-bg)",
+  "var(--color-rose-bg)",
+  "var(--color-feedback-success-bg)",
+  "var(--color-feedback-warning-bg)",
+  "var(--color-feedback-info-bg)",
 ];
 
 function CategoryGrid({ categories }: { categories: Category[] }) {

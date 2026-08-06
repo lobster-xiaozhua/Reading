@@ -2,8 +2,8 @@
  * P5 · 阅读历史 Store
  * 记录每本书的最后阅读章节 + 进度，跨端同步用
  * ============================================================ */
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface HistoryEntry {
   bookId: string;
@@ -33,6 +33,6 @@ export const useHistoryStore = create<HistoryState>()(
       getEntry: (bookId) => get().entries[bookId],
       clearAll: () => set({ entries: {} }),
     }),
-    { name: 'atlas-history-store' },
+    { name: "atlas-history-store" },
   ),
 );

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { applyUpdate, UPDATE_AVAILABLE_EVENT } from '@/sw-register';
-import './UpdatePrompt.css';
+import { useEffect, useState } from "react";
+import { applyUpdate, UPDATE_AVAILABLE_EVENT } from "@/sw-register";
+import "./UpdatePrompt.css";
 
 /**
  * PWA 新版本提示浮条（P7-6）
@@ -19,8 +19,14 @@ export function UpdatePrompt() {
 
   return (
     <div className="novel-update-prompt" role="status" aria-live="polite">
-      <span className="novel-update-prompt__text">发现新版本，刷新以体验最新内容</span>
-      <button type="button" className="novel-update-prompt__btn" onClick={applyUpdate}>
+      <span className="novel-update-prompt__text">
+        发现新版本，刷新以体验最新内容
+      </span>
+      <button
+        type="button"
+        className="novel-update-prompt__btn"
+        onClick={applyUpdate}
+      >
         立即刷新
       </button>
     </div>

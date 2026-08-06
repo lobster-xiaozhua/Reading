@@ -4,8 +4,8 @@
  * Source: 04-B端开发计划.md P2-11
  * ============================================================ */
 
-import { forwardRef, type ComponentProps } from 'react';
-import { Steps as AntSteps } from 'antd';
+import { forwardRef, type ComponentProps } from "react";
+import { Steps as AntSteps } from "antd";
 
 export type BStepsProps = ComponentProps<typeof AntSteps>;
 
@@ -18,10 +18,10 @@ export type BStepsProps = ComponentProps<typeof AntSteps>;
  * 文档：建议步骤数 3-5 个。
  */
 export const BSteps = forwardRef<HTMLDivElement, BStepsProps>(
-  ({ direction = 'horizontal', ...rest }, ref) => (
+  ({ direction = "horizontal", ...rest }, ref) => (
     <div ref={ref}>
       <AntSteps direction={direction} {...rest} />
     </div>
   ),
 );
-BSteps.displayName = 'BSteps';
+BSteps.displayName = "BSteps";

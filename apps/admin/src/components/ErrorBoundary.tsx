@@ -4,8 +4,8 @@
  * - 提供重试与返回工作台入口
  * ============================================================ */
 
-import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Result, Button } from 'antd';
+import { Component, type ErrorInfo, type ReactNode } from "react";
+import { Result, Button } from "antd";
 
 interface Props {
   children: ReactNode;
@@ -23,7 +23,9 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[ErrorBoundary]', error, errorInfo, { tagged: 'initErrorMonitor' });
+    console.error("[ErrorBoundary]", error, errorInfo, {
+      tagged: "initErrorMonitor",
+    });
   }
 
   handleRetry = () => {
@@ -40,7 +42,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <Result
           status="500"
           title="页面出错了"
-          subTitle={this.state.error?.message || '发生未知错误，请稍后重试。'}
+          subTitle={this.state.error?.message || "发生未知错误，请稍后重试。"}
           extra={
             <Button type="primary" onClick={this.handleReset}>
               重试

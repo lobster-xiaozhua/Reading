@@ -4,9 +4,13 @@
  * 复用 Popper 的定位逻辑
  * ============================================================ */
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Popper } from './Popper.js';
-import { NavigationChevronDown, NavigationClose, StatusSuccess } from '@novel/icons';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Popper } from "./Popper.js";
+import {
+  NavigationChevronDown,
+  NavigationClose,
+  StatusSuccess,
+} from "@novel/icons";
 
 export interface SelectOption {
   label: ReactNode;
@@ -22,25 +26,27 @@ export interface SelectProps {
   loading?: boolean;
   placeholder?: string;
   disabled?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: "sm" | "md" | "lg";
   onChange?: (val: string | string[]) => void;
   /** 自定义渲染选中项标签（多选场景） */
   renderTag?: (opt: SelectOption) => ReactNode;
 }
 
 const Chevron = ({ open }: { open: boolean }) => (
-  <span style={{ display: 'inline-flex', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform var(--dur-fast) var(--ease-standard)' }}>
+  <span
+    style={{
+      display: "inline-flex",
+      transform: open ? "rotate(180deg)" : "none",
+      transition: "transform var(--dur-fast) var(--ease-standard)",
+    }}
+  >
     <NavigationChevronDown size="sm" aria-hidden="true" />
   </span>
 );
 
-const Check = () => (
-  <StatusSuccess size="sm" aria-hidden="true" />
-);
+const Check = () => <StatusSuccess size="sm" aria-hidden="true" />;
 
-const Spin = () => (
-  <span className="novel-select__spin" aria-hidden />
-);
+const Spin = () => <span className="novel-select__spin" aria-hidden />;
 
 export function Select({
   value,
@@ -48,14 +54,14 @@ export function Select({
   multiple = false,
   searchable = false,
   loading = false,
-  placeholder = '请选择',
+  placeholder = "请选择",
   disabled = false,
-  size = 'md',
+  size = "md",
   onChange,
   renderTag,
 }: SelectProps) {
   const [open, setOpen] = useState(false);
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const containerRef = useRef<HTMLDivElement | null>(null);
   const keywordRef = useRef<HTMLInputElement | null>(null);
 
@@ -75,7 +81,7 @@ export function Select({
     if (!searchable || !keyword.trim()) return options;
     const kw = keyword.trim().toLowerCase();
     return options.filter((o) => {
-      const label = typeof o.label === 'string' ? o.label : String(o.value);
+      const label = typeof o.label === "string" ? o.label : String(o.value);
       return label.toLowerCase().includes(kw);
     });
   }, [options, keyword, searchable]);
@@ -84,18 +90,21 @@ export function Select({
   useEffect(() => {
     if (!open) return;
     const onDoc = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener('mousedown', onDoc);
-    document.addEventListener('keydown', onEsc);
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
     return () => {
-      document.removeEventListener('mousedown', onDoc);
-      document.removeEventListener('keydown', onEsc);
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
 
@@ -104,7 +113,7 @@ export function Select({
     if (open && searchable) {
       requestAnimationFrame(() => keywordRef.current?.focus());
     } else if (!open) {
-      setKeyword('');
+      setKeyword("");
     }
   }, [open, searchable]);
 
@@ -159,11 +168,16 @@ export function Select({
     }
     const selected = selectedArr[0]!;
     const opt = optionMap.get(selected);
-    return <span className="novel-select__value">{opt?.label ?? selected}</span>;
+    return (
+      <span className="novel-select__value">{opt?.label ?? selected}</span>
+    );
   };
 
   return (
-    <div ref={containerRef} className={`novel-select novel-select--${size} ${disabled ? 'is-disabled' : ''} ${open ? 'is-open' : ''}`}>
+    <div
+      ref={containerRef}
+      className={`novel-select novel-select--${size} ${disabled ? "is-disabled" : ""} ${open ? "is-open" : ""}`}
+    >
       <Popper
         open={open}
         placement="bottomStart"
@@ -187,7 +201,7 @@ export function Select({
         {({ floatRef, floatStyle, ready }) => (
           <div
             ref={floatRef}
-            className={`novel-select__dropdown ${ready ? 'is-ready' : ''}`}
+            className={`novel-select__dropdown ${ready ? "is-ready" : ""}`}
             style={floatStyle}
             role="listbox"
           >
@@ -219,16 +233,18 @@ export function Select({
                       role="option"
                       aria-selected={selected}
                       className={[
-                        'novel-select__option',
-                        selected ? 'is-selected' : '',
-                        opt.disabled ? 'is-disabled' : '',
+                        "novel-select__option",
+                        selected ? "is-selected" : "",
+                        opt.disabled ? "is-disabled" : "",
                       ]
                         .filter(Boolean)
-                        .join(' ')}
+                        .join(" ")}
                       disabled={opt.disabled}
                       onClick={() => !opt.disabled && toggle(opt.value)}
                     >
-                      <span className="novel-select__option-label">{opt.label}</span>
+                      <span className="novel-select__option-label">
+                        {opt.label}
+                      </span>
                       {selected ? (
                         <span className="novel-select__option-check">
                           <Check />

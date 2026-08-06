@@ -4,9 +4,9 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Column } from '@ant-design/charts';
-import type { ColumnConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Column } from "@ant-design/charts";
+import type { ColumnConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
@@ -15,7 +15,7 @@ import {
   commonLegendStyle,
   commonTooltipStyle,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BColumnChartProps {
   data: Array<Record<string, unknown>>;
@@ -50,7 +50,9 @@ export function BColumnChart({
   const dark = isDarkMode();
 
   if (!data || data.length === 0) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: ColumnConfig = {
@@ -61,18 +63,21 @@ export function BColumnChart({
     isGroup: seriesField ? isGroup : false,
     isStack,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     colorField: seriesField,
     color: seriesField ? colors : colors[0],
     legend: showLegend ? commonLegendStyle.legend : false,
     tooltip: commonTooltipStyle.tooltip,
     axis: commonAxisStyle.axis,
-    interactions: [{ type: 'tooltip' }, { type: 'legend-filter' }],
+    interactions: [{ type: "tooltip" }, { type: "legend-filter" }],
     onReady: (chart) => {
       if (onPointClick) {
-        chart.on('element:click', (e: { data?: { data?: Record<string, unknown> } }) => {
-          if (e.data?.data) onPointClick(e.data.data);
-        });
+        chart.on(
+          "element:click",
+          (e: { data?: { data?: Record<string, unknown> } }) => {
+            if (e.data?.data) onPointClick(e.data.data);
+          },
+        );
       }
     },
     ...config,

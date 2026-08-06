@@ -6,8 +6,8 @@
  * B 端默认：showSearch=true（支持搜索过滤）
  * ============================================================ */
 
-import { forwardRef, type ComponentRef } from 'react';
-import { TreeSelect, type TreeSelectProps } from 'antd';
+import { forwardRef, type ComponentRef } from "react";
+import { TreeSelect, type TreeSelectProps } from "antd";
 
 export type BTreeSelectProps = TreeSelectProps;
 export type BTreeSelectRef = ComponentRef<typeof TreeSelect>;

@@ -22,7 +22,7 @@
 .book-detail__breadcrumb a:hover {
   color: var(--color-brand);
 }
-.book-detail__breadcrumb [aria-current='page'] {
+.book-detail__breadcrumb [aria-current="page"] {
   color: var(--color-text-primary);
   font-weight: 500;
 }
@@ -164,7 +164,9 @@
   font-size: 13px;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
 }
 .book-detail__last-read-btn:hover {
   background: var(--color-brand);
@@ -182,7 +184,7 @@
   padding-left: var(--space-3);
 }
 .book-detail__section-title::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 50%;
@@ -262,7 +264,9 @@
   font-size: 22px;
   color: var(--color-border-default);
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+  transition:
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 .book-detail__star-btn.is-active {
   color: var(--color-accent-orange);
@@ -408,7 +412,10 @@
   font-size: 13px;
   cursor: pointer;
   border-radius: var(--radius-sm);
-  transition: transform var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
 }
 .book-detail__comment-like:hover {
   color: var(--color-rose);

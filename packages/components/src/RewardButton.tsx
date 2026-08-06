@@ -4,10 +4,10 @@
  * height 40px；hover 提亮+sh-2；active spring 缩放；粒子飞出
  * ============================================================ */
 
-import { useState, type CSSProperties } from 'react';
-import { NovelThumbsUp, NovelReward } from '@novel/icons';
+import { useState, type CSSProperties } from "react";
+import { NovelThumbsUp, NovelReward } from "@novel/icons";
 
-export type RewardType = 'ticket' | 'recommend' | 'tip';
+export type RewardType = "ticket" | "recommend" | "tip";
 
 export interface RewardButtonProps {
   rewardType: RewardType;
@@ -21,12 +21,12 @@ export interface RewardButtonProps {
   className?: string;
 }
 
-type Variant = 'gradient' | 'solid';
+type Variant = "gradient" | "solid";
 
 const REWARD_CONFIG: Record<RewardType, { label: string; variant: Variant }> = {
-  ticket: { label: '投月票', variant: 'gradient' },
-  recommend: { label: '推荐', variant: 'solid' },
-  tip: { label: '打赏', variant: 'gradient' },
+  ticket: { label: "投月票", variant: "gradient" },
+  recommend: { label: "推荐", variant: "solid" },
+  tip: { label: "打赏", variant: "gradient" },
 };
 
 const REWARD_ICON: Record<RewardType, typeof NovelReward> = {
@@ -56,15 +56,15 @@ export function RewardButton({
   const isDisabled = exhausted || loading;
 
   const cls = [
-    'novel-reward',
+    "novel-reward",
     `novel-reward--${rewardType}`,
     `novel-reward--${config.variant}`,
-    exhausted ? 'is-disabled' : '',
-    loading ? 'is-loading' : '',
-    className ?? '',
+    exhausted ? "is-disabled" : "",
+    loading ? "is-loading" : "",
+    className ?? "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const handleClick = () => {
     if (isDisabled) return;
@@ -81,7 +81,7 @@ export function RewardButton({
         className={cls}
         onClick={handleClick}
         disabled={isDisabled}
-        aria-label={`${config.label}${remaining != null ? `，今日剩余 ${remaining} 张` : ''}`}
+        aria-label={`${config.label}${remaining != null ? `，今日剩余 ${remaining} 张` : ""}`}
       >
         <span className="novel-reward__icon" aria-hidden>
           {loading ? (
@@ -90,20 +90,24 @@ export function RewardButton({
             <RewardIconComp type={rewardType} />
           )}
         </span>
-        <span className="novel-reward__label">{exhausted ? '今日已用完' : config.label}</span>
+        <span className="novel-reward__label">
+          {exhausted ? "今日已用完" : config.label}
+        </span>
         {burst > 0 ? (
           <span key={burst} className="novel-reward__particles" aria-hidden>
             {Array.from({ length: 6 }).map((_, i) => (
               <span
                 key={i}
                 className="novel-reward__particle"
-                style={{ '--i': String(i) } as CSSProperties}
+                style={{ "--i": String(i) } as CSSProperties}
               />
             ))}
           </span>
         ) : null}
       </button>
-      {remainingText ? <div className="novel-reward__remaining">{remainingText}</div> : null}
+      {remainingText ? (
+        <div className="novel-reward__remaining">{remainingText}</div>
+      ) : null}
     </div>
   );
 }

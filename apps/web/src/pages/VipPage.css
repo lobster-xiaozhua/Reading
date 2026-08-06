@@ -21,7 +21,8 @@
   font-size: var(--font-size-caption);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-standard),
+  transition:
+    color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
 .vip-page__back:hover {
@@ -66,7 +67,11 @@
   position: relative;
   margin-bottom: var(--space-6);
   padding: var(--space-6);
-  background: linear-gradient(135deg, var(--color-accent-orange-bg), var(--color-bg-surface));
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-orange-bg),
+    var(--color-bg-surface)
+  );
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--sh-1);
@@ -149,7 +154,8 @@
   background: var(--color-bg-surface);
   text-align: left;
   cursor: pointer;
-  transition: border-color var(--dur-fast) var(--ease-standard),
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
 }
@@ -280,7 +286,8 @@
   background: var(--color-bg-surface);
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--dur-fast) var(--ease-standard),
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
 .vip-page__payment:hover {
@@ -306,7 +313,8 @@
   border-radius: var(--radius-full);
   border: 2px solid var(--color-border-default);
   background: transparent;
-  transition: border-color var(--dur-fast) var(--ease-standard),
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
 }

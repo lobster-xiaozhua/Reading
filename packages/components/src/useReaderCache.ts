@@ -6,7 +6,7 @@
  *   - 切换章节优先用缓存，缓存未命中显示加载条
  * ============================================================ */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /** 章节数据契约（Reader 容器消费） */
 export interface CachedChapter {
@@ -95,7 +95,9 @@ export function useReaderCache({
   maxCache = 5,
   preloadRadius = 2,
 }: UseReaderCacheOptions): UseReaderCacheReturn {
-  const cacheRef = useRef<LruCache<string, CachedChapter>>(new LruCache(maxCache));
+  const cacheRef = useRef<LruCache<string, CachedChapter>>(
+    new LruCache(maxCache),
+  );
   // 进行中的请求去重：避免同 id 并发触发
   const inflightRef = useRef<Map<string, Promise<CachedChapter>>>(new Map());
   const [currentId, setCurrentId] = useState<string | null>(

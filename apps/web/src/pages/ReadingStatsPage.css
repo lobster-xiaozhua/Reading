@@ -27,7 +27,8 @@
   text-decoration: none;
   font-size: var(--font-size-caption);
   border-radius: var(--radius-md);
-  transition: color var(--dur-fast) var(--ease-standard),
+  transition:
+    color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
 .reading-stats-page__back:hover {
@@ -165,12 +166,16 @@
   background: var(--color-accent-orange-bg);
 }
 .reading-stats-page__heat-cell--l2 {
-  background: color-mix(in srgb, var(--color-accent-orange) 45%, var(--color-bg-surface));
+  background: color-mix(
+    in srgb,
+    var(--color-accent-orange) 45%,
+    var(--color-bg-surface)
+  );
 }
 .reading-stats-page__heat-cell--l3 {
   background: var(--color-accent-orange);
 }
-.reading-stats-page__heat-cell[role='gridcell']:hover {
+.reading-stats-page__heat-cell[role="gridcell"]:hover {
   outline: 1px solid var(--color-text-primary);
   outline-offset: 1px;
 }
@@ -268,7 +273,8 @@
   font-size: var(--font-size-caption);
   text-align: left;
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
 }
 .reading-stats-page__pref-row:hover {
@@ -347,7 +353,8 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   text-align: center;
-  transition: box-shadow var(--dur-fast) var(--ease-standard),
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
     transform var(--dur-fast) var(--ease-standard);
 }
 .reading-stats-page__badge-card.is-unlocked {
@@ -478,7 +485,8 @@
 .reading-stats-page__pref-ring-skeleton,
 .reading-stats-page__pref-row-skeleton,
 .reading-stats-page__badge-card.is-skeleton {
-  animation: reading-stats-page-pulse var(--dur-slow) var(--ease-standard) infinite;
+  animation: reading-stats-page-pulse var(--dur-slow) var(--ease-standard)
+    infinite;
 }
 
 /* ---------- 响应式 ---------- */

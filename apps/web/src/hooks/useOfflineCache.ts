@@ -6,13 +6,13 @@
  *   - 书架元数据持久化：离线可浏览书架列表
  * ============================================================ */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-const DB_NAME = 'atlas-offline';
+const DB_NAME = "atlas-offline";
 const DB_VERSION = 1;
-const STORE_CHAPTERS = 'chapters'; // 已读章节正文缓存
-const STORE_SHELF = 'shelf'; // 书架元数据
-const STORE_META = 'meta'; // 元信息（如总缓存大小）
+const STORE_CHAPTERS = "chapters"; // 已读章节正文缓存
+const STORE_SHELF = "shelf"; // 书架元数据
+const STORE_META = "meta"; // 元信息（如总缓存大小）
 const MAX_BYTES = 50 * 1024 * 1024; // 50MB LRU 上限
 
 export interface CachedChapterRecord {
@@ -36,19 +36,19 @@ export interface ShelfRecord {
 let dbPromise: Promise<IDBDatabase | null> | null = null;
 
 function openDB(): Promise<IDBDatabase | null> {
-  if (typeof indexedDB === 'undefined') return Promise.resolve(null);
+  if (typeof indexedDB === "undefined") return Promise.resolve(null);
   if (dbPromise) return dbPromise;
   dbPromise = new Promise((resolve) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
       if (!db.objectStoreNames.contains(STORE_CHAPTERS)) {
-        const s = db.createObjectStore(STORE_CHAPTERS, { keyPath: 'key' });
-        s.createIndex('byLastAccess', 'lastAccess');
-        s.createIndex('byBook', 'bookId');
+        const s = db.createObjectStore(STORE_CHAPTERS, { keyPath: "key" });
+        s.createIndex("byLastAccess", "lastAccess");
+        s.createIndex("byBook", "bookId");
       }
       if (!db.objectStoreNames.contains(STORE_SHELF)) {
-        db.createObjectStore(STORE_SHELF, { keyPath: 'bookId' });
+        db.createObjectStore(STORE_SHELF, { keyPath: "bookId" });
       }
       if (!db.objectStoreNames.contains(STORE_META)) {
         db.createObjectStore(STORE_META);
@@ -84,9 +84,13 @@ async function evictIfNeeded(): Promise<void> {
   const db = await openDB();
   if (!db) return;
   // 取出全部记录（用于累计大小 + 排序）
-  const all = await tx<CachedChapterRecord[]>(STORE_CHAPTERS, 'readonly', (s) => {
-    return s.getAll() as IDBRequest<CachedChapterRecord[]>;
-  });
+  const all = await tx<CachedChapterRecord[]>(
+    STORE_CHAPTERS,
+    "readonly",
+    (s) => {
+      return s.getAll() as IDBRequest<CachedChapterRecord[]>;
+    },
+  );
   if (!all || all.length === 0) return;
   // 双重上限：50MB 字节量 或 500 章数量
   const totalBytes = all.reduce((s, r) => s + (r.size ?? 0), 0);
@@ -96,7 +100,7 @@ async function evictIfNeeded(): Promise<void> {
   const removeCount = Math.max(1, Math.ceil(all.length * 0.2));
   for (let i = 0; i < removeCount; i++) {
     const item = all[i];
-    if (item) await tx(STORE_CHAPTERS, 'readwrite', (s) => s.delete(item.key));
+    if (item) await tx(STORE_CHAPTERS, "readwrite", (s) => s.delete(item.key));
   }
 }
 
@@ -104,9 +108,17 @@ export interface OfflineCache {
   /** 是否可用（IndexedDB 存在） */
   available: boolean;
   /** 读取缓存的章节正文 */
-  getChapter: (bookId: string, chapterId: string) => Promise<CachedChapterRecord | null>;
+  getChapter: (
+    bookId: string,
+    chapterId: string,
+  ) => Promise<CachedChapterRecord | null>;
   /** 写入章节正文缓存（含 LRU 淘汰） */
-  putChapter: (bookId: string, chapterId: string, title: string, content: string) => Promise<void>;
+  putChapter: (
+    bookId: string,
+    chapterId: string,
+    title: string,
+    content: string,
+  ) => Promise<void>;
   /** 读取全部离线书架 */
   getShelf: () => Promise<ShelfRecord[]>;
   /** 写入/更新书架项 */
@@ -128,12 +140,19 @@ export function useOfflineCache(): OfflineCache {
   }, []);
 
   const getChapter = useCallback(
-    async (bookId: string, chapterId: string): Promise<CachedChapterRecord | null> => {
+    async (
+      bookId: string,
+      chapterId: string,
+    ): Promise<CachedChapterRecord | null> => {
       const key = `${bookId}:${chapterId}`;
-      const rec = await tx<CachedChapterRecord>(STORE_CHAPTERS, 'readonly', (s) => s.get(key));
+      const rec = await tx<CachedChapterRecord>(
+        STORE_CHAPTERS,
+        "readonly",
+        (s) => s.get(key),
+      );
       if (rec) {
         // 异步刷新 lastAccess，不阻塞读取
-        tx(STORE_CHAPTERS, 'readwrite', (s) =>
+        tx(STORE_CHAPTERS, "readwrite", (s) =>
           s.put({ ...rec, lastAccess: Date.now() }),
         );
       }
@@ -143,7 +162,12 @@ export function useOfflineCache(): OfflineCache {
   );
 
   const putChapter = useCallback(
-    async (bookId: string, chapterId: string, title: string, content: string): Promise<void> => {
+    async (
+      bookId: string,
+      chapterId: string,
+      title: string,
+      content: string,
+    ): Promise<void> => {
       const key = `${bookId}:${chapterId}`;
       const size = estimateSize(content);
       const record: CachedChapterRecord = {
@@ -155,20 +179,24 @@ export function useOfflineCache(): OfflineCache {
         size,
         lastAccess: Date.now(),
       };
-      await tx(STORE_CHAPTERS, 'readwrite', (s) => s.put(record));
+      await tx(STORE_CHAPTERS, "readwrite", (s) => s.put(record));
       await evictIfNeeded();
     },
     [],
   );
 
   const getShelf = useCallback(async (): Promise<ShelfRecord[]> => {
-    const all = await tx<ShelfRecord[]>(STORE_SHELF, 'readonly', (s) => s.getAll() as IDBRequest<ShelfRecord[]>);
+    const all = await tx<ShelfRecord[]>(
+      STORE_SHELF,
+      "readonly",
+      (s) => s.getAll() as IDBRequest<ShelfRecord[]>,
+    );
     return all ?? [];
   }, []);
 
   const putShelfItem = useCallback(
     async (bookId: string, data: unknown): Promise<void> => {
-      await tx(STORE_SHELF, 'readwrite', (s) =>
+      await tx(STORE_SHELF, "readwrite", (s) =>
         s.put({ bookId, data, lastAccess: Date.now() } as ShelfRecord),
       );
     },
@@ -176,12 +204,12 @@ export function useOfflineCache(): OfflineCache {
   );
 
   const removeShelfItem = useCallback(async (bookId: string): Promise<void> => {
-    await tx(STORE_SHELF, 'readwrite', (s) => s.delete(bookId));
+    await tx(STORE_SHELF, "readwrite", (s) => s.delete(bookId));
   }, []);
 
   const clearAll = useCallback(async (): Promise<void> => {
-    await tx(STORE_CHAPTERS, 'readwrite', (s) => s.clear());
-    await tx(STORE_SHELF, 'readwrite', (s) => s.clear());
+    await tx(STORE_CHAPTERS, "readwrite", (s) => s.clear());
+    await tx(STORE_SHELF, "readwrite", (s) => s.clear());
   }, []);
 
   return {

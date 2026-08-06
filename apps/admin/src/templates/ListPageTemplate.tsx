@@ -7,28 +7,29 @@
  * ============================================================ */
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useMemo, useCallback } from 'react';
-import { Result, Button } from 'antd';
-import { ReloadOutlined, PlusOutlined } from '@ant-design/icons';
-import { useSearchParams } from 'react-router-dom';
-import { BPageHeader } from '@novel/b-end';
-import type { BPageHeaderProps } from '@novel/b-end';
-import { BFilterBar } from '@novel/b-end';
-import type { FilterField } from '@novel/b-end';
-import { BTable } from '@novel/b-end';
-import type { BTableProps } from '@novel/b-end';
-import { BBatchActionBar } from '@novel/b-end';
-import type { BatchAction } from '@novel/b-end';
-import { useAuthStore } from '@/stores/authStore';
+import { useEffect, useMemo, useCallback } from "react";
+import { Result, Button } from "antd";
+import { ReloadOutlined, PlusOutlined } from "@ant-design/icons";
+import { useSearchParams } from "react-router-dom";
+import { BPageHeader } from "@novel/b-end";
+import type { BPageHeaderProps } from "@novel/b-end";
+import { BFilterBar } from "@novel/b-end";
+import type { FilterField } from "@novel/b-end";
+import { BTable } from "@novel/b-end";
+import type { BTableProps } from "@novel/b-end";
+import { BBatchActionBar } from "@novel/b-end";
+import type { BatchAction } from "@novel/b-end";
+import { useAuthStore } from "@/stores/authStore";
 
 /** 异步状态：统一管理列表页状态变体 */
-export type ListPageStatus = 'idle' | 'loading' | 'empty' | 'error' | 'no-permission' | 'no-search-result';
+export type ListPageStatus =
+  "idle" | "loading" | "empty" | "error" | "no-permission" | "no-search-result";
 
 export interface ListPageTemplateProps<T> {
   /** 页面标题 */
   title: string;
   /** 面包屑 */
-  breadcrumb?: BPageHeaderProps['breadcrumb'];
+  breadcrumb?: BPageHeaderProps["breadcrumb"];
   /** 所需权限点（无权限时显示 403） */
   permission?: string;
   /** 数据加载状态 */
@@ -36,7 +37,7 @@ export interface ListPageTemplateProps<T> {
   /** 加载失败时的重试回调 */
   onRetry?: () => void;
   /** 返回回调 */
-  onBack?: BPageHeaderProps['onBack'];
+  onBack?: BPageHeaderProps["onBack"];
 
   /* ---------- FilterBar ---------- */
   /** 搜索关键词（受控，从 URL 同步） */
@@ -56,16 +57,16 @@ export interface ListPageTemplateProps<T> {
   onReset?: () => void;
 
   /* ---------- Table ---------- */
-  columns: BTableProps<T>['columns'];
+  columns: BTableProps<T>["columns"];
   dataSource: T[];
-  rowKey: BTableProps<T>['rowKey'];
+  rowKey: BTableProps<T>["rowKey"];
   loading?: boolean;
   /** 分页 */
-  pagination?: BTableProps<T>['pagination'];
+  pagination?: BTableProps<T>["pagination"];
   /** 分页变化回调 */
   onPaginationChange?: (page: number, pageSize: number) => void;
   /** 行选择 */
-  rowSelection?: BTableProps<T>['rowSelection'];
+  rowSelection?: BTableProps<T>["rowSelection"];
   /** 已选行数 */
   selectedCount?: number;
 
@@ -87,7 +88,9 @@ export interface ListPageTemplateProps<T> {
  * - 5 状态变体统一渲染
  * - 筛选状态同步 URL
  */
-export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<T>) {
+export function ListPageTemplate<T extends object>(
+  props: ListPageTemplateProps<T>,
+) {
   const {
     title,
     breadcrumb,
@@ -122,11 +125,11 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
 
   // 筛选状态同步 URL：searchKey 变化时写 URL
   useEffect(() => {
-    const current = searchParams.get('q') ?? '';
+    const current = searchParams.get("q") ?? "";
     if (current !== searchKey) {
       const next = new URLSearchParams(searchParams);
-      if (searchKey) next.set('q', searchKey);
-      else next.delete('q');
+      if (searchKey) next.set("q", searchKey);
+      else next.delete("q");
       setSearchParams(next, { replace: true });
     }
     // searchParams omitted: adding it would re-trigger when URL is updated by this effect
@@ -136,7 +139,7 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
 
   // 初始化时从 URL 读 searchKey
   useEffect(() => {
-    const q = searchParams.get('q');
+    const q = searchParams.get("q");
     if (q && q !== searchKey) onSearch(q);
     // mount-only: read initial URL params into parent state
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -146,8 +149,8 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
     (page: number, pageSize: number) => {
       onPaginationChange?.(page, pageSize);
       const next = new URLSearchParams(searchParams);
-      next.set('page', String(page));
-      next.set('size', String(pageSize));
+      next.set("page", String(page));
+      next.set("size", String(pageSize));
       setSearchParams(next, { replace: true });
     },
     [onPaginationChange, searchParams, setSearchParams],
@@ -177,7 +180,7 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
   }
 
   // 加载失败
-  if (status === 'error') {
+  if (status === "error") {
     return (
       <div>
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
@@ -195,12 +198,18 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
     );
   }
 
-  const isEmpty = status === 'empty' || (status === 'idle' && dataSource.length === 0);
-  const isNoSearchResult = status === 'no-search-result';
+  const isEmpty =
+    status === "empty" || (status === "idle" && dataSource.length === 0);
+  const isNoSearchResult = status === "no-search-result";
 
   return (
     <div className="b-list-page">
-      <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} extra={pageHeaderExtra} />
+      <BPageHeader
+        title={title}
+        breadcrumb={breadcrumb}
+        onBack={onBack}
+        extra={pageHeaderExtra}
+      />
 
       <BFilterBar
         searchKey={searchKey}
@@ -218,7 +227,7 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
         columns={columns as any}
         dataSource={dataSource as any}
         rowKey={rowKey}
-        loading={loading ?? status === 'loading'}
+        loading={loading ?? status === "loading"}
         pagination={
           pagination ?? {
             pageSize: 20,
@@ -235,20 +244,24 @@ export function ListPageTemplate<T extends object>(props: ListPageTemplateProps<
               status="info"
               title="未找到匹配结果"
               subTitle="试试调整筛选条件或搜索关键词。"
-              extra={
-                onReset && (
-                  <Button onClick={onReset}>清除筛选</Button>
-                )
-              }
+              extra={onReset && <Button onClick={onReset}>清除筛选</Button>}
             />
           ) : isEmpty ? (
             <Result
               status="info"
               title="暂无数据"
-              subTitle={onCreate && canCreate ? '点击右上角「新建」创建第一条数据。' : '当前暂无数据。'}
+              subTitle={
+                onCreate && canCreate
+                  ? "点击右上角「新建」创建第一条数据。"
+                  : "当前暂无数据。"
+              }
               extra={
                 onCreate && canCreate ? (
-                  <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={onCreate}
+                  >
                     新建
                   </Button>
                 ) : undefined

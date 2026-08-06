@@ -4,11 +4,11 @@
  * 用于次级任务流 / 详情面板
  * ============================================================ */
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
-import { NavigationClose } from '@novel/icons';
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { NavigationClose } from "@novel/icons";
 
-export type DrawerPlacement = 'left' | 'right';
+export type DrawerPlacement = "left" | "right";
 
 export interface DrawerProps {
   open: boolean;
@@ -22,12 +22,10 @@ export interface DrawerProps {
   children?: ReactNode;
 }
 
-
-
 export function Drawer({
   open,
   title,
-  placement = 'right',
+  placement = "right",
   width = 378,
   closable = true,
   maskClosable = true,
@@ -62,17 +60,17 @@ export function Drawer({
   useEffect(() => {
     if (!open) return;
     const onEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose?.();
+      if (e.key === "Escape") onClose?.();
     };
-    document.addEventListener('keydown', onEsc);
-    return () => document.removeEventListener('keydown', onEsc);
+    document.addEventListener("keydown", onEsc);
+    return () => document.removeEventListener("keydown", onEsc);
   }, [open, onClose]);
 
   // 锁定 body 滚动
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
@@ -80,36 +78,45 @@ export function Drawer({
 
   if (!open && !exiting) return null;
 
-  const widthStyle = typeof width === 'number' ? `${width}px` : width;
+  const widthStyle = typeof width === "number" ? `${width}px` : width;
 
-  return typeof document === 'undefined' ? null : createPortal(
-    <>
-      <div
-        className={`novel-drawer__mask ${ready ? 'is-ready' : ''}`}
-        onClick={() => maskClosable && onClose?.()}
-      />
-      <div
-        ref={panelRef}
-        className={`novel-drawer novel-drawer--${placement} ${ready ? 'is-ready' : ''}`}
-        style={{ width: widthStyle }}
-        role="dialog"
-        aria-modal="true"
-        aria-label={typeof title === 'string' ? title : undefined}
-      >
-        {(title != null || closable) && (
-          <div className="novel-drawer__header">
-            <div className="novel-drawer__title">{title}</div>
-            {closable ? (
-              <button type="button" className="novel-drawer__close" onClick={onClose} aria-label="关闭">
-                <NavigationClose size="sm" aria-hidden="true" />
-              </button>
+  return typeof document === "undefined"
+    ? null
+    : createPortal(
+        <>
+          <div
+            className={`novel-drawer__mask ${ready ? "is-ready" : ""}`}
+            onClick={() => maskClosable && onClose?.()}
+          />
+          <div
+            ref={panelRef}
+            className={`novel-drawer novel-drawer--${placement} ${ready ? "is-ready" : ""}`}
+            style={{ width: widthStyle }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={typeof title === "string" ? title : undefined}
+          >
+            {(title != null || closable) && (
+              <div className="novel-drawer__header">
+                <div className="novel-drawer__title">{title}</div>
+                {closable ? (
+                  <button
+                    type="button"
+                    className="novel-drawer__close"
+                    onClick={onClose}
+                    aria-label="关闭"
+                  >
+                    <NavigationClose size="sm" aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
+            )}
+            <div className="novel-drawer__body">{children}</div>
+            {footer != null ? (
+              <div className="novel-drawer__footer">{footer}</div>
             ) : null}
           </div>
-        )}
-        <div className="novel-drawer__body">{children}</div>
-        {footer != null ? <div className="novel-drawer__footer">{footer}</div> : null}
-      </div>
-    </>,
-    document.body,
-  );
+        </>,
+        document.body,
+      );
 }

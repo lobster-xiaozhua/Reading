@@ -8,13 +8,13 @@
  *   - 翻页 3 式：slide / scroll / click
  * ============================================================ */
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 export type ReaderFontSize = 14 | 16 | 18 | 20 | 22 | 24;
-export type ReaderLineHeight = 'compact' | 'standard' | 'loose';
-export type ReaderFontFamily = 'serif' | 'song' | 'hei' | 'kai';
-export type ReaderTheme = 'day' | 'night' | 'eye' | 'parchment';
-export type ReaderPageMode = 'slide' | 'scroll' | 'click';
+export type ReaderLineHeight = "compact" | "standard" | "loose";
+export type ReaderFontFamily = "serif" | "song" | "hei" | "kai";
+export type ReaderTheme = "day" | "night" | "eye" | "parchment";
+export type ReaderPageMode = "slide" | "scroll" | "click";
 
 export interface ReaderSettings {
   fontSize: ReaderFontSize;
@@ -26,13 +26,13 @@ export interface ReaderSettings {
 
 export const DEFAULT_READER_SETTINGS: ReaderSettings = {
   fontSize: 18,
-  lineHeight: 'standard',
-  fontFamily: 'serif',
-  theme: 'day',
-  pageMode: 'scroll',
+  lineHeight: "standard",
+  fontFamily: "serif",
+  theme: "day",
+  pageMode: "scroll",
 };
 
-const STORAGE_KEY_PREFIX = 'reader-settings';
+const STORAGE_KEY_PREFIX = "reader-settings";
 
 /** 行距语义值 → 数值（与 semantic.css 中变量对齐） */
 export const LINE_HEIGHT_VALUE: Record<ReaderLineHeight, number> = {
@@ -43,10 +43,10 @@ export const LINE_HEIGHT_VALUE: Record<ReaderLineHeight, number> = {
 
 /** 字体族 → CSS 变量引用（由 Reader 注入 --reader-font-family） */
 export const FONT_FAMILY_VAR: Record<ReaderFontFamily, string> = {
-  serif: 'var(--reader-font-family-serif)',
-  song: 'var(--reader-font-family-song)',
-  hei: 'var(--reader-font-family-hei)',
-  kai: 'var(--reader-font-family-kai)',
+  serif: "var(--reader-font-family-serif)",
+  song: "var(--reader-font-family-song)",
+  hei: "var(--reader-font-family-hei)",
+  kai: "var(--reader-font-family-kai)",
 };
 
 /** 主题 → 4 个 L1 原始变量（由 Reader 注入 --novel-read-bg/text/secondary） */
@@ -55,24 +55,24 @@ export const THEME_VARS: Record<
   { bg: string; text: string; secondary: string }
 > = {
   day: {
-    bg: 'var(--read-bg-day)',
-    text: 'var(--read-text-day)',
-    secondary: 'var(--read-text-secondary-day)',
+    bg: "var(--read-bg-day)",
+    text: "var(--read-text-day)",
+    secondary: "var(--read-text-secondary-day)",
   },
   night: {
-    bg: 'var(--read-bg-night)',
-    text: 'var(--read-text-night)',
-    secondary: 'var(--read-text-secondary-night)',
+    bg: "var(--read-bg-night)",
+    text: "var(--read-text-night)",
+    secondary: "var(--read-text-secondary-night)",
   },
   eye: {
-    bg: 'var(--read-bg-sepia)',
-    text: 'var(--read-text-sepia)',
-    secondary: 'var(--read-text-secondary-sepia)',
+    bg: "var(--read-bg-sepia)",
+    text: "var(--read-text-sepia)",
+    secondary: "var(--read-text-secondary-sepia)",
   },
   parchment: {
-    bg: 'var(--read-bg-parchment)',
-    text: 'var(--read-text-parchment)',
-    secondary: 'var(--read-text-secondary-parchment)',
+    bg: "var(--read-bg-parchment)",
+    text: "var(--read-text-parchment)",
+    secondary: "var(--read-text-secondary-parchment)",
   },
 };
 
@@ -120,7 +120,8 @@ export function useReaderSettings(
     const merged: ReaderSettings = { ...DEFAULT_READER_SETTINGS, ...initial };
     (Object.keys(merged) as (keyof ReaderSettings)[]).forEach((k) => {
       const stored = readStorage(k);
-      if (stored != null) (merged as unknown as Record<string, unknown>)[k] = stored;
+      if (stored != null)
+        (merged as unknown as Record<string, unknown>)[k] = stored;
     });
     return merged;
   });
@@ -132,13 +133,19 @@ export function useReaderSettings(
     });
   }, [settings]);
 
-  const update = useCallback<UseReaderSettingsReturn['update']>((key, value) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const update = useCallback<UseReaderSettingsReturn["update"]>(
+    (key, value) => {
+      setSettings((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
-  const updateAll = useCallback<UseReaderSettingsReturn['updateAll']>((next) => {
-    setSettings((prev) => ({ ...prev, ...next }));
-  }, []);
+  const updateAll = useCallback<UseReaderSettingsReturn["updateAll"]>(
+    (next) => {
+      setSettings((prev) => ({ ...prev, ...next }));
+    },
+    [],
+  );
 
   const reset = useCallback(() => {
     setSettings(DEFAULT_READER_SETTINGS);

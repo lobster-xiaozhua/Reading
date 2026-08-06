@@ -4,10 +4,10 @@
  * ============================================================ */
 
 /** 书籍状态 */
-export type BookStatus = 'ongoing' | 'completed';
+export type BookStatus = "ongoing" | "completed";
 
 /** 内容分级（用于 VIP/限免标识） */
-export type BookFlag = 'vip' | 'free-limited' | 'editor-pick' | 'hot';
+export type BookFlag = "vip" | "free-limited" | "editor-pick" | "hot";
 
 /** 发现页聚合数据 */
 export interface DiscoverHome {
@@ -85,10 +85,10 @@ export interface Tag {
 }
 
 /** 排行榜类型 */
-export type RankType = 'hot' | 'follow' | 'ticket' | 'new';
+export type RankType = "hot" | "follow" | "ticket" | "new";
 
 /** 排序方式 */
-export type SortKey = 'hot' | 'follow' | 'latest' | 'completed';
+export type SortKey = "hot" | "follow" | "latest" | "completed";
 
 /** 用户信息 */
 export interface UserProfile {
@@ -108,7 +108,7 @@ export interface UserProfile {
 }
 
 /** 书架分组 */
-export type BookshelfTab = 'all' | 'ongoing' | 'completed' | 'recent';
+export type BookshelfTab = "all" | "ongoing" | "completed" | "recent";
 
 /** 阅读历史项 */
 export interface ReadingHistoryItem {
@@ -156,14 +156,14 @@ export interface RewardRecord {
   id: string;
   bookId: string;
   bookTitle: string;
-  type: 'ticket' | 'recommend' | 'tip';
+  type: "ticket" | "recommend" | "tip";
   amount: number;
   createdAt: number;
 }
 
 /** 搜索建议 */
 export interface SearchSuggestion {
-  type: 'book' | 'author' | 'tag';
+  type: "book" | "author" | "tag";
   text: string;
   bookId?: string;
 }
@@ -274,7 +274,7 @@ export interface PaymentMethodItem {
 }
 
 /** 追更项状态 */
-export type FollowStatus = 'updated' | 'none' | 'done';
+export type FollowStatus = "updated" | "none" | "done";
 
 /** 追更项 */
 export interface FollowItem {
@@ -288,4 +288,3 @@ export interface FollowItem {
   unreadCount: number;
   finished: boolean;
 }
-

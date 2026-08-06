@@ -3,7 +3,7 @@
  * - 仅注入 @novel/tokens（不注入 @novel/components/styles.css，V1.1 修正审查 #1）
  * - AntD 样式由 cssinjs 运行时注入，无需全局引入
  * ============================================================ */
-@import '@novel/tokens/styles/tokens.css';
+@import "@novel/tokens/styles/tokens.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,7 +16,9 @@ body {
   background: var(--color-bg-page);
   color: var(--color-text-primary);
   color-scheme: light dark;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -137,5 +139,5 @@ textarea:focus-visible,
 .admin-table-num-cell {
   text-align: right;
   font-variant-numeric: tabular-nums;
-  font-feature-settings: 'tnum';
+  font-feature-settings: "tnum";
 }

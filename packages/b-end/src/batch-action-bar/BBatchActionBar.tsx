@@ -5,10 +5,10 @@
  * Source: 04 §6.5
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import type { ReactNode } from 'react';
-import { Button, Space, Modal } from 'antd';
-import type { ButtonProps } from 'antd';
+import { forwardRef } from "react";
+import type { ReactNode } from "react";
+import { Button, Space, Modal } from "antd";
+import type { ButtonProps } from "antd";
 
 export interface BatchAction {
   /** 操作 key */
@@ -16,7 +16,7 @@ export interface BatchAction {
   /** 按钮文案 */
   label: string;
   /** 按钮类型 */
-  type?: ButtonProps['type'];
+  type?: ButtonProps["type"];
   /** 是否危险操作（需二次确认） */
   danger?: boolean;
   /** 二次确认标题（danger=true 时必填） */
@@ -56,9 +56,9 @@ export const BBatchActionBar = forwardRef<HTMLDivElement, BBatchActionBarProps>(
         Modal.confirm({
           title: action.confirmTitle,
           content: action.confirmContent,
-          okType: 'danger',
-          okText: '确认',
-          cancelText: '取消',
+          okType: "danger",
+          okText: "确认",
+          cancelText: "取消",
           onOk: action.onClick,
         });
       } else {
@@ -71,31 +71,34 @@ export const BBatchActionBar = forwardRef<HTMLDivElement, BBatchActionBarProps>(
         ref={ref}
         className="b-batch-action-bar"
         style={{
-          position: 'fixed',
-          bottom: 'var(--space-5)',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          position: "fixed",
+          bottom: "var(--space-5)",
+          left: "50%",
+          transform: "translateX(-50%)",
           zIndex: 100,
-          background: 'var(--color-bg-elevated)',
-          borderRadius: 'var(--radius-md, 8px)',
-          boxShadow: 'var(--sh-4)',
-          padding: 'var(--space-3) var(--space-5)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-4)',
-          animation: 'b-batch-slide-in var(--dur-normal, 240ms) var(--ease-out, ease-out)',
+          background: "var(--color-bg-elevated)",
+          borderRadius: "var(--radius-md, 8px)",
+          boxShadow: "var(--sh-4)",
+          padding: "var(--space-3) var(--space-5)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-4)",
+          animation:
+            "b-batch-slide-in var(--dur-normal, 240ms) var(--ease-out, ease-out)",
         }}
         role="toolbar"
         aria-label={`批量操作栏，已选 ${selectedCount} 项`}
       >
-        <span style={{ color: 'var(--color-text-primary)', fontWeight: 500 }}>
-          已选 <span style={{ color: 'var(--color-brand)' }}>{selectedCount}</span> 项
+        <span style={{ color: "var(--color-text-primary)", fontWeight: 500 }}>
+          已选{" "}
+          <span style={{ color: "var(--color-brand)" }}>{selectedCount}</span>{" "}
+          项
         </span>
         <Space size="small">
           {actions.map((action) => (
             <Button
               key={action.key}
-              type={action.type ?? 'default'}
+              type={action.type ?? "default"}
               danger={action.danger}
               disabled={action.disabled}
               onClick={() => handleAction(action)}
@@ -104,7 +107,12 @@ export const BBatchActionBar = forwardRef<HTMLDivElement, BBatchActionBarProps>(
             </Button>
           ))}
         </Space>
-        <Button type="text" size="small" onClick={onClear} aria-label="清除选择">
+        <Button
+          type="text"
+          size="small"
+          onClick={onClear}
+          aria-label="清除选择"
+        >
           清除
         </Button>
         <style>{`

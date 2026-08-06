@@ -7,12 +7,12 @@
  * B 端默认：bordered=true，column 响应式（md 以上 2~3 列）
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import { Descriptions, type DescriptionsProps } from 'antd';
+import { forwardRef } from "react";
+import { Descriptions, type DescriptionsProps } from "antd";
 
 export type BDescriptionsProps = DescriptionsProps;
 
-const DEFAULT_COLUMN: NonNullable<BDescriptionsProps['column']> = {
+const DEFAULT_COLUMN: NonNullable<BDescriptionsProps["column"]> = {
   xs: 1,
   sm: 1,
   md: 2,
@@ -21,7 +21,10 @@ const DEFAULT_COLUMN: NonNullable<BDescriptionsProps['column']> = {
 };
 
 export const BDescriptions = forwardRef<HTMLElement, BDescriptionsProps>(
-  function BDescriptions({ bordered = true, column = DEFAULT_COLUMN, ...rest }, _ref) {
+  function BDescriptions(
+    { bordered = true, column = DEFAULT_COLUMN, ...rest },
+    _ref,
+  ) {
     return <Descriptions bordered={bordered} column={column} {...rest} />;
   },
 );

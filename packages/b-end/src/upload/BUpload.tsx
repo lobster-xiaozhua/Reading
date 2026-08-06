@@ -4,10 +4,10 @@
  * Source: 04-B端开发计划.md P2-9
  * ============================================================ */
 
-import { forwardRef, type ComponentRef } from 'react';
-import { Upload as AntUpload } from 'antd';
-import type { UploadProps } from 'antd';
-import type { RcFile } from 'antd/lib/upload';
+import { forwardRef, type ComponentRef } from "react";
+import { Upload as AntUpload } from "antd";
+import type { UploadProps } from "antd";
+import type { RcFile } from "antd/lib/upload";
 
 /** 封面图最大体积：2MB（字节） */
 export const COVER_MAX_SIZE = 2 * 1024 * 1024;
@@ -31,14 +31,19 @@ export interface UploadValidationOptions {
  * @example
  * beforeUpload={(file) => validateUpload(file, { maxSize: COVER_MAX_SIZE, type: 'image/' })}
  */
-export function validateUpload(file: File, options: UploadValidationOptions): boolean {
+export function validateUpload(
+  file: File,
+  options: UploadValidationOptions,
+): boolean {
   const { maxSize, type } = options;
-  if (typeof maxSize === 'number' && file.size > maxSize) {
+  if (typeof maxSize === "number" && file.size > maxSize) {
     return false;
   }
   if (type) {
     const allowed = Array.isArray(type) ? type : [type];
-    const ok = allowed.some((t) => (t.endsWith('/') ? file.type.startsWith(t) : file.type === t));
+    const ok = allowed.some((t) =>
+      t.endsWith("/") ? file.type.startsWith(t) : file.type === t,
+    );
     if (!ok) return false;
   }
   return true;
@@ -61,15 +66,24 @@ export type BUploadProps = UploadProps & {
  */
 export const BUpload = forwardRef<ComponentRef<typeof AntUpload>, BUploadProps>(
   ({ maxSize, acceptType, beforeUpload, ...rest }, ref) => {
-    const wired = maxSize !== undefined || acceptType !== undefined || beforeUpload !== undefined;
+    const wired =
+      maxSize !== undefined ||
+      acceptType !== undefined ||
+      beforeUpload !== undefined;
     const handleBeforeUpload = (file: RcFile, fileList: RcFile[]) => {
       if (!validateUpload(file, { maxSize, type: acceptType })) {
         return AntUpload.LIST_IGNORE;
       }
       return beforeUpload ? beforeUpload(file, fileList) : true;
     };
-    return <AntUpload ref={ref} beforeUpload={wired ? handleBeforeUpload : undefined} {...rest} />;
+    return (
+      <AntUpload
+        ref={ref}
+        beforeUpload={wired ? handleBeforeUpload : undefined}
+        {...rest}
+      />
+    );
   },
 );
 
-BUpload.displayName = 'BUpload';
+BUpload.displayName = "BUpload";

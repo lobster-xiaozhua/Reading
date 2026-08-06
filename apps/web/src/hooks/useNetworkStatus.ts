@@ -7,9 +7,9 @@
  * 暴露 shouldDegrade：弱网/省流模式时收缩预加载范围
  * ============================================================ */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-export type EffectiveType = '4g' | '3g' | '2g' | 'slow-2g' | 'unknown';
+export type EffectiveType = "4g" | "3g" | "2g" | "slow-2g" | "unknown";
 
 export interface NetworkStatus {
   effectiveType: EffectiveType;
@@ -26,19 +26,33 @@ export interface NetworkStatus {
 interface NetworkInformationLike extends EventTarget {
   effectiveType?: EffectiveType;
   saveData?: boolean;
-  addEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
-  removeEventListener: (type: string, listener: EventListenerOrEventListenerObject) => void;
+  addEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+  ) => void;
+  removeEventListener: (
+    type: string,
+    listener: EventListenerOrEventListenerObject,
+  ) => void;
 }
 
 function readConn(): NetworkStatus {
-  const conn = (typeof navigator !== 'undefined'
-    ? (navigator as Navigator & { connection?: NetworkInformationLike }).connection
-    : undefined);
-  const effectiveType = conn?.effectiveType ?? 'unknown';
+  const conn =
+    typeof navigator !== "undefined"
+      ? (navigator as Navigator & { connection?: NetworkInformationLike })
+          .connection
+      : undefined;
+  const effectiveType = conn?.effectiveType ?? "unknown";
   const saveData = !!conn?.saveData;
-  const online = typeof navigator !== 'undefined' ? navigator.onLine : true;
-  const isVerySlow = online && (effectiveType === '2g' || effectiveType === 'slow-2g');
-  const shouldDegrade = !online || saveData || effectiveType === '2g' || effectiveType === '3g' || effectiveType === 'slow-2g';
+  const online = typeof navigator !== "undefined" ? navigator.onLine : true;
+  const isVerySlow =
+    online && (effectiveType === "2g" || effectiveType === "slow-2g");
+  const shouldDegrade =
+    !online ||
+    saveData ||
+    effectiveType === "2g" ||
+    effectiveType === "3g" ||
+    effectiveType === "slow-2g";
   return { effectiveType, saveData, online, shouldDegrade, isVerySlow };
 }
 
@@ -53,17 +67,19 @@ export function useNetworkStatus(): NetworkStatus {
 
   useEffect(() => {
     const update = () => setStatus(readConn());
-    const conn = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
-    const connEvents = ['change', 'typechange', 'effectivechange'];
+    const conn = (
+      navigator as Navigator & { connection?: NetworkInformationLike }
+    ).connection;
+    const connEvents = ["change", "typechange", "effectivechange"];
 
     connEvents.forEach((evt) => conn?.addEventListener(evt, update));
-    window.addEventListener('online', update);
-    window.addEventListener('offline', update);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
 
     return () => {
       connEvents.forEach((evt) => conn?.removeEventListener(evt, update));
-      window.removeEventListener('online', update);
-      window.removeEventListener('offline', update);
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
     };
   }, []);
 

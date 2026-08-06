@@ -8,14 +8,14 @@
  *   - Tab 切换无动画位移，仅颜色变化（避免 INP 拖累）
  * ============================================================ */
 
-import { NavLink } from 'react-router-dom';
+import { NavLink } from "react-router-dom";
 import {
   NavigationHome,
   ContentLibrary,
   ContentCategory,
   SystemUser,
-} from '@novel/icons';
-import './BottomTabBar.css';
+} from "@novel/icons";
+import "./BottomTabBar.css";
 
 interface TabItem {
   key: string;
@@ -27,19 +27,20 @@ interface TabItem {
 }
 
 const TABS: TabItem[] = [
-  { key: 'home', label: '首页', to: '/', icon: NavigationHome, end: true },
-  { key: 'bookshelf', label: '书架', to: '/profile?tab=bookshelf', icon: ContentLibrary },
-  { key: 'discover', label: '发现', to: '/category', icon: ContentCategory },
-  { key: 'mine', label: '我的', to: '/profile', icon: SystemUser },
+  { key: "home", label: "首页", to: "/", icon: NavigationHome, end: true },
+  {
+    key: "bookshelf",
+    label: "书架",
+    to: "/profile?tab=bookshelf",
+    icon: ContentLibrary,
+  },
+  { key: "discover", label: "发现", to: "/category", icon: ContentCategory },
+  { key: "mine", label: "我的", to: "/profile", icon: SystemUser },
 ];
 
 export function BottomTabBar() {
   return (
-    <nav
-      className="bottom-tab-bar"
-      role="navigation"
-      aria-label="底部主导航"
-    >
+    <nav className="bottom-tab-bar" role="navigation" aria-label="底部主导航">
       <ul className="bottom-tab-bar__list">
         {TABS.map(({ key, label, to, icon: IconCmp, end }) => (
           <li key={key} className="bottom-tab-bar__item">
@@ -47,7 +48,7 @@ export function BottomTabBar() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `bottom-tab-bar__link${isActive ? ' is-active' : ''}`
+                `bottom-tab-bar__link${isActive ? " is-active" : ""}`
               }
               aria-label={label}
             >

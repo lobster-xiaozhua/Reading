@@ -4,9 +4,9 @@
  * - staleTime 30s，避免频繁重复请求
  * ============================================================ */
 
-import { QueryClient } from '@tanstack/react-query';
-import { message } from 'antd';
-import { useAuthStore } from '@/stores/authStore';
+import { QueryClient } from "@tanstack/react-query";
+import { message } from "antd";
+import { useAuthStore } from "@/stores/authStore";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,12 +27,14 @@ export const queryClient = new QueryClient({
         const err = error as { status?: number; message?: string };
         if (err?.status === 401) {
           useAuthStore.getState().logout();
-          message.error('会话已过期，请重新登录');
-          const redirect = encodeURIComponent(window.location.pathname + window.location.search);
+          message.error("会话已过期，请重新登录");
+          const redirect = encodeURIComponent(
+            window.location.pathname + window.location.search,
+          );
           window.location.href = `/login?redirect=${redirect}`;
           return;
         }
-        const msg = err?.message || '操作失败，请稍后重试';
+        const msg = err?.message || "操作失败，请稍后重试";
         message.error(msg);
       },
     },

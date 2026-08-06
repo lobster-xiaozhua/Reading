@@ -5,21 +5,25 @@
  * Source: 04 §10.5 / P6-2
  * ============================================================ */
 
-import type { ReactNode } from 'react';
-import { Result, Button } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import type { Permission } from '@/api/types';
-import { usePermission } from '@/hooks/usePermission';
+import type { ReactNode } from "react";
+import { Result, Button } from "antd";
+import { useNavigate } from "react-router-dom";
+import type { Permission } from "@/api/types";
+import { usePermission } from "@/hooks/usePermission";
 
 export interface RequirePermissionProps {
   /** 所需权限点（任一持有即可访问） */
   permissions?: Permission[];
   /** 所需角色 */
-  role?: Parameters<ReturnType<typeof usePermission>['hasRole']>[0];
+  role?: Parameters<ReturnType<typeof usePermission>["hasRole"]>[0];
   children: ReactNode;
 }
 
-export function RequirePermission({ permissions, role, children }: RequirePermissionProps) {
+export function RequirePermission({
+  permissions,
+  role,
+  children,
+}: RequirePermissionProps) {
   const navigate = useNavigate();
   const { hasAny, hasRole, isSuperAdmin } = usePermission();
 
@@ -37,7 +41,7 @@ export function RequirePermission({ permissions, role, children }: RequirePermis
         title="403"
         subTitle="抱歉，您没有访问该页面的权限。"
         extra={
-          <Button type="primary" onClick={() => navigate('/workbench')}>
+          <Button type="primary" onClick={() => navigate("/workbench")}>
             返回工作台
           </Button>
         }

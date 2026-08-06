@@ -5,8 +5,8 @@
  * Source: 04 §13.1 / P8-1-1
  * ============================================================ */
 
-import { http, requestSafe } from './http';
-import type { SensitiveWord } from '@novel/b-end';
+import { http, requestSafe } from "./http";
+import type { SensitiveWord } from "@novel/b-end";
 
 /** 敏感词库元信息 */
 export interface SensitiveWordLibMeta {
@@ -52,15 +52,15 @@ export async function fetchSensitiveWordLib(): Promise<{
   words: SensitiveWord[];
   meta: SensitiveWordLibMeta;
 }> {
-  const data = await http.get<BackendSensitiveWordLib>('/sensitive-words');
+  const data = await http.get<BackendSensitiveWordLib>("/sensitive-words");
   return {
     words: (data.words ?? []).map((w) => ({
       text: w.text,
-      level: (w.level as SensitiveWord['level']) || 3,
+      level: (w.level as SensitiveWord["level"]) || 3,
       suggestion: w.suggestion,
     })),
     meta: {
-      version: data.meta?.version ?? '',
+      version: data.meta?.version ?? "",
       updatedAt: data.meta?.updatedAt ?? Date.now(),
       totalCount: data.meta?.totalCount ?? data.words?.length ?? 0,
       byLevel: toByLevel(data.meta?.byLevel),
@@ -69,12 +69,16 @@ export async function fetchSensitiveWordLib(): Promise<{
 }
 
 /** 新增敏感词 */
-export async function addSensitiveWord(word: SensitiveWord): Promise<{ success: boolean }> {
-  const result = await requestSafe(http.post('/sensitive-words', {
-    text: word.text,
-    level: word.level,
-    suggestion: word.suggestion ?? '',
-  }));
+export async function addSensitiveWord(
+  word: SensitiveWord,
+): Promise<{ success: boolean }> {
+  const result = await requestSafe(
+    http.post("/sensitive-words", {
+      text: word.text,
+      level: word.level,
+      suggestion: word.suggestion ?? "",
+    }),
+  );
   if (result.success) return { success: true };
   return { success: false };
 }
@@ -84,7 +88,11 @@ export async function removeSensitiveWord(
   text: string,
   level: 1 | 2 | 3,
 ): Promise<{ success: boolean }> {
-  const result = await requestSafe(http.del(`/sensitive-words?text=${encodeURIComponent(text)}&level=${level}`));
+  const result = await requestSafe(
+    http.del(
+      `/sensitive-words?text=${encodeURIComponent(text)}&level=${level}`,
+    ),
+  );
   if (result.success) return { success: true };
   return { success: false };
 }

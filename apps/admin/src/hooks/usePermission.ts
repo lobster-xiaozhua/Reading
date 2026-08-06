@@ -4,9 +4,9 @@
  * Source: 04 §10.4 / P6-6
  * ============================================================ */
 
-import { useAuthStore } from '@/stores/authStore';
-import type { Permission } from '@/api/types';
-import type { AdminRole } from '@/api/types';
+import { useAuthStore } from "@/stores/authStore";
+import type { Permission } from "@/api/types";
+import type { AdminRole } from "@/api/types";
 
 export interface UsePermissionResult {
   /** 是否持有单个权限 */
@@ -29,7 +29,7 @@ export function usePermission(): UsePermissionResult {
   const hasRoleStore = useAuthStore((s) => s.hasRole);
 
   const permissions = user?.permissions ?? [];
-  const isSuperAdmin = user?.roles.includes('super-admin') ?? false;
+  const isSuperAdmin = user?.roles.includes("super-admin") ?? false;
 
   return {
     has: hasPermission,

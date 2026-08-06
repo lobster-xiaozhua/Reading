@@ -3,13 +3,27 @@
  * 单列流式：统计概览 + 阅读热力图 + 阅读偏好分布 + 成就徽章墙
  * 依据：03 文档 §5.7
  * ============================================================ */
-import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from 'react';
-import { Link } from 'react-router-dom';
-import { NovelChapterLock, NavigationBack } from '@novel/icons';
-import { EmptyState, useAsyncState, type UseAsyncStateReturn } from '@novel/components';
-import { fetcher } from '@/api/fetcher';
-import type { Badge, HeatmapCell, PreferenceItem, ReadingStatOverview } from '@/api/types';
-import './ReadingStatsPage.css';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type MouseEvent as ReactMouseEvent,
+} from "react";
+import { Link } from "react-router-dom";
+import { NovelChapterLock, NavigationBack } from "@novel/icons";
+import {
+  EmptyState,
+  useAsyncState,
+  type UseAsyncStateReturn,
+} from "@novel/components";
+import { fetcher } from "@/api/fetcher";
+import type {
+  Badge,
+  HeatmapCell,
+  PreferenceItem,
+  ReadingStatOverview,
+} from "@/api/types";
+import "./ReadingStatsPage.css";
 
 const WEEKS = 53;
 const DAYS = 7;
@@ -29,8 +43,8 @@ function useCountUp(target: number, duration = 540): number {
       return;
     }
     const prefersReduced =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setValue(target);
       return;
@@ -74,11 +88,11 @@ function heatLevel(d: number): 0 | 1 | 2 | 3 {
 
 /* ---------- 环形图扇区色（accent-orange 渐变色系，color-mix 调节透明度） ---------- */
 const RING_COLORS = [
-  'var(--color-accent-orange)',
-  'color-mix(in srgb, var(--color-accent-orange) 80%, var(--color-bg-surface))',
-  'color-mix(in srgb, var(--color-accent-orange) 62%, var(--color-bg-surface))',
-  'color-mix(in srgb, var(--color-accent-orange) 46%, var(--color-bg-surface))',
-  'color-mix(in srgb, var(--color-accent-orange) 32%, var(--color-bg-surface))',
+  "var(--color-accent-orange)",
+  "color-mix(in srgb, var(--color-accent-orange) 80%, var(--color-bg-surface))",
+  "color-mix(in srgb, var(--color-accent-orange) 62%, var(--color-bg-surface))",
+  "color-mix(in srgb, var(--color-accent-orange) 46%, var(--color-bg-surface))",
+  "color-mix(in srgb, var(--color-accent-orange) 32%, var(--color-bg-surface))",
 ];
 
 /* ---------- 模块内错误 ---------- */
@@ -111,7 +125,12 @@ function StatCard({
 }) {
   const value = useCountUp(target);
   if (loading) {
-    return <div className="reading-stats-page__stat-card is-skeleton" aria-hidden="true" />;
+    return (
+      <div
+        className="reading-stats-page__stat-card is-skeleton"
+        aria-hidden="true"
+      />
+    );
   }
   return (
     <div className="reading-stats-page__stat-card">
@@ -122,7 +141,11 @@ function StatCard({
 }
 
 /* ---------- 2. 阅读热力图 ---------- */
-function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }) {
+function HeatmapSection({
+  state,
+}: {
+  state: UseAsyncStateReturn<HeatmapCell[]>;
+}) {
   const [tip, setTip] = useState<{
     date: string;
     duration: number;
@@ -132,7 +155,7 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
 
   const cells = state.data ?? EMPTY_CELLS;
   const loading = state.loading && !state.loaded;
-  const error = state.status === 'error';
+  const error = state.status === "error";
 
   const weeks = useMemo(() => {
     const arr: HeatmapCell[][] = [];
@@ -148,7 +171,7 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
     for (let w = 0; w < weeks.length; w++) {
       const first = weeks[w]?.[0];
       if (!first) {
-        labels.push('');
+        labels.push("");
         continue;
       }
       const m = Number(first.date.slice(5, 7));
@@ -156,15 +179,18 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
         labels.push(`${m}月`);
         lastMonth = m;
       } else {
-        labels.push('');
+        labels.push("");
       }
     }
     return labels;
   }, [weeks]);
 
-  const DAY_LABELS = ['一', '二', '三', '四', '五', '六', '日'];
+  const DAY_LABELS = ["一", "二", "三", "四", "五", "六", "日"];
 
-  const handleEnter = (e: ReactMouseEvent<HTMLDivElement>, cell: HeatmapCell) => {
+  const handleEnter = (
+    e: ReactMouseEvent<HTMLDivElement>,
+    cell: HeatmapCell,
+  ) => {
     const el = e.currentTarget;
     const rect = el.getBoundingClientRect();
     let x = rect.left + rect.width / 2;
@@ -185,7 +211,10 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
       {error ? (
         <ModuleError onRetry={state.run} />
       ) : loading ? (
-        <div className="reading-stats-page__heatmap-skeleton" aria-hidden="true" />
+        <div
+          className="reading-stats-page__heatmap-skeleton"
+          aria-hidden="true"
+        />
       ) : (
         <div className="reading-stats-page__heatmap-scroll">
           <div
@@ -201,14 +230,23 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
               ))}
             </div>
             <div className="reading-stats-page__heat-body">
-              <div className="reading-stats-page__heat-day-labels" aria-hidden="true">
+              <div
+                className="reading-stats-page__heat-day-labels"
+                aria-hidden="true"
+              >
                 {DAY_LABELS.map((d) => (
-                  <span key={d} className="reading-stats-page__heat-day-label">{d}</span>
+                  <span key={d} className="reading-stats-page__heat-day-label">
+                    {d}
+                  </span>
                 ))}
               </div>
               <div className="reading-stats-page__heat-weeks">
                 {weeks.map((week, wi) => (
-                  <div key={wi} className="reading-stats-page__heat-week" role="row">
+                  <div
+                    key={wi}
+                    className="reading-stats-page__heat-week"
+                    role="row"
+                  >
                     {week.map((cell) => {
                       const lv = heatLevel(cell.duration);
                       return (
@@ -251,10 +289,14 @@ function HeatmapSection({ state }: { state: UseAsyncStateReturn<HeatmapCell[]> }
 }
 
 /* ---------- 3. 阅读偏好分布 ---------- */
-function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceItem[]> }) {
+function PreferenceSection({
+  state,
+}: {
+  state: UseAsyncStateReturn<PreferenceItem[]>;
+}) {
   const preferences = state.data ?? EMPTY_PREFERENCES;
   const loading = state.loading && !state.loaded;
-  const error = state.status === 'error';
+  const error = state.status === "error";
   const [active, setActive] = useState<number | null>(null);
 
   const size = 120;
@@ -284,7 +326,10 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
       {error ? (
         <ModuleError onRetry={state.run} />
       ) : loading ? (
-        <div className="reading-stats-page__pref is-skeleton" aria-hidden="true">
+        <div
+          className="reading-stats-page__pref is-skeleton"
+          aria-hidden="true"
+        >
           <div className="reading-stats-page__pref-ring-skeleton" />
           <div className="reading-stats-page__pref-legend-skeleton">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -309,7 +354,7 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
                 cy={size / 2}
                 r={r}
                 fill="none"
-                style={{ stroke: 'var(--color-bg-subtle)' }}
+                style={{ stroke: "var(--color-bg-subtle)" }}
                 strokeWidth={stroke}
               />
               <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
@@ -322,19 +367,26 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
                     fill="none"
                     style={{
                       stroke: s.color,
-                      transition: 'stroke-width var(--dur-instant) var(--ease-standard)',
+                      transition:
+                        "stroke-width var(--dur-instant) var(--ease-standard)",
                     }}
                     strokeWidth={active === i ? stroke + 4 : stroke}
                     strokeDasharray={`${s.len} ${C - s.len}`}
                     strokeDashoffset={-s.offset}
-                    className={active !== null && active !== i ? 'is-dim' : undefined}
+                    className={
+                      active !== null && active !== i ? "is-dim" : undefined
+                    }
                   />
                 ))}
               </g>
             </svg>
             <div className="reading-stats-page__pref-center">
-              <span className="reading-stats-page__pref-total">{formatWords(totalWords)}</span>
-              <span className="reading-stats-page__pref-total-label">累计字数</span>
+              <span className="reading-stats-page__pref-total">
+                {formatWords(totalWords)}
+              </span>
+              <span className="reading-stats-page__pref-total-label">
+                累计字数
+              </span>
             </div>
           </div>
           <ul className="reading-stats-page__pref-legend">
@@ -342,7 +394,7 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
               <li key={p.category}>
                 <button
                   type="button"
-                  className={`reading-stats-page__pref-row ${active === i ? 'is-active' : ''}`}
+                  className={`reading-stats-page__pref-row ${active === i ? "is-active" : ""}`}
                   onClick={() => setActive(active === i ? null : i)}
                   aria-pressed={active === i}
                   aria-label={`${p.category} 占比 ${p.percent}%，${formatWords(p.words)}`}
@@ -352,15 +404,24 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
                     style={{ background: RING_COLORS[i % RING_COLORS.length] }}
                     aria-hidden="true"
                   />
-                  <span className="reading-stats-page__pref-name">{p.category}</span>
-                  <span className="reading-stats-page__pref-percent">{p.percent}%</span>
-                  <span className="reading-stats-page__pref-bar" aria-hidden="true">
+                  <span className="reading-stats-page__pref-name">
+                    {p.category}
+                  </span>
+                  <span className="reading-stats-page__pref-percent">
+                    {p.percent}%
+                  </span>
+                  <span
+                    className="reading-stats-page__pref-bar"
+                    aria-hidden="true"
+                  >
                     <span
                       className="reading-stats-page__pref-bar-fill"
                       style={{ width: `${p.percent}%` }}
                     />
                   </span>
-                  <span className="reading-stats-page__pref-words">{formatWords(p.words)}</span>
+                  <span className="reading-stats-page__pref-words">
+                    {formatWords(p.words)}
+                  </span>
                 </button>
               </li>
             ))}
@@ -375,10 +436,12 @@ function PreferenceSection({ state }: { state: UseAsyncStateReturn<PreferenceIte
 function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
   const badges = state.data ?? EMPTY_BADGES;
   const loading = state.loading && !state.loaded;
-  const error = state.status === 'error';
+  const error = state.status === "error";
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const activeBadge = activeId ? badges.find((b) => b.id === activeId) ?? null : null;
+  const activeBadge = activeId
+    ? (badges.find((b) => b.id === activeId) ?? null)
+    : null;
 
   return (
     <section className="reading-stats-page__section" aria-label="成就徽章">
@@ -386,9 +449,15 @@ function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
       {error ? (
         <ModuleError onRetry={state.run} />
       ) : loading ? (
-        <div className="reading-stats-page__badge-grid is-skeleton" aria-hidden="true">
+        <div
+          className="reading-stats-page__badge-grid is-skeleton"
+          aria-hidden="true"
+        >
           {Array.from({ length: 10 }).map((_, i) => (
-            <span key={i} className="reading-stats-page__badge-card is-skeleton" />
+            <span
+              key={i}
+              className="reading-stats-page__badge-card is-skeleton"
+            />
           ))}
         </div>
       ) : (
@@ -400,15 +469,24 @@ function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
                 <button
                   type="button"
                   key={b.id}
-                  className={`reading-stats-page__badge-card ${b.unlocked ? 'is-unlocked' : 'is-locked'} ${isActive ? 'is-active' : ''}`}
+                  className={`reading-stats-page__badge-card ${b.unlocked ? "is-unlocked" : "is-locked"} ${isActive ? "is-active" : ""}`}
                   onClick={() => setActiveId(isActive ? null : b.id)}
                   aria-pressed={isActive}
-                  aria-label={`${b.name}：${b.desc}${b.unlocked ? '（已解锁）' : '（未解锁）'}`}
+                  aria-label={`${b.name}：${b.desc}${b.unlocked ? "（已解锁）" : "（未解锁）"}`}
                 >
-                  <span className="reading-stats-page__badge-icon" aria-hidden="true">
-                    {b.unlocked ? b.icon : <NovelChapterLock size="sm" aria-hidden="true" />}
+                  <span
+                    className="reading-stats-page__badge-icon"
+                    aria-hidden="true"
+                  >
+                    {b.unlocked ? (
+                      b.icon
+                    ) : (
+                      <NovelChapterLock size="sm" aria-hidden="true" />
+                    )}
                   </span>
-                  <span className="reading-stats-page__badge-name">{b.name}</span>
+                  <span className="reading-stats-page__badge-name">
+                    {b.name}
+                  </span>
                 </button>
               );
             })}
@@ -417,11 +495,14 @@ function BadgeSection({ state }: { state: UseAsyncStateReturn<Badge[]> }) {
             <div className="reading-stats-page__badge-tip" role="status">
               <p className="reading-stats-page__badge-tip-text">
                 <strong>{activeBadge.name}</strong>
-                <span className="reading-stats-page__badge-tip-desc"> · {activeBadge.desc}</span>
+                <span className="reading-stats-page__badge-tip-desc">
+                  {" "}
+                  · {activeBadge.desc}
+                </span>
                 <span
-                  className={`reading-stats-page__badge-status ${activeBadge.unlocked ? 'is-unlocked' : 'is-locked'}`}
+                  className={`reading-stats-page__badge-status ${activeBadge.unlocked ? "is-unlocked" : "is-locked"}`}
                 >
-                  {activeBadge.unlocked ? '已解锁' : '未解锁'}
+                  {activeBadge.unlocked ? "已解锁" : "未解锁"}
                 </span>
               </p>
             </div>
@@ -447,14 +528,14 @@ export default function ReadingStatsPage() {
     () => fetcher.getPreferences(),
     { initial: [] as PreferenceItem[], loadingDelay: 200 },
   );
-  const badgesState = useAsyncState<Badge[]>(
-    () => fetcher.getBadges(),
-    { initial: [] as Badge[], loadingDelay: 200 },
-  );
+  const badgesState = useAsyncState<Badge[]>(() => fetcher.getBadges(), {
+    initial: [] as Badge[],
+    loadingDelay: 200,
+  });
 
   const overview = overviewState.data;
   const overviewLoading = overviewState.loading && !overviewState.loaded;
-  const overviewError = overviewState.status === 'error';
+  const overviewError = overviewState.status === "error";
   const isEmpty =
     overviewState.loaded &&
     !!overview &&
@@ -472,7 +553,11 @@ export default function ReadingStatsPage() {
   return (
     <div className="reading-stats-page container-page fade-in">
       <header className="reading-stats-page__header">
-        <Link to="/profile" className="reading-stats-page__back" aria-label="返回个人中心">
+        <Link
+          to="/profile"
+          className="reading-stats-page__back"
+          aria-label="返回个人中心"
+        >
           <NavigationBack size="sm" aria-hidden="true" />
           <span>返回</span>
         </Link>
@@ -481,8 +566,14 @@ export default function ReadingStatsPage() {
 
       {overviewError ? (
         <div className="reading-stats-page__error" role="alert">
-          <p className="reading-stats-page__error-text">数据加载失败，请稍后重试</p>
-          <button type="button" className="reading-stats-page__retry" onClick={handleRetry}>
+          <p className="reading-stats-page__error-text">
+            数据加载失败，请稍后重试
+          </p>
+          <button
+            type="button"
+            className="reading-stats-page__retry"
+            onClick={handleRetry}
+          >
             重试
           </button>
         </div>
@@ -499,7 +590,10 @@ export default function ReadingStatsPage() {
       ) : (
         <>
           {/* 1. 统计概览 */}
-          <section className="reading-stats-page__section" aria-label="统计概览">
+          <section
+            className="reading-stats-page__section"
+            aria-label="统计概览"
+          >
             <h2 className="reading-stats-page__section-title">统计概览</h2>
             <div className="reading-stats-page__stat-grid">
               <StatCard

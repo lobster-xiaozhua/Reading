@@ -1,5 +1,5 @@
-import type { Book } from '@novel/components';
-import type { BookSummary } from '@/api/types';
+import type { Book } from "@novel/components";
+import type { BookSummary } from "@/api/types";
 
 export function toBook(b: BookSummary): Book {
   return {

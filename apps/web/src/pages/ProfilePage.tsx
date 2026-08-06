@@ -4,8 +4,8 @@
  *   书架 / 阅读历史 / 书单 / 打赏记录 / 设置
  * URL 同步：?tab=bookshelf|history|booklists|rewards|settings
  * ============================================================ */
-import { useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Avatar,
   Bookshelf,
@@ -15,10 +15,16 @@ import {
   Tabs,
   useAsyncState,
   type Book,
-} from '@novel/components';
-import { NovelReward, NovelThumbsUp, NovelHeart, ActionEdit, NavigationChevronRight } from '@novel/icons';
-import { LazyImage } from '@/components/LazyImage';
-import { fetcher } from '@/api/fetcher';
+} from "@novel/components";
+import {
+  NovelReward,
+  NovelThumbsUp,
+  NovelHeart,
+  ActionEdit,
+  NavigationChevronRight,
+} from "@novel/icons";
+import { LazyImage } from "@/components/LazyImage";
+import { fetcher } from "@/api/fetcher";
 import type {
   BookList,
   BookSummary,
@@ -26,38 +32,43 @@ import type {
   ReadingHistoryItem,
   RewardRecord,
   UserProfile,
-} from '@/api/types';
-import { toBook as toBookBase } from '@/utils/convert';
-import { formatRelativeTime } from '@/utils/time';
-import { useUserStore } from '@/stores/userStore';
-import { useHistoryStore } from '@/stores/historyStore';
-import './ProfilePage.css';
+} from "@/api/types";
+import { toBook as toBookBase } from "@/utils/convert";
+import { formatRelativeTime } from "@/utils/time";
+import { useUserStore } from "@/stores/userStore";
+import { useHistoryStore } from "@/stores/historyStore";
+import "./ProfilePage.css";
 
-type ProfileTab = 'bookshelf' | 'history' | 'booklists' | 'rewards' | 'settings';
+type ProfileTab =
+  "bookshelf" | "history" | "booklists" | "rewards" | "settings";
 
 const TABS: { key: ProfileTab; label: string }[] = [
-  { key: 'bookshelf', label: '我的书架' },
-  { key: 'history', label: '阅读历史' },
-  { key: 'booklists', label: '我的书单' },
-  { key: 'rewards', label: '打赏记录' },
-  { key: 'settings', label: '设置' },
+  { key: "bookshelf", label: "我的书架" },
+  { key: "history", label: "阅读历史" },
+  { key: "booklists", label: "我的书单" },
+  { key: "rewards", label: "打赏记录" },
+  { key: "settings", label: "设置" },
 ];
 
 const SHELF_TABS: { key: BookshelfTab; label: string }[] = [
-  { key: 'all', label: '全部' },
-  { key: 'ongoing', label: '连载中' },
-  { key: 'completed', label: '已完结' },
-  { key: 'recent', label: '最近阅读' },
+  { key: "all", label: "全部" },
+  { key: "ongoing", label: "连载中" },
+  { key: "completed", label: "已完结" },
+  { key: "recent", label: "最近阅读" },
 ];
 
-function toBook(b: BookSummary, lastReadTime?: number, progress?: number): Book {
+function toBook(
+  b: BookSummary,
+  lastReadTime?: number,
+  progress?: number,
+): Book {
   return { ...toBookBase(b), lastReadTime, progress: progress ?? 0 };
 }
 
 export default function ProfilePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tab = (searchParams.get('tab') as ProfileTab) ?? 'bookshelf';
+  const tab = (searchParams.get("tab") as ProfileTab) ?? "bookshelf";
 
   const user = useUserStore((s) => s.user);
   const historyEntries = useHistoryStore((s) => s.entries);
@@ -65,15 +76,15 @@ export default function ProfilePage() {
   const [editOpen, setEditOpen] = useState(false);
 
   /* ---------- 用户数据 ---------- */
-  const userState = useAsyncState<UserProfile>(
-    () => fetcher.getCurrentUser(),
-    { initial: user ?? undefined, loadingDelay: 200 },
-  );
+  const userState = useAsyncState<UserProfile>(() => fetcher.getCurrentUser(), {
+    initial: user ?? undefined,
+    loadingDelay: 200,
+  });
   const profile = userState.data ?? user;
 
   /* ---------- 书架 ---------- */
   const [shelfTab, setShelfTab] = useState<BookshelfTab>(
-    () => (searchParams.get('shelf') as BookshelfTab) ?? 'all',
+    () => (searchParams.get("shelf") as BookshelfTab) ?? "all",
   );
   const shelfState = useAsyncState<BookSummary[]>(
     () => fetcher.getBookshelf(shelfTab),
@@ -111,7 +122,7 @@ export default function ProfilePage() {
   /* ---------- 切换 Tab ---------- */
   const handleTabChange = (key: string) => {
     const next = new URLSearchParams(searchParams);
-    next.set('tab', key);
+    next.set("tab", key);
     setSearchParams(next, { replace: false });
   };
 
@@ -133,26 +144,37 @@ export default function ProfilePage() {
                 <h1 className="profile-page__nickname">{profile.nickname}</h1>
                 {profile.isVip ? (
                   <span className="profile-page__vip-badge">
-                    VIP{profile.vipExpireAt ? ` · ${formatExpire(profile.vipExpireAt)}` : ''}
+                    VIP
+                    {profile.vipExpireAt
+                      ? ` · ${formatExpire(profile.vipExpireAt)}`
+                      : ""}
                   </span>
                 ) : null}
                 <span className="profile-page__level">Lv.{profile.level}</span>
               </div>
               <div className="profile-page__user-stats">
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">{profile.stats.readingDays}</span>
+                  <span className="profile-page__stat-value">
+                    {profile.stats.readingDays}
+                  </span>
                   <span className="profile-page__stat-label">连续阅读</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">{Math.floor(profile.stats.readingMinutes / 60)}</span>
+                  <span className="profile-page__stat-value">
+                    {Math.floor(profile.stats.readingMinutes / 60)}
+                  </span>
                   <span className="profile-page__stat-label">阅读时长(h)</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">{(profile.stats.readWords / 10000).toFixed(0)}万</span>
+                  <span className="profile-page__stat-value">
+                    {(profile.stats.readWords / 10000).toFixed(0)}万
+                  </span>
                   <span className="profile-page__stat-label">阅读字数</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">{profile.stats.bookshelfCount}</span>
+                  <span className="profile-page__stat-value">
+                    {profile.stats.bookshelfCount}
+                  </span>
                   <span className="profile-page__stat-label">书架</span>
                 </div>
               </div>
@@ -187,17 +209,28 @@ export default function ProfilePage() {
         <div className="profile-page__edit-form">
           <div className="profile-page__edit-field">
             <label className="profile-page__edit-label">昵称</label>
-            <input className="profile-page__edit-input" defaultValue={profile?.nickname} placeholder="输入昵称" />
+            <input
+              className="profile-page__edit-input"
+              defaultValue={profile?.nickname}
+              placeholder="输入昵称"
+            />
           </div>
           <div className="profile-page__edit-field">
             <label className="profile-page__edit-label">简介</label>
-            <textarea className="profile-page__edit-input profile-page__edit-textarea" defaultValue={profile?.bio ?? ''} placeholder="一句话介绍自己" rows={3} />
+            <textarea
+              className="profile-page__edit-input profile-page__edit-textarea"
+              defaultValue={profile?.bio ?? ""}
+              placeholder="一句话介绍自己"
+              rows={3}
+            />
           </div>
           <div className="profile-page__edit-field">
             <label className="profile-page__edit-label">头像</label>
             <div className="profile-page__edit-avatar-row">
               <Avatar src={profile?.avatar} alt="" size="md" />
-              <button type="button" className="profile-page__edit-upload-btn">更换头像</button>
+              <button type="button" className="profile-page__edit-upload-btn">
+                更换头像
+              </button>
             </div>
           </div>
         </div>
@@ -218,7 +251,7 @@ export default function ProfilePage() {
 
       {/* 内容区 */}
       <section className="profile-page__content">
-        {tab === 'bookshelf' ? (
+        {tab === "bookshelf" ? (
           <BookshelfTabContent
             books={shelfBooks}
             loading={shelfState.loading && shelfBooks.length === 0}
@@ -228,28 +261,28 @@ export default function ProfilePage() {
           />
         ) : null}
 
-        {tab === 'history' ? (
+        {tab === "history" ? (
           <HistoryTimeline
             histories={histories}
             loading={historyState.loading && histories.length === 0}
           />
         ) : null}
 
-        {tab === 'booklists' ? (
+        {tab === "booklists" ? (
           <BookListsGrid
             lists={bookLists}
             loading={bookListsState.loading && bookLists.length === 0}
           />
         ) : null}
 
-        {tab === 'rewards' ? (
+        {tab === "rewards" ? (
           <RewardRecords
             records={rewards}
             loading={rewardsState.loading && rewards.length === 0}
           />
         ) : null}
 
-        {tab === 'settings' ? <SettingsEntry /> : null}
+        {tab === "settings" ? <SettingsEntry /> : null}
       </section>
     </div>
   );
@@ -296,7 +329,13 @@ function HistoryTimeline({
 }) {
   if (loading) return <Skeleton rows={6} />;
   if (histories.length === 0) {
-    return <EmptyState title="暂无阅读历史" description="开始阅读后这里会显示记录" action={<Link to="/">去找本书</Link>} />;
+    return (
+      <EmptyState
+        title="暂无阅读历史"
+        description="开始阅读后这里会显示记录"
+        action={<Link to="/">去找本书</Link>}
+      />
+    );
   }
   // 按日期分组
   const groups = groupByDay(histories);
@@ -309,11 +348,17 @@ function HistoryTimeline({
           <ul className="profile-page__timeline-items">
             {items.map((h) => (
               <li key={h.bookId} className="profile-page__timeline-item">
-                <Link to={`/book/${h.bookId}`} className="profile-page__timeline-cover">
+                <Link
+                  to={`/book/${h.bookId}`}
+                  className="profile-page__timeline-cover"
+                >
                   <LazyImage src={h.book.cover} alt={h.book.title} />
                 </Link>
                 <div className="profile-page__timeline-info">
-                  <Link to={`/book/${h.bookId}`} className="profile-page__timeline-title">
+                  <Link
+                    to={`/book/${h.bookId}`}
+                    className="profile-page__timeline-title"
+                  >
                     {h.book.title}
                   </Link>
                   <div className="profile-page__timeline-chapter">
@@ -346,16 +391,32 @@ function HistoryTimeline({
 
 /* ---------- 书单 ---------- */
 
-function BookListsGrid({ lists, loading }: { lists: BookList[]; loading: boolean }) {
+function BookListsGrid({
+  lists,
+  loading,
+}: {
+  lists: BookList[];
+  loading: boolean;
+}) {
   if (loading) return <Skeleton rows={4} />;
   if (lists.length === 0) {
-    return <EmptyState title="暂无书单" description="收藏喜欢的书单，方便随时查看" action={<Link to="/">去发现</Link>} />;
+    return (
+      <EmptyState
+        title="暂无书单"
+        description="收藏喜欢的书单，方便随时查看"
+        action={<Link to="/">去发现</Link>}
+      />
+    );
   }
   return (
     <div className="profile-page__booklists">
       {lists.map((l) => (
         <div key={l.id} className="profile-page__booklist">
-          <LazyImage src={l.cover} alt={l.title} className="profile-page__booklist-cover" />
+          <LazyImage
+            src={l.cover}
+            alt={l.title}
+            className="profile-page__booklist-cover"
+          />
           <div className="profile-page__booklist-info">
             <h3 className="profile-page__booklist-title">{l.title}</h3>
             <p className="profile-page__booklist-desc">{l.desc}</p>
@@ -373,27 +434,50 @@ function BookListsGrid({ lists, loading }: { lists: BookList[]; loading: boolean
 
 /* ---------- 打赏记录 ---------- */
 
-function RewardRecords({ records, loading }: { records: RewardRecord[]; loading: boolean }) {
+function RewardRecords({
+  records,
+  loading,
+}: {
+  records: RewardRecord[];
+  loading: boolean;
+}) {
   if (loading) return <Skeleton rows={4} />;
   if (records.length === 0) {
-    return <EmptyState title="暂无打赏记录" description="支持喜欢的作者，激励创作" />;
+    return (
+      <EmptyState title="暂无打赏记录" description="支持喜欢的作者，激励创作" />
+    );
   }
   return (
     <ul className="profile-page__rewards">
       {records.map((r) => (
         <li key={r.id} className="profile-page__reward">
           <div className="profile-page__reward-icon">
-            {r.type === 'ticket' ? <NovelReward size="sm" aria-hidden="true" /> : r.type === 'recommend' ? <NovelThumbsUp size="sm" aria-hidden="true" /> : <NovelHeart size="sm" aria-hidden="true" />}
+            {r.type === "ticket" ? (
+              <NovelReward size="sm" aria-hidden="true" />
+            ) : r.type === "recommend" ? (
+              <NovelThumbsUp size="sm" aria-hidden="true" />
+            ) : (
+              <NovelHeart size="sm" aria-hidden="true" />
+            )}
           </div>
           <div className="profile-page__reward-info">
-            <Link to={`/book/${r.bookId}`} className="profile-page__reward-book">
+            <Link
+              to={`/book/${r.bookId}`}
+              className="profile-page__reward-book"
+            >
               {r.bookTitle}
             </Link>
-            <span className="profile-page__reward-time">{formatRelativeTime(r.createdAt)}</span>
+            <span className="profile-page__reward-time">
+              {formatRelativeTime(r.createdAt)}
+            </span>
           </div>
           <div className="profile-page__reward-amount">
             <span className="profile-page__reward-type-label">
-              {r.type === 'ticket' ? '月票' : r.type === 'recommend' ? '推荐票' : '打赏'}
+              {r.type === "ticket"
+                ? "月票"
+                : r.type === "recommend"
+                  ? "推荐票"
+                  : "打赏"}
             </span>
             <span className="profile-page__reward-num">×{r.amount}</span>
           </div>
@@ -408,15 +492,40 @@ function RewardRecords({ records, loading }: { records: RewardRecord[]; loading:
 function SettingsEntry() {
   const [settingsOpen, setSettingsOpen] = useState<string | null>(null);
   const settings = [
-    { key: 'reading', label: '阅读偏好', desc: '默认字号、行距、主题', comingSoon: false },
-    { key: 'notifications', label: '消息通知', desc: '更新提醒、互动通知', comingSoon: true },
-    { key: 'privacy', label: '隐私设置', desc: '阅读历史、个性化推荐', comingSoon: true },
-    { key: 'account', label: '账号安全', desc: '密码、绑定、登录设备', comingSoon: true },
-    { key: 'about', label: '关于', desc: '版本信息、用户协议', comingSoon: false },
+    {
+      key: "reading",
+      label: "阅读偏好",
+      desc: "默认字号、行距、主题",
+      comingSoon: false,
+    },
+    {
+      key: "notifications",
+      label: "消息通知",
+      desc: "更新提醒、互动通知",
+      comingSoon: true,
+    },
+    {
+      key: "privacy",
+      label: "隐私设置",
+      desc: "阅读历史、个性化推荐",
+      comingSoon: true,
+    },
+    {
+      key: "account",
+      label: "账号安全",
+      desc: "密码、绑定、登录设备",
+      comingSoon: true,
+    },
+    {
+      key: "about",
+      label: "关于",
+      desc: "版本信息、用户协议",
+      comingSoon: false,
+    },
   ];
 
   const handleClick = (key: string) => {
-    if (key === 'reading' || key === 'about') {
+    if (key === "reading" || key === "about") {
       setSettingsOpen(key);
     }
   };
@@ -425,12 +534,12 @@ function SettingsEntry() {
     <>
       <ul className="profile-page__settings">
         {settings.map((s) => {
-          const clickable = s.key === 'reading' || s.key === 'about';
+          const clickable = s.key === "reading" || s.key === "about";
           return (
             <li key={s.key}>
               <button
                 type="button"
-                className={`profile-page__setting-item ${clickable ? 'is-clickable' : ''}`}
+                className={`profile-page__setting-item ${clickable ? "is-clickable" : ""}`}
                 disabled={!clickable}
                 onClick={() => handleClick(s.key)}
               >
@@ -439,9 +548,15 @@ function SettingsEntry() {
                   <div className="profile-page__setting-desc">{s.desc}</div>
                 </div>
                 {s.comingSoon ? (
-                  <span className="profile-page__setting-coming-soon">即将上线</span>
+                  <span className="profile-page__setting-coming-soon">
+                    即将上线
+                  </span>
                 ) : null}
-                <NavigationChevronRight size="sm" className="profile-page__setting-arrow" aria-hidden="true" />
+                <NavigationChevronRight
+                  size="sm"
+                  className="profile-page__setting-arrow"
+                  aria-hidden="true"
+                />
               </button>
             </li>
           );
@@ -449,7 +564,7 @@ function SettingsEntry() {
       </ul>
 
       <Modal
-        open={settingsOpen === 'reading'}
+        open={settingsOpen === "reading"}
         title="阅读偏好"
         onCancel={() => setSettingsOpen(null)}
         footer={
@@ -463,7 +578,9 @@ function SettingsEntry() {
         }
       >
         <div className="profile-page__settings-modal">
-          <p className="profile-page__settings-modal-text">可在此设置默认字号、行距和主题模式。</p>
+          <p className="profile-page__settings-modal-text">
+            可在此设置默认字号、行距和主题模式。
+          </p>
           <div className="profile-page__settings-modal-preview">
             <div className="profile-page__settings-row">
               <span>字号</span>
@@ -482,7 +599,7 @@ function SettingsEntry() {
       </Modal>
 
       <Modal
-        open={settingsOpen === 'about'}
+        open={settingsOpen === "about"}
         title="关于"
         onCancel={() => setSettingsOpen(null)}
         footer={
@@ -496,7 +613,9 @@ function SettingsEntry() {
         }
       >
         <div className="profile-page__settings-modal">
-          <p className="profile-page__settings-modal-text">Novel Reader v1.0.0</p>
+          <p className="profile-page__settings-modal-text">
+            Novel Reader v1.0.0
+          </p>
           <p className="profile-page__settings-modal-desc">
             沉浸式网络文学阅读平台，致力于为读者提供优质的阅读体验。
           </p>
@@ -516,7 +635,9 @@ function formatExpire(ts: number): string {
   return `${days}天`;
 }
 
-function groupByDay(items: ReadingHistoryItem[]): Record<string, ReadingHistoryItem[]> {
+function groupByDay(
+  items: ReadingHistoryItem[],
+): Record<string, ReadingHistoryItem[]> {
   const groups: Record<string, ReadingHistoryItem[]> = {};
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -525,12 +646,12 @@ function groupByDay(items: ReadingHistoryItem[]): Record<string, ReadingHistoryI
 
   for (const item of items) {
     let label: string;
-    if (item.readAt >= today.getTime()) label = '今天';
-    else if (item.readAt >= yesterday) label = '昨天';
-    else if (item.readAt >= weekAgo) label = '本周';
+    if (item.readAt >= today.getTime()) label = "今天";
+    else if (item.readAt >= yesterday) label = "昨天";
+    else if (item.readAt >= weekAgo) label = "本周";
     else {
       const d = new Date(item.readAt);
-      label = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      label = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     }
     (groups[label] ??= []).push(item);
   }

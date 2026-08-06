@@ -5,12 +5,17 @@
  * Source: 04-B端开发计划.md P2-7
  * ============================================================ */
 
-import { forwardRef, type ComponentProps, type ComponentRef } from 'react';
-import { Skeleton, Table as AntTable } from 'antd';
-import type { TableProps } from 'antd';
+import {
+  forwardRef,
+  type ComponentRef,
+  type ReactElement,
+  type Ref,
+} from "react";
+import { Skeleton, Table as AntTable } from "antd";
+import type { TableProps } from "antd";
 
 /** B 端表格 props（泛型，T 为行数据类型） */
-export type BTableProps<T = Record<string, unknown>> = TableProps<T> & ComponentProps<typeof AntTable>;
+export type BTableProps<T = Record<string, unknown>> = TableProps<T>;
 
 /**
  * B 端表格。
@@ -23,8 +28,8 @@ export type BTableProps<T = Record<string, unknown>> = TableProps<T> & Component
  * 操作列约定：透传 columns 时不做改动；建议将「操作」列设置为
  *   fixed: 'right'，width 120-160，以保证横向滚动时操作按钮常驻可见。
  */
-export const BTable = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
-  ({ size = 'middle', loading, pagination, ...rest }, ref) => {
+const BTableInner = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
+  ({ size = "middle", loading, pagination, ...rest }, ref) => {
     if (loading) {
       return <Skeleton active paragraph={{ rows: 6 }} />;
     }
@@ -48,4 +53,9 @@ export const BTable = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
   },
 );
 
-BTable.displayName = 'BTable';
+BTableInner.displayName = "BTable";
+
+/** 泛型表格组件：保留行数据类型 T，供调用方以 <BTable<T> .../> 精确校验列/数据 */
+export const BTable = BTableInner as <T>(
+  props: BTableProps<T> & { ref?: Ref<ComponentRef<typeof AntTable>> },
+) => ReactElement;

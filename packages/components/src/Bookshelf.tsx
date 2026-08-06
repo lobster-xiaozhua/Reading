@@ -9,15 +9,15 @@
  *   - 书籍有更新时封面右上角 8px rose 红点（BookCard hasUpdate 已支持）
  * ============================================================ */
 
-import { useMemo, useState, type ReactNode, type MouseEvent } from 'react';
-import { BookCard, type Book } from './BookCard.js';
-import { EmptyState } from './EmptyState.js';
-import { NotificationBadge } from './NotificationBadge.js';
-import { ContentCategory, NavigationMenu, ActionSort } from '@novel/icons';
+import { useMemo, useState, type ReactNode, type MouseEvent } from "react";
+import { BookCard, type Book } from "./BookCard.js";
+import { EmptyState } from "./EmptyState.js";
+import { NotificationBadge } from "./NotificationBadge.js";
+import { ContentCategory, NavigationMenu, ActionSort } from "@novel/icons";
 
-export type BookshelfGroupBy = 'none' | 'status' | 'tag';
-export type BookshelfSortBy = 'recent' | 'title' | 'update';
-export type BookshelfViewMode = 'grid' | 'list';
+export type BookshelfGroupBy = "none" | "status" | "tag";
+export type BookshelfSortBy = "recent" | "title" | "update";
+export type BookshelfViewMode = "grid" | "list";
 
 export interface BookshelfTab {
   key: string;
@@ -52,17 +52,17 @@ export interface BookshelfProps {
 }
 
 /* ---------- 内置 Tab key 约定（03 §6.5 JSX 示例） ---------- */
-type BuiltinTabKey = 'all' | 'ongoing' | 'finished' | 'recent';
+type BuiltinTabKey = "all" | "ongoing" | "finished" | "recent";
 
 function filterByTab(books: Book[], tabKey: string): Book[] {
   switch (tabKey as BuiltinTabKey) {
-    case 'ongoing':
-      return books.filter((b) => b.status === 'ongoing');
-    case 'finished':
-      return books.filter((b) => b.status === 'completed');
-    case 'recent':
+    case "ongoing":
+      return books.filter((b) => b.status === "ongoing");
+    case "finished":
+      return books.filter((b) => b.status === "completed");
+    case "recent":
       return books.filter((b) => b.lastReadTime != null);
-    case 'all':
+    case "all":
     default:
       return books;
   }
@@ -71,11 +71,11 @@ function filterByTab(books: Book[], tabKey: string): Book[] {
 function sortBooks(books: Book[], sortBy: BookshelfSortBy): Book[] {
   const arr = [...books];
   switch (sortBy) {
-    case 'title':
-      return arr.sort((a, b) => a.title.localeCompare(b.title, 'zh-Hans-CN'));
-    case 'update':
+    case "title":
+      return arr.sort((a, b) => a.title.localeCompare(b.title, "zh-Hans-CN"));
+    case "update":
       return arr.sort((a, b) => (b.updateTime ?? 0) - (a.updateTime ?? 0));
-    case 'recent':
+    case "recent":
     default:
       return arr.sort((a, b) => (b.lastReadTime ?? 0) - (a.lastReadTime ?? 0));
   }
@@ -89,30 +89,33 @@ interface ShelfGroup {
 }
 
 const STATUS_GROUP_LABEL: Record<string, string> = {
-  ongoing: '连载中',
-  completed: '已完结',
-  paused: '暂停更新',
-  reviewing: '审核中',
-  offline: '已下架',
-  __unknown: '其他',
+  ongoing: "连载中",
+  completed: "已完结",
+  paused: "暂停更新",
+  reviewing: "审核中",
+  offline: "已下架",
+  __unknown: "其他",
 };
 
 function groupBooks(books: Book[], groupBy: BookshelfGroupBy): ShelfGroup[] {
-  if (groupBy === 'none') {
-    return [{ key: '__all', label: '', books }];
+  if (groupBy === "none") {
+    return [{ key: "__all", label: "", books }];
   }
   const map = new Map<string, ShelfGroup>();
   for (const b of books) {
     let groupKey: string;
     let label: string;
-    if (groupBy === 'status') {
-      groupKey = b.status ?? '__unknown';
-      label = STATUS_GROUP_LABEL[groupKey] ?? STATUS_GROUP_LABEL.__unknown ?? '未分类';
+    if (groupBy === "status") {
+      groupKey = b.status ?? "__unknown";
+      label =
+        STATUS_GROUP_LABEL[groupKey] ??
+        STATUS_GROUP_LABEL.__unknown ??
+        "未分类";
     } else {
       // tag：按第一个 tag 分组；无 tag 归「未分类」
       const t = b.tags?.[0];
-      groupKey = t ?? '__untagged';
-      label = t ?? '未分类';
+      groupKey = t ?? "__untagged";
+      label = t ?? "未分类";
     }
     if (!map.has(groupKey)) {
       map.set(groupKey, { key: groupKey, label, books: [] });
@@ -120,11 +123,16 @@ function groupBooks(books: Book[], groupBy: BookshelfGroupBy): ShelfGroup[] {
     map.get(groupKey)!.books.push(b);
   }
   // status 分组按固定顺序输出；tag 按首次出现顺序
-  if (groupBy === 'status') {
-    const order = ['ongoing', 'completed', 'paused', 'reviewing', 'offline', '__unknown'];
-    return order
-      .filter((k) => map.has(k))
-      .map((k) => map.get(k)!);
+  if (groupBy === "status") {
+    const order = [
+      "ongoing",
+      "completed",
+      "paused",
+      "reviewing",
+      "offline",
+      "__unknown",
+    ];
+    return order.filter((k) => map.has(k)).map((k) => map.get(k)!);
   }
   return Array.from(map.values());
 }
@@ -133,7 +141,17 @@ function groupBooks(books: Book[], groupBy: BookshelfGroupBy): ShelfGroup[] {
 
 function GroupIcon() {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <rect x="3" y="4" width="18" height="4" rx="1" />
       <rect x="3" y="12" width="18" height="4" rx="1" opacity="0.55" />
       <rect x="3" y="20" width="18" height="0.5" />
@@ -154,8 +172,8 @@ function ChevronIcon({ open }: { open: boolean }) {
       strokeLinejoin="round"
       aria-hidden
       style={{
-        transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-        transition: 'transform var(--dur-fast) var(--ease-standard)',
+        transform: open ? "rotate(90deg)" : "rotate(0deg)",
+        transition: "transform var(--dur-fast) var(--ease-standard)",
       }}
     >
       <path d="M9 6l6 6-6 6" />
@@ -166,15 +184,15 @@ function ChevronIcon({ open }: { open: boolean }) {
 /* ---------- 排序/分组下拉菜单 ---------- */
 
 const SORT_OPTIONS: { value: BookshelfSortBy; label: string }[] = [
-  { value: 'recent', label: '最近阅读' },
-  { value: 'update', label: '最近更新' },
-  { value: 'title', label: '书名' },
+  { value: "recent", label: "最近阅读" },
+  { value: "update", label: "最近更新" },
+  { value: "title", label: "书名" },
 ];
 
 const GROUP_OPTIONS: { value: BookshelfGroupBy; label: string }[] = [
-  { value: 'none', label: '不分组' },
-  { value: 'status', label: '按状态' },
-  { value: 'tag', label: '按标签' },
+  { value: "none", label: "不分组" },
+  { value: "status", label: "按状态" },
+  { value: "tag", label: "按标签" },
 ];
 
 /* ============================================================
@@ -199,10 +217,15 @@ export function Bookshelf({
   className,
 }: BookshelfProps) {
   /* 受控/非受控：未传 prop 时使用内部状态 */
-  const [internalGroupBy, setInternalGroupBy] = useState<BookshelfGroupBy>('none');
-  const [internalSortBy, setInternalSortBy] = useState<BookshelfSortBy>('recent');
-  const [internalViewMode, setInternalViewMode] = useState<BookshelfViewMode>('grid');
-  const [internalActiveTab, setInternalActiveTab] = useState<string>(tabs?.[0]?.key ?? 'all');
+  const [internalGroupBy, setInternalGroupBy] =
+    useState<BookshelfGroupBy>("none");
+  const [internalSortBy, setInternalSortBy] =
+    useState<BookshelfSortBy>("recent");
+  const [internalViewMode, setInternalViewMode] =
+    useState<BookshelfViewMode>("grid");
+  const [internalActiveTab, setInternalActiveTab] = useState<string>(
+    tabs?.[0]?.key ?? "all",
+  );
 
   const groupBy = groupByProp ?? internalGroupBy;
   const sortBy = sortByProp ?? internalSortBy;
@@ -259,9 +282,13 @@ export function Bookshelf({
     );
   }, [books]);
 
-  const rootCls = ['novel-bookshelf', `novel-bookshelf--${viewMode}`, className ?? '']
+  const rootCls = [
+    "novel-bookshelf",
+    `novel-bookshelf--${viewMode}`,
+    className ?? "",
+  ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   /* ---------- loading 骨架 ---------- */
   if (loading) {
@@ -278,9 +305,19 @@ export function Bookshelf({
           onSortByChange={setSortBy}
           onViewModeChange={setViewMode}
         />
-        <div className="novel-bookshelf__grid" role="status" aria-label="加载中">
+        <div
+          className="novel-bookshelf__grid"
+          role="status"
+          aria-label="加载中"
+        >
           {Array.from({ length: 12 }).map((_, i) => (
-            <BookCard key={i} book={EMPTY_BOOK} variant="grid" size="md" loading />
+            <BookCard
+              key={i}
+              book={EMPTY_BOOK}
+              variant="grid"
+              size="md"
+              loading
+            />
           ))}
         </div>
       </div>
@@ -332,14 +369,19 @@ export function Bookshelf({
       {updateCount > 0 ? (
         <div className="novel-bookshelf__notify">
           {updateCount >= 3 ? (
-            <NotificationBadge aggregateCount={updateCount} onClick={() => setActiveTab('recent')} />
+            <NotificationBadge
+              aggregateCount={updateCount}
+              onClick={() => setActiveTab("recent")}
+            />
           ) : latestUpdate ? (
             <NotificationBadge
               novelTitle={latestUpdate.title}
               chapterCount={latestUpdate.unreadChapters ?? 0}
               updateTime={latestUpdate.updateTime}
               read={false}
-              onClick={() => onBookClick?.(latestUpdate, {} as MouseEvent<HTMLElement>)}
+              onClick={() =>
+                onBookClick?.(latestUpdate, {} as MouseEvent<HTMLElement>)
+              }
             />
           ) : null}
         </div>
@@ -351,21 +393,25 @@ export function Bookshelf({
           const isCollapsed = collapsed.has(g.key);
           return (
             <section key={g.key} className="novel-bookshelf__group">
-              {groupBy !== 'none' ? (
+              {groupBy !== "none" ? (
                 <button
                   type="button"
                   className="novel-bookshelf__group-header"
                   onClick={() => toggleGroup(g.key)}
                   aria-expanded={!isCollapsed}
-                  aria-label={`${g.label} 分组，${isCollapsed ? '展开' : '折叠'}`}
+                  aria-label={`${g.label} 分组，${isCollapsed ? "展开" : "折叠"}`}
                 >
                   <ChevronIcon open={!isCollapsed} />
-                  <span className="novel-bookshelf__group-title">{g.label}</span>
-                  <span className="novel-bookshelf__group-count">{g.books.length}</span>
+                  <span className="novel-bookshelf__group-title">
+                    {g.label}
+                  </span>
+                  <span className="novel-bookshelf__group-count">
+                    {g.books.length}
+                  </span>
                 </button>
               ) : null}
               {!isCollapsed ? (
-                viewMode === 'grid' ? (
+                viewMode === "grid" ? (
                   <div className="novel-bookshelf__grid">
                     {g.books.map((b) => (
                       <BookCard
@@ -389,7 +435,11 @@ export function Bookshelf({
                           showRating={false}
                           onClick={onBookClick}
                         />
-                        <ShelfBookMeta book={b} onUpdate={onUpdate} books={books} />
+                        <ShelfBookMeta
+                          book={b}
+                          onUpdate={onUpdate}
+                          books={books}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -429,7 +479,9 @@ function ShelfBookMeta({
           <div className="novel-bookshelf__progress-bar">
             <div
               className="novel-bookshelf__progress-fill"
-              style={{ width: `${Math.min(100, Math.round((book.progress ?? 0) * 100))}%` }}
+              style={{
+                width: `${Math.min(100, Math.round((book.progress ?? 0) * 100))}%`,
+              }}
             />
           </div>
           <span className="novel-bookshelf__progress-text">
@@ -482,7 +534,11 @@ function BookshelfToolbar({
   return (
     <div className="novel-bookshelf__toolbar">
       {tabs && tabs.length > 0 ? (
-        <div className="novel-bookshelf__tabs" role="tablist" aria-label="书架过滤">
+        <div
+          className="novel-bookshelf__tabs"
+          role="tablist"
+          aria-label="书架过滤"
+        >
           {tabs.map((t) => (
             <button
               key={t.key}
@@ -490,11 +546,11 @@ function BookshelfToolbar({
               role="tab"
               aria-selected={activeTab === t.key}
               className={[
-                'novel-bookshelf__tab',
-                activeTab === t.key ? 'is-active' : '',
+                "novel-bookshelf__tab",
+                activeTab === t.key ? "is-active" : "",
               ]
                 .filter(Boolean)
-                .join(' ')}
+                .join(" ")}
               onClick={() => onTabChange(t.key)}
             >
               {t.label}
@@ -531,7 +587,9 @@ function BookshelfToolbar({
           <select
             className="novel-bookshelf__select"
             value={groupBy}
-            onChange={(e) => onGroupByChange(e.target.value as BookshelfGroupBy)}
+            onChange={(e) =>
+              onGroupByChange(e.target.value as BookshelfGroupBy)
+            }
             aria-label="分组方式"
           >
             {GROUP_OPTIONS.map((o) => (
@@ -543,32 +601,36 @@ function BookshelfToolbar({
         </label>
 
         {/* 视图切换：icon-only */}
-        <div className="novel-bookshelf__view-toggle" role="group" aria-label="视图切换">
+        <div
+          className="novel-bookshelf__view-toggle"
+          role="group"
+          aria-label="视图切换"
+        >
           <button
             type="button"
             className={[
-              'novel-bookshelf__view-btn',
-              viewMode === 'grid' ? 'is-active' : '',
+              "novel-bookshelf__view-btn",
+              viewMode === "grid" ? "is-active" : "",
             ]
               .filter(Boolean)
-              .join(' ')}
-            onClick={() => onViewModeChange('grid')}
+              .join(" ")}
+            onClick={() => onViewModeChange("grid")}
             aria-label="网格视图"
-            aria-pressed={viewMode === 'grid'}
+            aria-pressed={viewMode === "grid"}
           >
             <ContentCategory size="lg" aria-hidden="true" />
           </button>
           <button
             type="button"
             className={[
-              'novel-bookshelf__view-btn',
-              viewMode === 'list' ? 'is-active' : '',
+              "novel-bookshelf__view-btn",
+              viewMode === "list" ? "is-active" : "",
             ]
               .filter(Boolean)
-              .join(' ')}
-            onClick={() => onViewModeChange('list')}
+              .join(" ")}
+            onClick={() => onViewModeChange("list")}
             aria-label="列表视图"
-            aria-pressed={viewMode === 'list'}
+            aria-pressed={viewMode === "list"}
           >
             <NavigationMenu size="lg" aria-hidden="true" />
           </button>
@@ -590,9 +652,9 @@ function DefaultDiscoverAction() {
 
 function formatRelativeShort(input: number): string {
   const diff = Date.now() - input;
-  if (Number.isNaN(diff)) return '';
+  if (Number.isNaN(diff)) return "";
   const min = Math.floor(diff / 60000);
-  if (min < 1) return '刚刚';
+  if (min < 1) return "刚刚";
   if (min < 60) return `${min} 分钟前`;
   const hour = Math.floor(min / 60);
   if (hour < 24) return `${hour} 小时前`;
@@ -600,10 +662,10 @@ function formatRelativeShort(input: number): string {
   if (day < 30) return `${day} 天前`;
   const date = new Date(input);
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
 /* 骨架屏占位用的空 Book */
-const EMPTY_BOOK: Book = { id: '', title: '', author: '' };
+const EMPTY_BOOK: Book = { id: "", title: "", author: "" };

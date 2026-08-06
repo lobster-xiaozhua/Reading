@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Dropdown, Avatar } from '@novel/components';
-import { useUserStore } from '@/stores/userStore';
-import { fetcher } from '@/api/fetcher';
-import type { Category } from '@/api/types';
-import './NavBar.css';
+import { useEffect, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Dropdown, Avatar } from "@novel/components";
+import { useUserStore } from "@/stores/userStore";
+import { fetcher } from "@/api/fetcher";
+import type { Category } from "@/api/types";
+import "./NavBar.css";
 
 /**
  * 顶部导航栏（03 §5.1）
@@ -14,7 +14,7 @@ export function NavBar() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const loadUser = useUserStore((s) => s.loadUser);
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
@@ -29,15 +29,25 @@ export function NavBar() {
   };
 
   const categoryItems = [
-    { key: 'all', label: '全部分类', to: '/category' },
-    ...categories.map((c) => ({ key: c.id, label: c.name, to: `/category?cat=${encodeURIComponent(c.name)}` })),
+    { key: "all", label: "全部分类", to: "/category" },
+    ...categories.map((c) => ({
+      key: c.id,
+      label: c.name,
+      to: `/category?cat=${encodeURIComponent(c.name)}`,
+    })),
   ];
 
   return (
     <header className="novel-navbar" role="banner">
       <div className="novel-navbar__inner container-page">
-        <Link to="/" className="novel-navbar__logo" aria-label="Atlas 小说阅读 首页">
-          <span className="novel-navbar__logo-mark" aria-hidden>A</span>
+        <Link
+          to="/"
+          className="novel-navbar__logo"
+          aria-label="Atlas 小说阅读 首页"
+        >
+          <span className="novel-navbar__logo-mark" aria-hidden>
+            A
+          </span>
           <span className="novel-navbar__logo-text">Atlas</span>
         </Link>
 
@@ -61,7 +71,11 @@ export function NavBar() {
           </NavLink>
         </nav>
 
-        <form className="novel-navbar__search" role="search" onSubmit={onSearch}>
+        <form
+          className="novel-navbar__search"
+          role="search"
+          onSubmit={onSearch}
+        >
           <input
             type="search"
             className="novel-navbar__search-input"
@@ -70,7 +84,11 @@ export function NavBar() {
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
-          <button type="submit" className="novel-navbar__search-btn" aria-label="搜索">
+          <button
+            type="submit"
+            className="novel-navbar__search-btn"
+            aria-label="搜索"
+          >
             搜索
           </button>
         </form>
@@ -80,12 +98,22 @@ export function NavBar() {
             <Dropdown
               trigger="click"
               items={[
-                { key: 'profile', label: <Link to="/profile">个人中心</Link> },
-                { key: 'bookshelf', label: <Link to="/profile?tab=bookshelf">我的书架</Link> },
-                { key: 'history', label: <Link to="/profile?tab=history">阅读历史</Link> },
+                { key: "profile", label: <Link to="/profile">个人中心</Link> },
+                {
+                  key: "bookshelf",
+                  label: <Link to="/profile?tab=bookshelf">我的书架</Link>,
+                },
+                {
+                  key: "history",
+                  label: <Link to="/profile?tab=history">阅读历史</Link>,
+                },
               ]}
             >
-              <Link to="/profile" className="novel-navbar__avatar-link" aria-label={`${user.nickname} 的个人中心`}>
+              <Link
+                to="/profile"
+                className="novel-navbar__avatar-link"
+                aria-label={`${user.nickname} 的个人中心`}
+              >
                 <Avatar src={user.avatar} alt={user.nickname} size="sm" />
                 <span className="novel-navbar__username">{user.nickname}</span>
               </Link>

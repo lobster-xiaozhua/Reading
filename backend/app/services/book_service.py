@@ -34,6 +34,7 @@ logger = structlog.get_logger(__name__)
 
 _TTL_BOOK = 600  # 10 分钟
 _TTL_RATING = 600
+_TTL_CHAPTER = 600  # 章节正文缓存（B 端更新依赖 TTL 自然过期）
 
 
 class BookService:
@@ -80,6 +81,9 @@ class BookService:
     ) -> ChapterContent:
         """获取章节正文（含前后章节导航），VIP 章节需会员权限。
 
+        阅读热路径走 Cache-Aside：缓存命中直接返回，未命中回查库并回填。
+        VIP 权限校验独立于缓存执行，避免绕过订阅。
+
         Args:
             book_id: 书籍 ID。
             chapter_id: 章节 ID。
@@ -89,17 +93,48 @@ class BookService:
             章节正文内容。
         """
         novel = await self._get_published_novel(book_id)
-        chapter = await self.chapter_repo.get_by_id(chapter_id)
-        if not chapter or chapter.novel_id != novel.id or chapter.status != "published":
-            raise NotFoundError("章节不存在或未发布")
+        content = await self._get_cached_chapter(chapter_id, novel.id)
+        if content is None:
+            chapter = await self.chapter_repo.get_by_id(chapter_id)
+            if not chapter or chapter.novel_id != novel.id or chapter.status != "published":
+                raise NotFoundError("章节不存在或未发布")
 
-        # VIP 章节校验
-        if chapter.is_vip and not reader_vip:
+            prev_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "prev")
+            next_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "next")
+            content = _chapter_to_content(chapter, novel.id, prev_ch, next_ch)
+            await self._cache_chapter(chapter_id, novel.id, content)
+        return self._enforce_vip(content, reader_vip)
+
+    async def _get_cached_chapter(self, chapter_id: int, novel_id: int) -> ChapterContent | None:
+        """读取章节缓存，校验书籍归属，解析失败或归属不符时回源。"""
+        try:
+            cached = await self.redis.get(CacheKeys.chapter(chapter_id))
+            if not cached:
+                return None
+            data = json.loads(cached)
+            if data.get("novel_id") != novel_id:
+                return None
+            return ChapterContent.model_validate(data["content"])
+        except Exception:
+            logger.warning("章节缓存读取失败 chapter_id=%s", chapter_id, exc_info=True)
+            return None
+
+    async def _cache_chapter(self, chapter_id: int, novel_id: int, content: ChapterContent) -> None:
+        try:
+            await cache_set(
+                self.redis,
+                CacheKeys.chapter(chapter_id),
+                {"novel_id": novel_id, "content": content.model_dump(mode="json")},
+                _TTL_CHAPTER,
+            )
+        except Exception:
+            logger.warning("章节缓存写入失败 chapter_id=%s", chapter_id, exc_info=True)
+
+    @staticmethod
+    def _enforce_vip(content: ChapterContent, reader_vip: bool) -> ChapterContent:
+        if content.is_vip and not reader_vip:
             raise BizError(ErrorCode.VIP_CHAPTER_LOCKED, "VIP 章节需要开通会员")
-
-        prev_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "prev")
-        next_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "next")
-        return _chapter_to_content(chapter, novel.id, prev_ch, next_ch)
+        return content
 
     # ── 相关推荐 ─────────────────────────────────────────
     async def get_related_books(self, book_id: int, limit: int = 6) -> list[BookSummary]:

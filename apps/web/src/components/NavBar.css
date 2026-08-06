@@ -56,7 +56,8 @@
   color: var(--color-text-secondary);
   font-size: 14px;
   text-decoration: none;
-  transition: color var(--dur-fast) var(--ease-standard),
+  transition:
+    color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
 .novel-navbar__nav-link:hover {
@@ -64,7 +65,7 @@
   background: var(--color-brand-bg);
 }
 .novel-navbar__nav-link.is-active,
-.novel-navbar__nav-link[aria-current='page'] {
+.novel-navbar__nav-link[aria-current="page"] {
   color: var(--color-brand);
   font-weight: 500;
 }
@@ -88,7 +89,8 @@
   font-family: inherit;
   font-size: 14px;
   outline: none;
-  transition: border-color var(--dur-fast) var(--ease-standard),
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
 }
 .novel-navbar__search-input:focus {

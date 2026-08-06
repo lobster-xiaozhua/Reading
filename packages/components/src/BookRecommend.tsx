@@ -4,9 +4,9 @@
  * 单卡 100px，封面 3:4，匹配度标签，评分；loading 骨架
  * ============================================================ */
 
-import { useState } from 'react';
-import { type Book } from './BookCard.js';
-import { NovelMedal } from '@novel/icons';
+import { useState } from "react";
+import { type Book } from "./BookCard.js";
+import { NovelMedal } from "@novel/icons";
 
 export interface RecommendBookItem {
   book: Book;
@@ -24,7 +24,7 @@ export interface BookRecommendProps {
 }
 
 export function BookRecommend({
-  title = '为你推荐',
+  title = "为你推荐",
   books,
   loading = false,
   onRefresh,
@@ -33,7 +33,9 @@ export function BookRecommend({
 }: BookRecommendProps) {
   const [spinId, setSpinId] = useState(0);
 
-  const rootCls = ['novel-recommend', className ?? ''].filter(Boolean).join(' ');
+  const rootCls = ["novel-recommend", className ?? ""]
+    .filter(Boolean)
+    .join(" ");
 
   const handleRefresh = () => {
     if (!onRefresh) return;
@@ -54,7 +56,7 @@ export function BookRecommend({
           >
             <svg
               key={spinId}
-              className={`novel-recommend__refresh-icon ${spinId > 0 ? 'is-spinning' : ''}`}
+              className={`novel-recommend__refresh-icon ${spinId > 0 ? "is-spinning" : ""}`}
               viewBox="0 0 24 24"
               width="14"
               height="14"
@@ -93,10 +95,10 @@ function RecommendCard({
   onSelect?: (book: Book) => void;
 }) {
   const { book, matchScore } = item;
-  const clickable = typeof onSelect === 'function';
-  const cls = ['novel-recommend__card', clickable ? 'is-clickable' : '']
+  const clickable = typeof onSelect === "function";
+  const cls = ["novel-recommend__card", clickable ? "is-clickable" : ""]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
     <div
@@ -107,7 +109,7 @@ function RecommendCard({
       onKeyDown={
         clickable
           ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 onSelect?.(book);
               }
@@ -126,11 +128,22 @@ function RecommendCard({
         )}
         <span className="novel-recommend__match">{matchScore}% 匹配</span>
       </div>
-      <div className="novel-recommend__name" title={book.title}>{book.title}</div>
+      <div className="novel-recommend__name" title={book.title}>
+        {book.title}
+      </div>
       {book.rating != null ? (
-        <div className="novel-recommend__rating" aria-label={`评分 ${book.rating}`}>
-          <NovelMedal size="sm" aria-hidden="true" className="novel-recommend__star" />
-          <span className="novel-recommend__rating-num">{book.rating.toFixed(1)}</span>
+        <div
+          className="novel-recommend__rating"
+          aria-label={`评分 ${book.rating}`}
+        >
+          <NovelMedal
+            size="sm"
+            aria-hidden="true"
+            className="novel-recommend__star"
+          />
+          <span className="novel-recommend__rating-num">
+            {book.rating.toFixed(1)}
+          </span>
         </div>
       ) : null}
     </div>
@@ -141,7 +154,12 @@ function RecommendSkeleton() {
   return (
     <>
       {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} className="novel-recommend__card is-skeleton" role="status" aria-label="加载中">
+        <div
+          key={i}
+          className="novel-recommend__card is-skeleton"
+          role="status"
+          aria-label="加载中"
+        >
           <div className="novel-recommend__cover novel-recommend__cover--skeleton" />
           <div className="novel-recommend__skeleton-line novel-recommend__skeleton-line--name" />
           <div className="novel-recommend__skeleton-line novel-recommend__skeleton-line--rating" />

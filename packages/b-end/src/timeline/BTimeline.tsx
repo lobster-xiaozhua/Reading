@@ -8,13 +8,13 @@
  * item color 支持：green / blue / red / gray
  * ============================================================ */
 
-import { forwardRef } from 'react';
-import { Timeline, type TimelineProps } from 'antd';
+import { forwardRef } from "react";
+import { Timeline, type TimelineProps } from "antd";
 
 export type BTimelineProps = TimelineProps;
 
 export const BTimeline = forwardRef<HTMLElement, BTimelineProps>(
-  function BTimeline({ mode = 'left', ...rest }, _ref) {
+  function BTimeline({ mode = "left", ...rest }, _ref) {
     return <Timeline mode={mode} {...rest} />;
   },
 );

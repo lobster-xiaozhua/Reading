@@ -1,6 +1,14 @@
-import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Layout, Breadcrumb, Input, Badge, Dropdown, Avatar, theme } from 'antd';
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import {
+  Layout,
+  Breadcrumb,
+  Input,
+  Badge,
+  Dropdown,
+  Avatar,
+  theme,
+} from "antd";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -9,10 +17,10 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
-} from '@ant-design/icons';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
-import { menuConfig, type MenuItem } from './menu-config';
+} from "@ant-design/icons";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
+import { menuConfig, type MenuItem } from "./menu-config";
 
 const Header = Layout.Header;
 
@@ -51,31 +59,31 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login', { replace: true });
+    navigate("/login", { replace: true });
   };
 
   const userMenuItems = [
     {
-      key: 'profile',
+      key: "profile",
       icon: <UserOutlined />,
-      label: t('layout:profile'),
+      label: t("layout:profile"),
     },
     {
-      key: 'settings',
+      key: "settings",
       icon: <SettingOutlined />,
-      label: t('layout:accountSettings'),
+      label: t("layout:accountSettings"),
     },
-    { type: 'divider' as const },
+    { type: "divider" as const },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: t('layout:logout'),
+      label: t("layout:logout"),
       danger: true,
     },
   ];
 
   const handleUserMenu = (info: { key: string }) => {
-    if (info.key === 'logout') handleLogout();
+    if (info.key === "logout") handleLogout();
   };
 
   return (
@@ -87,7 +95,9 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
         type="button"
         className="bend-header__collapse"
         onClick={onToggle}
-        aria-label={collapsed ? t('layout:expandSidebar') : t('layout:collapseSidebar')}
+        aria-label={
+          collapsed ? t("layout:expandSidebar") : t("layout:collapseSidebar")
+        }
         aria-expanded={!collapsed}
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -98,17 +108,17 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
       <div className="bend-header__right">
         <Input
           prefix={<SearchOutlined />}
-          placeholder={t('layout:searchPlaceholder')}
+          placeholder={t("layout:searchPlaceholder")}
           className="bend-header__search"
           style={{ width: 240 }}
           allowClear
-          aria-label={t('layout:globalSearch')}
+          aria-label={t("layout:globalSearch")}
         />
         <Badge count={5} size="small" offset={[-2, 4]}>
           <button
             type="button"
             className="bend-header__icon-btn"
-            aria-label={t('layout:notifications')}
+            aria-label={t("layout:notifications")}
           >
             <BellOutlined />
           </button>
@@ -116,11 +126,17 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
         <Dropdown
           menu={{ items: userMenuItems, onClick: handleUserMenu }}
           placement="bottomRight"
-          trigger={['click']}
+          trigger={["click"]}
         >
-          <button type="button" className="bend-header__user" aria-label={t('layout:profile')}>
+          <button
+            type="button"
+            className="bend-header__user"
+            aria-label={t("layout:profile")}
+          >
             <Avatar size={32} src={user?.avatar} icon={<UserOutlined />} />
-            <span className="bend-header__username">{user?.nickname ?? user?.username ?? t('layout:admin')}</span>
+            <span className="bend-header__username">
+              {user?.nickname ?? user?.username ?? t("layout:admin")}
+            </span>
           </button>
         </Dropdown>
       </div>

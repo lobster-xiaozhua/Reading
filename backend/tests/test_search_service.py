@@ -6,7 +6,7 @@ import pytest
 
 from app.core.redis import CacheKeys
 from app.models.novel import Novel, Tag
-from app.services.search_service import SearchService
+from app.services.search_service import SearchService, _pinyin_match, _to_pinyin
 
 
 @pytest.fixture
@@ -125,6 +125,13 @@ class TestHotSearches:
         assert len(result) == 2
         assert result[0] == "热门A"
 
+    async def test_hot_searches_filters_short_words(self, svc, redis_client):
+        await redis_client.zincrby(CacheKeys.SEARCH_HOT_ZSET, 5, "A")
+        await redis_client.zincrby(CacheKeys.SEARCH_HOT_ZSET, 5, "玄幻")
+        result = await svc.get_hot_searches()
+        assert "A" not in result
+        assert "玄幻" in result
+
 
 class TestRecordSearch:
     async def test_record_search_increments(self, svc, redis_client):
@@ -151,3 +158,40 @@ class TestSearchNovels:
         novels, total = await svc._search_novels("", 1, 10)
         assert total == 0
         assert len(novels) == 0
+
+
+class TestPinyinSearch:
+    async def test_to_pinyin(self):
+        assert _to_pinyin("玄幻之巅") == "xuanhuanzhidian"
+
+    async def test_pinyin_match_hits(self, db_session, svc):
+        await _create_published_novel(db_session, title="玄幻之巅")
+        novels, total = await svc._search_novels("xuanhuan", 1, 10)
+        assert total == 1
+        assert novels[0].title == "玄幻之巅"
+
+    async def test_pinyin_match_only_ascii_keyword(self, db_session, svc):
+        await _create_published_novel(db_session, title="玄幻之巅")
+        novels, total = await svc._search_novels("玄幻", 1, 10)
+        assert total == 1
+
+    async def test_pinyin_match_no_hit(self, db_session, svc):
+        await _create_published_novel(db_session, title="玄幻之巅")
+        novels, total = await svc._search_novels("xuanhuanwuxian", 1, 10)
+        assert total == 0
+
+    async def test_pinyin_helper_non_ascii(self, db_session):
+        await _create_published_novel(db_session, title="玄幻之巅")
+        assert _pinyin_match([], "玄幻") == []
+
+    async def test_pinyin_suggestions(self, db_session, svc):
+        await _create_published_novel(db_session, title="凡人修仙传")
+        result = await svc.get_suggestions("fanren")
+        book_suggestions = [s for s in result if s.type == "book"]
+        assert any(s.text == "凡人修仙传" for s in book_suggestions)
+
+    async def test_pinyin_match_with_shared_prefix(self, db_session, svc):
+        await _create_published_novel(db_session, title="九星霸体诀")
+        novels, total = await svc._search_novels("jiuxing", 1, 10)
+        assert total == 1
+        assert novels[0].title == "九星霸体诀"

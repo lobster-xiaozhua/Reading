@@ -1,13 +1,14 @@
 """C 端搜索服务（§7.4）。
 
 提供搜索建议、书籍搜索、热搜词。
-当前实现基于 MySQL LIKE 查询，后续可平替为 Elasticsearch。
+当前实现基于 MySQL LIKE 查询 + 拼音兜底，后续可平替为 Elasticsearch。
 """
 
 import json
 
 import redis.asyncio as redis
 import structlog
+from pypinyin import lazy_pinyin
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,6 +25,23 @@ logger = structlog.get_logger(__name__)
 _TTL_SUGGESTION = 60  # 1 分钟
 _TTL_HOT_SEARCH = 300  # 5 分钟
 _MAX_SUGGESTIONS = 8
+_PINYIN_CANDIDATES = 500  # 拼音兜底扫描的候选作品上限（按点击量取 Top N）
+
+
+def _to_pinyin(text: str) -> str:
+    """转全拼小写（无分隔符），用于拼音匹配。"""
+    return "".join(lazy_pinyin(text)).lower()
+
+
+def _pinyin_match(novels: list[Novel], keyword: str) -> list[Novel]:
+    """按书名全拼匹配（keyword 需为纯拼音，否则返回空）。
+
+    用于用户输入拼音时兜底命中中文书名，例如 "xuanhuan" 命中 "玄幻之巅"。
+    """
+    kw = keyword.strip().lower()
+    if not kw or not (kw.isascii() and kw.isalpha()):
+        return []
+    return [n for n in novels if kw in _to_pinyin(n.title)]
 
 
 class SearchService:
@@ -58,6 +76,11 @@ class SearchService:
         novels = await self.novel_repo.search(keyword, limit=3)
         for n in novels:
             suggestions.append(SearchSuggestion(type="book", text=n.title, book_id=str(n.id)))
+        # 拼音兜底：纯拼音关键词且无书名命中时，按书名全拼匹配
+        if not novels and keyword.isascii() and keyword.isalpha():
+            candidates = await self._pinyin_candidates()
+            for n in _pinyin_match(candidates, keyword)[:3]:
+                suggestions.append(SearchSuggestion(type="book", text=n.title, book_id=str(n.id)))
         # 作者名匹配
         author_stmt = (
             select(Novel.author_name)
@@ -114,10 +137,10 @@ class SearchService:
         if cached:
             return json.loads(cached)
 
-        # 从 ZSet 取 Top N
+        # 从 ZSet 取 Top N，过滤过短的无意义词
         try:
             hot = await self.redis.zrevrange(CacheKeys.SEARCH_HOT_ZSET, 0, limit - 1)
-            result = [h for h in hot if h]
+            result = [h for h in hot if h and len(h.strip()) >= 2]
         except Exception:
             logger.warning("Redis ZRevRange failed", exc_info=True)
             result = []
@@ -125,6 +148,16 @@ class SearchService:
         return result
 
     # ── 内部工具 ─────────────────────────────────────────
+    async def _pinyin_candidates(self) -> list[Novel]:
+        """取拼音兜底候选集（已发布作品，按点击量降序取 Top N）。"""
+        stmt = (
+            select(Novel)
+            .where(Novel.deleted == 0, Novel.status == "published")
+            .order_by(Novel.click_count.desc())
+            .limit(_PINYIN_CANDIDATES)
+        )
+        return list((await self.session.execute(stmt)).scalars().all())
+
     async def _search_novels(
         self, keyword: str, page: int, page_size: int
     ) -> tuple[list[Novel], int]:
@@ -155,6 +188,12 @@ class SearchService:
             )
             count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
             total = (await self.session.execute(count_stmt)).scalar_one()
+        # 拼音兜底：纯拼音关键词仍未命中时，按书名全拼匹配
+        if total == 0 and keyword.isascii() and keyword.isalpha():
+            matched = _pinyin_match(await self._pinyin_candidates(), keyword)
+            total = len(matched)
+            items = matched[(page - 1) * page_size : page * page_size]
+            return list(items), total
         result = await self.session.execute(stmt.offset((page - 1) * page_size).limit(page_size))
         return list(result.scalars().all()), total
 

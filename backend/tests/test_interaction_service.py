@@ -122,3 +122,75 @@ class TestRating:
             await svc.submit_rating(1, novel.id, 6)
         with pytest.raises(ParamError):
             await svc.submit_rating(1, novel.id, 0)
+
+
+class TestLikeSelf:
+    async def test_like_own_comment_returns_true_without_increment(self, svc, db_session):
+        novel = await _create_published_novel(db_session)
+        comment_id = await svc.create_comment(1, novel.id, "自评", 4)
+        result = await svc.like_comment(int(comment_id), 1)
+        assert result is True
+
+
+class TestReviewsTopicsBookLists:
+    async def test_get_reviews(self, svc, db_session):
+        novel = await _create_published_novel(db_session, title="书评测试书", cover="cover.jpg")
+        from app.models.interaction import Review as ReviewModel
+
+        db_session.add(
+            ReviewModel(
+                reader_id=1,
+                novel_id=novel.id,
+                rating=5,
+                content="很好看",
+                likes=10,
+                replies=2,
+                created_at=1,
+            )
+        )
+        await db_session.commit()
+        reviews = await svc.get_reviews()
+        assert len(reviews) == 1
+        assert reviews[0].book.title == "书评测试书"
+        assert reviews[0].likes == 10
+        assert reviews[0].replies == 2
+
+    async def test_get_reviews_empty(self, svc):
+        assert await svc.get_reviews() == []
+
+    async def test_get_topics(self, svc, db_session):
+        from app.models.novel import Tag
+
+        db_session.add(Tag(name="爽文", ref_count=100))
+        db_session.add(Tag(name="穿越", ref_count=50))
+        await db_session.commit()
+        topics = await svc.get_topics()
+        assert len(topics) == 2
+        assert topics[0].name == "爽文"
+        assert topics[0].count == 100
+
+    async def test_get_book_lists_groups_by_category(self, svc, db_session):
+        await _create_published_novel(db_session, title="玄幻一", category="xuanhuan", rating=9.5, follow_count=100)
+        await _create_published_novel(db_session, title="玄幻二", category="xuanhuan", rating=8.5, follow_count=50)
+        await _create_published_novel(db_session, title="都市一", category="urban", rating=9.0, follow_count=80)
+        book_lists = await svc.get_book_lists(limit=10)
+        assert len(book_lists) == 2
+        assert {bl.book_count for bl in book_lists} == {1, 2}
+        assert all(bl.title.endswith("精选书单") for bl in book_lists)
+
+    async def test_get_book_lists_empty(self, svc):
+        assert await svc.get_book_lists() == []
+
+    async def test_report_reading_progress_redis_failure_still_succeeds(self, db_session):
+        novel = await _create_published_novel(db_session)
+
+        class _BrokenRedis:
+            async def hset(self, *args, **kwargs):
+                raise ConnectionError("redis down")
+
+            async def expire(self, *args, **kwargs):
+                raise ConnectionError("redis down")
+
+        svc = InteractionService(db_session, _BrokenRedis())
+        result = await svc.report_reading_progress(1, novel.id, 1, 0, 50.0)
+        assert result is True

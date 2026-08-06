@@ -10,11 +10,11 @@
  * Source: 04-B端专项设计.md §11.6 / 01-前端底层设计.md §12
  * ============================================================ */
 
-import { useMemo, type ReactNode } from 'react';
-import { ConfigProvider, App as AntApp, type ThemeConfig } from 'antd';
-import zhCN from 'antd/locale/zh_CN';
-import { ThemeProvider, useTheme } from '@novel/tokens/react';
-import { antdTokenMap, antdDarkTokenOverride } from './token-map';
+import { useMemo, type ReactNode } from "react";
+import { ConfigProvider, App as AntApp, type ThemeConfig } from "antd";
+import zhCN from "antd/locale/zh_CN";
+import { ThemeProvider, useTheme } from "@novel/tokens/react";
+import { antdTokenMap, antdDarkTokenOverride } from "./token-map";
 
 /**
  * AntD 主题配置（在 ThemeProvider 内消费 resolvedUITheme）
@@ -25,17 +25,17 @@ function AntdThemeConfig({ children }: { children: ReactNode }) {
   const themeConfig = useMemo<ThemeConfig>(
     () => ({
       token:
-        resolvedUITheme === 'dark'
+        resolvedUITheme === "dark"
           ? { ...antdTokenMap, ...antdDarkTokenOverride }
           : antdTokenMap,
       components: {
         // 表格紧凑型（04 §6.1）
         Table: {
-          headerBg: 'var(--color-bg-subtle)',
-          headerColor: 'var(--color-text-secondary)',
-          rowHoverBg: 'var(--color-bg-subtle)',
-          rowSelectedBg: 'var(--color-brand-bg)',
-          rowSelectedHoverBg: 'var(--color-brand-bg)',
+          headerBg: "var(--color-bg-subtle)",
+          headerColor: "var(--color-text-secondary)",
+          rowHoverBg: "var(--color-bg-subtle)",
+          rowSelectedBg: "var(--color-brand-bg)",
+          rowSelectedHoverBg: "var(--color-brand-bg)",
           cellPaddingBlock: 12,
           cellPaddingInline: 16,
         },
@@ -52,15 +52,15 @@ function AntdThemeConfig({ children }: { children: ReactNode }) {
         },
         // 卡片
         Card: {
-          headerBg: 'transparent',
+          headerBg: "transparent",
           paddingLG: 24,
         },
         // 菜单（侧边栏）
         Menu: {
           itemHeight: 40,
-          subMenuItemBg: 'transparent',
-          itemSelectedBg: 'var(--color-brand-bg)',
-          itemSelectedColor: 'var(--color-brand)',
+          subMenuItemBg: "transparent",
+          itemSelectedBg: "var(--color-brand-bg)",
+          itemSelectedColor: "var(--color-brand)",
         },
       },
     }),
@@ -86,12 +86,12 @@ function AntdThemeConfig({ children }: { children: ReactNode }) {
 export interface AtlasAdminProviderProps {
   children: ReactNode;
   /** 初始 UI 主题，默认 system */
-  defaultUITheme?: 'light' | 'dark' | 'system';
+  defaultUITheme?: "light" | "dark" | "system";
 }
 
 export function AtlasAdminProvider({
   children,
-  defaultUITheme = 'system',
+  defaultUITheme = "system",
 }: AtlasAdminProviderProps) {
   return (
     <ThemeProvider defaultUITheme={defaultUITheme}>

@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
-import { Skeleton } from '@novel/components';
-import { ErrorState } from './ErrorState';
+import type { ReactNode } from "react";
+import { Skeleton } from "@novel/components";
+import { ErrorState } from "./ErrorState";
 
 interface DiscoverModuleProps {
   /** 是否加载中 */

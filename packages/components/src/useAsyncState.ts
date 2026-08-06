@@ -4,9 +4,9 @@
  * 配合 EmptyState / Skeleton / ErrorState 实现 6 种状态模式
  * ============================================================ */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error';
+export type AsyncStatus = "idle" | "loading" | "success" | "error";
 
 export interface AsyncState<T> {
   status: AsyncStatus;
@@ -52,7 +52,7 @@ export function useAsyncState<T>(
 ): UseAsyncStateReturn<T> {
   const { loadingDelay = 1000, immediate = true, deps = [], initial } = options;
   const [state, setState] = useState<AsyncState<T>>({
-    status: 'idle',
+    status: "idle",
     data: (initial as T | undefined) ?? null,
     error: null,
     loaded: false,
@@ -81,11 +81,11 @@ export function useAsyncState<T>(
       if (!loadedRef.current && loadingDelay > 0) {
         delayTimerRef.current = setTimeout(() => {
           if (mountedRef.current && runningRef.current) {
-            setState((s) => ({ ...s, status: 'loading' }));
+            setState((s) => ({ ...s, status: "loading" }));
           }
         }, loadingDelay);
       } else {
-        setState((s) => ({ ...s, status: 'loading' }));
+        setState((s) => ({ ...s, status: "loading" }));
       }
 
       const promise = asyncFn(...args);
@@ -95,7 +95,7 @@ export function useAsyncState<T>(
         const data = await promise;
         if (!mountedRef.current) return data;
         setState({
-          status: 'success',
+          status: "success",
           data,
           error: null,
           loaded: true,
@@ -106,7 +106,7 @@ export function useAsyncState<T>(
         const error = err instanceof Error ? err : new Error(String(err));
         setState((s) => ({
           ...s,
-          status: 'error',
+          status: "error",
           error,
           loaded: true,
         }));
@@ -120,14 +120,13 @@ export function useAsyncState<T>(
       }
     },
     // state omitted: loadedRef avoids stale closure without re-creating run on every state change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [asyncFn, loadingDelay],
   );
 
   const reset = useCallback(() => {
     if (delayTimerRef.current) clearTimeout(delayTimerRef.current);
     runningRef.current = null;
-    setState({ status: 'idle', data: null, error: null, loaded: false });
+    setState({ status: "idle", data: null, error: null, loaded: false });
   }, []);
 
   const setData = useCallback<
@@ -135,8 +134,11 @@ export function useAsyncState<T>(
   >((data) => {
     setState((s) => ({
       ...s,
-      data: typeof data === 'function' ? (data as (p: T | null) => T | null)(s.data) : data,
-      status: 'success',
+      data:
+        typeof data === "function"
+          ? (data as (p: T | null) => T | null)(s.data)
+          : data,
+      status: "success",
     }));
   }, []);
 
@@ -152,7 +154,6 @@ export function useAsyncState<T>(
     }
     run();
     // immediateRef omitted: ref is stable, never changes after mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [depsKey, run]);
 
   return {
@@ -160,7 +161,7 @@ export function useAsyncState<T>(
     run,
     reset,
     setData,
-    isLoading: state.status === 'loading',
-    loading: state.status === 'loading',
+    isLoading: state.status === "loading",
+    loading: state.status === "loading",
   };
 }

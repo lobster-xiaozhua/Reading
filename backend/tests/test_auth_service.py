@@ -103,6 +103,45 @@ class TestRefresh:
         with pytest.raises(BizError):
             await svc.refresh(login.refresh_token)
 
+    async def test_refresh_wrong_token_type(self, svc):
+        from app.core.security import create_token
+
+        access_token, _ = create_token(1, "access", ttl=3600)
+        with pytest.raises(BizError):
+            await svc.refresh(access_token)
+
+    async def test_refresh_disabled_admin_rejected(self, svc, db_session, redis_client):
+        admin = await _create_admin(db_session)
+        login = await svc.login("admin", "admin123")
+        admin.enabled = 0
+        await db_session.commit()
+        with pytest.raises(BizError):
+            await svc.refresh(login.refresh_token)
+
+
+class TestEnsureDemoAdmin:
+    async def test_creates_demo_admin_when_missing(self, svc, db_session):
+        from sqlalchemy import select
+
+        from app.models.user import Admin
+
+        existing = await svc._find_admin("admin")
+        assert existing is None
+        await svc._ensure_demo_admin()
+        created = (await db_session.execute(select(Admin).where(Admin.username == "admin"))).scalar_one()
+        assert created is not None
+        assert created.enabled == 1
+
+    async def test_keeps_existing_demo_admin(self, svc, db_session):
+        from sqlalchemy import select
+
+        from app.models.user import Admin
+
+        await _create_admin(db_session)
+        await svc._ensure_demo_admin()
+        admins = (await db_session.execute(select(Admin))).scalars().all()
+        assert len(admins) == 1
+
 
 class TestLogout:
     async def test_logout_success(self, svc, db_session, redis_client):

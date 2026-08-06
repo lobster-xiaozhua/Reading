@@ -5,15 +5,15 @@
  * Source: 04 §7.2 / P7-2~6
  * ============================================================ */
 
-import { useMemo } from 'react';
-import { Gauge } from '@ant-design/charts';
-import type { GaugeConfig } from '@ant-design/charts';
+import { useMemo } from "react";
+import { Gauge } from "@ant-design/charts";
+import type { GaugeConfig } from "@ant-design/charts";
 import {
   CHART_DEFAULT_HEIGHT,
   getChartColors,
   isDarkMode,
   ChartWrapper,
-} from './shared';
+} from "./shared";
 
 export interface BGaugeProps {
   /** 当前值（0-1） */
@@ -42,7 +42,9 @@ export function BGauge({
   const dark = isDarkMode();
 
   if (value == null || Number.isNaN(value)) {
-    return <ChartWrapper empty emptyDescription={emptyDescription} height={height} />;
+    return (
+      <ChartWrapper empty emptyDescription={emptyDescription} height={height} />
+    );
   }
 
   const mergedConfig: GaugeConfig = {
@@ -50,20 +52,20 @@ export function BGauge({
     min,
     max,
     height,
-    theme: dark ? 'classicDark' : 'classic',
+    theme: dark ? "classicDark" : "classic",
     color: colors[0],
     legend: false,
     annotations: title
       ? [
           {
-            type: 'text',
+            type: "text",
             style: {
               text: title,
-              x: '50%',
-              y: '60%',
-              textAlign: 'center',
+              x: "50%",
+              y: "60%",
+              textAlign: "center",
               fontSize: 14,
-              fill: 'var(--color-text-secondary)',
+              fill: "var(--color-text-secondary)",
             },
           },
         ]

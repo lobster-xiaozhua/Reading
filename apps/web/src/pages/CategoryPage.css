@@ -55,7 +55,8 @@
   cursor: pointer;
   border-radius: var(--radius-md);
   text-align: left;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 .category-page__cat-item:hover {
@@ -95,7 +96,8 @@
   cursor: pointer;
   border-radius: var(--radius-sm);
   text-align: left;
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 .category-page__cat-sub-item:hover {
@@ -138,7 +140,8 @@
   font-size: 14px;
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color var(--dur-fast) var(--ease-standard),
+  transition:
+    color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
 }
 .category-page__sort-tab:hover {
@@ -164,7 +167,8 @@
   font-size: 13px;
   cursor: pointer;
   border-radius: var(--radius-sm);
-  transition: background var(--dur-fast) var(--ease-standard),
+  transition:
+    background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
 }
 .category-page__status-btn.is-active {

@@ -117,6 +117,26 @@ class TestNovelServiceBatchOperate:
         result = await svc.batch_result([n1.id], "shelve", reason="violation")
         assert result.affected == 1
 
+    async def test_batch_approve(self, svc, db_session):
+        n1 = await _create_novel(db_session, title="A", status="pending")
+        result = await svc.batch_result([n1.id], "approve")
+        assert result.affected == 1
+        await db_session.refresh(n1)
+        assert n1.status == "published"
+        assert n1.published_at > 0
+
+    async def test_batch_reshelve(self, svc, db_session):
+        n1 = await _create_novel(db_session, title="A", status="offline")
+        result = await svc.batch_result([n1.id], "reshelve")
+        assert result.affected == 1
+        await db_session.refresh(n1)
+        assert n1.status == "published"
+
+    async def test_batch_unsupported_action_raises(self, svc, db_session):
+        n1 = await _create_novel(db_session, title="A")
+        with pytest.raises(BizError):
+            await svc.batch_operate([n1.id], "explode")
+
 
 class TestNovelServiceTransition:
     async def test_transition_draft_to_pending(self, svc, db_session):
@@ -128,3 +148,15 @@ class TestNovelServiceTransition:
         novel = await _create_novel(db_session, status="draft")
         with pytest.raises(BizError):
             await svc.transition(novel.id, "published")
+
+    async def test_transition_to_published_sets_published_at(self, svc, db_session):
+        novel = await _create_novel(db_session, status="pending")
+        detail = await svc.transition(novel.id, "published")
+        assert detail.status == "published"
+        assert detail.published_at > 0
+
+    async def test_transition_to_offline_sets_shelved_at(self, svc, db_session):
+        novel = await _create_novel(db_session, status="published")
+        detail = await svc.transition(novel.id, "offline")
+        assert detail.status == "offline"
+        assert detail.shelved_at > 0

@@ -3,8 +3,8 @@
  * 纯文本提示；hover/focus 触发；dur-fast 渐显
  * ============================================================ */
 
-import { useState, type ReactNode } from 'react';
-import { Popper, type Placement } from './Popper.js';
+import { useState, type ReactNode } from "react";
+import { Popper, type Placement } from "./Popper.js";
 
 export interface TooltipProps {
   title: ReactNode;
@@ -12,7 +12,7 @@ export interface TooltipProps {
   children: ReactNode;
 }
 
-export function Tooltip({ title, placement = 'top', children }: TooltipProps) {
+export function Tooltip({ title, placement = "top", children }: TooltipProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ export function Tooltip({ title, placement = 'top', children }: TooltipProps) {
           onMouseLeave={() => setOpen(false)}
           onFocus={() => setOpen(true)}
           onBlur={() => setOpen(false)}
-          style={{ display: 'inline-flex' }}
+          style={{ display: "inline-flex" }}
         >
           {children}
         </span>
@@ -35,7 +35,7 @@ export function Tooltip({ title, placement = 'top', children }: TooltipProps) {
       {({ floatRef, floatStyle, ready }) => (
         <div
           ref={floatRef}
-          className={`novel-tooltip ${placement.startsWith('bottom') ? 'novel-tooltip--bottom' : ''} ${ready ? 'is-ready' : ''}`}
+          className={`novel-tooltip ${placement.startsWith("bottom") ? "novel-tooltip--bottom" : ""} ${ready ? "is-ready" : ""}`}
           style={floatStyle}
           role="tooltip"
         >

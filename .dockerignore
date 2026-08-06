@@ -1,0 +1,16 @@
+# 构建上下文排除（infra 各 Dockerfile 以仓库根为上下文）
+**/node_modules
+**/dist
+**/.pytest_cache
+**/.ruff_cache
+**/.coverage
+.git
+.github
+.monkeycode
+monitoring
+test-results
+*.db
+*.log
+.venv
+__pycache__
+**/__pycache__

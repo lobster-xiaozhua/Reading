@@ -1,6 +1,6 @@
-import { Skeleton } from '@novel/components';
-import { RatingDistribution } from '@/components/RatingDistribution';
-import type { RatingDistribution as RatingDist } from '@/api/types';
+import { Skeleton } from "@novel/components";
+import { RatingDistribution } from "@/components/RatingDistribution";
+import type { RatingDistribution as RatingDist } from "@/api/types";
 
 interface BookDetailOverviewProps {
   intro: string;

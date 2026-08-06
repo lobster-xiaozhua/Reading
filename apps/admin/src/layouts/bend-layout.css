@@ -66,7 +66,7 @@
 }
 
 .bend-sider__menu .ant-menu-item-selected::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 50%;
@@ -244,8 +244,14 @@
 }
 
 @keyframes bFadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .bend-layout__inner {
@@ -258,7 +264,9 @@
 
 /* Sider 折叠动画对齐令牌 */
 .ant-layout-sider {
-  transition: width var(--dur-normal) var(--ease-in-out), min-width var(--dur-normal) var(--ease-in-out);
+  transition:
+    width var(--dur-normal) var(--ease-in-out),
+    min-width var(--dur-normal) var(--ease-in-out);
 }
 
 /* Chapter edit icon hover visibility */

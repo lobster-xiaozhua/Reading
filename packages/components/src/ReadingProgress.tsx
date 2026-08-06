@@ -8,7 +8,13 @@
  *   - 满 100% + 「本章已读完」提示
  * ============================================================ */
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 
 export interface ReadingProgressProps {
   /** 当前章节序号（1-based） */
@@ -50,7 +56,10 @@ export function ReadingProgress({
       const track = trackRef.current;
       if (!track) return current;
       const rect = track.getBoundingClientRect();
-      const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+      const ratio = Math.max(
+        0,
+        Math.min(1, (clientX - rect.left) / rect.width),
+      );
       return Math.max(1, Math.min(total, Math.ceil(ratio * total)));
     },
     [current, total],
@@ -71,11 +80,11 @@ export function ReadingProgress({
       setDragChapter(null);
       onSeek?.(ch);
     };
-    document.addEventListener('pointermove', handleMove);
-    document.addEventListener('pointerup', handleUp);
+    document.addEventListener("pointermove", handleMove);
+    document.addEventListener("pointerup", handleUp);
     return () => {
-      document.removeEventListener('pointermove', handleMove);
-      document.removeEventListener('pointerup', handleUp);
+      document.removeEventListener("pointermove", handleMove);
+      document.removeEventListener("pointerup", handleUp);
     };
   }, [seekable, dragging, calcChapter, onSeek]);
 
@@ -87,26 +96,25 @@ export function ReadingProgress({
   };
 
   /* ---------- 显示用进度：拖拽时跟随手柄 ---------- */
-  const displayPercent = dragging && dragChapter != null
-    ? (dragChapter / total) * 100
-    : clamped;
+  const displayPercent =
+    dragging && dragChapter != null ? (dragChapter / total) * 100 : clamped;
 
   const fillStyle: CSSProperties = {
     width: `${displayPercent}%`,
     transition: dragging
-      ? 'none'
-      : 'width var(--dur-normal) var(--ease-standard)',
+      ? "none"
+      : "width var(--dur-normal) var(--ease-standard)",
   };
 
   const rootCls = [
-    'novel-reading-progress',
-    dragging ? 'is-dragging' : '',
-    isComplete ? 'is-complete' : '',
-    seekable ? 'is-seekable' : '',
-    className ?? '',
+    "novel-reading-progress",
+    dragging ? "is-dragging" : "",
+    isComplete ? "is-complete" : "",
+    seekable ? "is-seekable" : "",
+    className ?? "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   return (
     <div className={rootCls}>
@@ -114,17 +122,18 @@ export function ReadingProgress({
         ref={trackRef}
         className="novel-reading-progress__track"
         onPointerDown={handleTrackPointerDown}
-        role={seekable ? 'slider' : undefined}
+        role={seekable ? "slider" : undefined}
         aria-valuemin={1}
         aria-valuemax={total}
-        aria-valuenow={dragging ? dragChapter ?? current : current}
+        aria-valuenow={dragging ? (dragChapter ?? current) : current}
         aria-label="章节进度"
         tabIndex={seekable ? 0 : undefined}
         onKeyDown={
           seekable
             ? (e) => {
-                if (e.key === 'ArrowLeft' && current > 1) onSeek?.(current - 1);
-                else if (e.key === 'ArrowRight' && current < total) onSeek?.(current + 1);
+                if (e.key === "ArrowLeft" && current > 1) onSeek?.(current - 1);
+                else if (e.key === "ArrowRight" && current < total)
+                  onSeek?.(current + 1);
               }
             : undefined
         }
@@ -135,7 +144,9 @@ export function ReadingProgress({
             className="novel-reading-progress__handle"
             style={{
               left: `${displayPercent}%`,
-              transition: dragging ? 'none' : 'left var(--dur-normal) var(--ease-standard)',
+              transition: dragging
+                ? "none"
+                : "left var(--dur-normal) var(--ease-standard)",
             }}
             aria-hidden
           />

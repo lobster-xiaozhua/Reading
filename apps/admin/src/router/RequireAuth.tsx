@@ -5,9 +5,9 @@
  * - token 临近过期自动 refresh
  * ============================================================ */
 
-import { useEffect, type ReactNode } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthStore, isTokenNearExpiry } from '@/stores/authStore';
+import { useEffect, type ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuthStore, isTokenNearExpiry } from "@/stores/authStore";
 
 interface RequireAuthProps {
   children: ReactNode;

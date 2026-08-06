@@ -4,11 +4,11 @@
  * 行高 56px；切 Tab dur-normal 淡入；loading 骨架
  * ============================================================ */
 
-import { useState } from 'react';
-import { type Book } from './BookCard.js';
-import { NovelTrendingUp, NovelTrendingDown } from '@novel/icons';
+import { useState } from "react";
+import { type Book } from "./BookCard.js";
+import { NovelTrendingUp, NovelTrendingDown } from "@novel/icons";
 
-export type RankBoardType = 'hot' | 'follow' | 'ticket' | 'new';
+export type RankBoardType = "hot" | "follow" | "ticket" | "new";
 
 export interface RankItemType {
   book: Book;
@@ -28,17 +28,17 @@ export interface RankingBoardProps {
 }
 
 const TABS: { key: RankBoardType; label: string }[] = [
-  { key: 'hot', label: '人气榜' },
-  { key: 'follow', label: '收藏榜' },
-  { key: 'ticket', label: '月票榜' },
-  { key: 'new', label: '新书榜' },
+  { key: "hot", label: "人气榜" },
+  { key: "follow", label: "收藏榜" },
+  { key: "ticket", label: "月票榜" },
+  { key: "new", label: "新书榜" },
 ];
 
 const TAB_LABEL: Record<RankBoardType, string> = {
-  hot: '人气榜',
-  follow: '收藏榜',
-  ticket: '月票榜',
-  new: '新书榜',
+  hot: "人气榜",
+  follow: "收藏榜",
+  ticket: "月票榜",
+  new: "新书榜",
 };
 
 /** 排名变化：上升/下降/新上榜/持平
@@ -47,14 +47,20 @@ const TAB_LABEL: Record<RankBoardType, string> = {
 function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
   if (prevRank === 0) {
     return (
-      <span className="novel-ranking__trend novel-ranking__trend--new" aria-label="新上榜">
+      <span
+        className="novel-ranking__trend novel-ranking__trend--new"
+        aria-label="新上榜"
+      >
         NEW
       </span>
     );
   }
   if (prevRank === rank) {
     return (
-      <span className="novel-ranking__trend novel-ranking__trend--flat" aria-label="排名持平">
+      <span
+        className="novel-ranking__trend novel-ranking__trend--flat"
+        aria-label="排名持平"
+      >
         <span aria-hidden>—</span>
         <span className="sr-only">持平</span>
       </span>
@@ -63,18 +69,28 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
   if (rank < prevRank) {
     const delta = prevRank - rank;
     return (
-      <span className="novel-ranking__trend novel-ranking__trend--up" aria-label={`上升 ${delta} 位`}>
+      <span
+        className="novel-ranking__trend novel-ranking__trend--up"
+        aria-label={`上升 ${delta} 位`}
+      >
         <NovelTrendingUp size="xs" aria-hidden="true" />
-        <span className="novel-ranking__trend-label" aria-hidden>升</span>
+        <span className="novel-ranking__trend-label" aria-hidden>
+          升
+        </span>
         {delta}
       </span>
     );
   }
   const delta = rank - prevRank;
   return (
-    <span className="novel-ranking__trend novel-ranking__trend--down" aria-label={`下降 ${delta} 位`}>
+    <span
+      className="novel-ranking__trend novel-ranking__trend--down"
+      aria-label={`下降 ${delta} 位`}
+    >
       <NovelTrendingDown size="xs" aria-hidden="true" />
-      <span className="novel-ranking__trend-label" aria-hidden>降</span>
+      <span className="novel-ranking__trend-label" aria-hidden>
+        降
+      </span>
       {delta}
     </span>
   );
@@ -82,9 +98,12 @@ function RankTrend({ rank, prevRank }: { rank: number; prevRank: number }) {
 
 /** TOP1-3 奖牌（金/银/铜 24px 圆形） */
 function Medal({ rank }: { rank: number }) {
-  const tier = rank === 1 ? 'gold' : rank === 2 ? 'silver' : 'bronze';
+  const tier = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze";
   return (
-    <span className={`novel-ranking__medal novel-ranking__medal--${tier}`} aria-label={`第 ${rank} 名`}>
+    <span
+      className={`novel-ranking__medal novel-ranking__medal--${tier}`}
+      aria-label={`第 ${rank} 名`}
+    >
       {rank}
     </span>
   );
@@ -92,7 +111,7 @@ function Medal({ rank }: { rank: number }) {
 
 export function RankingBoard({
   items,
-  type = 'hot',
+  type = "hot",
   rankIcon = true,
   maxCount = 10,
   onTabChange,
@@ -108,7 +127,7 @@ export function RankingBoard({
     onTabChange?.(t);
   };
 
-  const rootCls = ['novel-ranking', className ?? ''].filter(Boolean).join(' ');
+  const rootCls = ["novel-ranking", className ?? ""].filter(Boolean).join(" ");
   const visible = items.slice(0, maxCount);
 
   return (
@@ -120,7 +139,7 @@ export function RankingBoard({
             type="button"
             role="tab"
             aria-selected={active === t.key}
-            className={`novel-ranking__tab ${active === t.key ? 'is-active' : ''}`}
+            className={`novel-ranking__tab ${active === t.key ? "is-active" : ""}`}
             onClick={() => handleTab(t.key)}
           >
             {t.label}
@@ -128,7 +147,11 @@ export function RankingBoard({
         ))}
       </div>
 
-      <ol className="novel-ranking__list" key={active} aria-busy={loading || undefined}>
+      <ol
+        className="novel-ranking__list"
+        key={active}
+        aria-busy={loading || undefined}
+      >
         {loading ? (
           <RankingSkeleton rows={maxCount} />
         ) : visible.length === 0 ? (
@@ -159,18 +182,18 @@ function RankingRow({
 }) {
   const { book, rank, prevRank } = item;
   const isTop3 = rank <= 3;
-  const clickable = typeof onSelect === 'function';
+  const clickable = typeof onSelect === "function";
 
   const cls = [
-    'novel-ranking__row',
-    isTop3 ? 'is-top' : '',
-    clickable ? 'is-clickable' : '',
+    "novel-ranking__row",
+    isTop3 ? "is-top" : "",
+    clickable ? "is-clickable" : "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLLIElement>) => {
-    if (clickable && (e.key === 'Enter' || e.key === ' ')) {
+    if (clickable && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       onSelect?.(book);
     }
@@ -188,18 +211,26 @@ function RankingRow({
         {rankIcon && isTop3 ? (
           <Medal rank={rank} />
         ) : (
-          <span className="novel-ranking__num" aria-hidden>{rank}</span>
+          <span className="novel-ranking__num" aria-hidden>
+            {rank}
+          </span>
         )}
       </div>
       <div className="novel-ranking__main">
-        <div className="novel-ranking__title" title={book.title}>{book.title}</div>
+        <div className="novel-ranking__title" title={book.title}>
+          {book.title}
+        </div>
         <div className="novel-ranking__author">{book.author}</div>
       </div>
       <div className="novel-ranking__meta">
         {book.rating != null ? (
           <span className="novel-ranking__score">
-            <span className="novel-ranking__star" aria-hidden>★</span>
-            <span className="novel-ranking__score-num">{book.rating.toFixed(1)}</span>
+            <span className="novel-ranking__star" aria-hidden>
+              ★
+            </span>
+            <span className="novel-ranking__score-num">
+              {book.rating.toFixed(1)}
+            </span>
           </span>
         ) : null}
         <RankTrend rank={rank} prevRank={prevRank} />

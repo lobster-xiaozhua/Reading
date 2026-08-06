@@ -3,8 +3,8 @@
  * 面包屑 + 封面/BookMeta/操作按钮 + 评分分布 + 目录
  * + 相关推荐 + 评论区 + 打赏占位
  * ============================================================ */
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ChapterList,
   EmptyState,
@@ -15,25 +15,25 @@ import {
   useFeedback,
   type Chapter,
   type ChapterOrder,
-} from '@novel/components';
-import { NovelHeart, NovelHeartFilled, NovelComment } from '@novel/icons';
-import { LazyImage } from '@/components/LazyImage';
-import { fetcher } from '@/api/fetcher';
+} from "@novel/components";
+import { NovelHeart, NovelHeartFilled, NovelComment } from "@novel/icons";
+import { LazyImage } from "@/components/LazyImage";
+import { fetcher } from "@/api/fetcher";
 import type {
   BookSummary,
   ChapterSummary,
   Comment,
   RatingDistribution as RatingDist,
-} from '@/api/types';
-import { useUserStore } from '@/stores/userStore';
-import { useHistoryStore } from '@/stores/historyStore';
-import { formatRelativeTime } from '@/utils/time';
-import { BookDetailHero } from './BookDetailPage/BookDetailHero';
-import { BookDetailOverview } from './BookDetailPage/BookDetailOverview';
-import { BookDetailRelated } from './BookDetailPage/BookDetailRelated';
-import './BookDetailPage.css';
+} from "@/api/types";
+import { useUserStore } from "@/stores/userStore";
+import { useHistoryStore } from "@/stores/historyStore";
+import { formatRelativeTime } from "@/utils/time";
+import { BookDetailHero } from "./BookDetailPage/BookDetailHero";
+import { BookDetailOverview } from "./BookDetailPage/BookDetailOverview";
+import { BookDetailRelated } from "./BookDetailPage/BookDetailRelated";
+import "./BookDetailPage.css";
 
-type DetailTab = 'chapters' | 'comments' | 'reward';
+type DetailTab = "chapters" | "comments" | "reward";
 
 /** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo 每帧重算 */
 const EMPTY_CHAPTERS: ChapterSummary[] = [];
@@ -52,41 +52,56 @@ function toChapter(c: ChapterSummary, readChapterIds: Set<string>): Chapter {
 }
 
 export default function BookDetailPage() {
-  const { bookId = '' } = useParams();
+  const { bookId = "" } = useParams();
   const navigate = useNavigate();
   const feedback = useFeedback();
   const isInBookshelf = useUserStore((s) => s.isInBookshelf(bookId));
   const toggleBookshelf = useUserStore((s) => s.toggleBookshelf);
   const historyEntry = useHistoryStore((s) => s.entries[bookId]);
-  const [order, setOrder] = useState<ChapterOrder>('asc');
-  const [tab, setTab] = useState<DetailTab>('chapters');
+  const [order, setOrder] = useState<ChapterOrder>("asc");
+  const [tab, setTab] = useState<DetailTab>("chapters");
 
   /* ---------- 数据加载 ---------- */
   const fetchBook = useCallback(() => fetcher.getBook(bookId), [bookId]);
-  const bookState = useAsyncState<BookSummary | null>(
-    fetchBook,
-    { deps: [bookId], loadingDelay: 200 },
+  const bookState = useAsyncState<BookSummary | null>(fetchBook, {
+    deps: [bookId],
+    loadingDelay: 200,
+  });
+  const fetchChapters = useCallback(
+    () => fetcher.getChapters(bookId),
+    [bookId],
   );
-  const fetchChapters = useCallback(() => fetcher.getChapters(bookId), [bookId]);
-  const chaptersState = useAsyncState<ChapterSummary[]>(
-    fetchChapters,
-    { deps: [bookId], initial: [] as ChapterSummary[], loadingDelay: 200 },
+  const chaptersState = useAsyncState<ChapterSummary[]>(fetchChapters, {
+    deps: [bookId],
+    initial: [] as ChapterSummary[],
+    loadingDelay: 200,
+  });
+  const fetchRelated = useCallback(
+    () => fetcher.getRelatedBooks(bookId),
+    [bookId],
   );
-  const fetchRelated = useCallback(() => fetcher.getRelatedBooks(bookId), [bookId]);
-  const relatedState = useAsyncState<BookSummary[]>(
-    fetchRelated,
-    { deps: [bookId], initial: [] as BookSummary[], loadingDelay: 200 },
+  const relatedState = useAsyncState<BookSummary[]>(fetchRelated, {
+    deps: [bookId],
+    initial: [] as BookSummary[],
+    loadingDelay: 200,
+  });
+  const fetchComments = useCallback(
+    () => fetcher.getComments(bookId),
+    [bookId],
   );
-  const fetchComments = useCallback(() => fetcher.getComments(bookId), [bookId]);
-  const commentsState = useAsyncState<Comment[]>(
-    fetchComments,
-    { deps: [bookId], initial: [] as Comment[], loadingDelay: 200 },
+  const commentsState = useAsyncState<Comment[]>(fetchComments, {
+    deps: [bookId],
+    initial: [] as Comment[],
+    loadingDelay: 200,
+  });
+  const fetchRating = useCallback(
+    () => fetcher.getRatingDistribution(bookId),
+    [bookId],
   );
-  const fetchRating = useCallback(() => fetcher.getRatingDistribution(bookId), [bookId]);
-  const ratingState = useAsyncState<RatingDist>(
-    fetchRating,
-    { deps: [bookId], loadingDelay: 200 },
-  );
+  const ratingState = useAsyncState<RatingDist>(fetchRating, {
+    deps: [bookId],
+    loadingDelay: 200,
+  });
 
   const book = bookState.data ?? null;
   const chapters = chaptersState.data ?? EMPTY_CHAPTERS;
@@ -109,12 +124,11 @@ export default function BookDetailPage() {
   /* ---------- 操作 ---------- */
   const handleToggleShelf = () => {
     toggleBookshelf(bookId);
-    feedback.message('success', isInBookshelf ? '已移出书架' : '已加入书架');
+    feedback.message("success", isInBookshelf ? "已移出书架" : "已加入书架");
   };
 
   const handleStartReading = () => {
-    const startChapter =
-      historyEntry?.chapterId ?? chapters[0]?.id;
+    const startChapter = historyEntry?.chapterId ?? chapters[0]?.id;
     if (!startChapter) return;
     navigate(`/read/${bookId}/${startChapter}`);
   };
@@ -126,7 +140,7 @@ export default function BookDetailPage() {
   // 书籍不存在
   useEffect(() => {
     if (bookState.loaded && !bookState.data) {
-      feedback.message('error', '书籍不存在或已下架');
+      feedback.message("error", "书籍不存在或已下架");
     }
   }, [bookState.loaded, bookState.data, feedback]);
 
@@ -156,11 +170,20 @@ export default function BookDetailPage() {
   return (
     <div className="book-detail">
       {/* 面包屑 */}
-      <nav className="book-detail__breadcrumb container-page" aria-label="面包屑">
+      <nav
+        className="book-detail__breadcrumb container-page"
+        aria-label="面包屑"
+      >
         <ol>
-          <li><Link to="/">首页</Link></li>
+          <li>
+            <Link to="/">首页</Link>
+          </li>
           <li aria-hidden>/</li>
-          <li><Link to={`/category?cat=${encodeURIComponent(book.category)}`}>{book.category}</Link></li>
+          <li>
+            <Link to={`/category?cat=${encodeURIComponent(book.category)}`}>
+              {book.category}
+            </Link>
+          </li>
           <li aria-hidden>/</li>
           <li aria-current="page">{book.title}</li>
         </ol>
@@ -185,7 +208,7 @@ export default function BookDetailPage() {
           onChange={(k) => setTab(k as DetailTab)}
           items={[
             {
-              key: 'chapters',
+              key: "chapters",
               label: `目录(${chapters.length})`,
               children: (
                 <div className="book-detail__chapters">
@@ -208,15 +231,18 @@ export default function BookDetailPage() {
               ),
             },
             {
-              key: 'comments',
+              key: "comments",
               label: `评论(${comments.length})`,
               children: (
-                <CommentList comments={comments} loading={commentsState.loading && comments.length === 0} />
+                <CommentList
+                  comments={comments}
+                  loading={commentsState.loading && comments.length === 0}
+                />
               ),
             },
             {
-              key: 'reward',
-              label: '打赏',
+              key: "reward",
+              label: "打赏",
               children: <RewardSection bookId={bookId} />,
             },
           ]}
@@ -231,13 +257,19 @@ export default function BookDetailPage() {
 
 /* ---------- 评论列表 ---------- */
 
-function CommentList({ comments, loading }: { comments: Comment[]; loading: boolean }) {
+function CommentList({
+  comments,
+  loading,
+}: {
+  comments: Comment[];
+  loading: boolean;
+}) {
   const [writeOpen, setWriteOpen] = useState(false);
-  const [commentText, setCommentText] = useState('');
+  const [commentText, setCommentText] = useState("");
   const [commentRating, setCommentRating] = useState(0);
 
   const handleSubmitComment = () => {
-    setCommentText('');
+    setCommentText("");
     setCommentRating(0);
     setWriteOpen(false);
   };
@@ -264,11 +296,11 @@ function CommentList({ comments, loading }: { comments: Comment[]; loading: bool
                 <button
                   key={star}
                   type="button"
-                  className={`book-detail__star-btn ${star <= commentRating ? 'is-active' : ''}`}
+                  className={`book-detail__star-btn ${star <= commentRating ? "is-active" : ""}`}
                   onClick={() => setCommentRating(star)}
                   aria-label={`${star}星`}
                 >
-                  {star <= commentRating ? '★' : '☆'}
+                  {star <= commentRating ? "★" : "☆"}
                 </button>
               ))}
             </div>
@@ -285,7 +317,7 @@ function CommentList({ comments, loading }: { comments: Comment[]; loading: bool
                 className="book-detail__write-comment-cancel"
                 onClick={() => {
                   setWriteOpen(false);
-                  setCommentText('');
+                  setCommentText("");
                   setCommentRating(0);
                 }}
               >
@@ -334,24 +366,39 @@ function CommentItem({ comment: c }: { comment: Comment }) {
   return (
     <li className="book-detail__comment">
       <div className="book-detail__comment-header">
-        <LazyImage src={c.user.avatar} alt={c.user.nickname} className="book-detail__comment-avatar" />
+        <LazyImage
+          src={c.user.avatar}
+          alt={c.user.nickname}
+          className="book-detail__comment-avatar"
+        />
         <div className="book-detail__comment-meta">
           <span className="book-detail__comment-name">{c.user.nickname}</span>
-          <span className="book-detail__comment-time">{formatRelativeTime(c.createdAt)}</span>
+          <span className="book-detail__comment-time">
+            {formatRelativeTime(c.createdAt)}
+          </span>
         </div>
-        <span className="book-detail__comment-rating" aria-label={`评分 ${c.rating} 星`}>
-          {'★'.repeat(c.rating)}
-          <span className="book-detail__comment-rating-empty">{'★'.repeat(5 - c.rating)}</span>
+        <span
+          className="book-detail__comment-rating"
+          aria-label={`评分 ${c.rating} 星`}
+        >
+          {"★".repeat(c.rating)}
+          <span className="book-detail__comment-rating-empty">
+            {"★".repeat(5 - c.rating)}
+          </span>
         </span>
       </div>
       <p className="book-detail__comment-content">{c.content}</p>
       <div className="book-detail__comment-footer">
         <button
           type="button"
-          className={`book-detail__comment-like ${isLiked ? 'is-liked' : ''}`}
+          className={`book-detail__comment-like ${isLiked ? "is-liked" : ""}`}
           onClick={handleLike}
         >
-          {isLiked ? <NovelHeartFilled size="sm" aria-hidden="true" /> : <NovelHeart size="sm" aria-hidden="true" />}
+          {isLiked ? (
+            <NovelHeartFilled size="sm" aria-hidden="true" />
+          ) : (
+            <NovelHeart size="sm" aria-hidden="true" />
+          )}
           <span>{likes}</span>
         </button>
       </div>
@@ -359,10 +406,18 @@ function CommentItem({ comment: c }: { comment: Comment }) {
         <ul className="book-detail__replies">
           {c.replies.map((r) => (
             <li key={r.id} className="book-detail__reply">
-              <LazyImage src={r.user.avatar} alt={r.user.nickname} className="book-detail__comment-avatar book-detail__comment-avatar--sm" />
+              <LazyImage
+                src={r.user.avatar}
+                alt={r.user.nickname}
+                className="book-detail__comment-avatar book-detail__comment-avatar--sm"
+              />
               <div>
-                <span className="book-detail__comment-name">{r.user.nickname}</span>
-                <span className="book-detail__comment-name book-detail__comment-name--author">作者</span>
+                <span className="book-detail__comment-name">
+                  {r.user.nickname}
+                </span>
+                <span className="book-detail__comment-name book-detail__comment-name--author">
+                  作者
+                </span>
                 <p className="book-detail__comment-content">{r.content}</p>
               </div>
             </li>
@@ -376,16 +431,21 @@ function CommentItem({ comment: c }: { comment: Comment }) {
 /* ---------- 打赏区域 ---------- */
 
 function RewardSection({ bookId }: { bookId: string }) {
-  const [loading, setLoading] = useState<'ticket' | 'recommend' | 'tip' | null>(null);
+  const [loading, setLoading] = useState<"ticket" | "recommend" | "tip" | null>(
+    null,
+  );
   const { message } = useFeedback();
 
-  const handleReward = async (type: 'ticket' | 'recommend' | 'tip', amount: number) => {
+  const handleReward = async (
+    type: "ticket" | "recommend" | "tip",
+    amount: number,
+  ) => {
     setLoading(type);
     try {
       await fetcher.createReward(bookId, type, amount);
-      message('success', '打赏成功，感谢支持！');
+      message("success", "打赏成功，感谢支持！");
     } catch {
-      message('error', '打赏失败，请稍后重试');
+      message("error", "打赏失败，请稍后重试");
     } finally {
       setLoading(null);
     }
@@ -395,28 +455,30 @@ function RewardSection({ bookId }: { bookId: string }) {
     <div className="book-detail__reward">
       <p className="book-detail__reward-text">支持作者，激励创作</p>
       <p className="book-detail__reward-hint">选择您的方式支持作者</p>
-      <div className="book-detail__reward-actions" role="group" aria-label="打赏方式">
+      <div
+        className="book-detail__reward-actions"
+        role="group"
+        aria-label="打赏方式"
+      >
         <RewardButton
           rewardType="ticket"
           count={1}
-          loading={loading === 'ticket'}
+          loading={loading === "ticket"}
           onReward={handleReward}
         />
         <RewardButton
           rewardType="recommend"
           count={1}
-          loading={loading === 'recommend'}
+          loading={loading === "recommend"}
           onReward={handleReward}
         />
         <RewardButton
           rewardType="tip"
           count={10}
-          loading={loading === 'tip'}
+          loading={loading === "tip"}
           onReward={handleReward}
         />
       </div>
     </div>
   );
 }
-
-

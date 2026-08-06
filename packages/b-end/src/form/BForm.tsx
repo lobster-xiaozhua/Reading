@@ -10,8 +10,8 @@ import {
   type ComponentRef,
   type ForwardRefExoticComponent,
   type RefAttributes,
-} from 'react';
-import { Form as AntForm } from 'antd';
+} from "react";
+import { Form as AntForm } from "antd";
 
 export type BFormProps = ComponentProps<typeof AntForm>;
 
@@ -29,7 +29,12 @@ export const BForm: ForwardRefExoticComponent<
   BFormProps & RefAttributes<ComponentRef<typeof AntForm>>
 > = forwardRef<ComponentRef<typeof AntForm>, BFormProps>(
   (
-    { layout = 'vertical', validateTrigger = ['onBlur', 'onChange'], scrollToFirstError = true, ...rest },
+    {
+      layout = "vertical",
+      validateTrigger = ["onBlur", "onChange"],
+      scrollToFirstError = true,
+      ...rest
+    },
     ref,
   ) => (
     <AntForm
@@ -42,9 +47,9 @@ export const BForm: ForwardRefExoticComponent<
   ),
 );
 
-BForm.displayName = 'BForm';
+BForm.displayName = "BForm";
 
 // 重新导出 AntD Form 的 hook / Provider / 类型，供 B 端业务直接使用
 export const useForm = AntForm.useForm;
 export const FormProvider = AntForm.Provider;
-export type { FormInstance } from 'antd';
+export type { FormInstance } from "antd";

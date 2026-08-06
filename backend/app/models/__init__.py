@@ -13,6 +13,7 @@ from app.models.reading import (
     ReadingStatsDaily,
 )
 from app.models.royalty import RoyaltyDetail
+from app.models.rum import RumEvent
 from app.models.system_config import SystemConfigModel
 from app.models.user import Admin, Author, Reader
 
@@ -38,6 +39,7 @@ __all__ = [
     "Role",
     "RolePermission",
     "RoyaltyDetail",
+    "RumEvent",
     "SensitiveWord",
     "SoftDeleteMixin",
     "SystemConfigModel",

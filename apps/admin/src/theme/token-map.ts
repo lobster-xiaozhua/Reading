@@ -10,7 +10,7 @@
  * Source: 04-B端专项设计.md §3/§4/§12.1 + 01-前端底层设计.md
  * ============================================================ */
 
-import { tokens } from '@novel/tokens';
+import { tokens } from "@novel/tokens";
 
 const { color, font, shadow, motion, zIndex } = tokens;
 
@@ -43,7 +43,7 @@ export const antdTokenMap = {
   colorBgContainer: color.semantic.bgSurface,
   colorBgElevated: color.semantic.bgElevated,
   colorBgSpotlight: color.semantic.textPrimary,
-  colorBgBlur: 'transparent',
+  colorBgBlur: "transparent",
 
   /* ---------- 5. 边框 / 填充（CSS var） ---------- */
   colorBorder: color.semantic.borderDefault,

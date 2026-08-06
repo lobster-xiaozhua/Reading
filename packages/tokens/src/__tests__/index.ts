@@ -1,1 +1,1 @@
-import './tokens.test.ts';
+import "./tokens.test.ts";

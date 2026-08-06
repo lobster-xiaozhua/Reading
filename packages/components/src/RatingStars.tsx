@@ -4,9 +4,9 @@
  * 星星 24×24 网格 1.8px 描边 currentColor；半星通过图层裁剪实现
  * ============================================================ */
 
-import { useRef, useState, type MouseEvent } from 'react';
+import { useRef, useState, type MouseEvent } from "react";
 
-export type RatingStarsSize = 'sm' | 'md' | 'lg';
+export type RatingStarsSize = "sm" | "md" | "lg";
 
 /** 评分分布：索引 0 对应 1 星 … 索引 4 对应 5 星 */
 export type RatingDistribution = [number, number, number, number, number];
@@ -63,7 +63,7 @@ export function RatingStars({
   allowHalf = true,
   readonly = false,
   disabled = false,
-  size = 'md',
+  size = "md",
   showValue = false,
   distribution,
   onChange,
@@ -72,7 +72,7 @@ export function RatingStars({
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [hover, setHover] = useState<number | null>(null);
 
-  const interactive = !readonly && !disabled && typeof onChange === 'function';
+  const interactive = !readonly && !disabled && typeof onChange === "function";
   const clamped = Math.max(0, Math.min(max, value));
   const display = hover ?? clamped;
   const fillPct = (display / max) * 100;
@@ -103,17 +103,17 @@ export function RatingStars({
   const stars = Array.from({ length: max }, (_, i) => i);
 
   const rootCls = [
-    'novel-rating',
+    "novel-rating",
     `novel-rating--${size}`,
-    interactive ? 'is-interactive' : '',
-    disabled ? 'is-disabled' : '',
-    className ?? '',
+    interactive ? "is-interactive" : "",
+    disabled ? "is-disabled" : "",
+    className ?? "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const label = disabled
-    ? '评分（不可用）'
+    ? "评分（不可用）"
     : readonly
       ? `评分 ${clamped} 星`
       : undefined;
@@ -126,7 +126,7 @@ export function RatingStars({
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
         onClick={onClick}
-        role={interactive ? 'slider' : undefined}
+        role={interactive ? "slider" : undefined}
         aria-valuenow={interactive ? clamped : undefined}
         aria-valuemin={interactive ? 0 : undefined}
         aria-valuemax={interactive ? max : undefined}
@@ -136,10 +136,12 @@ export function RatingStars({
           interactive
             ? (e) => {
                 let next = clamped;
-                if (e.key === 'ArrowRight' || e.key === 'ArrowUp') next = clamped + (allowHalf ? 0.5 : 1);
-                else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') next = clamped - (allowHalf ? 0.5 : 1);
-                else if (e.key === 'Home') next = 0;
-                else if (e.key === 'End') next = max;
+                if (e.key === "ArrowRight" || e.key === "ArrowUp")
+                  next = clamped + (allowHalf ? 0.5 : 1);
+                else if (e.key === "ArrowLeft" || e.key === "ArrowDown")
+                  next = clamped - (allowHalf ? 0.5 : 1);
+                else if (e.key === "Home") next = 0;
+                else if (e.key === "End") next = max;
                 else return;
                 e.preventDefault();
                 const q = Math.max(0, Math.min(max, quantize(next, allowHalf)));
@@ -149,7 +151,10 @@ export function RatingStars({
         }
       >
         {/* 空星层（描边灰） */}
-        <div className="novel-rating__layer novel-rating__layer--empty" aria-hidden>
+        <div
+          className="novel-rating__layer novel-rating__layer--empty"
+          aria-hidden
+        >
           {stars.map((i) => (
             <span key={i} className="novel-rating__star">
               <StarShape />
@@ -181,7 +186,11 @@ export function RatingStars({
 
 /* ---------- 评分分布柱状图 ---------- */
 
-function RatingDistribution({ distribution }: { distribution: RatingDistribution }) {
+function RatingDistribution({
+  distribution,
+}: {
+  distribution: RatingDistribution;
+}) {
   // distribution[0]=1星 … distribution[4]=5星，渲染时由高到低
   const rows = [5, 4, 3, 2, 1].map((star) => ({
     star,

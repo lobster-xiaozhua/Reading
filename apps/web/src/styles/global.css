@@ -1,5 +1,5 @@
-@import '@novel/tokens/styles/tokens.css';
-@import '@novel/components/styles.css';
+@import "@novel/tokens/styles/tokens.css";
+@import "@novel/components/styles.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,7 +21,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
-  transition: background-color var(--dur-normal) var(--ease-standard), color var(--dur-normal) var(--ease-standard);
+  transition:
+    background-color var(--dur-normal) var(--ease-standard),
+    color var(--dur-normal) var(--ease-standard);
 }
 
 #root {
@@ -94,7 +96,9 @@ img {
 }
 
 .hover-rise {
-  transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  transition:
+    transform var(--transition-smooth),
+    box-shadow var(--transition-smooth);
 }
 .hover-rise:hover {
   transform: translateY(-2px);
@@ -102,18 +106,36 @@ img {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-12px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .fade-in {
@@ -195,10 +217,12 @@ textarea:focus-visible,
     background: var(--color-bg-surface);
     color: var(--color-text-primary);
   }
-  a, a:hover {
+  a,
+  a:hover {
     text-decoration: underline;
   }
-  .novel-navbar, .novel-footer {
+  .novel-navbar,
+  .novel-footer {
     border-color: var(--color-text-primary);
   }
   .novel-reader__article-body p {

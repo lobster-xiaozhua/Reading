@@ -2,10 +2,10 @@
  * P5 · 用户状态 Store
  * 当前登录用户 + 书架集合（按书ID记录）
  * ============================================================ */
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { UserProfile } from '@/api/types';
-import { fetcher } from '@/api/fetcher';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import type { UserProfile } from "@/api/types";
+import { fetcher } from "@/api/fetcher";
 
 interface UserState {
   user: UserProfile | null;
@@ -34,7 +34,7 @@ export const useUserStore = create<UserState>()(
         try {
           const [user, shelf] = await Promise.all([
             fetcher.getCurrentUser(),
-            fetcher.getBookshelf('all'),
+            fetcher.getBookshelf("all"),
           ]);
           set({
             user,
@@ -56,7 +56,9 @@ export const useUserStore = create<UserState>()(
             await fetcher.removeFromBookshelf(bookId);
           }
           set({
-            bookshelfIds: adding ? [...ids, bookId] : ids.filter((id) => id !== bookId),
+            bookshelfIds: adding
+              ? [...ids, bookId]
+              : ids.filter((id) => id !== bookId),
           });
         } catch {
           // 同步失败保持原状态
@@ -77,7 +79,7 @@ export const useUserStore = create<UserState>()(
       logout: () => set({ user: null }),
     }),
     {
-      name: 'atlas-user-store',
+      name: "atlas-user-store",
       partialize: (state) => ({
         bookshelfIds: state.bookshelfIds,
         followedBookListIds: state.followedBookListIds,

@@ -4,9 +4,9 @@
  * detailed / compact 两种变体；统计数字使用 mono 等宽体
  * ============================================================ */
 
-import type { MouseEvent } from 'react';
-import { Tag } from './Tag.js';
-import { ContentStatus, type ContentStatusType } from './ContentStatus.js';
+import type { MouseEvent } from "react";
+import { Tag } from "./Tag.js";
+import { ContentStatus, type ContentStatusType } from "./ContentStatus.js";
 
 export interface BookMetaProps {
   title: string;
@@ -16,7 +16,7 @@ export interface BookMetaProps {
   status?: ContentStatusType;
   updatedAt?: string | number | Date;
   tags?: string[];
-  size?: 'compact' | 'detailed';
+  size?: "compact" | "detailed";
   onClick?: (e: MouseEvent<HTMLElement>) => void;
 }
 
@@ -36,9 +36,9 @@ function formatRelative(input: string | number | Date): string {
   const date = input instanceof Date ? input : new Date(input);
   const now = Date.now();
   const diff = now - date.getTime();
-  if (Number.isNaN(diff)) return '';
+  if (Number.isNaN(diff)) return "";
   const min = Math.floor(diff / 60000);
-  if (min < 1) return '刚刚';
+  if (min < 1) return "刚刚";
   if (min < 60) return `${min} 分钟前`;
   const hour = Math.floor(min / 60);
   if (hour < 24) return `${hour} 小时前`;
@@ -46,8 +46,8 @@ function formatRelative(input: string | number | Date): string {
   if (day < 30) return `${day} 天前`;
   // 超过 30 天显示 YYYY-MM-DD
   const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
 
@@ -61,27 +61,27 @@ export function BookMeta({
   status,
   updatedAt,
   tags,
-  size = 'detailed',
+  size = "detailed",
   onClick,
 }: BookMetaProps) {
-  const isCompact = size === 'compact';
+  const isCompact = size === "compact";
 
   // 统计行内容
   const stats: string[] = [];
   if (wordCount != null) stats.push(`${formatWordCount(wordCount)} 字`);
   if (chapterCount != null) stats.push(`${chapterCount} 章`);
-  const updatedText = updatedAt != null ? formatRelative(updatedAt) : '';
+  const updatedText = updatedAt != null ? formatRelative(updatedAt) : "";
   if (updatedText) stats.push(updatedText);
 
   const titleNode = (
     <span
       className="book-meta__title"
       title={title}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
       onKeyDown={(e) => {
-        if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+        if (onClick && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
           onClick(e as unknown as MouseEvent<HTMLElement>);
         }
@@ -97,7 +97,7 @@ export function BookMeta({
       <div className="book-meta__title-row">
         {titleNode}
         {status ? (
-          <ContentStatus status={status} size={isCompact ? 'sm' : 'md'} />
+          <ContentStatus status={status} size={isCompact ? "sm" : "md"} />
         ) : null}
       </div>
 

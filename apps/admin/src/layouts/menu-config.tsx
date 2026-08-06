@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 import {
   DashboardOutlined,
   BookOutlined,
@@ -9,8 +9,8 @@ import {
   SettingOutlined,
   BarChartOutlined,
   DollarOutlined,
-} from '@ant-design/icons';
-import type { Permission } from '@/api/types';
+} from "@ant-design/icons";
+import type { Permission } from "@/api/types";
 
 export interface MenuItem {
   key: string;
@@ -26,91 +26,91 @@ export interface MenuItem {
 
 export const menuConfig: MenuItem[] = [
   {
-    key: 'workbench',
-    label: '工作台',
-    labelKey: 'menu:workbench',
-    path: '/workbench',
+    key: "workbench",
+    label: "工作台",
+    labelKey: "menu:workbench",
+    path: "/workbench",
     icon: <DashboardOutlined />,
     isHome: true,
   },
   {
-    key: 'content',
-    label: '内容管理',
-    labelKey: 'menu:content',
+    key: "content",
+    label: "内容管理",
+    labelKey: "menu:content",
     icon: <BookOutlined />,
     children: [
       {
-        key: 'novel',
-        label: '作品管理',
-        labelKey: 'menu:novelList',
-        path: '/novel',
+        key: "novel",
+        label: "作品管理",
+        labelKey: "menu:novelList",
+        path: "/novel",
         icon: <BookOutlined />,
-        permissions: ['novel.list'],
+        permissions: ["novel.list"],
       },
       {
-        key: 'audit',
-        label: '内容审核',
-        labelKey: 'menu:audit',
-        path: '/audit',
+        key: "audit",
+        label: "内容审核",
+        labelKey: "menu:audit",
+        path: "/audit",
         icon: <AuditOutlined />,
-        permissions: ['audit.list'],
+        permissions: ["audit.list"],
       },
       {
-        key: 'charts',
-        label: '数据看板',
-        labelKey: 'menu:charts',
-        path: '/charts',
+        key: "charts",
+        label: "数据看板",
+        labelKey: "menu:charts",
+        path: "/charts",
         icon: <BarChartOutlined />,
       },
     ],
   },
   {
-    key: 'user-mgmt',
-    label: '用户管理',
-    labelKey: 'menu:user',
+    key: "user-mgmt",
+    label: "用户管理",
+    labelKey: "menu:user",
     icon: <TeamOutlined />,
     children: [
       {
-        key: 'user',
-        label: '读者列表',
-        labelKey: 'menu:userList',
-        path: '/user',
+        key: "user",
+        label: "读者列表",
+        labelKey: "menu:userList",
+        path: "/user",
         icon: <TeamOutlined />,
-        permissions: ['user.list'],
+        permissions: ["user.list"],
       },
       {
-        key: 'author',
-        label: '作者管理',
-        labelKey: 'menu:author',
-        path: '/author',
+        key: "author",
+        label: "作者管理",
+        labelKey: "menu:author",
+        path: "/author",
         icon: <SolutionOutlined />,
-        permissions: ['author.list'],
+        permissions: ["author.list"],
       },
       {
-        key: 'permission',
-        label: '角色权限',
-        labelKey: 'menu:permission',
-        path: '/permission',
+        key: "permission",
+        label: "角色权限",
+        labelKey: "menu:permission",
+        path: "/permission",
         icon: <SafetyOutlined />,
-        permissions: ['permission.assign'],
+        permissions: ["permission.assign"],
       },
     ],
   },
   {
-    key: 'system',
-    label: '系统设置',
-    labelKey: 'menu:system',
-    path: '/system',
+    key: "system",
+    label: "系统设置",
+    labelKey: "menu:system",
+    path: "/system",
     icon: <SettingOutlined />,
-    permissions: ['system.config'],
+    permissions: ["system.config"],
   },
   {
-    key: 'royalty',
-    label: '稿费管理',
-    labelKey: 'menu:royalty',
-    path: '/royalty',
+    key: "royalty",
+    label: "稿费管理",
+    labelKey: "menu:royalty",
+    path: "/royalty",
     icon: <DollarOutlined />,
   },
 ];
 
-export const HOME_TAB_KEY = 'workbench';
+export const HOME_TAB_KEY = "workbench";

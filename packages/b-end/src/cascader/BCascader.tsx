@@ -4,8 +4,8 @@
  * Source: 04-B端开发计划.md P2-12
  * ============================================================ */
 
-import { forwardRef, type ComponentProps, type ComponentRef } from 'react';
-import { Cascader as AntCascader } from 'antd';
+import { forwardRef, type ComponentProps, type ComponentRef } from "react";
+import { Cascader as AntCascader } from "antd";
 
 export type BCascaderProps = ComponentProps<typeof AntCascader>;
 
@@ -18,9 +18,15 @@ export type BCascaderProps = ComponentProps<typeof AntCascader>;
  *
  * 文档：建议层级 ≤ 3 级。
  */
-export const BCascader = forwardRef<ComponentRef<typeof AntCascader>, BCascaderProps>(
-  ({ changeOnSelect = true, showSearch = true, ...rest }, ref) => (
-    <AntCascader ref={ref} changeOnSelect={changeOnSelect} showSearch={showSearch} {...rest} />
-  ),
-);
-BCascader.displayName = 'BCascader';
+export const BCascader = forwardRef<
+  ComponentRef<typeof AntCascader>,
+  BCascaderProps
+>(({ changeOnSelect = true, showSearch = true, ...rest }, ref) => (
+  <AntCascader
+    ref={ref}
+    changeOnSelect={changeOnSelect}
+    showSearch={showSearch}
+    {...rest}
+  />
+));
+BCascader.displayName = "BCascader";

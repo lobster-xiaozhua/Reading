@@ -5,12 +5,21 @@
  * Source: 04 §5.3
  * ============================================================ */
 
-import { Card, Skeleton, Result, Alert, Button, Empty, Timeline, Tag } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { BPageHeader, BDescriptions, BTimeline } from '@novel/b-end';
-import type { BPageHeaderProps } from '@novel/b-end';
+import {
+  Card,
+  Skeleton,
+  Result,
+  Alert,
+  Button,
+  Empty,
+  Timeline,
+  Tag,
+} from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { BPageHeader, BDescriptions, BTimeline } from "@novel/b-end";
+import type { BPageHeaderProps } from "@novel/b-end";
 
-export type DetailCardStatus = 'loading' | 'ready' | 'not-found' | 'offline';
+export type DetailCardStatus = "loading" | "ready" | "not-found" | "offline";
 
 /** 基本信息 Descriptions 条目 */
 export interface DescItem {
@@ -25,7 +34,7 @@ export interface DescItem {
 export interface AuditHistoryItem {
   time: string;
   operator: string;
-  result: 'approve' | 'revise' | 'reject';
+  result: "approve" | "revise" | "reject";
   comment?: string;
 }
 
@@ -43,13 +52,13 @@ export interface DetailCardTemplateProps {
   /** 页面标题 */
   title: string;
   /** 面包屑 */
-  breadcrumb?: BPageHeaderProps['breadcrumb'];
+  breadcrumb?: BPageHeaderProps["breadcrumb"];
   /** 状态 */
   status: DetailCardStatus;
   /** 已下架提示文案（offline 状态显示） */
   offlineMessage?: string;
   /** 返回回调 */
-  onBack?: BPageHeaderProps['onBack'];
+  onBack?: BPageHeaderProps["onBack"];
   /** PageHeader 操作区 */
   extra?: React.ReactNode;
 
@@ -76,25 +85,25 @@ export interface DetailCardTemplateProps {
   comments?: CommentItem[];
 }
 
-function getAuditColor(result: AuditHistoryItem['result']): string {
+function getAuditColor(result: AuditHistoryItem["result"]): string {
   switch (result) {
-    case 'approve':
-      return 'green';
-    case 'reject':
-      return 'red';
-    case 'revise':
-      return 'blue';
+    case "approve":
+      return "green";
+    case "reject":
+      return "red";
+    case "revise":
+      return "blue";
   }
 }
 
-function getAuditLabel(result: AuditHistoryItem['result']): string {
+function getAuditLabel(result: AuditHistoryItem["result"]): string {
   switch (result) {
-    case 'approve':
-      return '通过';
-    case 'reject':
-      return '驳回';
-    case 'revise':
-      return '待修改';
+    case "approve":
+      return "通过";
+    case "reject":
+      return "驳回";
+    case "revise":
+      return "待修改";
   }
 }
 
@@ -108,23 +117,23 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
     title,
     breadcrumb,
     status,
-    offlineMessage = '该内容已下架，以下数据仅供查看。',
+    offlineMessage = "该内容已下架，以下数据仅供查看。",
     onBack,
     extra,
-    basicTitle = '基本信息',
+    basicTitle = "基本信息",
     basicItems = [],
-    statsTitle = '数据统计',
+    statsTitle = "数据统计",
     statsContent,
-    chapterTitle = '章节列表',
+    chapterTitle = "章节列表",
     chapterContent,
-    auditTitle = '审核历史',
+    auditTitle = "审核历史",
     auditHistory = [],
-    commentTitle = '评论 Top10',
+    commentTitle = "评论 Top10",
     comments = [],
   } = props;
 
   // 404
-  if (status === 'not-found') {
+  if (status === "not-found") {
     return (
       <div>
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
@@ -133,7 +142,11 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
           title="未找到内容"
           subTitle="该内容不存在或已被永久删除。"
           extra={
-            <Button type="primary" icon={<ArrowLeftOutlined />} onClick={onBack}>
+            <Button
+              type="primary"
+              icon={<ArrowLeftOutlined />}
+              onClick={onBack}
+            >
               返回列表
             </Button>
           }
@@ -144,26 +157,38 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
 
   return (
     <div className="b-detail-card">
-      <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} extra={extra} />
+      <BPageHeader
+        title={title}
+        breadcrumb={breadcrumb}
+        onBack={onBack}
+        extra={extra}
+      />
 
       {/* 已下架 Alert */}
-      {status === 'offline' && (
+      {status === "offline" && (
         <Alert
           type="warning"
           showIcon
           message="内容已下架"
           description={offlineMessage}
-          style={{ marginBottom: 'var(--space-4)' }}
+          style={{ marginBottom: "var(--space-4)" }}
         />
       )}
 
-      {status === 'loading' ? (
+      {status === "loading" ? (
         <Skeleton active paragraph={{ rows: 12 }} />
       ) : (
         <>
           {/* 基本信息 + 数据统计：12 列栅格，8+4 */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: 'var(--space-4)', marginBottom: 'var(--space-4)' }}>
-            <div style={{ gridColumn: 'span 8' }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(12, 1fr)",
+              gap: "var(--space-4)",
+              marginBottom: "var(--space-4)",
+            }}
+          >
+            <div style={{ gridColumn: "span 8" }}>
               <Card title={basicTitle}>
                 {basicItems.length > 0 ? (
                   <BDescriptions
@@ -181,7 +206,7 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
                 )}
               </Card>
             </div>
-            <div style={{ gridColumn: 'span 4' }}>
+            <div style={{ gridColumn: "span 4" }}>
               <Card title={statsTitle}>
                 {statsContent ?? <Empty description="暂无统计数据" />}
               </Card>
@@ -189,12 +214,12 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
           </div>
 
           {/* 章节列表 */}
-          <Card title={chapterTitle} style={{ marginBottom: 'var(--space-4)' }}>
+          <Card title={chapterTitle} style={{ marginBottom: "var(--space-4)" }}>
             {chapterContent ?? <Empty description="暂无章节" />}
           </Card>
 
           {/* 审核历史 Timeline */}
-          <Card title={auditTitle} style={{ marginBottom: 'var(--space-4)' }}>
+          <Card title={auditTitle} style={{ marginBottom: "var(--space-4)" }}>
             {auditHistory.length === 0 ? (
               <Empty description="暂无审核记录" />
             ) : (
@@ -203,15 +228,38 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
                   color: getAuditColor(h.result),
                   children: (
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                        <Tag color={h.result === 'approve' ? 'success' : h.result === 'reject' ? 'error' : 'processing'}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2)",
+                        }}
+                      >
+                        <Tag
+                          color={
+                            h.result === "approve"
+                              ? "success"
+                              : h.result === "reject"
+                                ? "error"
+                                : "processing"
+                          }
+                        >
                           {getAuditLabel(h.result)}
                         </Tag>
-                        <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-caption, 13px)' }}>
+                        <span
+                          style={{
+                            color: "var(--color-text-secondary)",
+                            fontSize: "var(--font-size-caption, 13px)",
+                          }}
+                        >
                           {h.operator} · {h.time}
                         </span>
                       </div>
-                      {h.comment && <p style={{ marginTop: 'var(--space-1)' }}>{h.comment}</p>}
+                      {h.comment && (
+                        <p style={{ marginTop: "var(--space-1)" }}>
+                          {h.comment}
+                        </p>
+                      )}
                     </div>
                   ),
                 }))}
@@ -228,14 +276,36 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
                 items={comments.map((c) => ({
                   children: (
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                        <strong style={{ color: 'var(--color-text-primary)' }}>{c.user}</strong>
-                        <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-caption, 13px)' }}>{c.time}</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "var(--space-2)",
+                        }}
+                      >
+                        <strong style={{ color: "var(--color-text-primary)" }}>
+                          {c.user}
+                        </strong>
+                        <span
+                          style={{
+                            color: "var(--color-text-tertiary)",
+                            fontSize: "var(--font-size-caption, 13px)",
+                          }}
+                        >
+                          {c.time}
+                        </span>
                         {c.likes !== undefined && c.likes > 0 && (
                           <Tag>{c.likes} 赞</Tag>
                         )}
                       </div>
-                      <p style={{ marginTop: 'var(--space-1)', color: 'var(--color-text-secondary)' }}>{c.content}</p>
+                      <p
+                        style={{
+                          marginTop: "var(--space-1)",
+                          color: "var(--color-text-secondary)",
+                        }}
+                      >
+                        {c.content}
+                      </p>
                     </div>
                   ),
                 }))}

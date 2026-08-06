@@ -4,20 +4,27 @@
  * 搜索历史（localStorage）+ 热门搜索 + 结果列表 + 空状态
  * URL 同步：?q=关键词
  * ============================================================ */
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   BookCard,
   EmptyState,
   Skeleton,
   useAsyncState,
-} from '@novel/components';
-import { NovelBookOpen, SystemUser, ContentTag } from '@novel/icons';
-import { fetcher } from '@/api/fetcher';
-import { toBook } from '@/utils/convert';
-import type { BookSummary, SearchSuggestion } from '@/api/types';
-import { useSearchStore } from '@/stores/searchStore';
-import './SearchPage.css';
+} from "@novel/components";
+import { NovelBookOpen, SystemUser, ContentTag } from "@novel/icons";
+import { fetcher } from "@/api/fetcher";
+import { toBook } from "@/utils/convert";
+import type { BookSummary, SearchSuggestion } from "@/api/types";
+import { useSearchStore } from "@/stores/searchStore";
+import "./SearchPage.css";
 
 const DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -28,11 +35,11 @@ const EMPTY_HOT: string[] = [];
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialQuery = searchParams.get('q') ?? '';
+  const initialQuery = searchParams.get("q") ?? "";
 
   const [input, setInput] = useState(initialQuery);
   const [committedQuery, setCommittedQuery] = useState(initialQuery);
-  const [debouncedInput, setDebouncedInput] = useState('');
+  const [debouncedInput, setDebouncedInput] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -44,16 +51,16 @@ export default function SearchPage() {
   const clearHistory = useSearchStore((s) => s.clearHistory);
 
   /* ---------- 热门搜索 ---------- */
-  const hotState = useAsyncState<string[]>(
-    () => fetcher.getHotSearches(),
-    { initial: [] as string[], loadingDelay: 200 },
-  );
+  const hotState = useAsyncState<string[]>(() => fetcher.getHotSearches(), {
+    initial: [] as string[],
+    loadingDelay: 200,
+  });
   const hotSearches = hotState.data ?? EMPTY_HOT;
 
   /* ---------- 联想建议（防抖 300ms） ---------- */
   useEffect(() => {
     if (!input.trim() || input === committedQuery) {
-      setDebouncedInput('');
+      setDebouncedInput("");
       return;
     }
     const t = setTimeout(() => setDebouncedInput(input.trim()), DEBOUNCE_MS);
@@ -64,10 +71,11 @@ export default function SearchPage() {
     () => fetcher.searchSuggestions(debouncedInput),
     [debouncedInput],
   );
-  const suggestState = useAsyncState<SearchSuggestion[]>(
-    fetchSuggestions,
-    { deps: [debouncedInput], initial: [] as SearchSuggestion[], loadingDelay: 150 },
-  );
+  const suggestState = useAsyncState<SearchSuggestion[]>(fetchSuggestions, {
+    deps: [debouncedInput],
+    initial: [] as SearchSuggestion[],
+    loadingDelay: 150,
+  });
   const suggestions = suggestState.data ?? EMPTY_SUGGESTIONS;
 
   /* ---------- 搜索结果（累积分页） ---------- */
@@ -81,7 +89,12 @@ export default function SearchPage() {
   const retryInitial = () => setRetryToken((t) => t + 1);
   const hasQuery = committedQuery.trim().length > 0;
   const hasMore = results.length < total;
-  const isAllLoaded = hasQuery && !resultsLoading && !resultsError && results.length > 0 && !hasMore;
+  const isAllLoaded =
+    hasQuery &&
+    !resultsLoading &&
+    !resultsError &&
+    results.length > 0 &&
+    !hasMore;
 
   /* 新关键词提交 → 重置并加载第一页 */
   useEffect(() => {
@@ -153,7 +166,7 @@ export default function SearchPage() {
     setShowSuggestions(false);
     addHistory(k);
     const next = new URLSearchParams(searchParams);
-    next.set('q', k);
+    next.set("q", k);
     setSearchParams(next, { replace: false });
     inputRef.current?.blur();
   };
@@ -173,30 +186,33 @@ export default function SearchPage() {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestPanel || suggestions.length === 0) {
-      if (e.key === 'Escape') setShowSuggestions(false);
+      if (e.key === "Escape") setShowSuggestions(false);
       return;
     }
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
         setActiveSuggestionIndex((prev) =>
-          prev < suggestions.length - 1 ? prev + 1 : 0
+          prev < suggestions.length - 1 ? prev + 1 : 0,
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
         setActiveSuggestionIndex((prev) =>
-          prev > 0 ? prev - 1 : suggestions.length - 1
+          prev > 0 ? prev - 1 : suggestions.length - 1,
         );
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
-        if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+        if (
+          activeSuggestionIndex >= 0 &&
+          activeSuggestionIndex < suggestions.length
+        ) {
           const suggestion = suggestions[activeSuggestionIndex]!;
           handleSelectSuggestion(suggestion);
         }
         break;
-      case 'Escape':
+      case "Escape":
         e.preventDefault();
         setShowSuggestions(false);
         setActiveSuggestionIndex(-1);
@@ -209,7 +225,8 @@ export default function SearchPage() {
   const groupedSuggestions = useMemo(() => {
     const groups: Record<string, SearchSuggestion[]> = {};
     suggestions.forEach((s) => {
-      const key = s.type === 'book' ? '书籍' : s.type === 'author' ? '作者' : '标签';
+      const key =
+        s.type === "book" ? "书籍" : s.type === "author" ? "作者" : "标签";
       (groups[key] ??= []).push(s);
     });
     return groups;
@@ -220,7 +237,17 @@ export default function SearchPage() {
       {/* 搜索框 */}
       <form className="search-page__form" role="search" onSubmit={handleSubmit}>
         <div className="search-page__input-wrap">
-          <svg className="search-page__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+          <svg
+            className="search-page__icon"
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden
+          >
             <circle cx="11" cy="11" r="7" />
             <path d="M21 21l-4.3-4.3" />
           </svg>
@@ -247,13 +274,22 @@ export default function SearchPage() {
               className="search-page__clear"
               aria-label="清空"
               onClick={() => {
-                setInput('');
-                setCommittedQuery('');
-                setDebouncedInput('');
+                setInput("");
+                setCommittedQuery("");
+                setDebouncedInput("");
                 inputRef.current?.focus();
               }}
             >
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+              <svg
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                aria-hidden
+              >
                 <path d="M6 6l12 12M18 6L6 18" />
               </svg>
             </button>
@@ -266,9 +302,16 @@ export default function SearchPage() {
 
       {/* 联想建议浮层 */}
       {showSuggestPanel ? (
-        <div className="search-page__suggest" role="listbox" aria-label="搜索建议" ref={suggestListRef}>
+        <div
+          className="search-page__suggest"
+          role="listbox"
+          aria-label="搜索建议"
+          ref={suggestListRef}
+        >
           {suggestState.loading ? (
-            <div className="search-page__suggest-loading"><Skeleton rows={3} /></div>
+            <div className="search-page__suggest-loading">
+              <Skeleton rows={3} />
+            </div>
           ) : suggestions.length === 0 ? (
             <div className="search-page__suggest-empty">无匹配建议</div>
           ) : (
@@ -276,20 +319,32 @@ export default function SearchPage() {
               <div key={group} className="search-page__suggest-group">
                 <div className="search-page__suggest-label">{group}</div>
                 {items.map((s, i) => {
-                  const globalIdx = Object.values(groupedSuggestions).flat().indexOf(s);
+                  const globalIdx = Object.values(groupedSuggestions)
+                    .flat()
+                    .indexOf(s);
                   return (
                     <button
                       key={`${s.type}-${s.text}-${i}`}
                       type="button"
-                      className={`search-page__suggest-item ${globalIdx === activeSuggestionIndex ? 'is-active' : ''}`}
+                      className={`search-page__suggest-item ${globalIdx === activeSuggestionIndex ? "is-active" : ""}`}
                       onMouseDown={(e) => {
                         e.preventDefault();
                         handleSelectSuggestion(s);
                       }}
                       onMouseEnter={() => setActiveSuggestionIndex(globalIdx)}
                     >
-                      <span className="search-page__suggest-type">{s.type === 'book' ? <NovelBookOpen size="sm" aria-hidden="true" /> : s.type === 'author' ? <SystemUser size="sm" aria-hidden="true" /> : <ContentTag size="sm" aria-hidden="true" />}</span>
-                      <span className="search-page__suggest-text">{highlight(s.text, debouncedInput)}</span>
+                      <span className="search-page__suggest-type">
+                        {s.type === "book" ? (
+                          <NovelBookOpen size="sm" aria-hidden="true" />
+                        ) : s.type === "author" ? (
+                          <SystemUser size="sm" aria-hidden="true" />
+                        ) : (
+                          <ContentTag size="sm" aria-hidden="true" />
+                        )}
+                      </span>
+                      <span className="search-page__suggest-text">
+                        {highlight(s.text, debouncedInput)}
+                      </span>
                     </button>
                   );
                 })}
@@ -307,14 +362,22 @@ export default function SearchPage() {
             <section className="search-page__section">
               <div className="search-page__section-head">
                 <h2 className="search-page__section-title">搜索历史</h2>
-                <button type="button" className="search-page__clear-btn" onClick={clearHistory}>
+                <button
+                  type="button"
+                  className="search-page__clear-btn"
+                  onClick={clearHistory}
+                >
                   清空
                 </button>
               </div>
               <div className="search-page__tags-wrap">
                 {history.map((h) => (
                   <span key={h} className="search-page__tag-item">
-                    <button type="button" className="search-page__tag-btn" onClick={() => commitSearch(h)}>
+                    <button
+                      type="button"
+                      className="search-page__tag-btn"
+                      onClick={() => commitSearch(h)}
+                    >
                       {h}
                     </button>
                     <button
@@ -344,7 +407,7 @@ export default function SearchPage() {
                   <button
                     key={h}
                     type="button"
-                    className={`search-page__hot-item ${i < 3 ? `is-top-${i + 1}` : ''}`}
+                    className={`search-page__hot-item ${i < 3 ? `is-top-${i + 1}` : ""}`}
                     onClick={() => commitSearch(h)}
                   >
                     <span className="search-page__hot-rank">{i + 1}</span>
@@ -359,7 +422,8 @@ export default function SearchPage() {
         <div className="search-page__results">
           {/* 结果统计 */}
           <div className="search-page__result-meta">
-            搜索「<strong>{committedQuery}</strong>」找到 <strong>{total}</strong> 条结果
+            搜索「<strong>{committedQuery}</strong>」找到{" "}
+            <strong>{total}</strong> 条结果
           </div>
 
           {/* 结果列表 */}
@@ -390,7 +454,16 @@ export default function SearchPage() {
               title={`没有找到与「${committedQuery}」相关的书籍`}
               description="试试更换关键词或减少筛选条件"
               illustration={
-                <svg viewBox="0 0 120 120" width="120" height="120" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden>
+                <svg
+                  viewBox="0 0 120 120"
+                  width="120"
+                  height="120"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  aria-hidden
+                >
                   <circle cx="50" cy="50" r="28" />
                   <path d="M72 72l16 16" />
                   <path d="M40 50h20M50 40v20" opacity="0.4" />
@@ -401,8 +474,17 @@ export default function SearchPage() {
             <>
               <div className="search-page__list">
                 {results.map((b) => (
-                  <Link key={b.id} to={`/book/${b.id}`} className="search-page__result-item">
-                    <BookCard book={toBook(b)} variant="list" size="md" showIntro />
+                  <Link
+                    key={b.id}
+                    to={`/book/${b.id}`}
+                    className="search-page__result-item"
+                  >
+                    <BookCard
+                      book={toBook(b)}
+                      variant="list"
+                      size="md"
+                      showIntro
+                    />
                   </Link>
                 ))}
               </div>
@@ -416,7 +498,7 @@ export default function SearchPage() {
                     onClick={handleLoadMore}
                     disabled={loadMoreLoading}
                   >
-                    {loadMoreLoading ? '加载中…' : '加载更多'}
+                    {loadMoreLoading ? "加载中…" : "加载更多"}
                   </button>
                   {resultsError ? (
                     <p className="search-page__loadmore-error">
@@ -449,7 +531,9 @@ function highlight(text: string, keyword: string): ReactNode {
   return (
     <>
       {text.slice(0, idx)}
-      <mark className="search-page__highlight">{text.slice(idx, idx + keyword.length)}</mark>
+      <mark className="search-page__highlight">
+        {text.slice(idx, idx + keyword.length)}
+      </mark>
       {text.slice(idx + keyword.length)}
     </>
   );

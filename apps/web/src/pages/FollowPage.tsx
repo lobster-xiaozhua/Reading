@@ -3,16 +3,22 @@
  * 让读者一眼掌握所有追更小说的更新状态，快速进入新章节阅读。
  * 单列居中 max-width 720px。
  * ============================================================ */
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { EmptyState, Modal, Tabs, useAsyncState, type TabItem } from '@novel/components';
-import { NavigationBack } from '@novel/icons';
-import { LazyImage } from '@/components/LazyImage';
-import { fetcher } from '@/api/fetcher';
-import type { FollowItem } from '@/api/types';
-import './FollowPage.css';
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  EmptyState,
+  Modal,
+  Tabs,
+  useAsyncState,
+  type TabItem,
+} from "@novel/components";
+import { NavigationBack } from "@novel/icons";
+import { LazyImage } from "@/components/LazyImage";
+import { fetcher } from "@/api/fetcher";
+import type { FollowItem } from "@/api/types";
+import "./FollowPage.css";
 
-type FollowTabKey = 'all' | 'updated' | 'unread' | 'finished';
+type FollowTabKey = "all" | "updated" | "unread" | "finished";
 
 /** 左滑触发取消的距离（px） */
 const SWIPE_THRESHOLD = 80;
@@ -21,11 +27,11 @@ const ACTION_WIDTH = 88;
 /** 骨架占位数量 */
 const SKELETON_COUNT = 4;
 
-import { formatRelativeTime } from '@/utils/time';
+import { formatRelativeTime } from "@/utils/time";
 
 export default function FollowPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<FollowTabKey>('all');
+  const [activeTab, setActiveTab] = useState<FollowTabKey>("all");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [items, setItems] = useState<FollowItem[]>([]);
 
@@ -44,7 +50,7 @@ export default function FollowPage() {
   const counts = useMemo(
     () => ({
       all: items.length,
-      updated: items.filter((i) => i.status === 'updated').length,
+      updated: items.filter((i) => i.status === "updated").length,
       unread: items.filter((i) => i.unreadCount > 0).length,
       finished: items.filter((i) => i.finished).length,
     }),
@@ -53,11 +59,11 @@ export default function FollowPage() {
 
   const visibleItems = useMemo(() => {
     switch (activeTab) {
-      case 'updated':
-        return items.filter((i) => i.status === 'updated');
-      case 'unread':
+      case "updated":
+        return items.filter((i) => i.status === "updated");
+      case "unread":
         return items.filter((i) => i.unreadCount > 0);
-      case 'finished':
+      case "finished":
         return items.filter((i) => i.finished);
       default:
         return items;
@@ -65,10 +71,26 @@ export default function FollowPage() {
   }, [items, activeTab]);
 
   const tabItems: TabItem[] = [
-    { key: 'all', label: <TabLabel label="全部" count={counts.all} />, children: <></> },
-    { key: 'updated', label: <TabLabel label="已更新" count={counts.updated} />, children: <></> },
-    { key: 'unread', label: <TabLabel label="未读" count={counts.unread} />, children: <></> },
-    { key: 'finished', label: <TabLabel label="已完结" count={counts.finished} />, children: <></> },
+    {
+      key: "all",
+      label: <TabLabel label="全部" count={counts.all} />,
+      children: <></>,
+    },
+    {
+      key: "updated",
+      label: <TabLabel label="已更新" count={counts.updated} />,
+      children: <></>,
+    },
+    {
+      key: "unread",
+      label: <TabLabel label="未读" count={counts.unread} />,
+      children: <></>,
+    },
+    {
+      key: "finished",
+      label: <TabLabel label="已完结" count={counts.finished} />,
+      children: <></>,
+    },
   ];
 
   const handleUnfollow = (bookId: string) => {
@@ -141,7 +163,11 @@ export default function FollowPage() {
         ) : (
           <ul className="follow-page__list">
             {visibleItems.map((item) => (
-              <FollowListItem key={item.bookId} item={item} onUnfollow={handleUnfollow} />
+              <FollowListItem
+                key={item.bookId}
+                item={item}
+                onUnfollow={handleUnfollow}
+              />
             ))}
           </ul>
         )}
@@ -178,7 +204,9 @@ export default function FollowPage() {
           </>
         }
       >
-        <p className="follow-page__modal-text">确认将所有追更书籍标记为已读？</p>
+        <p className="follow-page__modal-text">
+          确认将所有追更书籍标记为已读？
+        </p>
       </Modal>
     </div>
   );
@@ -216,11 +244,11 @@ function FollowListItem({
     lastOffset: 0,
   });
 
-  const updated = item.status === 'updated';
+  const updated = item.status === "updated";
   const showUnreadDot = updated && item.unreadCount > 0;
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     drag.current.startX = e.clientX;
     drag.current.startY = e.clientY;
     drag.current.dragging = true;
@@ -276,7 +304,10 @@ function FollowListItem({
     }
     setAnimating(true);
     // 滑动距离 ≥ 阈值 → 显示确认取消，不直接取消
-    if (drag.current.horizontal && drag.current.lastOffset <= -SWIPE_THRESHOLD) {
+    if (
+      drag.current.horizontal &&
+      drag.current.lastOffset <= -SWIPE_THRESHOLD
+    ) {
       setConfirmUnfollow(true);
     }
     // 回弹（dur-fast 150ms）
@@ -293,13 +324,13 @@ function FollowListItem({
 
   // 桌面端：hover 露出"取消追更"按钮
   const onPointerEnter = (e: React.PointerEvent<HTMLLIElement>) => {
-    if (e.pointerType !== 'mouse') return;
+    if (e.pointerType !== "mouse") return;
     if (drag.current.dragging) return;
     setAnimating(true);
     setOffset(-ACTION_WIDTH);
   };
   const onPointerLeave = (e: React.PointerEvent<HTMLLIElement>) => {
-    if (e.pointerType !== 'mouse') return;
+    if (e.pointerType !== "mouse") return;
     if (drag.current.dragging) return;
     setAnimating(true);
     setOffset(0);
@@ -313,7 +344,7 @@ function FollowListItem({
     >
       <button
         type="button"
-        className={`follow-page__item-action ${confirmUnfollow ? 'is-confirm' : ''}`}
+        className={`follow-page__item-action ${confirmUnfollow ? "is-confirm" : ""}`}
         aria-label={`取消追更 ${item.title}`}
         onClick={() => {
           if (confirmUnfollow) {
@@ -324,10 +355,10 @@ function FollowListItem({
         }}
         onMouseLeave={() => setConfirmUnfollow(false)}
       >
-        {confirmUnfollow ? '确认取消' : '取消追更'}
+        {confirmUnfollow ? "确认取消" : "取消追更"}
       </button>
       <div
-        className={`follow-page__item-content ${animating ? 'is-animating' : ''}`}
+        className={`follow-page__item-content ${animating ? "is-animating" : ""}`}
         style={{ transform: `translateX(${offset}px)` }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -353,8 +384,12 @@ function FollowListItem({
             {item.author ? (
               <div className="follow-page__author">{item.author}</div>
             ) : null}
-            <div className="follow-page__latest">最新：{item.latestChapterTitle}</div>
-            <div className="follow-page__time">{formatRelativeTime(item.latestTime)}</div>
+            <div className="follow-page__latest">
+              最新：{item.latestChapterTitle}
+            </div>
+            <div className="follow-page__time">
+              {formatRelativeTime(item.latestTime)}
+            </div>
             <div className="follow-page__badges">
               {updated && item.unreadCount > 0 ? (
                 <span className="follow-page__badge follow-page__badge--updated">
@@ -362,7 +397,9 @@ function FollowListItem({
                 </span>
               ) : null}
               {item.finished ? (
-                <span className="follow-page__badge follow-page__badge--finished">已完结</span>
+                <span className="follow-page__badge follow-page__badge--finished">
+                  已完结
+                </span>
               ) : null}
             </div>
           </div>

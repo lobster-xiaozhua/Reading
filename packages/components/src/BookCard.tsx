@@ -4,9 +4,9 @@
  * 封面 3:4，hover scale(1.02)+sh-2，active scale(0.98)，loading 骨架
  * ============================================================ */
 
-import { useState, type MouseEvent } from 'react';
-import { Tag } from './Tag.js';
-import { RatingStars } from './RatingStars.js';
+import { useState, type MouseEvent } from "react";
+import { Tag } from "./Tag.js";
+import { RatingStars } from "./RatingStars.js";
 
 /** 书籍领域模型（C 端通用，P3+ 页面复用） */
 export interface Book {
@@ -22,7 +22,7 @@ export interface Book {
   /** 是否有更新（书架场景，触发右上角红点） */
   hasUpdate?: boolean;
   /** 内容状态（书架分组排序用） */
-  status?: 'ongoing' | 'completed' | 'paused' | 'reviewing' | 'offline';
+  status?: "ongoing" | "completed" | "paused" | "reviewing" | "offline";
   /** 上次阅读时间（毫秒时间戳）； sortBy=recent / list 视图「上次阅读」展示 */
   lastReadTime?: number;
   /** 阅读进度 0-1；list 视图展示进度条 */
@@ -33,8 +33,8 @@ export interface Book {
   updateTime?: number;
 }
 
-export type BookCardVariant = 'grid' | 'list' | 'horizontal';
-export type BookCardSize = 'sm' | 'md' | 'lg';
+export type BookCardVariant = "grid" | "list" | "horizontal";
+export type BookCardSize = "sm" | "md" | "lg";
 
 export interface BookCardProps {
   book: Book;
@@ -61,8 +61,8 @@ const COVER_WIDTH: Record<BookCardSize, number> = {
 
 export function BookCard({
   book,
-  variant = 'grid',
-  size = 'md',
+  variant = "grid",
+  size = "md",
   showRating = true,
   showIntro,
   tags,
@@ -72,9 +72,12 @@ export function BookCard({
 }: BookCardProps) {
   const [coverError, setCoverError] = useState(false);
 
-  if (loading) return <BookCardSkeleton variant={variant} size={size} className={className} />;
+  if (loading)
+    return (
+      <BookCardSkeleton variant={variant} size={size} className={className} />
+    );
 
-  const introVisible = showIntro ?? variant === 'list';
+  const introVisible = showIntro ?? variant === "list";
   const finalTags = (tags ?? book.tags ?? []).slice(0, 3);
   const coverW = COVER_WIDTH[size];
 
@@ -82,26 +85,26 @@ export function BookCard({
     onClick?.(book, e);
   };
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+    if (onClick && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       onClick(book, e as unknown as MouseEvent<HTMLElement>);
     }
   };
 
   const rootCls = [
-    'novel-book-card',
+    "novel-book-card",
     `novel-book-card--${variant}`,
     `novel-book-card--${size}`,
-    onClick ? 'is-clickable' : '',
-    className ?? '',
+    onClick ? "is-clickable" : "",
+    className ?? "",
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(" ");
 
   const coverNode = (
     <div
       className="novel-book-card__cover"
-      style={{ width: variant === 'grid' ? '100%' : `${coverW}px` }}
+      style={{ width: variant === "grid" ? "100%" : `${coverW}px` }}
     >
       {book.cover && !coverError ? (
         <img
@@ -115,8 +118,12 @@ export function BookCard({
           <span>{book.title.slice(0, 1)}</span>
         </div>
       )}
-      {book.added ? <span className="novel-book-card__added">已加入</span> : null}
-      {book.hasUpdate ? <span className="novel-book-card__update-dot" aria-label="有更新" /> : null}
+      {book.added ? (
+        <span className="novel-book-card__added">已加入</span>
+      ) : null}
+      {book.hasUpdate ? (
+        <span className="novel-book-card__update-dot" aria-label="有更新" />
+      ) : null}
     </div>
   );
 
@@ -125,7 +132,7 @@ export function BookCard({
       <div className="novel-book-card__title" title={book.title}>
         {book.title}
       </div>
-      {variant !== 'horizontal' ? (
+      {variant !== "horizontal" ? (
         <div className="novel-book-card__author" title={book.author}>
           {book.author}
         </div>
@@ -151,7 +158,7 @@ export function BookCard({
   return (
     <article
       className={rootCls}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
@@ -178,20 +185,20 @@ function BookCardSkeleton({
   return (
     <div
       className={[
-        'novel-book-card',
+        "novel-book-card",
         `novel-book-card--${variant}`,
         `novel-book-card--${size}`,
-        'is-skeleton',
-        className ?? '',
+        "is-skeleton",
+        className ?? "",
       ]
         .filter(Boolean)
-        .join(' ')}
+        .join(" ")}
       role="status"
       aria-label="加载中"
     >
       <div
         className="novel-book-card__cover novel-book-card__cover--skeleton"
-        style={{ width: variant === 'grid' ? '100%' : `${coverW}px` }}
+        style={{ width: variant === "grid" ? "100%" : `${coverW}px` }}
       />
       <div className="novel-book-card__info">
         <div className="novel-book-card__skeleton-line novel-book-card__skeleton-line--title" />

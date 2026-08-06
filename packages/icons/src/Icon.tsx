@@ -7,25 +7,28 @@
  * Source: 02-通用设计.md §3.1
  * ============================================================ */
 
-import { memo, type SVGProps } from 'react';
+import { memo, type SVGProps } from "react";
 
-export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+export type IconSize = "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 /** size → CSS var(--icon-size-*) 映射 */
 const SIZE_VAR: Record<IconSize, string> = {
-  xs: 'var(--icon-size-xs)',
-  sm: 'var(--icon-size-sm)',
-  md: 'var(--icon-size-md)',
-  lg: 'var(--icon-size-lg)',
-  xl: 'var(--icon-size-xl)',
-  '2xl': 'var(--icon-size-2xl)',
+  xs: "var(--icon-size-xs)",
+  sm: "var(--icon-size-sm)",
+  md: "var(--icon-size-md)",
+  lg: "var(--icon-size-lg)",
+  xl: "var(--icon-size-xl)",
+  "2xl": "var(--icon-size-2xl)",
 };
 
-export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'width' | 'height'> {
+export interface IconProps extends Omit<
+  SVGProps<SVGSVGElement>,
+  "width" | "height"
+> {
   /** 尺寸档位，默认 md（16px）。映射到 --icon-size-* 令牌 */
   size?: IconSize;
   /** 可访问性标签；提供则设 aria-label，否则 svg 设 aria-hidden */
-  'aria-label'?: string;
+  "aria-label"?: string;
 }
 
 /**
@@ -33,16 +36,16 @@ export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'width' | 'heig
  * 描边/填充由本组件统一控制。
  */
 export const Icon = memo(function Icon({
-  size = 'md',
+  size = "md",
   className,
   children,
-  'aria-label': ariaLabel,
+  "aria-label": ariaLabel,
   ...rest
 }: IconProps) {
   const dim = SIZE_VAR[size];
   const a11y = ariaLabel
-    ? { role: 'img' as const, 'aria-label': ariaLabel }
-    : { 'aria-hidden': true as const };
+    ? { role: "img" as const, "aria-label": ariaLabel }
+    : { "aria-hidden": true as const };
 
   return (
     <svg
@@ -54,7 +57,13 @@ export const Icon = memo(function Icon({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
-      style={{ width: dim, height: dim, flexShrink: 0, display: 'inline-block', verticalAlign: 'middle' }}
+      style={{
+        width: dim,
+        height: dim,
+        flexShrink: 0,
+        display: "inline-block",
+        verticalAlign: "middle",
+      }}
       {...a11y}
       {...rest}
     >

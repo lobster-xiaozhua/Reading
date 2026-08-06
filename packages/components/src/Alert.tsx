@@ -13,9 +13,15 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from 'react';
-import { createPortal } from 'react-dom';
-import { StatusSuccess, StatusWarning, StatusError, StatusInfo, NavigationClose } from '@novel/icons';
+} from "react";
+import { createPortal } from "react-dom";
+import {
+  StatusSuccess,
+  StatusWarning,
+  StatusError,
+  StatusInfo,
+  NavigationClose,
+} from "@novel/icons";
 
 const STATUS_ICON_COMPONENT: Record<AlertType, typeof StatusSuccess> = {
   success: StatusSuccess,
@@ -24,14 +30,20 @@ const STATUS_ICON_COMPONENT: Record<AlertType, typeof StatusSuccess> = {
   info: StatusInfo,
 };
 
-function StatusIcon({ type, className }: { type: AlertType; className?: string }) {
+function StatusIcon({
+  type,
+  className,
+}: {
+  type: AlertType;
+  className?: string;
+}) {
   const S = STATUS_ICON_COMPONENT[type];
   return <S className={className} aria-hidden="true" />;
 }
 
 /* ============ Alert ============ */
 
-export type AlertType = 'success' | 'warning' | 'error' | 'info';
+export type AlertType = "success" | "warning" | "error" | "info";
 
 export interface AlertProps {
   type?: AlertType;
@@ -41,7 +53,13 @@ export interface AlertProps {
   onClose?: () => void;
 }
 
-export function Alert({ type = 'info', message, description, closable = false, onClose }: AlertProps) {
+export function Alert({
+  type = "info",
+  message,
+  description,
+  closable = false,
+  onClose,
+}: AlertProps) {
   const [closed, setClosed] = useState(false);
   if (closed) return null;
 
@@ -55,10 +73,17 @@ export function Alert({ type = 'info', message, description, closable = false, o
       <StatusIcon type={type} className="novel-alert__icon" />
       <div className="novel-alert__body">
         <div className="novel-alert__message">{message}</div>
-        {description != null ? <div className="novel-alert__description">{description}</div> : null}
+        {description != null ? (
+          <div className="novel-alert__description">{description}</div>
+        ) : null}
       </div>
       {closable ? (
-        <button type="button" className="novel-alert__close" onClick={handleClose} aria-label="关闭">
+        <button
+          type="button"
+          className="novel-alert__close"
+          onClick={handleClose}
+          aria-label="关闭"
+        >
           <NavigationClose size="sm" aria-hidden="true" />
         </button>
       ) : null}
@@ -108,28 +133,41 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     setNotifs((list) => list.filter((n) => n.key !== key));
   }, []);
 
-  const message = useCallback<FeedbackContextValue['message']>((type, content, duration = 3) => {
-    const key = `m${counter.current++}`;
-    setMsgs((list) => [...list, { key, type, content, ready: false }]);
-    requestAnimationFrame(() => {
-      setMsgs((list) => list.map((m) => (m.key === key ? { ...m, ready: true } : m)));
-    });
-    if (duration > 0) {
-      setTimeout(() => removeMsg(key), duration * 1000);
-    }
-  }, [removeMsg]);
+  const message = useCallback<FeedbackContextValue["message"]>(
+    (type, content, duration = 3) => {
+      const key = `m${counter.current++}`;
+      setMsgs((list) => [...list, { key, type, content, ready: false }]);
+      requestAnimationFrame(() => {
+        setMsgs((list) =>
+          list.map((m) => (m.key === key ? { ...m, ready: true } : m)),
+        );
+      });
+      if (duration > 0) {
+        setTimeout(() => removeMsg(key), duration * 1000);
+      }
+    },
+    [removeMsg],
+  );
 
-  const notification = useCallback<FeedbackContextValue['notification']>((opts) => {
-    const { type = 'info', title, description, duration = 4.5 } = opts;
-    const key = `n${counter.current++}`;
-    setNotifs((list) => [...list, { key, type, title, description, ready: false }]);
-    requestAnimationFrame(() => {
-      setNotifs((list) => list.map((n) => (n.key === key ? { ...n, ready: true } : n)));
-    });
-    if (duration > 0) {
-      setTimeout(() => removeNotif(key), duration * 1000);
-    }
-  }, [removeNotif]);
+  const notification = useCallback<FeedbackContextValue["notification"]>(
+    (opts) => {
+      const { type = "info", title, description, duration = 4.5 } = opts;
+      const key = `n${counter.current++}`;
+      setNotifs((list) => [
+        ...list,
+        { key, type, title, description, ready: false },
+      ]);
+      requestAnimationFrame(() => {
+        setNotifs((list) =>
+          list.map((n) => (n.key === key ? { ...n, ready: true } : n)),
+        );
+      });
+      if (duration > 0) {
+        setTimeout(() => removeNotif(key), duration * 1000);
+      }
+    },
+    [removeNotif],
+  );
 
   // 限制 Notification 最多 3 条
   useEffect(() => {
@@ -138,49 +176,72 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
     }
   }, [notifs.length]);
 
-  const value = useMemo<FeedbackContextValue>(() => ({ message, notification }), [message, notification]);
+  const value = useMemo<FeedbackContextValue>(
+    () => ({ message, notification }),
+    [message, notification],
+  );
 
   return (
     <FeedbackContext.Provider value={value}>
       {children}
-      {typeof document !== 'undefined' ? createPortal(
-        <>
-          {msgs.length > 0 ? (
-            <div className="novel-message-container" aria-live="polite">
-              {msgs.map((m) => (
-                <div key={m.key} className={`novel-message ${m.ready ? 'is-ready' : ''}`} role="status">
-                  <StatusIcon type={m.type} className="novel-message__icon" />
-                  <span>{m.content}</span>
+      {typeof document !== "undefined"
+        ? createPortal(
+            <>
+              {msgs.length > 0 ? (
+                <div className="novel-message-container" aria-live="polite">
+                  {msgs.map((m) => (
+                    <div
+                      key={m.key}
+                      className={`novel-message ${m.ready ? "is-ready" : ""}`}
+                      role="status"
+                    >
+                      <StatusIcon
+                        type={m.type}
+                        className="novel-message__icon"
+                      />
+                      <span>{m.content}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : null}
-          {notifs.length > 0 ? (
-            <div className="novel-notification-container" aria-live="polite">
-              {notifs.map((n) => (
-                <div key={n.key} className={`novel-notification ${n.ready ? 'is-ready' : ''}`} role="alert">
-                  <StatusIcon type={n.type} className="novel-alert__icon" />
-                  <div className="novel-notification__body">
-                    <div className="novel-notification__title">{n.title}</div>
-                    {n.description != null ? (
-                      <div className="novel-notification__description">{n.description}</div>
-                    ) : null}
-                  </div>
-                  <button
-                    type="button"
-                    className="novel-notification__close"
-                    onClick={() => removeNotif(n.key)}
-                    aria-label="关闭"
-                  >
-<NavigationClose size="sm" aria-hidden="true" />
-                  </button>
+              ) : null}
+              {notifs.length > 0 ? (
+                <div
+                  className="novel-notification-container"
+                  aria-live="polite"
+                >
+                  {notifs.map((n) => (
+                    <div
+                      key={n.key}
+                      className={`novel-notification ${n.ready ? "is-ready" : ""}`}
+                      role="alert"
+                    >
+                      <StatusIcon type={n.type} className="novel-alert__icon" />
+                      <div className="novel-notification__body">
+                        <div className="novel-notification__title">
+                          {n.title}
+                        </div>
+                        {n.description != null ? (
+                          <div className="novel-notification__description">
+                            {n.description}
+                          </div>
+                        ) : null}
+                      </div>
+                      <button
+                        type="button"
+                        className="novel-notification__close"
+                        onClick={() => removeNotif(n.key)}
+                        aria-label="关闭"
+                      >
+                        <NavigationClose size="sm" aria-hidden="true" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : null}
-        </>,
-        document.body,
-      ) : null}
+              ) : null}
+            </>,
+            document.body,
+          )
+        : null}
     </FeedbackContext.Provider>
   );
 }
@@ -189,7 +250,7 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
 export function useFeedback(): FeedbackContextValue {
   const ctx = useContext(FeedbackContext);
   if (!ctx) {
-    throw new Error('useFeedback 必须在 <FeedbackProvider> 内使用');
+    throw new Error("useFeedback 必须在 <FeedbackProvider> 内使用");
   }
   return ctx;
 }
@@ -200,23 +261,28 @@ export function useFeedback(): FeedbackContextValue {
  */
 export function createMessageApi(ctx: FeedbackContextValue) {
   return {
-    success: (content: ReactNode, duration?: number) => ctx.message('success', content, duration),
-    warning: (content: ReactNode, duration?: number) => ctx.message('warning', content, duration),
-    error: (content: ReactNode, duration?: number) => ctx.message('error', content, duration),
-    info: (content: ReactNode, duration?: number) => ctx.message('info', content, duration),
+    success: (content: ReactNode, duration?: number) =>
+      ctx.message("success", content, duration),
+    warning: (content: ReactNode, duration?: number) =>
+      ctx.message("warning", content, duration),
+    error: (content: ReactNode, duration?: number) =>
+      ctx.message("error", content, duration),
+    info: (content: ReactNode, duration?: number) =>
+      ctx.message("info", content, duration),
   };
 }
 
 export function createNotificationApi(ctx: FeedbackContextValue) {
   return {
-    open: (opts: Parameters<FeedbackContextValue['notification']>[0]) => ctx.notification(opts),
+    open: (opts: Parameters<FeedbackContextValue["notification"]>[0]) =>
+      ctx.notification(opts),
     success: (title: ReactNode, description?: ReactNode, duration?: number) =>
-      ctx.notification({ type: 'success', title, description, duration }),
+      ctx.notification({ type: "success", title, description, duration }),
     warning: (title: ReactNode, description?: ReactNode, duration?: number) =>
-      ctx.notification({ type: 'warning', title, description, duration }),
+      ctx.notification({ type: "warning", title, description, duration }),
     error: (title: ReactNode, description?: ReactNode, duration?: number) =>
-      ctx.notification({ type: 'error', title, description, duration }),
+      ctx.notification({ type: "error", title, description, duration }),
     info: (title: ReactNode, description?: ReactNode, duration?: number) =>
-      ctx.notification({ type: 'info', title, description, duration }),
+      ctx.notification({ type: "info", title, description, duration }),
   };
 }

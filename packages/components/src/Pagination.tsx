@@ -3,8 +3,8 @@
  * 省略号折叠；prev/next；快速跳转（可选）
  * ============================================================ */
 
-import { useMemo, type ReactNode } from 'react';
-import { NavigationChevronLeft, NavigationChevronRight } from '@novel/icons';
+import { useMemo, type ReactNode } from "react";
+import { NavigationChevronLeft, NavigationChevronRight } from "@novel/icons";
 
 export interface PaginationProps {
   /** 当前页（1-based） */
@@ -21,8 +21,6 @@ export interface PaginationProps {
   totalItems?: number;
   onChange?: (page: number) => void;
 }
-
-
 
 /** 计算需要显示的页码：用 -1 表示省略号 */
 function range(current: number, total: number, siblings: number): number[] {
@@ -53,7 +51,10 @@ export function Pagination({
   totalItems,
   onChange,
 }: PaginationProps) {
-  const pages = useMemo(() => range(current, total, siblings), [current, total, siblings]);
+  const pages = useMemo(
+    () => range(current, total, siblings),
+    [current, total, siblings],
+  );
 
   const go = (p: number) => {
     if (p < 1 || p > total || p === current) return;
@@ -63,7 +64,11 @@ export function Pagination({
   const renderItem = (p: number, key: string | number): ReactNode => {
     if (p === -1) {
       return (
-        <li key={`ellipsis-${key}`} className="novel-pagination__item novel-pagination__ellipsis" aria-hidden>
+        <li
+          key={`ellipsis-${key}`}
+          className="novel-pagination__item novel-pagination__ellipsis"
+          aria-hidden
+        >
           …
         </li>
       );
@@ -73,8 +78,8 @@ export function Pagination({
       <li key={p}>
         <button
           type="button"
-          className={`novel-pagination__item ${isActive ? 'is-active' : ''}`}
-          aria-current={isActive ? 'page' : undefined}
+          className={`novel-pagination__item ${isActive ? "is-active" : ""}`}
+          aria-current={isActive ? "page" : undefined}
           aria-label={`第 ${p} 页`}
           onClick={() => go(p)}
         >
@@ -126,7 +131,7 @@ export function Pagination({
             max={total}
             className="novel-pagination__jumper-input"
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 const v = Number((e.target as HTMLInputElement).value);
                 if (!Number.isNaN(v)) go(v);
               }
