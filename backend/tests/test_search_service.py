@@ -172,12 +172,12 @@ class TestPinyinSearch:
 
     async def test_pinyin_match_only_ascii_keyword(self, db_session, svc):
         await _create_published_novel(db_session, title="玄幻之巅")
-        novels, total = await svc._search_novels("玄幻", 1, 10)
+        _novels, total = await svc._search_novels("玄幻", 1, 10)
         assert total == 1
 
     async def test_pinyin_match_no_hit(self, db_session, svc):
         await _create_published_novel(db_session, title="玄幻之巅")
-        novels, total = await svc._search_novels("xuanhuanwuxian", 1, 10)
+        _novels, total = await svc._search_novels("xuanhuanwuxian", 1, 10)
         assert total == 0
 
     async def test_pinyin_helper_non_ascii(self, db_session):

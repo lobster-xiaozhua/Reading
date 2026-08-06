@@ -25,6 +25,9 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
   const prev = useCallback(() => {
     setActive((i) => (i - 1 + banners.length) % banners.length);
   }, [banners.length]);
+  const handleDotClick = useCallback((i: number) => {
+    setActive(i);
+  }, []);
 
   useEffect(() => {
     if (!interval || banners.length <= 1) return;
@@ -106,7 +109,7 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
             role="tab"
             aria-selected={i === active}
             aria-label={`第 ${i + 1} 张`}
-            onClick={() => setActive(i)}
+            onClick={() => handleDotClick(i)}
           />
         ))}
       </div>

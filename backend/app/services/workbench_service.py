@@ -13,6 +13,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import CacheKeys
+from app.models.interaction import Comment, RewardRecord
 from app.models.novel import Chapter, Novel
 from app.models.user import Author, Reader
 from app.schemas.b_end import WorkbenchKpi
@@ -42,8 +43,6 @@ class WorkbenchService:
         pending = await self._count(Novel, Novel.deleted == 0, Novel.status == "pending")
         total_authors = await self._count(Author, Author.deleted == 0)
         total_readers = await self._count(Reader, Reader.deleted == 0)
-
-        from app.models.interaction import RewardRecord
 
         today_start = int(time.mktime(date.today().timetuple())) * 1000
         today_revenue = await self._sum(
@@ -110,9 +109,6 @@ class WorkbenchService:
     # ── 内容概览 ─────────────────────────────────────────
     async def get_overviews(self) -> list[dict]:
         """获取内容概览（作品/章节/待审核/今日打赏/今日评论统计）。"""
-        from app.models.interaction import Comment, RewardRecord
-        from app.models.novel import Chapter
-
         today_start = int(time.mktime(date.today().timetuple())) * 1000
 
         total_novels = await self._count(Novel, Novel.deleted == 0)

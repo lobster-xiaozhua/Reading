@@ -1,19 +1,22 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
-import { visualizer } from 'rollup-plugin-visualizer';
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [
-    react(),
-    visualizer({
+export default defineConfig(async () => {
+  const plugins = [react()];
+
+  if (process.env.ANALYZE) {
+    const { visualizer } = await import('rollup-plugin-visualizer');
+    plugins.push(visualizer({
       filename: 'dist/stats.html',
       open: false,
       gzipSize: true,
       brotliSize: true,
-    }),
-  ],
+    }));
+  }
+
+  return {
+    plugins,
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -42,4 +45,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });

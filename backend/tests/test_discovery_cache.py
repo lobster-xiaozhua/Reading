@@ -7,8 +7,6 @@
   - 聚合 HOME 缓存整体命中时不查库
 """
 
-import json
-
 from app.core.redis import CacheKeys
 from app.models.novel import Novel
 from app.services.discovery_service import DiscoveryService

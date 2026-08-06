@@ -131,13 +131,11 @@ export default function SearchPage() {
   /* 加载更多 → 追加下一页 */
   const handleLoadMore = useCallback(() => {
     if (loadMoreLoading || !hasMore) return;
-    let alive = true;
     setLoadMoreLoading(true);
     setResultsError(false);
     fetcher
       .searchBooks(committedQuery, page + 1, PAGE_SIZE)
       .then((r) => {
-        if (!alive) return;
         setResults((prev) => {
           const seen = new Set(prev.map((b) => b.id));
           const next = r.items.filter((b) => !seen.has(b.id));
@@ -147,14 +145,11 @@ export default function SearchPage() {
         setPage((p) => p + 1);
       })
       .catch(() => {
-        if (alive) setResultsError(true);
+        setResultsError(true);
       })
       .finally(() => {
-        if (alive) setLoadMoreLoading(false);
+        setLoadMoreLoading(false);
       });
-    return () => {
-      alive = false;
-    };
   }, [committedQuery, page, hasMore, loadMoreLoading]);
 
   /* ---------- 提交搜索 ---------- */

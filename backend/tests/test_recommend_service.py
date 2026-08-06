@@ -99,8 +99,8 @@ class TestCollaborativeFiltering:
 class TestCategoryFallback:
     async def test_no_similar_reader_uses_category_affinity(self, db_session, redis_client):
         a = await _novel(db_session, "已读玄幻", category="xuanhuan")
-        b = await _novel(db_session, "玄幻新书", category="xuanhuan")
-        c = await _novel(db_session, "都市书", category="dushi", click_count=99999)
+        _b = await _novel(db_session, "玄幻新书", category="xuanhuan")
+        _c = await _novel(db_session, "都市书", category="dushi", click_count=99999)
         await _history(db_session, 1, a.id)
         svc = RecommendService(db_session, redis_client)
         result = await svc.get_recommendations(reader_id=1, limit=6)
