@@ -157,6 +157,6 @@ jobs:
 
       - name: pip audit
         working-directory: backend
-        run: pip-audit --strict --ignore-pip-editable
+        run: pip-audit --strict --skip-editable
 
 
