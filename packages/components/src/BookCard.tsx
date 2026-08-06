@@ -4,7 +4,7 @@
  * 封面 3:4，hover scale(1.02)+sh-2，active scale(0.98)，loading 骨架
  * ============================================================ */
 
-import { useState, type MouseEvent } from "react";
+import { memo, useState, type MouseEvent } from "react";
 import { Tag } from "./Tag.js";
 import { RatingStars } from "./RatingStars.js";
 
@@ -59,7 +59,7 @@ const COVER_WIDTH: Record<BookCardSize, number> = {
   lg: 160,
 };
 
-export function BookCard({
+export const BookCard = memo(function BookCard({
   book,
   variant = "grid",
   size = "md",
@@ -168,7 +168,7 @@ export function BookCard({
       {infoNode}
     </article>
   );
-}
+});
 
 /* ---------- 骨架屏 ---------- */
 

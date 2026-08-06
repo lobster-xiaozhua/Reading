@@ -14,11 +14,21 @@ from app.core.config import settings
 # SQLite 需要禁用 check_same_thread；统一以 dict 传 connect_args
 _is_sqlite = settings.db_url.startswith("sqlite")
 
+_pool_kw = {}
+if not _is_sqlite:
+    _pool_kw = {
+        "pool_size": settings.db_pool_size,
+        "max_overflow": settings.db_max_overflow,
+        "pool_recycle": settings.db_pool_recycle,
+        "pool_timeout": 30,
+    }
+
 engine = create_async_engine(
     settings.db_url,
     echo=settings.db_echo,
     pool_pre_ping=True,
     future=True,
+    **_pool_kw,
     **({"connect_args": {"check_same_thread": False}} if _is_sqlite else {}),
 )
 

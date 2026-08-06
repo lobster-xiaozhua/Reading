@@ -8,8 +8,9 @@
  *   - 弱网时（useNetworkStatus）降级到最小尺寸 src，节省流量
  * ============================================================ */
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { memo, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useNetworkStatus } from "../hooks/useNetworkStatus";
+import { generateCoverSvgDataUrl } from "../utils/generateDefaultCover";
 import "./LazyImage.css";
 
 export interface LazyImageProps {
@@ -46,7 +47,7 @@ function supportsWebP(): boolean {
 
 let webpSupported: boolean | null = null;
 
-export function LazyImage({
+export const LazyImage = memo(function LazyImage({
   src,
   alt,
   srcset,
@@ -96,16 +97,22 @@ export function LazyImage({
 
   /* ---------- 弱网降级：使用最小尺寸 src ---------- */
   const useMinSrc = degradeOnSlow && net.shouldDegrade;
-  const finalSrc = useMinSrc ? src : src;
   const finalSrcset = useMinSrc ? undefined : srcset;
+
+  /* 空 src 自动生成默认封面 */
+  const defaultCover = useMemo(
+    () => (!src && alt ? generateCoverSvgDataUrl(alt) : null),
+    [src, alt],
+  );
+  const effectiveSrc = src || defaultCover || "";
 
   /* ---------- 组装 srcset 字符串 ---------- */
   const srcsetStr = finalSrcset?.map((s) => `${s.src} ${s.w}w`).join(", ");
 
-  /* ---------- WebP 优先：若源以 .jpg/.png 结尾且浏览器支持，尝试 .webp ---------- */
-  let resolvedSrc = finalSrc;
+  /* ---------- WebP 优先：仅对远程图片生效，本地生成的 SVG 跳过 ---------- */
+  let resolvedSrc = effectiveSrc;
   let resolvedSrcset = srcsetStr;
-  if (webpSupported && !useMinSrc) {
+  if (webpSupported && !useMinSrc && resolvedSrc && !resolvedSrc.startsWith("data:")) {
     if (resolvedSrc && /\.(jpe?g|png)$/i.test(resolvedSrc)) {
       resolvedSrc = resolvedSrc.replace(/\.(jpe?g|png)$/i, ".webp");
     }
@@ -152,4 +159,4 @@ export function LazyImage({
       ) : null}
     </div>
   );
-}
+});

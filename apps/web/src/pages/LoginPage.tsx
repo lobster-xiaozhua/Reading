@@ -25,7 +25,7 @@ export default function LoginPage() {
         tab === "login"
           ? await fetcher.auth.login(username, password)
           : await fetcher.auth.register(username, password, nickname);
-      setAuth(res.token, res.user);
+      setAuth(res.token, res.user, res.expiresAt, res.refreshToken);
       useUserStore.getState().loadUser();
       navigate(params.get("redirect") || "/", { replace: true });
     } catch (err: unknown) {

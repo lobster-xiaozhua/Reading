@@ -1,28 +1,6 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
-
-interface ReaderUser {
-  id: string;
-  username: string;
-  nickname: string;
-  avatar?: string;
-}
-
-interface AuthState {
-  token: string | null;
-  user: ReaderUser | null;
-  setAuth: (token: string, user: ReaderUser) => void;
-  logout: () => void;
-}
-
-export const useAuthStore = create<AuthState>()(
-  persist(
-    (set) => ({
-      token: null,
-      user: null,
-      setAuth: (token, user) => set({ token, user }),
-      logout: () => set({ token: null, user: null }),
-    }),
-    { name: "atlas-reader-auth" },
-  ),
-);
+/* ============================================================
+ * 兼容层：authStore 重定向到 atlasStore
+ * 保持 http.ts 等外部引用的向后兼容
+ * ============================================================ */
+export { useAtlasStore as useAuthStore, isTokenExpired, isTokenNearExpiry } from "./atlasStore";
+export type { ReaderUser } from "./atlasStore";

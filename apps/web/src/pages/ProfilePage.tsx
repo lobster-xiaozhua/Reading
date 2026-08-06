@@ -14,7 +14,13 @@ import {
   Skeleton,
   Tabs,
   useAsyncState,
+  useReaderSettings,
   type Book,
+  type ReaderFontSize,
+  type ReaderFontFamily,
+  type ReaderLineHeight,
+  type ReaderTheme,
+  type ReaderPageMode,
 } from "@novel/components";
 import {
   NovelReward,
@@ -70,7 +76,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const tab = (searchParams.get("tab") as ProfileTab) ?? "bookshelf";
 
-  const user = useUserStore((s) => s.user);
+  const user = useUserStore((s) => s.profile);
   const historyEntries = useHistoryStore((s) => s.entries);
 
   const [editOpen, setEditOpen] = useState(false);
@@ -489,51 +495,49 @@ function RewardRecords({
 
 /* ---------- 设置入口 ---------- */
 
+const FONT_SIZE_OPTIONS: ReaderFontSize[] = [14, 16, 18, 20, 22, 24];
+const FONT_SIZE_LABEL: Record<ReaderFontSize, string> = {
+  14: "小", 16: "中", 18: "大", 20: "较大", 22: "很大", 24: "最大",
+};
+const LINE_HEIGHT_LABEL: Record<ReaderLineHeight, string> = {
+  compact: "紧凑", standard: "标准", loose: "宽松",
+};
+const FONT_FAMILY_LABEL: Record<ReaderFontFamily, string> = {
+  serif: "默认", song: "宋体", hei: "黑体", kai: "楷体",
+};
+const THEME_LABEL: Record<ReaderTheme, string> = {
+  day: "日间", night: "夜间", eye: "护眼", parchment: "羊皮纸",
+};
+const THEME_PREVIEW: Record<ReaderTheme, { bg: string; text: string }> = {
+  day: { bg: "#ffffff", text: "#333333" },
+  night: { bg: "#1a1a2e", text: "#e0e0e0" },
+  eye: { bg: "#f5e6c8", text: "#5c4033" },
+  parchment: { bg: "#f8f0e0", text: "#5c4a2e" },
+};
+const PAGE_MODE_LABEL: Record<ReaderPageMode, string> = {
+  scroll: "滚动", slide: "滑动", click: "点击",
+};
+
 function SettingsEntry() {
   const [settingsOpen, setSettingsOpen] = useState<string | null>(null);
-  const settings = [
-    {
-      key: "reading",
-      label: "阅读偏好",
-      desc: "默认字号、行距、主题",
-      comingSoon: false,
-    },
-    {
-      key: "notifications",
-      label: "消息通知",
-      desc: "更新提醒、互动通知",
-      comingSoon: true,
-    },
-    {
-      key: "privacy",
-      label: "隐私设置",
-      desc: "阅读历史、个性化推荐",
-      comingSoon: true,
-    },
-    {
-      key: "account",
-      label: "账号安全",
-      desc: "密码、绑定、登录设备",
-      comingSoon: true,
-    },
-    {
-      key: "about",
-      label: "关于",
-      desc: "版本信息、用户协议",
-      comingSoon: false,
-    },
+  const { settings, update, reset } = useReaderSettings();
+
+  const settingsList = [
+    { key: "reading", label: "阅读偏好", desc: "字号、行距、字体、主题、翻页", comingSoon: false },
+    { key: "notifications", label: "消息通知", desc: "更新提醒、互动通知", comingSoon: true },
+    { key: "privacy", label: "隐私设置", desc: "阅读历史、个性化推荐", comingSoon: true },
+    { key: "account", label: "账号安全", desc: "密码、绑定、登录设备", comingSoon: true },
+    { key: "about", label: "关于", desc: "版本信息、用户协议", comingSoon: false },
   ];
 
   const handleClick = (key: string) => {
-    if (key === "reading" || key === "about") {
-      setSettingsOpen(key);
-    }
+    if (key === "reading" || key === "about") setSettingsOpen(key);
   };
 
   return (
     <>
       <ul className="profile-page__settings">
-        {settings.map((s) => {
+        {settingsList.map((s) => {
           const clickable = s.key === "reading" || s.key === "about";
           return (
             <li key={s.key}>
@@ -548,15 +552,9 @@ function SettingsEntry() {
                   <div className="profile-page__setting-desc">{s.desc}</div>
                 </div>
                 {s.comingSoon ? (
-                  <span className="profile-page__setting-coming-soon">
-                    即将上线
-                  </span>
+                  <span className="profile-page__setting-coming-soon">即将上线</span>
                 ) : null}
-                <NavigationChevronRight
-                  size="sm"
-                  className="profile-page__setting-arrow"
-                  aria-hidden="true"
-                />
+                <NavigationChevronRight size="sm" className="profile-page__setting-arrow" aria-hidden="true" />
               </button>
             </li>
           );
@@ -567,32 +565,135 @@ function SettingsEntry() {
         open={settingsOpen === "reading"}
         title="阅读偏好"
         onCancel={() => setSettingsOpen(null)}
+        width={400}
         footer={
-          <button
-            type="button"
-            className="profile-page__modal-btn profile-page__modal-btn--primary"
-            onClick={() => setSettingsOpen(null)}
-          >
-            确认
-          </button>
+          <div className="profile-page__settings-footer">
+            <button
+              type="button"
+              className="profile-page__modal-btn"
+              onClick={reset}
+            >
+              重置默认
+            </button>
+            <button
+              type="button"
+              className="profile-page__modal-btn profile-page__modal-btn--primary"
+              onClick={() => setSettingsOpen(null)}
+            >
+              完成
+            </button>
+          </div>
         }
       >
         <div className="profile-page__settings-modal">
-          <p className="profile-page__settings-modal-text">
-            可在此设置默认字号、行距和主题模式。
-          </p>
-          <div className="profile-page__settings-modal-preview">
-            <div className="profile-page__settings-row">
-              <span>字号</span>
-              <span className="profile-page__settings-value">小</span>
+          {/* 字号 */}
+          <div className="profile-page__settings-group">
+            <label className="profile-page__settings-group-label">字号</label>
+            <div className="profile-page__fontsize-control">
+              <button
+                type="button"
+                className="profile-page__fontsize-btn"
+                disabled={settings.fontSize === 14}
+                onClick={() => {
+                  const idx = FONT_SIZE_OPTIONS.indexOf(settings.fontSize);
+                  if (idx > 0) update("fontSize", FONT_SIZE_OPTIONS[idx - 1]!);
+                }}
+                aria-label="减小字号"
+              >A-</button>
+              <span className="profile-page__fontsize-value">
+                {settings.fontSize}
+                <span className="profile-page__fontsize-label">
+                  {FONT_SIZE_LABEL[settings.fontSize]}
+                </span>
+              </span>
+              <button
+                type="button"
+                className="profile-page__fontsize-btn"
+                disabled={settings.fontSize === 24}
+                onClick={() => {
+                  const idx = FONT_SIZE_OPTIONS.indexOf(settings.fontSize);
+                  if (idx < FONT_SIZE_OPTIONS.length - 1) update("fontSize", FONT_SIZE_OPTIONS[idx + 1]!);
+                }}
+                aria-label="增大字号"
+              >A+</button>
             </div>
-            <div className="profile-page__settings-row">
-              <span>行距</span>
-              <span className="profile-page__settings-value">标准</span>
+          </div>
+
+          {/* 行距 */}
+          <div className="profile-page__settings-group">
+            <label className="profile-page__settings-group-label">行距</label>
+            <div className="profile-page__segmented" role="radiogroup" aria-label="行距">
+              {(["compact", "standard", "loose"] as ReaderLineHeight[]).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.lineHeight === v}
+                  className={`profile-page__segmented-item ${settings.lineHeight === v ? "is-active" : ""}`}
+                  onClick={() => update("lineHeight", v)}
+                >{LINE_HEIGHT_LABEL[v]}</button>
+              ))}
             </div>
-            <div className="profile-page__settings-row">
-              <span>主题</span>
-              <span className="profile-page__settings-value">日间</span>
+          </div>
+
+          {/* 字体 */}
+          <div className="profile-page__settings-group">
+            <label className="profile-page__settings-group-label">字体</label>
+            <div className="profile-page__segmented" role="radiogroup" aria-label="字体">
+              {(["serif", "song", "hei", "kai"] as ReaderFontFamily[]).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.fontFamily === v}
+                  className={`profile-page__segmented-item ${settings.fontFamily === v ? "is-active" : ""}`}
+                  onClick={() => update("fontFamily", v)}
+                >{FONT_FAMILY_LABEL[v]}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* 主题 */}
+          <div className="profile-page__settings-group">
+            <label className="profile-page__settings-group-label">主题</label>
+            <div className="profile-page__theme-grid" role="radiogroup" aria-label="主题">
+              {(["day", "night", "eye", "parchment"] as ReaderTheme[]).map((v) => {
+                const preview = THEME_PREVIEW[v];
+                return (
+                  <button
+                    key={v}
+                    type="button"
+                    role="radio"
+                    aria-checked={settings.theme === v}
+                    className={`profile-page__theme-item ${settings.theme === v ? "is-active" : ""}`}
+                    onClick={() => update("theme", v)}
+                  >
+                    <span
+                      className="profile-page__theme-swatch"
+                      style={{ background: preview.bg, color: preview.text }}
+                      aria-hidden="true"
+                    >Aa</span>
+                    <span className="profile-page__theme-name">{THEME_LABEL[v]}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 翻页模式 */}
+          <div className="profile-page__settings-group">
+            <label className="profile-page__settings-group-label">翻页方式</label>
+            <div className="profile-page__segmented" role="radiogroup" aria-label="翻页方式">
+              {(["scroll", "slide", "click"] as ReaderPageMode[]).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  role="radio"
+                  aria-checked={settings.pageMode === v}
+                  className={`profile-page__segmented-item ${settings.pageMode === v ? "is-active" : ""}`}
+                  onClick={() => update("pageMode", v)}
+                >{PAGE_MODE_LABEL[v]}</button>
+              ))}
             </div>
           </div>
         </div>

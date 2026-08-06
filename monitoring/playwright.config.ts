@@ -44,5 +44,9 @@ export default defineConfig({
       name: 'business-flow',
       testMatch: '**/business-flow*.ts',
     },
+    {
+      name: 'performance',
+      testMatch: '**/performance*.ts',
+    },
   ],
 });

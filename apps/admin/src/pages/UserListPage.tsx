@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Button,
@@ -79,7 +79,7 @@ export default function UserListPage() {
     loadData();
   }, [loadData]);
 
-  const handleBan = (record: UserItem) => {
+  const handleBan = useCallback((record: UserItem) => {
     confirm({
       title: t("user:confirm.title"),
       icon: <ExclamationCircleOutlined />,
@@ -99,9 +99,9 @@ export default function UserListPage() {
         }
       },
     });
-  };
+  }, [t, message, loadData]);
 
-  const columns: TableColumnsType<UserItem> = [
+  const columns: TableColumnsType<UserItem> = useMemo(() => [
     { title: t("user:table.id"), dataIndex: "id", width: 60, ellipsis: true },
     { title: t("user:table.username"), dataIndex: "username", width: 120 },
     { title: t("user:table.nickname"), dataIndex: "nickname", width: 120 },
@@ -157,7 +157,7 @@ export default function UserListPage() {
         </Space>
       ),
     },
-  ];
+], [t, hasPermission, handleBan]);
 
   return (
     <div>

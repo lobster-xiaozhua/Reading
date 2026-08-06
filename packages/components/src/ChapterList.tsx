@@ -4,7 +4,7 @@
  * 列表项固定 48px，虚拟滚动仅渲染可视区 + 上下各 5 条缓冲
  * ============================================================ */
 
-import { useMemo, useRef, useState, type CSSProperties } from "react";
+import { memo, useCallback, useMemo, useRef, useState, type CSSProperties } from "react";
 
 /** 章节领域模型 */
 export interface Chapter {
@@ -146,9 +146,9 @@ export function ChapterList({
 
   const visible = ordered.slice(range.start, range.end);
 
-  const handleSelect = (ch: Chapter) => {
+  const handleSelect = useCallback((ch: Chapter) => {
     onSelect?.(ch);
-  };
+  }, [onSelect]);
 
   const rootCls = ["novel-chapter-list", className ?? ""]
     .filter(Boolean)
@@ -238,7 +238,7 @@ export function ChapterList({
 
 /* ---------- 单个章节项 ---------- */
 
-function ChapterItem({
+const ChapterItem = memo(function ChapterItem({
   chapter,
   index,
   active,
@@ -287,7 +287,7 @@ function ChapterItem({
       ) : null}
     </button>
   );
-}
+});
 
 /** 字数简写：<1万 原值；≥1万 显示「X.X万」 */
 function formatWordCount(n: number): string {

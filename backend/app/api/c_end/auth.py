@@ -3,10 +3,14 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
+from app.core.config import settings
 from app.core.database import get_db
-from app.core.security import create_token, hash_password, verify_password
+from app.core.limiter import limiter
+from app.core.redis import get_redis_client
+from app.core.security import hash_password
 from app.models.user import Reader
-from app.schemas.common import CamelModel
+from app.schemas.auth import RefreshRequest
+from app.services.c_auth_service import CAuthService
 
 router = APIRouter(prefix="/auth", tags=["读者鉴权"])
 
@@ -20,11 +24,6 @@ class RegisterBody(BaseModel):
 class LoginBody(BaseModel):
     username: str
     password: str
-
-
-class LoginResponse(CamelModel):
-    token: str
-    user: dict
 
 
 @router.post("/register")
@@ -52,43 +51,32 @@ async def register(
     await db.commit()
     await db.refresh(reader)
 
-    token, _ = create_token(reader.id, token_type="access", extra={"username": reader.username})
-    return ok(
-        request,
-        LoginResponse(
-            token=token,
-            user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname},
-        ),
-    )
+    svc = CAuthService(db, await get_redis_client())
+    res = await svc.register(reader.id, reader.username, reader.nickname, reader.avatar or "")
+    return ok(request, res)
 
 
 @router.post("/login")
+@limiter.limit(f"{settings.rate_limit_login}/minute")
 async def login(
     request: Request,
     body: LoginBody,
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import select
+    svc = CAuthService(db, await get_redis_client())
+    res = await svc.login(body.username, body.password)
+    return ok(request, res)
 
-    from app.core.exceptions import BizError, ErrorCode
 
-    reader = (
-        await db.execute(select(Reader).where(Reader.username == body.username))
-    ).scalar_one_or_none()
-    if not reader:
-        raise BizError(ErrorCode.PARAM_INVALID, "用户名或密码错误")
-
-    if not verify_password(body.password, reader.password_hash):
-        raise BizError(ErrorCode.PARAM_INVALID, "用户名或密码错误")
-
-    token, _ = create_token(reader.id, token_type="access", extra={"username": reader.username})
-    return ok(
-        request,
-        LoginResponse(
-            token=token,
-            user={"id": str(reader.id), "username": reader.username, "nickname": reader.nickname},
-        ),
-    )
+@router.post("/refresh")
+async def refresh(
+    request: Request,
+    body: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    svc = CAuthService(db, await get_redis_client())
+    res = await svc.refresh(body.refresh_token)
+    return ok(request, res)
 
 
 @router.get("/me")

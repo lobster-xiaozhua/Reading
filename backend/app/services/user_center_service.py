@@ -111,15 +111,17 @@ class UserCenterService:
         novel_map = {n.id: n for n in novels}
 
         items: list[BookshelfItem] = []
-        for s in shelves:
-            novel = novel_map.get(s.novel_id)
-            if not novel:
-                continue
-            if tab == "ongoing" and novel.is_completed:
-                continue
-            if tab == "completed" and not novel.is_completed:
-                continue
-            history = await self.history_repo.get_by_reader_novel(reader_id, s.novel_id)
+        filtered = [
+            s for s in shelves
+            if (s.novel_id in novel_map)
+            and not (tab == "ongoing" and novel_map[s.novel_id].is_completed)
+            and not (tab == "completed" and not novel_map[s.novel_id].is_completed)
+        ]
+        filtered_ids = [s.novel_id for s in filtered]
+        history_map = await self.history_repo.get_by_reader_novels(reader_id, filtered_ids)
+        for s in filtered:
+            novel = novel_map[s.novel_id]
+            history = history_map.get(s.novel_id)
             items.append(
                 BookshelfItem(
                     book=novel_to_c_summary(novel),
@@ -152,12 +154,20 @@ class UserCenterService:
         novels = await self._get_novels_by_ids(novel_ids)
         novel_map = {n.id: n for n in novels}
 
+        chapter_ids = [h.chapter_id for h in histories if h.chapter_id]
+        chapters = {}
+        if chapter_ids:
+            from sqlalchemy import select as sa_select
+            stmt = sa_select(Chapter).where(Chapter.id.in_(chapter_ids))
+            rows = (await self.session.execute(stmt)).scalars().all()
+            chapters = {c.id: c for c in rows}
+
         result: list[ReadingHistoryItem] = []
         for h in histories:
             novel = novel_map.get(h.novel_id)
             if not novel:
                 continue
-            chapter = await self.session.get(Chapter, h.chapter_id) if h.chapter_id else None
+            chapter = chapters.get(h.chapter_id) if h.chapter_id else None
             result.append(
                 ReadingHistoryItem(
                     book_id=str(novel.id),
@@ -323,13 +333,17 @@ class UserCenterService:
         novels = await self._get_novels_by_ids(novel_ids)
         novel_map = {n.id: n for n in novels}
 
+        novel_ids = [s.novel_id for s in shelves if s.novel_id in novel_map]
+        latest_map = await self.chapter_repo.get_latest_batch(novel_ids)
+        history_map = await self.history_repo.get_by_reader_novels(reader_id, novel_ids)
+
         result: list[FollowItem] = []
         for s in shelves:
             novel = novel_map.get(s.novel_id)
             if not novel:
                 continue
-            latest = await self.chapter_repo.get_latest(novel.id)
-            history = await self.history_repo.get_by_reader_novel(reader_id, s.novel_id)
+            latest = latest_map.get(novel.id)
+            history = history_map.get(s.novel_id)
             status = FollowStatus.NONE
             if latest and history:
                 if latest.index > history.chapter_index:

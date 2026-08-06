@@ -4,17 +4,17 @@
 """
 
 from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok, require_permission
 from app.core.database import get_db
+from app.schemas.common import CamelModel
 from app.services.system_service import SystemService
 
 router = APIRouter(prefix="/system")
 
 
-class UpdateConfigBody(BaseModel):
+class UpdateConfigBody(CamelModel):
     site_name: str = ""
     icp: str = ""
 

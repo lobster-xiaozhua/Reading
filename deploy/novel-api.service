@@ -1,0 +1,42 @@
+[Unit]
+Description=Atlas Novel Reader API
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/novel/backend
+
+# 环境变量
+Environment=DEBUG=false
+Environment=DB_URL=mysql+asyncmy://user:password@localhost:3306/novel
+Environment=REDIS_URL=redis://localhost:6379/0
+Environment=JWT_SECRET=your-strong-32-byte-secret-here!!
+Environment=LOG_LEVEL=info
+
+# 资源限制
+LimitNOFILE=65535
+LimitNPROC=4096
+MemoryMax=1G
+
+# 进程管理
+ExecStart=/opt/novel/backend/.venv/bin/gunicorn app.main:app \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:8000 \
+    --workers 5 \
+    --max-requests 1000 \
+    --max-requests-jitter 200 \
+    --timeout 60 \
+    --graceful-timeout 30 \
+    --access-logfile /var/log/novel/access.log \
+    --error-logfile /var/log/novel/error.log
+
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=10
+WatchdogSec=30
+
+[Install]
+WantedBy=multi-user.target

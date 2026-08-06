@@ -101,6 +101,19 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
+    async def get_by_reader_novels(
+        self, reader_id: int, novel_ids: list[int]
+    ) -> dict[int, ReadingHistory]:
+        """批量获取阅读历史，返回 {novel_id: history} 映射。"""
+        if not novel_ids:
+            return {}
+        stmt = select(ReadingHistory).where(
+            ReadingHistory.reader_id == reader_id,
+            ReadingHistory.novel_id.in_(novel_ids),
+        )
+        result = await self.session.execute(stmt)
+        return {h.novel_id: h for h in result.scalars().all()}
+
     async def list_by_reader(self, reader_id: int, limit: int = 20) -> list[ReadingHistory]:
         """获取读者的阅读历史列表，按阅读时间降序排列。"""
         stmt = (

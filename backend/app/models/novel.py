@@ -13,6 +13,9 @@ class Novel(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __table_args__ = (
         Index("idx_novels_status_updated", "status", "updated_at"),
         Index("idx_novels_category", "category"),
+        Index("idx_novels_deleted", "deleted"),
+        Index("idx_novels_author_id", "author_id"),
+        Index("idx_novels_sort_click", "click_count", "rating"),
     )
 
     title: Mapped[str] = mapped_column(String(128))

@@ -2,16 +2,17 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { useAuthStore } from "../stores/authStore";
 import { useHistoryStore } from "../stores/historyStore";
 import { useSearchStore } from "../stores/searchStore";
+import { resetRecordDebounce } from "../stores/atlasStore";
 
 describe("authStore", () => {
   beforeEach(() => {
-    useAuthStore.setState({ token: null, user: null });
+    useAuthStore.setState({ token: null, authUser: null });
   });
 
   it("starts unauthenticated", () => {
     const state = useAuthStore.getState();
     expect(state.token).toBeNull();
-    expect(state.user).toBeNull();
+    expect(state.authUser).toBeNull();
   });
 
   it("setAuth stores token and user", () => {
@@ -19,7 +20,7 @@ describe("authStore", () => {
     useAuthStore.getState().setAuth("token123", user);
     const state = useAuthStore.getState();
     expect(state.token).toBe("token123");
-    expect(state.user).toEqual(user);
+    expect(state.authUser).toEqual(user);
   });
 
   it("logout clears auth", () => {
@@ -29,7 +30,7 @@ describe("authStore", () => {
     useAuthStore.getState().logout();
     const state = useAuthStore.getState();
     expect(state.token).toBeNull();
-    expect(state.user).toBeNull();
+    expect(state.authUser).toBeNull();
   });
 });
 
@@ -87,6 +88,7 @@ describe("searchStore", () => {
 describe("historyStore", () => {
   beforeEach(() => {
     useHistoryStore.setState({ entries: {} });
+    resetRecordDebounce();
   });
 
   it("starts with empty entries", () => {
@@ -114,7 +116,7 @@ describe("historyStore", () => {
       chapterIndex: 1,
       chapterTitle: "一",
       percent: 0.2,
-      readAt: 1,
+      readAt: 1000,
     });
     useHistoryStore.getState().recordReading({
       bookId: "1",
@@ -122,7 +124,7 @@ describe("historyStore", () => {
       chapterIndex: 3,
       chapterTitle: "三",
       percent: 0.8,
-      readAt: 2,
+      readAt: 5000,
     });
     const entry = useHistoryStore.getState().getEntry("1");
     expect(entry?.chapterId).toBe("c2");
@@ -136,7 +138,7 @@ describe("historyStore", () => {
       chapterIndex: 1,
       chapterTitle: "一",
       percent: 0,
-      readAt: 1,
+      readAt: 1000,
     });
     useHistoryStore.getState().recordReading({
       bookId: "2",
@@ -144,7 +146,7 @@ describe("historyStore", () => {
       chapterIndex: 9,
       chapterTitle: "九",
       percent: 0,
-      readAt: 2,
+      readAt: 5000,
     });
     expect(useHistoryStore.getState().getEntry("2")?.chapterId).toBe("c9");
     expect(Object.keys(useHistoryStore.getState().entries).length).toBe(2);

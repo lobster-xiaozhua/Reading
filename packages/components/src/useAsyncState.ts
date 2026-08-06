@@ -58,6 +58,10 @@ export function useAsyncState<T>(
     loaded: false,
   });
 
+  /* 使用 ref 持有 asyncFn，避免因内联函数引用变化导致无限循环 */
+  const asyncFnRef = useRef(asyncFn);
+  asyncFnRef.current = asyncFn;
+
   const runningRef = useRef<Promise<T> | null>(null);
   const mountedRef = useRef(true);
   const delayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -88,7 +92,7 @@ export function useAsyncState<T>(
         setState((s) => ({ ...s, status: "loading" }));
       }
 
-      const promise = asyncFn(...args);
+      const promise = asyncFnRef.current(...args);
       runningRef.current = promise;
 
       try {
@@ -119,8 +123,8 @@ export function useAsyncState<T>(
         }
       }
     },
-    // state omitted: loadedRef avoids stale closure without re-creating run on every state change
-    [asyncFn, loadingDelay],
+    // asyncFnRef used: stable ref, no need to re-create run on asyncFn change
+    [loadingDelay],
   );
 
   const reset = useCallback(() => {

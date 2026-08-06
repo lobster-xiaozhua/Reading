@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Dropdown, Avatar } from "@novel/components";
 import { useUserStore } from "@/stores/userStore";
@@ -12,15 +12,22 @@ import "./NavBar.css";
  */
 export function NavBar() {
   const navigate = useNavigate();
-  const user = useUserStore((s) => s.user);
-  const loadUser = useUserStore((s) => s.loadUser);
+  const user = useUserStore((s) => s.profile);
   const [keyword, setKeyword] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const categoriesRef = useRef<Category[]>([]);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
-    loadUser();
-    fetcher.getCategories().then(setCategories);
-  }, [loadUser]);
+    useUserStore.getState().loadUser();
+    if (!hasLoadedRef.current) {
+      hasLoadedRef.current = true;
+      fetcher.getCategories().then((cats) => {
+        categoriesRef.current = cats;
+        setCategories(cats);
+      });
+    }
+  }, []);
 
   const onSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,14 +35,16 @@ export function NavBar() {
     navigate(`/search?q=${encodeURIComponent(keyword.trim())}`);
   };
 
-  const categoryItems = [
-    { key: "all", label: "全部分类", to: "/category" },
-    ...categories.map((c) => ({
-      key: c.id,
-      label: c.name,
-      to: `/category?cat=${encodeURIComponent(c.name)}`,
-    })),
-  ];
+  const categoryItems = useMemo(() => {
+    return [
+      { key: "all", label: "全部分类", to: "/category" },
+      ...categories.map((c) => ({
+        key: c.id,
+        label: c.name,
+        to: `/category?cat=${encodeURIComponent(c.name)}`,
+      })),
+    ];
+  }, [categories]);
 
   return (
     <header className="novel-navbar" role="banner">

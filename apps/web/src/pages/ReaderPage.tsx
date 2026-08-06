@@ -158,33 +158,39 @@ export default function ReaderPage() {
     recordReading,
   ]);
 
-  /* ---------- 导航 ---------- */
+  /* ---------- 使用 ref 持有 cache，避免每次渲染导致回调重建 ---------- */
+  const cacheRef = useRef(cache);
+  cacheRef.current = cache;
+
   const handlePrev = useCallback(() => {
-    if (cache.prevId) {
-      navigate(`/read/${bookId}/${cache.prevId}`, { replace: true });
-      cache.goto(cache.prevId);
+    const c = cacheRef.current;
+    if (c.prevId) {
+      navigate(`/read/${bookId}/${c.prevId}`, { replace: true });
+      c.goto(c.prevId);
       setChapterPercent(0);
     }
-  }, [cache, bookId, navigate]);
+  }, [bookId, navigate]);
 
   const handleNext = useCallback(() => {
-    if (cache.nextId) {
-      navigate(`/read/${bookId}/${cache.nextId}`, { replace: true });
-      cache.goto(cache.nextId);
+    const c = cacheRef.current;
+    if (c.nextId) {
+      navigate(`/read/${bookId}/${c.nextId}`, { replace: true });
+      c.goto(c.nextId);
       setChapterPercent(0);
     }
-  }, [cache, bookId, navigate]);
+  }, [bookId, navigate]);
 
   const handleSeek = useCallback(
     (chapterNum: number) => {
+      const c = cacheRef.current;
       const target = chapters[chapterNum - 1];
       if (target) {
         navigate(`/read/${bookId}/${target.id}`, { replace: true });
-        cache.goto(target.id);
+        c.goto(target.id);
         setChapterPercent(0);
       }
     },
-    [chapters, bookId, navigate, cache],
+    [chapters, bookId, navigate],
   );
 
   const handleBack = useCallback(() => {
@@ -195,10 +201,10 @@ export default function ReaderPage() {
     (ch: Chapter) => {
       setCatalogOpen(false);
       navigate(`/read/${bookId}/${ch.id}`, { replace: true });
-      cache.goto(ch.id);
+      cacheRef.current.goto(ch.id);
       setChapterPercent(0);
     },
-    [bookId, navigate, cache],
+    [bookId, navigate],
   );
 
   /* ---------- 目录章节项 ---------- */
@@ -210,9 +216,9 @@ export default function ReaderPage() {
         wordCount: c.wordCount,
         isVip: c.isVip,
         updateTime: c.publishedAt,
-        read: c.index < cache.currentIndex + 1,
+        read: c.index < cacheRef.current.currentIndex + 1,
       })),
-    [chapters, cache.currentIndex],
+    [chapters],
   );
 
   /* ---------- 加载中 ---------- */

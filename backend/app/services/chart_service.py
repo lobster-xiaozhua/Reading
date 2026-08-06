@@ -144,16 +144,19 @@ class ChartService:
 
     # ── 排行趋势 ─────────────────────────────────────────
     async def get_ranking_trend(self, days: int = 14) -> list[TrendPoint]:
-        """获取排行趋势（基于点击量近期增长）。
+        """获取排行趋势（基于点击量）。
 
         Args:
             days: 统计天数。
 
         Returns:
-            排行趋势数据点。
+            排行趋势数据点 [{ date, value }]。
         """
         novels = await self._get_top_novels(10)
-        return [TrendPoint(date=date.today().isoformat(), value=int(n.click_count)) for n in novels]
+        return [
+            TrendPoint(date=date.today().isoformat(), value=n.click_count)
+            for n in novels
+        ]
 
     # ── 分类分布 ─────────────────────────────────────────
     async def get_category_distribution(self) -> list[CategoryDistribution]:

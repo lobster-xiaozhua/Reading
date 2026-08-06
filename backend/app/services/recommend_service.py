@@ -5,16 +5,20 @@
 后续数据量增大后可将共现矩阵迁移至离线计算。
 """
 
+import json
+
 import redis.asyncio as redis
 import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.redis import CacheKeys
 from app.models.novel import Novel
 from app.models.reading import ReadingHistory
 from app.repositories.novel_repo import NovelRepository
 from app.schemas.c_end import RecommendBook
 from app.services._converters import novel_to_c_summary
+from app.utils.cache import cache_set
 
 logger = structlog.get_logger(__name__)
 
@@ -111,12 +115,20 @@ class RecommendService:
         return result
 
     # ── 冷启动 / 类别回退 ───────────────────────────────
+    _TTL_HOT_RECOMMEND = 300
+    _TTL_COLD_RECOMMEND = 600
+
     async def _cold_start(self, limit: int) -> list[RecommendBook]:
         """无阅读历史：全局热门榜，匹配度基于评分与点击量。"""
-        novels = await self.novel_repo.ranking("hot", limit)
-        return [
-            RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n)) for n in novels
-        ]
+        cached = await self.redis.get(CacheKeys.RECOMMEND_HOT)
+        if cached:
+            data = json.loads(cached)
+            return [RecommendBook.model_validate(r) for r in data[:limit]]
+
+        novels = await self.novel_repo.ranking("hot", limit * 2)
+        result = [RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n)) for n in novels]
+        await cache_set(self.redis, CacheKeys.RECOMMEND_HOT, result, self._TTL_HOT_RECOMMEND)
+        return result[:limit]
 
     async def _category_fallback(self, exclude_ids: list[int], limit: int) -> list[RecommendBook]:
         """无相似读者：优先推荐读者常读类别的热门书，不足时以全局热门补齐。"""

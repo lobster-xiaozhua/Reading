@@ -1,4 +1,6 @@
 import { reportError } from "@/utils/report";
+import { useAuthStore, isTokenExpired } from "@/stores/authStore";
+import { getBizMessage } from "@/api/errorMap";
 
 const AUTH_KEY = "atlas-reader-auth";
 
@@ -31,9 +33,38 @@ function getToken(): string | null {
   }
 }
 
-const BASE_URL = "/api/v1/c";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1/c";
+
+/** 简易内存请求缓存：相同 URL 在 60 秒内命中缓存 */
+const cache = new Map<string, { data: unknown; expiresAt: number }>();
+const CACHE_TTL = 60_000;
+
+/** 清空缓存（测试用） */
+export function clearCache(): void {
+  cache.clear();
+}
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCache<T>(key: string, data: T): void {
+  cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL });
+}
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const cacheKey = `${options.method ?? "GET"}:${path}`;
+  if (options.method === "GET" || options.method === undefined) {
+    const cached = getCached<T>(cacheKey);
+    if (cached !== null) return cached;
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -79,16 +110,64 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (body.code !== 0) {
-    reportError(new Error(body.message || "请求失败"), {
+    const message = getBizMessage(body.code, body.message || "请求失败");
+    reportError(new Error(message), {
       path,
       method,
       code: body.code,
       traceId: body.traceId,
       kind: "biz",
     });
-    throw new ApiError(body.code, body.message || "请求失败", body.traceId);
+    throw new ApiError(body.code, message, body.traceId);
   }
-  return body.data as T;
+
+  const data = body.data as T;
+  if (options.method === "GET" || options.method === undefined) {
+    setCache(cacheKey, data);
+  }
+  return data;
+}
+
+let isRefreshing = false;
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshTokenOnce(): Promise<void> {
+  const store = useAuthStore.getState();
+  if (store.refreshToken) {
+    refreshPromise = store.refresh().then(() => {
+      isRefreshing = false;
+      refreshPromise = null;
+    }).catch(() => {
+      isRefreshing = false;
+      refreshPromise = null;
+      store.logout();
+    });
+    await refreshPromise;
+  } else {
+    store.logout();
+    isRefreshing = false;
+    refreshPromise = null;
+  }
+}
+
+async function requestWithRefresh<T>(
+  path: string,
+  options: RequestInit = {},
+): Promise<T> {
+  try {
+    return await request<T>(path, options);
+  } catch (err) {
+    if (err instanceof ApiError && err.code === 401 && !isRefreshing) {
+      const store = useAuthStore.getState();
+      if (store.refreshToken && !isTokenExpired(store.expiresAt)) {
+        isRefreshing = true;
+        await refreshTokenOnce();
+        return request<T>(path, options);
+      }
+      store.logout();
+    }
+    throw err;
+  }
 }
 
 function buildQuery(params: Record<string, unknown>): string {
@@ -104,27 +183,27 @@ function buildQuery(params: Record<string, unknown>): string {
 
 export const http = {
   get<T>(path: string, params?: Record<string, unknown>): Promise<T> {
-    return request<T>(`${path}${buildQuery(params ?? {})}`, { method: "GET" });
+    return requestWithRefresh<T>(`${path}${buildQuery(params ?? {})}`, { method: "GET" });
   },
   post<T>(path: string, body?: unknown): Promise<T> {
-    return request<T>(path, {
+    return requestWithRefresh<T>(path, {
       method: "POST",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   },
   put<T>(path: string, body?: unknown): Promise<T> {
-    return request<T>(path, {
+    return requestWithRefresh<T>(path, {
       method: "PUT",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   },
   patch<T>(path: string, body?: unknown): Promise<T> {
-    return request<T>(path, {
+    return requestWithRefresh<T>(path, {
       method: "PATCH",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   },
   del<T>(path: string): Promise<T> {
-    return request<T>(path, { method: "DELETE" });
+    return requestWithRefresh<T>(path, { method: "DELETE" });
   },
 };

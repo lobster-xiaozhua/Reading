@@ -54,7 +54,7 @@ class NovelService:
         )
         items = [novel_to_b_detail(n) for n in novels]
         return NovelListResponse(
-            items=items,
+            list=items,
             total=total,
             page=params.page,
             page_size=params.page_size,

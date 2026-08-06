@@ -161,6 +161,35 @@ export default function AuditWorkbenchPage() {
     }
   };
 
+  const renderQueueItem = useCallback((item: AuditItem) => {
+    const levelCfg = AUDIT_LEVEL_LABEL[item.level];
+    const isSelected = item.id === selectedId;
+    return (
+      <List.Item
+        onClick={() => setSelectedId(item.id)}
+        className={`awb-item${isSelected ? " awb-item--selected" : ""}${fadingOutId === item.id ? " awb-item--fade-out" : ""}`}
+      >
+        <div className="awb-item__inner">
+          <div className="awb-item__header">
+            <strong className="awb-item__title">{item.chapterTitle}</strong>
+            <Tag color={levelCfg.color}>{levelCfg.text}</Tag>
+          </div>
+          <div className="awb-item__meta">
+            《{item.novelTitle}》 · {item.author}
+          </div>
+          <div className="awb-item__footer">
+            <span>{item.wordCount.toLocaleString()} {t("audit:wordSuffix")}</span>
+            {item.sensitiveHits.length > 0 && (
+              <span className="awb-item__sensitive-hint">
+                {t("audit:sensitiveHit", { count: item.sensitiveHits.length })}
+              </span>
+            )}
+          </div>
+        </div>
+      </List.Item>
+    );
+  }, [selectedId, fadingOutId, setSelectedId, t]);
+
   const breadcrumb: BPageHeaderProps["breadcrumb"] = [
     { title: t("audit:breadcrumb") },
     { title: t("audit:title") },
@@ -232,41 +261,7 @@ export default function AuditWorkbenchPage() {
               <List
                 dataSource={queue}
                 split
-                renderItem={(item) => {
-                  const levelCfg = AUDIT_LEVEL_LABEL[item.level];
-                  const isSelected = item.id === selectedId;
-                  return (
-                    <List.Item
-                      onClick={() => setSelectedId(item.id)}
-                      className={`awb-item${isSelected ? " awb-item--selected" : ""}${fadingOutId === item.id ? " awb-item--fade-out" : ""}`}
-                    >
-                      <div className="awb-item__inner">
-                        <div className="awb-item__header">
-                          <strong className="awb-item__title">
-                            {item.chapterTitle}
-                          </strong>
-                          <Tag color={levelCfg.color}>{levelCfg.text}</Tag>
-                        </div>
-                        <div className="awb-item__meta">
-                          《{item.novelTitle}》 · {item.author}
-                        </div>
-                        <div className="awb-item__footer">
-                          <span>
-                            {item.wordCount.toLocaleString()}{" "}
-                            {t("audit:wordSuffix")}
-                          </span>
-                          {item.sensitiveHits.length > 0 && (
-                            <span className="awb-item__sensitive-hint">
-                              {t("audit:sensitiveHit", {
-                                count: item.sensitiveHits.length,
-                              })}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </List.Item>
-                  );
-                }}
+                renderItem={renderQueueItem}
               />
             )}
           </Card>

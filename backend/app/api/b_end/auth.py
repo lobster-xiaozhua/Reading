@@ -7,7 +7,9 @@ from fastapi import APIRouter, Depends, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_admin, ok
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.core.redis import get_redis_client
 from app.schemas.auth import LoginCredentials, RefreshRequest
 from app.services.auth_service import AuthService
@@ -16,6 +18,7 @@ router = APIRouter(prefix="/auth")
 
 
 @router.post("/login")
+@limiter.limit(f"{settings.rate_limit_login}/minute")
 async def login(
     request: Request,
     body: LoginCredentials,

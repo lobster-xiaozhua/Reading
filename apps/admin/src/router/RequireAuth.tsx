@@ -14,7 +14,9 @@ interface RequireAuthProps {
 }
 
 export function RequireAuth({ children }: RequireAuthProps) {
-  const { isAuthenticated, expiresAt, refresh } = useAuthStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const expiresAt = useAuthStore((s) => s.expiresAt);
+  const refresh = useAuthStore((s) => s.refresh);
   const location = useLocation();
 
   // token 临近过期自动 refresh（静默）

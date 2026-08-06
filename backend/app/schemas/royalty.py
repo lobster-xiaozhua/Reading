@@ -36,7 +36,10 @@ class RoyaltyStats(CamelModel):
 
 class RoyaltyListResponse(CamelModel):
     items: list[RoyaltyDetailItem] = Field(default_factory=list, alias="list")
+    total: int = 0
     stats: RoyaltyStats = RoyaltyStats()
+
+    model_config = {"populate_by_name": True}
 
 
 class BatchSettleParams(CamelModel):

@@ -1,6 +1,6 @@
 """审核域 ORM：审核记录 / 历史 / 敏感词库（§4.2.5）。"""
 
-from sqlalchemy import BigInteger, Integer, String, Text, UniqueConstraint
+from sqlalchemy import BigInteger, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, IdMixin, TimestampMixin
@@ -10,6 +10,7 @@ class AuditRecord(Base, IdMixin):
     """审核记录。"""
 
     __tablename__ = "audit_records"
+    __table_args__ = (Index("idx_audit_target", "target_type", "target_id"),)
 
     target_type: Mapped[str] = mapped_column(String(20), comment="novel/chapter")
     target_id: Mapped[int] = mapped_column(BigInteger)
@@ -28,6 +29,7 @@ class AuditHistory(Base, IdMixin):
     """审核历史。"""
 
     __tablename__ = "audit_histories"
+    __table_args__ = (Index("idx_audit_history_record_id", "audit_record_id"),)
 
     audit_record_id: Mapped[int] = mapped_column(BigInteger)
     operator_id: Mapped[int] = mapped_column(BigInteger, default=0)

@@ -47,6 +47,41 @@ class ChapterRepository(BaseRepository[Chapter]):
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
+    async def get_neighbors(
+        self, novel_id: int, index: int
+    ) -> tuple[Chapter | None, Chapter | None]:
+        """一次查询获取上一章和下一章（单 SQL 代替 2 次独立查询）。"""
+        prev_id = (
+            select(Chapter.id)
+            .where(
+                Chapter.novel_id == novel_id,
+                Chapter.index < index,
+                Chapter.deleted == 0,
+                Chapter.status == "published",
+            )
+            .order_by(Chapter.index.desc())
+            .limit(1)
+            .scalar_subquery()
+        )
+        next_id = (
+            select(Chapter.id)
+            .where(
+                Chapter.novel_id == novel_id,
+                Chapter.index > index,
+                Chapter.deleted == 0,
+                Chapter.status == "published",
+            )
+            .order_by(Chapter.index.asc())
+            .limit(1)
+            .scalar_subquery()
+        )
+        stmt = select(Chapter).where(Chapter.id.in_([prev_id, next_id]))
+        result = await self.session.execute(stmt)
+        chapters = list(result.scalars().all())
+        prev_ch = next((c for c in chapters if c.index < index), None)
+        next_ch = next((c for c in chapters if c.index > index), None)
+        return prev_ch, next_ch
+
     async def get_latest(self, novel_id: int) -> Chapter | None:
         """获取指定作品的最新已发布章节。"""
         stmt = (
@@ -61,6 +96,39 @@ class ChapterRepository(BaseRepository[Chapter]):
         )
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def get_latest_batch(self, novel_ids: list[int]) -> dict[int, Chapter]:
+        """批量获取多部作品的最新已发布章节，返回 {novel_id: chapter} 映射。"""
+        if not novel_ids:
+            return {}
+        from sqlalchemy import and_
+        from sqlalchemy import func as sa_func
+        from sqlalchemy import select as sa_select
+        max_index = (
+            sa_select(
+                Chapter.novel_id,
+                sa_func.max(Chapter.index).label("max_index"),
+            )
+            .where(
+                Chapter.novel_id.in_(novel_ids),
+                Chapter.deleted == 0,
+                Chapter.status == "published",
+            )
+            .group_by(Chapter.novel_id)
+            .subquery()
+        )
+        stmt = (
+            sa_select(Chapter)
+            .join(
+                max_index,
+                and_(
+                    Chapter.novel_id == max_index.c.novel_id,
+                    Chapter.index == max_index.c.max_index,
+                ),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return {ch.novel_id: ch for ch in result.scalars().all()}
 
     async def reorder(self, novel_id: int, ordered_ids: list[int]) -> None:
         """重排章节顺序（两步更新避免唯一约束冲突）。"""

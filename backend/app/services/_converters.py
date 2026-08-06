@@ -65,6 +65,7 @@ def novel_to_b_detail(novel: Novel) -> BNovelDetail:
         word_count=novel.word_count,
         status=status,
         flags=_parse_flags(novel.flags),
+        tags=_parse_tags(novel.tags_str),
         rating=float(novel.rating),
         rating_count=novel.rating_count,
         follow_count=novel.follow_count,

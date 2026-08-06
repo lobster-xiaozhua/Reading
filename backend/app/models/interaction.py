@@ -1,6 +1,6 @@
 """互动域 ORM：评论 / 书评 / 打赏（§4.2.4）。"""
 
-from sqlalchemy import BigInteger, Integer, String, Text
+from sqlalchemy import BigInteger, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, IdMixin
@@ -10,6 +10,10 @@ class Comment(Base, IdMixin):
     """评论 / 段评。"""
 
     __tablename__ = "comments"
+    __table_args__ = (
+        Index("idx_comments_novel_id", "novel_id"),
+        Index("idx_comments_reader_id", "reader_id"),
+    )
 
     novel_id: Mapped[int] = mapped_column(BigInteger)
     chapter_id: Mapped[int] = mapped_column(BigInteger, default=0)
@@ -27,6 +31,10 @@ class Review(Base, IdMixin):
     """书评。"""
 
     __tablename__ = "reviews"
+    __table_args__ = (
+        Index("idx_reviews_novel_id", "novel_id"),
+        Index("idx_reviews_reader_id", "reader_id"),
+    )
 
     reader_id: Mapped[int] = mapped_column(BigInteger)
     novel_id: Mapped[int] = mapped_column(BigInteger)
@@ -42,6 +50,10 @@ class RewardRecord(Base, IdMixin):
     """打赏记录。"""
 
     __tablename__ = "reward_records"
+    __table_args__ = (
+        Index("idx_reward_records_novel_id", "novel_id"),
+        Index("idx_reward_records_reader_id", "reader_id"),
+    )
 
     reader_id: Mapped[int] = mapped_column(BigInteger)
     novel_id: Mapped[int] = mapped_column(BigInteger)

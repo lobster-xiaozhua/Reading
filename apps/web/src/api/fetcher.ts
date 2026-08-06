@@ -73,14 +73,26 @@ export const fetcher = {
     async login(username: string, password: string) {
       return http.post<{
         token: string;
-        user: { id: string; username: string; nickname: string };
+        user: { id: string; username: string; nickname: string; avatar: string };
+        expiresAt: number;
+        refreshToken: string;
       }>("/auth/login", { username, password });
     },
     async register(username: string, password: string, nickname?: string) {
       return http.post<{
         token: string;
-        user: { id: string; username: string; nickname: string };
+        user: { id: string; username: string; nickname: string; avatar: string };
+        expiresAt: number;
+        refreshToken: string;
       }>("/auth/register", { username, password, nickname: nickname ?? "" });
+    },
+    async refresh(refreshToken: string) {
+      return http.post<{
+        token: string;
+        user: { id: string; username: string; nickname: string; avatar: string };
+        expiresAt: number;
+        refreshToken: string;
+      }>("/auth/refresh", { refreshToken });
     },
     async getMe() {
       return http.get<{
@@ -406,8 +418,8 @@ export const fetcher = {
       id: string;
       text: string;
       annotation: string;
-      chapter_id: number;
-      created_at: number;
+      chapterId: number;
+      createdAt: number;
     }[]
   > {
     return http.get("/me/notes", novelId ? { novel_id: novelId } : undefined);

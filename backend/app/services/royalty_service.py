@@ -50,7 +50,7 @@ class RoyaltyService:
         Returns:
             稿费列表及统计。
         """
-        details, _ = await self.repo.list_for_b_end(
+        details, total = await self.repo.list_for_b_end(
             month=month,
             status=status,
             author_name=author_name,
@@ -88,7 +88,7 @@ class RoyaltyService:
 
         # 统计汇总（基于当前查询结果集）
         stats = self._calc_stats(items)
-        return RoyaltyListResponse(items=items, stats=stats)
+        return RoyaltyListResponse(items=items, total=total, stats=stats)
 
     # ── 批量结算 ─────────────────────────────────────────
     async def batch_settle(self, ids: list[int]) -> BatchOperateResult:

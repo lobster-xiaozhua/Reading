@@ -36,12 +36,8 @@ class NovelRepository(BaseRepository[Novel]):
             for tag in tags.split(","):
                 tag = tag.strip()
                 if tag:
-                    stmt = stmt.where(
-                        Novel.tags_str.contains(f",{tag},")
-                        | Novel.tags_str.like(f"{tag},%")
-                        | Novel.tags_str.like(f"%,{tag}")
-                        | (Novel.tags_str == tag)
-                    )
+                    like_tag = f"%{tag}%"
+                    stmt = stmt.where(Novel.tags_str.like(like_tag))
         stmt = stmt.order_by(sort_field)
         return await self.paginate(stmt, page, page_size)
 
@@ -88,7 +84,7 @@ class NovelRepository(BaseRepository[Novel]):
         order = {
             "hot": Novel.click_count.desc(),
             "follow": Novel.follow_count.desc(),
-            "ticket": Novel.follow_count.desc(),
+            "ticket": (Novel.follow_count + Novel.rating_count).desc(),
             "new": Novel.published_at.desc(),
         }.get(rank_type, Novel.click_count.desc())
         stmt = (

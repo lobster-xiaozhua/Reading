@@ -61,53 +61,30 @@ export default function BookDetailPage() {
   const [order, setOrder] = useState<ChapterOrder>("asc");
   const [tab, setTab] = useState<DetailTab>("chapters");
 
-  /* ---------- 数据加载 ---------- */
-  const fetchBook = useCallback(() => fetcher.getBook(bookId), [bookId]);
-  const bookState = useAsyncState<BookSummary | null>(fetchBook, {
-    deps: [bookId],
-    loadingDelay: 200,
-  });
-  const fetchChapters = useCallback(
-    () => fetcher.getChapters(bookId),
-    [bookId],
-  );
-  const chaptersState = useAsyncState<ChapterSummary[]>(fetchChapters, {
-    deps: [bookId],
-    initial: [] as ChapterSummary[],
-    loadingDelay: 200,
-  });
-  const fetchRelated = useCallback(
-    () => fetcher.getRelatedBooks(bookId),
-    [bookId],
-  );
-  const relatedState = useAsyncState<BookSummary[]>(fetchRelated, {
-    deps: [bookId],
-    initial: [] as BookSummary[],
-    loadingDelay: 200,
-  });
-  const fetchComments = useCallback(
-    () => fetcher.getComments(bookId),
-    [bookId],
-  );
-  const commentsState = useAsyncState<Comment[]>(fetchComments, {
-    deps: [bookId],
-    initial: [] as Comment[],
-    loadingDelay: 200,
-  });
-  const fetchRating = useCallback(
-    () => fetcher.getRatingDistribution(bookId),
-    [bookId],
-  );
-  const ratingState = useAsyncState<RatingDist>(fetchRating, {
+  /* ---------- 数据加载：并行请求 + 统一状态管理 ---------- */
+  const fetchBookData = useCallback(async () => {
+    const results = await Promise.allSettled([
+      fetcher.getBook(bookId),
+      fetcher.getChapters(bookId),
+      fetcher.getRelatedBooks(bookId),
+      fetcher.getComments(bookId),
+      fetcher.getRatingDistribution(bookId),
+    ]);
+    return results.map((r) => (r.status === "fulfilled" ? r.value : null));
+  }, [bookId]);
+
+  const bookState = useAsyncState<
+    (BookSummary | null | ChapterSummary[] | BookSummary[] | Comment[] | RatingDist | null)[]
+  >(fetchBookData, {
     deps: [bookId],
     loadingDelay: 200,
   });
 
-  const book = bookState.data ?? null;
-  const chapters = chaptersState.data ?? EMPTY_CHAPTERS;
-  const related = relatedState.data ?? EMPTY_RELATED;
-  const comments = commentsState.data ?? EMPTY_COMMENTS;
-  const rating = ratingState.data ?? null;
+  const book = (bookState.data?.[0] ?? null) as BookSummary | null;
+  const chapters = (bookState.data?.[1] ?? EMPTY_CHAPTERS) as ChapterSummary[];
+  const related = (bookState.data?.[2] ?? EMPTY_RELATED) as BookSummary[];
+  const comments = (bookState.data?.[3] ?? EMPTY_COMMENTS) as Comment[];
+  const rating = (bookState.data?.[4] ?? null) as RatingDist | null;
 
   /* ---------- 已读章节集合（来自历史） ---------- */
   const readChapterIds = useMemo(() => {
@@ -212,7 +189,7 @@ export default function BookDetailPage() {
               label: `目录(${chapters.length})`,
               children: (
                 <div className="book-detail__chapters">
-                  {chaptersState.loading && chapters.length === 0 ? (
+                  {bookState.loading && chapters.length === 0 ? (
                     <Skeleton rows={6} />
                   ) : chapters.length === 0 ? (
                     <EmptyState title="暂无章节" />
@@ -236,7 +213,7 @@ export default function BookDetailPage() {
               children: (
                 <CommentList
                   comments={comments}
-                  loading={commentsState.loading && comments.length === 0}
+                  loading={bookState.loading && comments.length === 0}
                 />
               ),
             },
@@ -250,7 +227,7 @@ export default function BookDetailPage() {
       </section>
 
       {/* 相关推荐 */}
-      <BookDetailRelated related={related} loading={relatedState.loading} />
+      <BookDetailRelated related={related} loading={bookState.loading} />
     </div>
   );
 }
@@ -349,11 +326,13 @@ function CommentList({
   );
 }
 
-function CommentItem({ comment: c }: { comment: Comment }) {
+import { memo } from "react";
+
+const CommentItem = memo(function CommentItem({ comment: c }: { comment: Comment }) {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(c.likes);
 
-  const handleLike = () => {
+  const handleLike = useCallback(() => {
     if (isLiked) {
       setIsLiked(false);
       setLikes((n) => n - 1);
@@ -361,7 +340,7 @@ function CommentItem({ comment: c }: { comment: Comment }) {
       setIsLiked(true);
       setLikes((n) => n + 1);
     }
-  };
+  }, [isLiked]);
 
   return (
     <li className="book-detail__comment">
@@ -426,7 +405,7 @@ function CommentItem({ comment: c }: { comment: Comment }) {
       ) : null}
     </li>
   );
-}
+});
 
 /* ---------- 打赏区域 ---------- */
 

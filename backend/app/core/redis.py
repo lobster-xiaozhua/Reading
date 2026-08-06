@@ -34,11 +34,21 @@ class CacheKeys:
 
     @staticmethod
     def book_click(book_id: int) -> str:
-        return f"book:click:{book_id}"
+        return f"c:book:click:{book_id}"
 
     @staticmethod
     def rank(rank_type: str) -> str:
-        return f"rank:{rank_type}"
+        return f"c:rank:{rank_type}"
+
+    @staticmethod
+    def rank_v1(rank_type: str, version: int = 1) -> str:
+        return f"c:rank:v{version}:{rank_type}"
+
+    @staticmethod
+    def recommend_cold(reader_id: int) -> str:
+        return f"c:recommend:cold:{reader_id}"
+
+    RECOMMEND_HOT = "c:recommend:hot"
 
     @staticmethod
     def search_suggestion(keyword: str) -> str:

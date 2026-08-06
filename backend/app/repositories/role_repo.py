@@ -1,5 +1,6 @@
 """角色权限仓储（§4.2.7）。"""
 
+from sqlalchemy import delete as sa_delete
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,14 +30,8 @@ class RoleRepository:
 
     async def update_permissions(self, role_key: str, perms: list[str]) -> None:
         """全量更新角色的权限点关联（先清空后写入）。"""
-        # 清空旧关联
-        old_stmt = select(RolePermission).where(RolePermission.role_key == role_key)
-        result = await self.session.execute(old_stmt)
-        for old in result.scalars().all():
-            await self.session.delete(old)
-        # 写入新关联
-        for p in perms:
-            self.session.add(RolePermission(role_key=role_key, perm_key=p))
+        await self.session.execute(sa_delete(RolePermission).where(RolePermission.role_key == role_key))
+        self.session.add_all([RolePermission(role_key=role_key, perm_key=p) for p in perms])
         await self.session.flush()
 
     async def update_meta(

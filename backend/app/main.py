@@ -4,13 +4,21 @@
 """
 
 import contextlib
+from typing import Any
 
+import orjson
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.core.config import settings
 from app.core.database import engine
+from app.core.limiter import limiter
 from app.core.logging import setup_logging
 from app.middlewares.access_log import AccessLogMiddleware
 from app.middlewares.error_handler import register_exception_handlers
@@ -52,6 +60,18 @@ async def lifespan(app: FastAPI):
     yield
 
 
+class _ORJSONResponse(JSONResponse):
+    """使用 orjson 加速 JSON 序列化（比标准 json 快 3-5x）。"""
+    media_type = "application/json"
+
+    def render(self, content: Any) -> bytes:
+        return orjson.dumps(
+            content,
+            default=str,
+            option=orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_OMIT_MICROSECONDS,
+        )
+
+
 def create_app() -> FastAPI:
     setup_logging()
 
@@ -62,7 +82,13 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
         openapi_url="/openapi.json",
         lifespan=lifespan,
+        default_response_class=_ORJSONResponse,
     )
+
+    app.state.orjson_available = True
+
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     # 中间件（顺序：后添加先执行）
     app.add_middleware(
@@ -73,6 +99,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
         expose_headers=["X-Trace-Id"],
     )
+    app.add_middleware(GZipMiddleware, minimum_size=4096)
+    app.add_middleware(SlowAPIMiddleware)
     app.add_middleware(TraceMiddleware)
 
     # 请求日志

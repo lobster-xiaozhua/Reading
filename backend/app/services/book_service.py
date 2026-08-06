@@ -32,7 +32,7 @@ from app.utils.cache import cache_set
 
 logger = structlog.get_logger(__name__)
 
-_TTL_BOOK = 600  # 10 分钟
+_TTL_BOOK = 3600  # 1 小时（热门书籍高频访问，减少回源）
 _TTL_RATING = 600
 _TTL_CHAPTER = 600  # 章节正文缓存（B 端更新依赖 TTL 自然过期）
 
@@ -99,8 +99,7 @@ class BookService:
             if not chapter or chapter.novel_id != novel.id or chapter.status != "published":
                 raise NotFoundError("章节不存在或未发布")
 
-            prev_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "prev")
-            next_ch = await self.chapter_repo.get_neighbor(novel.id, chapter.index, "next")
+            prev_ch, next_ch = await self.chapter_repo.get_neighbors(novel.id, chapter.index)
             content = _chapter_to_content(chapter, novel.id, prev_ch, next_ch)
             await self._cache_chapter(chapter_id, novel.id, content)
         return self._enforce_vip(content, reader_vip)
@@ -217,9 +216,7 @@ class BookService:
         cached = await self.redis.get(CacheKeys.book(book_id))
         if cached:
             data = json.loads(cached)
-            novel = Novel()
-            for k, v in data.items():
-                setattr(novel, k, v)
+            novel = Novel(**data)
             return novel
 
         novel = await self.novel_repo.get_by_id(book_id)

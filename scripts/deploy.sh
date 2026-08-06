@@ -116,8 +116,26 @@ deploy_backend() {
   .venv/bin/alembic upgrade head
   ok "数据库迁移完成"
 
-  info "启动后端服务 (port 8000)..."
-  .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 &
+  # 资源限制
+  ulimit -n 65535 2>/dev/null || true
+
+  # 按 CPU 核数计算 workers（2n+1）
+  CPU_CORES=$(nproc 2>/dev/null || echo 2)
+  WORKERS=$((CPU_CORES * 2 + 1))
+
+  info "启动后端服务 (port 8000, ${WORKERS} workers)..."
+  .venv/bin/gunicorn app.main:app \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:8000 \
+    --workers "$WORKERS" \
+    --max-requests 1000 \
+    --max-requests-jitter 200 \
+    --timeout 60 \
+    --graceful-timeout 30 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level "${LOG_LEVEL:-info}" \
+    &
   BACKEND_PID=$!
   echo "  PID: $BACKEND_PID"
 

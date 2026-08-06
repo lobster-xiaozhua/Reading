@@ -7,7 +7,9 @@ from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok
+from app.core.config import settings
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.core.redis import get_redis_client
 from app.services.search_service import SearchService
 
@@ -15,6 +17,7 @@ router = APIRouter()
 
 
 @router.get("/search/suggestions")
+@limiter.limit(f"{settings.rate_limit_search}/minute")
 async def get_search_suggestions(
     request: Request,
     keyword: str = Query("", description="搜索关键词"),
@@ -25,6 +28,7 @@ async def get_search_suggestions(
 
 
 @router.get("/search/books")
+@limiter.limit(f"{settings.rate_limit_search}/minute")
 async def search_books(
     request: Request,
     keyword: str = Query("", description="搜索关键词"),

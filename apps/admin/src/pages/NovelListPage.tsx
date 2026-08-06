@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Tag, Dropdown, Button, Space, App, Tooltip } from "antd";
@@ -198,7 +198,7 @@ export default function NovelListPage() {
     },
   ];
 
-  const columns: TableColumnsType<BNovelDetail> = [
+  const columns: TableColumnsType<BNovelDetail> = useMemo(() => [
     {
       title: t("novel:table.title"),
       dataIndex: "title",
@@ -380,7 +380,7 @@ export default function NovelListPage() {
         );
       },
     },
-  ];
+  ], [t, navigate, hasPermission, loadData, message]);
 
   const filters: FilterField[] = [
     {

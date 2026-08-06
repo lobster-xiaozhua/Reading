@@ -5,7 +5,6 @@
 @tailwind utilities;
 
 :root {
-  --theme-transition: var(--theme-transition);
   --transition-smooth: 200ms cubic-bezier(0.4, 0, 0.2, 1);
   --card-hover-transform: translateY(-4px);
   --card-hover-shadow: var(--sh-3);

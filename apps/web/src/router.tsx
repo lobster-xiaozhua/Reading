@@ -17,9 +17,15 @@ const FollowPage = lazy(() => import("./pages/FollowPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
-const withSuspense = (node: React.ReactNode) => (
-  <Suspense fallback={<PageLoading />}>{node}</Suspense>
-);
+const isDev = import.meta.env.DEV;
+
+const withSuspense = (node: React.ReactNode) => {
+  if (isDev) {
+    const name = (node as React.ReactElement)?.type?.toString().slice(0, 20);
+    performance.mark(`route:${name ?? "unknown"}:start`);
+  }
+  return <Suspense fallback={<PageLoading />}>{node}</Suspense>;
+};
 
 export const router: ReturnType<typeof createBrowserRouter> =
   createBrowserRouter([

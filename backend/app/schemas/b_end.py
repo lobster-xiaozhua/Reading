@@ -25,6 +25,7 @@ class BNovelDetail(CamelModel):
     word_count: int = 0
     status: BNovelStatus = BNovelStatus.DRAFT
     flags: list[BookFlag] = []
+    tags: list[str] = []
     rating: float = 0.0
     rating_count: int = 0
     follow_count: int = 0
@@ -56,6 +57,8 @@ class NovelListResponse(CamelModel):
     total: int = 0
     page: int = 1
     page_size: int = 20
+
+    model_config = {"populate_by_name": True}
 
 
 class NovelSubmitBody(CamelModel):

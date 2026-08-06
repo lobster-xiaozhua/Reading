@@ -17,7 +17,7 @@ from app.core.exceptions import BizError, ErrorCode
 from app.core.redis import CacheKeys
 from app.core.security import create_token, decode_token, hash_password, verify_password
 from app.models.user import Admin
-from app.schemas.auth import AdminUserInfo, LoginResponse
+from app.schemas.auth import AdminUserInfo, BLoginResponse
 from app.schemas.enums import ALL_PERMISSIONS
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ class AuthService:
         self.redis = redis_client
 
     # ── 登录 ──────────────────────────────────────────
-    async def login(self, username: str, password: str, remember: bool = False) -> LoginResponse:
+    async def login(self, username: str, password: str, remember: bool = False) -> BLoginResponse:
         # 登录失败次数检查
         fail_key = CacheKeys.login_fail(username)
         fail_count = int(await self.redis.get(fail_key) or 0)
@@ -78,7 +78,7 @@ class AuthService:
         admin.last_login_at = int(time.time() * 1000)
         await self.session.commit()
 
-        return LoginResponse(
+        return BLoginResponse(
             token=access_token,
             user=AdminUserInfo(
                 id=str(admin.id),
@@ -96,7 +96,7 @@ class AuthService:
         )
 
     # ── 刷新 Token ─────────────────────────────────────────
-    async def refresh(self, refresh_token: str) -> LoginResponse:
+    async def refresh(self, refresh_token: str) -> BLoginResponse:
         """刷新 access token（轮换 refresh token）。
 
         Args:
@@ -141,7 +141,7 @@ class AuthService:
         await self.redis.set(CacheKeys.access_token(access_token), str(admin.id), ex=access_ttl)
         await self.redis.set(CacheKeys.refresh_token(new_refresh), str(admin.id), ex=refresh_ttl)
 
-        return LoginResponse(
+        return BLoginResponse(
             token=access_token,
             user=AdminUserInfo(
                 id=str(admin.id),

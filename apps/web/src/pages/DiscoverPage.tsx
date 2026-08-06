@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { memo, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BookCard,
@@ -46,6 +46,9 @@ export default function DiscoverPage() {
   const pageError = homeState.status === "error";
 
   const [rankType, setRankType] = useState<RankType>("hot");
+
+  const handleBookClick = useCallback((id: string) => navigate(`/book/${id}`), [navigate]);
+  const handleRankChange = useCallback((key: RankType) => setRankType(key), []);
 
   return (
     <div className="discover-page">
@@ -141,7 +144,7 @@ export default function DiscoverPage() {
                       book={toBook(b)}
                       variant="horizontal"
                       size="sm"
-                      onClick={() => navigate(`/book/${b.id}`)}
+                      onClick={() => handleBookClick(b.id)}
                     />
                   ))}
                 </div>
@@ -166,7 +169,7 @@ export default function DiscoverPage() {
                         book={toBook(b)}
                         variant="grid"
                         size="sm"
-                        onClick={() => navigate(`/book/${b.id}`)}
+onClick={() => handleBookClick(b.id)}
                       />
                       <div className="discover-page__free-meta">
                         {b.freeDeadline ? (
@@ -213,7 +216,7 @@ export default function DiscoverPage() {
                       role="tab"
                       aria-selected={rankType === t.key}
                       className={`discover-page__rank-tab ${rankType === t.key ? "is-active" : ""}`}
-                      onClick={() => setRankType(t.key)}
+                      onClick={() => handleRankChange(t.key)}
                     >
                       {t.label}
                     </button>
@@ -275,7 +278,11 @@ const CATEGORY_COLORS = [
   "var(--color-feedback-info-bg)",
 ];
 
-function CategoryGrid({ categories }: { categories: Category[] }) {
+const CategoryGrid = memo(function CategoryGrid({
+  categories,
+}: {
+  categories: Category[];
+}) {
   return (
     <div className="discover-page__category-grid">
       {categories.filter(Boolean).map((c, idx) => {
@@ -294,4 +301,4 @@ function CategoryGrid({ categories }: { categories: Category[] }) {
       })}
     </div>
   );
-}
+});

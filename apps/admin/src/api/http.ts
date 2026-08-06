@@ -5,6 +5,8 @@
  * 401 统一登出并跳转登录页
  * ============================================================ */
 
+import { getBizMessage } from "@/api/errorMap";
+
 export interface ApiResponse<T = unknown> {
   code: number;
   message: string;
@@ -31,7 +33,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = "/api/v1/b";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1/b";
 const AUTH_STORAGE_KEY = "atlas-admin-auth";
 
 /** 从 localStorage 读取当前 token（authStore persist 落盘） */
@@ -104,19 +106,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     if (body.code === 401 || body.code === 403) {
       handleUnauthorized();
     }
+    const message = getBizMessage(body.code, body.message || "请求失败");
     console.error("[http] biz error", {
       path,
       method,
       code: body.code,
-      message: body.message,
+      message,
       traceId: body.traceId,
     });
-    throw new ApiError(
-      body.code,
-      body.message || "请求失败",
-      res.status,
-      body.traceId,
-    );
+    throw new ApiError(body.code, message, res.status, body.traceId);
   }
   return body.data as T;
 }

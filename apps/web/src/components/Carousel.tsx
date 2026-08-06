@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { LazyImage } from "@/components/LazyImage";
 import type { Banner } from "@/api/types";
 import "./Carousel.css";
 
@@ -50,7 +51,7 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
       aria-roledescription="carousel"
       aria-label="推荐 Banner"
     >
-      <div className="novel-carousel__viewport">
+      <div className="novel-carousel__viewport" style={{ transform: `translateX(-${active * 100}%)` }}>
         {banners.map((b, i) => (
           <Link
             key={b.id}
@@ -58,11 +59,14 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
             className={`novel-carousel__slide ${i === active ? "is-active" : ""}`}
             aria-hidden={i !== active}
             aria-label={`${b.title} - ${b.subtitle}`}
-            style={{
-              transform: `translateX(-${active * 100}%)`,
-              backgroundImage: `url(${b.cover})`,
-            }}
           >
+            <LazyImage
+              src={b.cover}
+              alt={b.title}
+              className="novel-carousel__slide-img"
+              eager={i === 0}
+              degradeOnSlow={false}
+            />
             <div className="novel-carousel__overlay" />
             <div className="novel-carousel__caption">
               <h3 className="novel-carousel__title">{b.title}</h3>

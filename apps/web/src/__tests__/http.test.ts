@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { http, ApiError } from "../api/http";
+import { http, ApiError, clearCache } from "../api/http";
 
 const AUTH_KEY = "atlas-reader-auth";
 
@@ -13,6 +13,7 @@ function mockResponse(data: unknown, status = 200) {
 
 beforeEach(() => {
   localStorage.clear();
+  clearCache();
   vi.restoreAllMocks();
 });
 
