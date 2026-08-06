@@ -43,6 +43,21 @@ pnpm storybook                # 启动 Storybook (port 6006)
 bash monitoring/run.sh        # 全量 Playwright 巡检
 pnpm audit                    # 前端依赖漏洞扫描
 pip-audit                     # 后端依赖漏洞扫描 (backend/ 目录)
+
+## 部署
+
+```bash
+bash scripts/deploy.sh              # 生产部署（构建 + 后端 + 前端）
+bash scripts/deploy.sh --skip-build # 仅重启服务，跳过构建
+bash scripts/deploy.sh --skip-backend  # 仅部署前端
+bash scripts/deploy.sh --skip-frontend # 仅部署后端
+
+# 测试环境（一键启动 + 测试 + 巡检）
+bash scripts/deploy-test.sh              # 完整部署 + 测试 + 巡检
+bash scripts/deploy-test.sh --no-test    # 跳过测试
+bash scripts/deploy-test.sh --no-monitor # 跳过巡检
+bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试/巡检
+```
 ```
 
 ## 后端开发

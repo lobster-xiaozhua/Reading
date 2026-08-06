@@ -27,7 +27,10 @@
     "monitor:flow": "bash monitoring/run.sh --only flow",
     "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan -- --root . || true && pnpm run import-audit && pnpm run test && pnpm run coverage",
     "validate": "bash scripts/validate.sh",
-    "validate:quick": "bash scripts/validate.sh --quick"
+    "validate:quick": "bash scripts/validate.sh --quick",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:test": "bash scripts/deploy-test.sh",
+    "deploy:test:quick": "bash scripts/deploy-test.sh --quick"
   },
 "pnpm": {
     "overrides": {
