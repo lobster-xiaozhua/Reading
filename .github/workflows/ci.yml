@@ -88,7 +88,8 @@ jobs:
         run: ruff check app/ tests/
 
       - name: Import check
-        run: python -c "import app.main"
+        run: |
+          DEBUG=true python -c "import app.main"
 
       - name: Pytest with coverage (threshold 70%)
         run: python -m pytest tests/ -v --tb=short --cov=app/ --cov-report=term-missing --cov-fail-under=70
@@ -119,7 +120,7 @@ jobs:
       - name: Start backend & check health
         working-directory: backend
         run: |
-          uvicorn app.main:app --host 0.0.0.0 --port 8000 &
+          DEBUG=true JWT_SECRET=ci-test-jwt-secret-key-at-least-32-chars!! uvicorn app.main:app --host 0.0.0.0 --port 8000 &
           sleep 3
           curl -sf http://localhost:8000/health | python3 -c "import sys,json; d=json.load(sys.stdin); assert d.get('status')=='ok', f'unexpected: {d}'; print('Backend health check passed')"
 
@@ -156,6 +157,6 @@ jobs:
 
       - name: pip audit
         working-directory: backend
-        run: pip-audit --strict
+        run: pip-audit --strict --ignore-pip-editable
 
 

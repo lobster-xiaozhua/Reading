@@ -30,7 +30,7 @@ describe('http.get', () => {
     vi.stubGlobal('fetch', mock);
 
     await http.get('/books', { page: 1, pageSize: 20 });
-    const url = mock.mock.calls[0][0];
+    const url = mock.mock.calls[0]![0]!;
     expect(url).toContain('page=1');
     expect(url).toContain('pageSize=20');
   });
@@ -40,7 +40,7 @@ describe('http.get', () => {
     vi.stubGlobal('fetch', mock);
 
     await http.get('/books', { page: 1, searchKey: '' });
-    expect(mock.mock.calls[0][0]).not.toContain('searchKey');
+    expect(mock.mock.calls[0]![0]!).not.toContain('searchKey');
   });
 });
 
@@ -106,7 +106,7 @@ describe('auth token injection', () => {
     vi.stubGlobal('fetch', mock);
 
     await http.get('/me');
-    const opts = mock.mock.calls[0][1];
+    const opts = mock.mock.calls[0]![1]!;
     expect(opts.headers['Authorization']).toBe('Bearer my-token');
   });
 
@@ -115,7 +115,7 @@ describe('auth token injection', () => {
     vi.stubGlobal('fetch', mock);
 
     await http.get('/books');
-    const opts = mock.mock.calls[0][1];
+    const opts = mock.mock.calls[0]![1]!;
     expect(opts.headers['Authorization']).toBeUndefined();
   });
 });
