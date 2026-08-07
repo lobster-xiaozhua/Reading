@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY backend/pyproject.toml ./
-RUN pip install --no-cache-dir ".[dev]" gunicorn uvicorn[standard]
+RUN pip install --no-cache-dir "." gunicorn uvicorn[standard]
 
 COPY backend/app ./app
 COPY backend/scripts ./scripts

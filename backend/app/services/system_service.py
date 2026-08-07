@@ -1,6 +1,7 @@
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app import __version__
 from app.repositories.system_config_repo import SystemConfigRepository
 from app.schemas.b_end import SystemConfig
 
@@ -21,7 +22,7 @@ class SystemService:
             site_name=config.site_name,
             icp=config.icp,
             sensitive_word_lib_version="",
-            version="2.1.0",
+            version=__version__,
         )
 
     async def update_config(self, site_name: str, icp: str) -> SystemConfig:
@@ -40,5 +41,5 @@ class SystemService:
             site_name=config.site_name,
             icp=config.icp,
             sensitive_word_lib_version="",
-            version="2.1.0",
+            version=__version__,
         )

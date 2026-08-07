@@ -1,7 +1,5 @@
 """B 端业务 Schema（作品/章节/审核/角色/敏感词/系统/工作台/用户）。"""
 
-from typing import List
-
 from pydantic import Field
 
 from app.schemas.common import CamelModel

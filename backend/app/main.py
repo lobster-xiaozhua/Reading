@@ -16,6 +16,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
+from app import __version__
 from app.core.config import settings
 from app.core.database import engine
 from app.core.limiter import limiter
@@ -77,7 +78,7 @@ def create_app() -> FastAPI:
 
     app = FastAPI(
         title=settings.app_name,
-        version="2.1.0",
+        version=__version__,
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
@@ -112,7 +113,7 @@ def create_app() -> FastAPI:
     # 健康检查
     @app.get("/health", tags=["系统"])
     async def health() -> dict:
-        return {"status": "ok", "version": "2.1.0"}
+        return {"status": "ok", "version": __version__}
 
     # 业务路由（C/B 端物理隔离，§2.3）
     _register_routers(app)
