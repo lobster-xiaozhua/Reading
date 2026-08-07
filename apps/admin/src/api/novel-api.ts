@@ -94,7 +94,7 @@ export async function fetchNovelList(
     search_key: params.searchKey ?? "",
     status: params.status ?? "all",
     category: params.category ?? "all",
-    date_range: params.dateRange ? params.dateRange.join(",") : undefined,
+    date_range: params.dateRange,
   });
   return {
     list: (data.items ?? []).map(mapNovel),
@@ -137,16 +137,14 @@ export async function submitNovel(
 ): Promise<{ success: boolean; id: string }> {
   const body = {
     title: values.title,
-    author: values.author,
+    authorId: values.author,
     category: values.category,
-    tags: values.tags ?? [],
     cover: values.cover ?? "",
     intro: values.intro,
     flags: [],
     price: values.price ?? 0,
     authorRemark: "",
     isCompleted: values.status === "published" ? true : values.isOnShelf,
-    vipChapters: values.vipChapters ?? [],
   };
   const result = await requestSafe(
     values.id

@@ -2,7 +2,7 @@ import { reportError } from "@/utils/report";
 import { useAuthStore, isTokenExpired } from "@/stores/authStore";
 import { getBizMessage } from "@/api/errorMap";
 
-const AUTH_KEY = "atlas-reader-auth";
+const AUTH_KEY = "atlas-store";
 
 export interface ApiResponse<T = unknown> {
   code: number;
@@ -59,8 +59,11 @@ function setCache<T>(key: string, data: T): void {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const cacheKey = `${options.method ?? "GET"}:${path}`;
-  if (options.method === "GET" || options.method === undefined) {
+  const authToken = getToken();
+  const isUserEndpoint = path.includes("/me/");
+  const userSuffix = authToken && isUserEndpoint ? `:user:${authToken.slice(-8)}` : "";
+  const cacheKey = `${options.method ?? "GET"}:${path}${userSuffix}`;
+  if (!isUserEndpoint && (options.method === "GET" || options.method === undefined)) {
     const cached = getCached<T>(cacheKey);
     if (cached !== null) return cached;
   }
@@ -68,8 +71,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
-  const token = getToken();
-  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
   const method = options.method ?? "GET";
 
   let res: Response;

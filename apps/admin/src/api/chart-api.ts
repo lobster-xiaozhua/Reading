@@ -83,7 +83,7 @@ export async function fetchBasicChartData() {
   const data = await http.get<{
     type: string;
     data: Record<string, unknown>[];
-  }>("/charts/basic", { chart_type: "all" });
+  }>("/charts/basic", { type: "all" });
   return {
     lineData:
       (data.data as { month: string; value: number; type: string }[]) || [],

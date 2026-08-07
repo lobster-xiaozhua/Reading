@@ -103,7 +103,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   }
 
   if (body.code !== 0) {
-    if (body.code === 401 || body.code === 403) {
+    if (body.code === 401) {
       handleUnauthorized();
     }
     const message = getBizMessage(body.code, body.message || "请求失败");
