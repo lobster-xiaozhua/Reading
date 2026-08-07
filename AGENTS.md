@@ -75,7 +75,7 @@ bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试
 ## 前端注意
 
 - `@/` 路径别名指向 `src/` (Vite resolve alias)
-- 前端 lint 目前是占位符 (`echo 'lint placeholder'`)，实际无 lint 检查
+- 前端 lint: `pnpm run lint` (8 个包，eslint src/ --max-warnings=0)
 - B 端使用 Ant Design 5.x + react-hotkeys-hook + zustand
 - C 端使用 zustand + 自定义组件库 (`@novel/components`)
 - 路由懒加载 (React.lazy + Suspense)

@@ -25,3 +25,6 @@ monitoring/reports/
 # 测试产物
 .coverage
 htmlcov/
+.pytest_cache/
+.ruff_cache/
+monitoring/results.json

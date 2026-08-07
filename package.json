@@ -25,7 +25,7 @@
     "monitor:api": "bash monitoring/run.sh --only api",
     "monitor:page": "bash monitoring/run.sh --only page",
     "monitor:flow": "bash monitoring/run.sh --only flow",
-    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan -- --root . || true && pnpm run import-audit && pnpm run test && pnpm run coverage",
+    "ci": "pnpm run lint && pnpm run typecheck && pnpm run token-scan || true && pnpm run import-audit && pnpm run test && pnpm run coverage",
     "validate": "bash scripts/validate.sh",
     "validate:quick": "bash scripts/validate.sh --quick",
     "deploy": "bash scripts/deploy.sh",

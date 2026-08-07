@@ -61,7 +61,7 @@ preflight() {
     ok "前端依赖安装完成"
   fi
 
-  if [ ! -d "backend/.venv" ] && [ ! -f "backend/app/main.py" ]; then
+  if [ ! -d "backend/.venv" ] || [ ! -f "backend/app/main.py" ]; then
     warn "请确保后端依赖已安装: cd backend && pip install -e ."
   fi
 
