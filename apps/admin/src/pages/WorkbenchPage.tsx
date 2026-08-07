@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "antd";
@@ -9,7 +9,6 @@ import type {
   OverviewSection,
   QuickAction,
 } from "@/templates/DashboardTemplate";
-import { BLineChart } from "@novel/b-end";
 import { fetcher } from "@/api/fetcher";
 import {
   fetchWorkbenchTrend,
@@ -17,6 +16,8 @@ import {
   type WorkbenchTrendItem,
 } from "@/api/chart-api";
 import "./WorkbenchPage.css";
+
+const BLineChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BLineChart })));
 
 export default function WorkbenchPage() {
   const { t } = useTranslation();
@@ -186,16 +187,18 @@ export default function WorkbenchPage() {
           style={{ padding: "var(--space-4)" }}
         />
       ) : (
-        <div className="wp-chart-fade-in">
-          <BLineChart
-            data={trendData as unknown as Record<string, unknown>[]}
-            xField="date"
-            yField={trendMetric}
-            height={300}
-            smooth
-            showLegend={false}
-          />
-        </div>
+        <Suspense fallback={<Skeleton active paragraph={{ rows: 6 }} style={{ padding: "var(--space-4)" }} />}>
+          <div className="wp-chart-fade-in">
+            <BLineChart
+              data={trendData as unknown as Record<string, unknown>[]}
+              xField="date"
+              yField={trendMetric}
+              height={300}
+              smooth
+              showLegend={false}
+            />
+          </div>
+        </Suspense>
       )}
     </div>
   );
