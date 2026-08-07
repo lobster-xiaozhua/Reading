@@ -151,7 +151,7 @@ export default function BookDetailPage() {
     );
   }
 
-  const enableVirtual = chapters.length > 500;
+  const enableVirtual = chapters.length > 100;
 
   return (
     <div className="book-detail">

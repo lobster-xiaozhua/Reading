@@ -92,10 +92,7 @@ class BChapterListItem(CamelModel):
     index: int
     title: str
     word_count: int = 0
-    pure_word_count: int = 0
-    punctuation_word_count: int = 0
     status: BChapterStatus = BChapterStatus.DRAFT
-    audit_level: str = "first"
     is_vip: bool = False
     published_at: int = 0
     created_at: int = 0

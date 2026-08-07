@@ -35,7 +35,11 @@ async def lifespan(app: FastAPI):
     if settings.debug:
         # 开发模式：自动建表 + 种子数据（生产环境使用 alembic upgrade head 迁移）
         async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
+            await conn.run_sync(
+                lambda sync_conn: Base.metadata.create_all(
+                    sync_conn, checkfirst=True
+                )
+            )
 
         try:
             from sqlalchemy import select

@@ -35,7 +35,7 @@ export default defineConfig(async () => {
   },
   build: {
     target: 'es2021',
-    sourcemap: true,
+    sourcemap: process.env.CI ? false : 'hidden',
     rollupOptions: {
       output: {
         manualChunks: {

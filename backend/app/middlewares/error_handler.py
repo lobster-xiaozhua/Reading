@@ -4,13 +4,27 @@
 业务错误 HTTP 状态码默认 200（走 code 区分），鉴权类异常保留 4xx。
 """
 
+import orjson
 import structlog
 from fastapi import FastAPI, Request
 from fastapi.exceptions import HTTPException, RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response as FastapiResponse
 
 from app.core.exceptions import BizError, ErrorCode
-from app.schemas.common import Response
+from app.schemas.common import Response as ApiResponse
+
+
+def _orjson_response(status_code: int, body: ApiResponse) -> FastapiResponse:
+    """使用 orjson 序列化错误响应（比标准 JSONResponse 快 3-5x）。"""
+    return FastapiResponse(
+        content=orjson.dumps(
+            body.model_dump(by_alias=True, exclude_none=True),
+            default=str,
+            option=orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_OMIT_MICROSECONDS,
+        ),
+        status_code=status_code,
+        media_type="application/json",
+    )
 
 
 def _sanitize_validation_errors(errors: list) -> list[dict]:
@@ -35,36 +49,30 @@ async def _get_trace_id(request: Request) -> str | None:
     return getattr(request.state, "trace_id", None)
 
 
-async def biz_exception_handler(request: Request, exc: BizError) -> JSONResponse:
+async def biz_exception_handler(request: Request, exc: BizError) -> FastapiResponse:
     trace_id = await _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.warning(
         "BizError", code=exc.code, message=exc.message, path=request.url.path, trace_id=trace_id
     )
-    body = Response.error(exc.code, exc.message)
+    body = ApiResponse.error(exc.code, exc.message)
     body.traceId = trace_id
-    return JSONResponse(
-        status_code=exc.http_status,
-        content=body.model_dump(by_alias=True, exclude_none=True),
-    )
+    return _orjson_response(exc.http_status, body)
 
 
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
-) -> JSONResponse:
+) -> FastapiResponse:
     trace_id = await _get_trace_id(request)
-    body = Response.error(
+    body = ApiResponse.error(
         ErrorCode.PARAM_INVALID, "参数校验失败", _sanitize_validation_errors(exc.errors())
     )
     body.traceId = trace_id
     # 422 保留，便于前端区分校验错误
-    return JSONResponse(
-        status_code=422,
-        content=body.model_dump(by_alias=True, exclude_none=True),
-    )
+    return _orjson_response(422, body)
 
 
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def http_exception_handler(request: Request, exc: HTTPException) -> FastapiResponse:
     trace_id = await _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.warning(
@@ -74,24 +82,18 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         path=request.url.path,
         trace_id=trace_id,
     )
-    body = Response.error(exc.status_code, exc.detail or "Not Found")
+    body = ApiResponse.error(exc.status_code, exc.detail or "Not Found")
     body.traceId = trace_id
-    return JSONResponse(
-        status_code=exc.status_code,
-        content=body.model_dump(by_alias=True, exclude_none=True),
-    )
+    return _orjson_response(exc.status_code, body)
 
 
-async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+async def unhandled_exception_handler(request: Request, exc: Exception) -> FastapiResponse:
     trace_id = await _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.exception("Unhandled exception", path=request.url.path, trace_id=trace_id)
-    body = Response.error(ErrorCode.INTERNAL_ERROR, "服务异常，请稍后重试")
+    body = ApiResponse.error(ErrorCode.INTERNAL_ERROR, "服务异常，请稍后重试")
     body.traceId = trace_id
-    return JSONResponse(
-        status_code=500,
-        content=body.model_dump(by_alias=True, exclude_none=True),
-    )
+    return _orjson_response(500, body)
 
 
 def register_exception_handlers(app: FastAPI) -> None:
