@@ -15,6 +15,7 @@ from app.repositories.chapter_repo import ChapterRepository
 from app.schemas.b_end import (
     BChapterDetail,
     BChapterListItem,
+    BChapterListResponse,
     ChapterBatchOperateBody,
     ChapterReorderBody,
     ChapterSubmitBody,
@@ -36,17 +37,27 @@ class ChapterService:
         self.repo = ChapterRepository(session)
 
     # ── 章节列表 ─────────────────────────────────────────
-    async def list_chapters(self, novel_id: int) -> list[BChapterListItem]:
-        """获取作品的章节列表。
-
-        Args:
-            novel_id: 作品 ID。
-
-        Returns:
-            章节列表项。
-        """
-        chapters = await self.repo.list_by_novel(novel_id)
-        return [_to_list_item(c) for c in chapters]
+    async def list_chapters(
+        self,
+        novel_id: int,
+        page: int = 1,
+        page_size: int = 20,
+        search_key: str = "",
+        status: str = "all",
+        sort_by: str = "index",
+    ) -> BChapterListResponse:
+        """分页获取作品的章节列表。"""
+        chapters, total, total_words = await self.repo.list_by_novel_paged(
+            novel_id, page, page_size, search_key, status, sort_by,
+        )
+        items = [_to_list_item(c) for c in chapters]
+        return BChapterListResponse(
+            items=items,
+            total=total,
+            page=page,
+            pageSize=page_size,
+            totalWords=total_words,
+        )
 
     # ── 章节详情 ─────────────────────────────────────────
     async def get_detail(self, chapter_id: int) -> BChapterDetail:

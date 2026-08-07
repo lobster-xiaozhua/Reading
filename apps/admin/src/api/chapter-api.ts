@@ -87,43 +87,32 @@ function mapChapter(raw: BackendChapter): BChapterDetail {
   };
 }
 
-/** 查询章节列表（后端无分页，前端过滤/排序/分页） */
+/** 查询章节列表（服务端分页/搜索/排序） */
 export async function fetchChapterList(
   params: ChapterListParams,
 ): Promise<ChapterListResponse> {
-  const data = await http.get<{ list: BackendChapter[]; novelStatus?: string }>(
-    `/novels/${params.novelId}/chapters`,
-  );
-  const rawList = Array.isArray(data) ? data : (data.list ?? []);
-  const chapters = rawList.map(mapChapter);
-
-  let filtered = chapters;
-  if (params.searchKey) {
-    const q = params.searchKey.toLowerCase();
-    filtered = filtered.filter((c) => c.title.toLowerCase().includes(q));
-  }
-  if (params.status && params.status !== "all") {
-    filtered = filtered.filter((c) => c.status === params.status);
-  }
-  if (params.sortBy === "updatedAt") {
-    filtered = filtered.sort((a, b) => b.updatedAt - a.updatedAt);
-  } else {
-    filtered = filtered.sort((a, b) => a.index - b.index);
-  }
-
-  const totalWords = filtered.reduce((sum, c) => sum + c.wordCount, 0);
-  const total = filtered.length;
-  const start = (params.page - 1) * params.pageSize;
-  const paged = filtered.slice(start, start + params.pageSize);
-
-  return {
-    list: paged,
-    total,
+  const data = await http.get<{
+    list: BackendChapter[];
+    total: number;
+    page: number;
+    pageSize: number;
+    totalWords: number;
+    novelStatus: string;
+  }>(`/novels/${params.novelId}/chapters`, {
     page: params.page,
-    pageSize: params.pageSize,
-    totalWords,
-    novelStatus:
-      !Array.isArray(data) && data.novelStatus ? data.novelStatus : "published",
+    page_size: params.pageSize,
+    search_key: params.searchKey ?? "",
+    status: params.status ?? "all",
+    sort_by: params.sortBy ?? "index",
+  });
+  const list = (data.list ?? []).map(mapChapter);
+  return {
+    list,
+    total: data.total ?? 0,
+    page: data.page ?? params.page,
+    pageSize: data.pageSize ?? params.pageSize,
+    totalWords: data.totalWords ?? 0,
+    novelStatus: data.novelStatus ?? "published",
   };
 }
 

@@ -1,5 +1,7 @@
 """B 端业务 Schema（作品/章节/审核/角色/敏感词/系统/工作台/用户）。"""
 
+from typing import List
+
 from pydantic import Field
 
 from app.schemas.common import CamelModel
@@ -104,6 +106,17 @@ class BChapterListItem(CamelModel):
 
 class BChapterDetail(BChapterListItem):
     content: str = ""
+
+
+class BChapterListResponse(CamelModel):
+    """章节分页列表响应（对齐前端 ChapterListResponse）。"""
+
+    items: list[BChapterListItem] = Field(default_factory=list, serialization_alias="list")
+    total: int = 0
+    page: int = 1
+    pageSize: int = 20
+    totalWords: int = 0
+    novelStatus: str = "published"
 
 
 class ChapterSubmitBody(CamelModel):

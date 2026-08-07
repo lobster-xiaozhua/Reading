@@ -26,11 +26,19 @@ router = APIRouter()
 async def list_chapters(
     request: Request,
     novel_id: int,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=200),
+    search_key: str = Query(""),
+    status: str = Query("all"),
+    sort_by: str = Query("index"),
     _admin=Depends(require_permission("chapter.list")),
     db: AsyncSession = Depends(get_db),
 ):
     svc = ChapterService(db)
-    return ok(request, await svc.list_chapters(novel_id))
+    return ok(
+        request,
+        await svc.list_chapters(novel_id, page, page_size, search_key, status, sort_by),
+    )
 
 
 @router.get("/chapters/{chapter_id}")

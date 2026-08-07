@@ -102,17 +102,17 @@ class TestWordCount:
 class TestChapterServiceList:
     async def test_list_chapters(self, svc, db_session):
         novel, _chapters = await _create_novel_and_chapters(db_session, 3)
-        items = await svc.list_chapters(novel.id)
-        assert len(items) == 3
-        assert items[0].index == 0
-        assert items[2].index == 2
+        resp = await svc.list_chapters(novel.id)
+        assert resp.total == 3
+        assert resp.items[0].index == 0
+        assert resp.items[2].index == 2
 
     async def test_list_empty(self, svc, db_session):
         novel = Novel(title="空作品", status="draft")
         db_session.add(novel)
         await db_session.flush()
-        items = await svc.list_chapters(novel.id)
-        assert items == []
+        resp = await svc.list_chapters(novel.id)
+        assert resp.items == []
 
 
 class TestChapterServiceCreate:
@@ -161,8 +161,8 @@ class TestChapterServiceReorder:
         body = ChapterReorderBody(ordered_ids=ordered)
         result = await svc.reorder_chapters(novel.id, body)
         assert result is True
-        items = await svc.list_chapters(novel.id)
-        assert items[0].id == ordered[0]
+        resp = await svc.list_chapters(novel.id)
+        assert resp.items[0].id == ordered[0]
 
 
 class TestChapterServiceTransition:
@@ -196,8 +196,8 @@ class TestChapterServiceBatch:
         )
         assert result.success is True
         assert result.affected == 3
-        items = await svc.list_chapters(_novel.id)
-        assert all(i.status == "pending" for i in items)
+        resp = await svc.list_chapters(_novel.id)
+        assert all(i.status == "pending" for i in resp.items)
 
     async def test_batch_publish(self, svc, db_session):
         _novel, chapters = await _create_novel_and_chapters(db_session, 2)

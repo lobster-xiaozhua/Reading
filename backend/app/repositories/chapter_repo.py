@@ -1,6 +1,6 @@
 """章节仓储（§4.2.2）。"""
 
-from sqlalchemy import select
+from sqlalchemy import func, or_, select
 
 from app.models.novel import Chapter
 from app.repositories.base import BaseRepository
@@ -17,6 +17,50 @@ class ChapterRepository(BaseRepository[Chapter]):
         stmt = stmt.order_by(Chapter.index)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def list_by_novel_paged(
+        self,
+        novel_id: int,
+        page: int = 1,
+        page_size: int = 20,
+        search_key: str = "",
+        status: str = "all",
+        sort_by: str = "index",
+    ) -> tuple[list[Chapter], int, int]:
+        """分页获取章节列表，支持搜索/状态筛选/排序。
+
+        Returns:
+            (章节列表, 总条数, 总字数)
+        """
+        base = select(Chapter).where(Chapter.novel_id == novel_id, Chapter.deleted == 0)
+        count = select(func.count(Chapter.id)).where(
+            Chapter.novel_id == novel_id, Chapter.deleted == 0
+        )
+        if search_key:
+            like = f"%{search_key}%"
+            condition = or_(Chapter.title.like(like))
+            base = base.where(condition)
+            count = count.where(condition)
+        if status and status != "all":
+            base = base.where(Chapter.status == status)
+            count = count.where(Chapter.status == status)
+
+        total = (await self.session.execute(count)).scalar() or 0
+
+        if sort_by == "updatedAt":
+            base = base.order_by(Chapter.updated_at.desc())
+        else:
+            base = base.order_by(Chapter.index)
+
+        base = base.offset((page - 1) * page_size).limit(page_size)
+        rows = (await self.session.execute(base)).scalars().all()
+
+        words = select(func.coalesce(func.sum(Chapter.word_count), 0)).where(
+            Chapter.novel_id == novel_id, Chapter.deleted == 0
+        )
+        total_words = (await self.session.execute(words)).scalar() or 0
+
+        return list(rows), total, total_words
 
     async def get_neighbor(self, novel_id: int, index: int, direction: str) -> Chapter | None:
         """获取指定章节的上一章或下一章（prev/next）。"""
