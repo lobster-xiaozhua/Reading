@@ -16,7 +16,7 @@ from app.core.redis import CacheKeys
 from app.models.interaction import Comment, RewardRecord
 from app.models.novel import Chapter, Novel
 from app.models.user import Author, Reader
-from app.schemas.b_end import WorkbenchKpi
+from app.schemas.b_end import DashboardResponse, WorkbenchKpi
 from app.schemas.chart import TrendPoint, WordCountTrend
 
 logger = structlog.get_logger(__name__)
@@ -129,6 +129,18 @@ class WorkbenchService:
                 "icon": "message",
             },
         ]
+
+    # ── 仪表盘聚合 ───────────────────────────────────────
+    async def get_dashboard(self, days: int = 30) -> DashboardResponse:
+        """一次返回 KPI + 概览 + 趋势数据，减少网络往返。"""
+        kpi = await self.get_kpi()
+        overviews = await self.get_overviews()
+        trend = await self.get_word_count_trend(days)
+        return DashboardResponse(
+            kpi=kpi,
+            overviews=overviews,
+            trend=[t.model_dump() for t in trend.daily] if trend.daily else [],
+        )
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _count(self, model, *filters) -> int:

@@ -279,6 +279,14 @@ class WorkbenchKpi(CamelModel):
     today_revenue: float = 0.0
 
 
+class DashboardResponse(CamelModel):
+    """工作台仪表盘聚合响应（一次返回 KPI + 概览 + 趋势，减少网络往返）。"""
+
+    kpi: WorkbenchKpi | None = None
+    overviews: list[dict] = []
+    trend: list[dict] = []
+
+
 # ── 用户管理 ────────────────────────────────────────────
 class UserListItem(CamelModel):
     id: str
