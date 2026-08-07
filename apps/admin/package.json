@@ -20,8 +20,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@novel/b-end": "workspace:*",
-    "@novel/components": "workspace:*",
-    "@novel/icons": "workspace:*",
     "@novel/tokens": "workspace:*",
     "@novel/types": "workspace:*",
     "@tanstack/react-query": "^5.51.0",

@@ -12,6 +12,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_admin, ok, require_permission
 from app.core.database import get_db
+from app.models.audit import AuditHistory as AuditHistoryModel
+from app.models.audit import AuditRecord as AuditRecordModel
+from app.models.interaction import Comment as CommentModel
+from app.models.novel import Novel as NovelModel
+from app.models.reading import ReadingHistory
 from app.schemas.b_end import (
     AuditHistoryItem,
     NovelBatchOperateBody,
@@ -149,9 +154,6 @@ async def get_novel_stats(
     db: AsyncSession = Depends(get_db),
 ):
 
-    from app.models.novel import Novel as NovelModel
-    from app.models.reading import ReadingHistory
-
     novel = await db.get(NovelModel, novel_id)
     if not novel:
         return ok(
@@ -200,9 +202,6 @@ async def get_novel_audit_history(
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    from app.models.audit import AuditHistory as AuditHistoryModel
-    from app.models.audit import AuditRecord as AuditRecordModel
-
     subq = select(AuditRecordModel.id).where(AuditRecordModel.target_id == novel_id).subquery()
     stmt = (
         select(AuditHistoryModel)
@@ -232,8 +231,6 @@ async def get_novel_comments(
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    from app.models.interaction import Comment as CommentModel
-
     stmt = (
         select(CommentModel)
         .where(CommentModel.novel_id == novel_id, CommentModel.status == 1)

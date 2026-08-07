@@ -8,11 +8,14 @@ getBadges / getVipPlans / getPaymentMethods / getFollowList。
 import time
 
 from fastapi import APIRouter, Depends, Query, Request
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
 from app.core.database import get_db
 from app.core.redis import get_redis_client
+from app.models.novel import Novel
+from app.models.reading import ReadingHistory
 from app.services.user_center_service import UserCenterService
 
 router = APIRouter()
@@ -118,11 +121,6 @@ async def read_all_follows(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import select
-
-    from app.models.novel import Novel
-    from app.models.reading import ReadingHistory
-
     subq = select(ReadingHistory.novel_id).where(ReadingHistory.reader_id == reader_id).subquery()
     stmt = (
         select(Novel.id)
