@@ -14,4 +14,4 @@ cd /workspace/apps/web && pnpm dev &
 WEB_PID=$!
 
 trap "kill $BACKEND_PID $ADMIN_PID $WEB_PID 2>/dev/null" EXIT
-wait $ADMIN_PID
+wait

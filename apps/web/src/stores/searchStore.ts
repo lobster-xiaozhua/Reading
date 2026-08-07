@@ -28,6 +28,6 @@ export const useSearchStore = create<SearchState>()(
         })),
       clearHistory: () => set({ history: [] }),
     }),
-    { name: "atlas-search-store" },
+    { name: "atlas-store-search" },
   ),
 );

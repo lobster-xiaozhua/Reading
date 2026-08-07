@@ -51,7 +51,7 @@ jobs:
         run: pnpm run typecheck
 
       - name: Token scan (advisory)
-        run: pnpm run token-scan -- --root . || true
+        run: pnpm run token-scan
 
       - name: Import audit
         run: node tools/token-scanner/dist/import-audit.js --root apps/admin
