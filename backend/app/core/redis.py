@@ -1,5 +1,7 @@
 """Redis 客户端与缓存键规范（§10.2）。"""
 
+import hashlib
+
 import redis.asyncio as redis
 import structlog
 
@@ -52,7 +54,8 @@ class CacheKeys:
 
     @staticmethod
     def search_suggestion(keyword: str) -> str:
-        return f"c:search:sug:{hash(keyword)}"
+        key = hashlib.md5(keyword.encode()).hexdigest()[:16]
+        return f"c:search:sug:{key}"
 
     @staticmethod
     def heatmap(reader_id: int) -> str:
