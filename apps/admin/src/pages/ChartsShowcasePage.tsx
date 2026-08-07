@@ -1,23 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Card, Row, Col, Segmented, Skeleton, Space, Tag } from "antd";
 import { BPageHeader } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
-import {
-  BLineChart,
-  BColumnChart,
-  BPieChart,
-  BAreaChart,
-  BHeatmap,
-  BGauge,
-  WordCountGrowthChart,
-  ReadingHeatmap,
-  ReadingFunnel,
-  RankingTrendChart,
-  CategoryDistributionChart,
-} from "@novel/b-end";
 import {
   fetchBasicChartData,
   fetchWordCountGrowth,
@@ -27,7 +14,23 @@ import {
   fetchCategoryDistribution,
 } from "@/api/chart-api";
 
+const BLineChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BLineChart })));
+const BColumnChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BColumnChart })));
+const BPieChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BPieChart })));
+const BAreaChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BAreaChart })));
+const BHeatmap = lazy(() => import("@novel/b-end").then(m => ({ default: m.BHeatmap })));
+const BGauge = lazy(() => import("@novel/b-end").then(m => ({ default: m.BGauge })));
+const WordCountGrowthChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.WordCountGrowthChart })));
+const ReadingHeatmap = lazy(() => import("@novel/b-end").then(m => ({ default: m.ReadingHeatmap })));
+const ReadingFunnel = lazy(() => import("@novel/b-end").then(m => ({ default: m.ReadingFunnel })));
+const RankingTrendChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.RankingTrendChart })));
+const CategoryDistributionChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.CategoryDistributionChart })));
+
 type Tab = "basic" | "business";
+
+function LazyChart({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<Skeleton active style={{ height: 300 }} />}>{children}</Suspense>;
+}
 
 export default function ChartsShowcasePage() {
   const { t } = useTranslation();
@@ -123,62 +126,62 @@ export default function ChartsShowcasePage() {
         <Row gutter={[16, 16]}>
           <Col span={12}>
             <Card title={t("charts:basic.line")} size="small">
-              <BLineChart
+              <LazyChart><BLineChart
                 data={lineData}
                 xField="month"
                 yField="value"
                 seriesField="type"
                 smooth
-              />
+              /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t("charts:basic.column")} size="small">
-              <BColumnChart
+              <LazyChart><BColumnChart
                 data={columnData}
                 xField="day"
                 yField="value"
                 seriesField="type"
                 isGroup
-              />
+              /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t("charts:basic.pie")} size="small">
-              <BPieChart
+              <LazyChart><BPieChart
                 data={pieData}
                 angleField="value"
                 colorField="type"
                 ring
                 statisticTitle={t("charts:basic.pieStatistic")}
-              />
+              /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t("charts:basic.area")} size="small">
-              <BAreaChart
+              <LazyChart><BAreaChart
                 data={areaData}
                 xField="date"
                 yField="pv"
                 seriesField="pv"
                 areaOpacity={0.2}
                 smooth
-              />
+              /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t("charts:basic.heatmap")} size="small">
-              <BHeatmap
+              <LazyChart><BHeatmap
                 data={heatmapData}
                 xField="hour"
                 yField="day"
                 colorField="value"
-              />
+              /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
             <Card title={t("charts:basic.gauge")} size="small">
-              <BGauge value={gaugeValue} title={t("charts:basic.gaugeTitle")} />
+              <LazyChart><BGauge value={gaugeValue} title={t("charts:basic.gaugeTitle")} /></LazyChart>
             </Card>
           </Col>
         </Row>
@@ -192,7 +195,7 @@ export default function ChartsShowcasePage() {
                 <Tag color="warning">{t("charts:business.wordCountTag")}</Tag>
               }
             >
-              <WordCountGrowthChart data={wordCountData} />
+              <LazyChart><WordCountGrowthChart data={wordCountData} /></LazyChart>
             </Card>
           </Col>
           <Col span={24}>
@@ -205,7 +208,7 @@ export default function ChartsShowcasePage() {
                 </Tag>
               }
             >
-              <ReadingHeatmap data={readingHeatmapData} />
+              <LazyChart><ReadingHeatmap data={readingHeatmapData} /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
@@ -214,7 +217,7 @@ export default function ChartsShowcasePage() {
               size="small"
               extra={<Tag color="error">{t("charts:business.funnelTag")}</Tag>}
             >
-              <ReadingFunnel data={funnelData} />
+              <LazyChart><ReadingFunnel data={funnelData} /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
@@ -225,7 +228,7 @@ export default function ChartsShowcasePage() {
                 <Tag color="success">{t("charts:business.rankingTag")}</Tag>
               }
             >
-              <RankingTrendChart data={rankingData} />
+              <LazyChart><RankingTrendChart data={rankingData} /></LazyChart>
             </Card>
           </Col>
           <Col span={12}>
@@ -234,7 +237,7 @@ export default function ChartsShowcasePage() {
               size="small"
               extra={<Tag>{t("charts:business.categoryTag")}</Tag>}
             >
-              <CategoryDistributionChart data={categoryData} />
+              <LazyChart><CategoryDistributionChart data={categoryData} /></LazyChart>
             </Card>
           </Col>
         </Row>
