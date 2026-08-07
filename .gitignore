@@ -21,6 +21,7 @@ monitoring/reports/
 # 后端开发数据库 (自动生成)
 *.db
 *.sqlite
+.seed-initialized
 
 # 测试产物
 .coverage

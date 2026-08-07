@@ -4,6 +4,7 @@
 """
 
 import contextlib
+import os
 from typing import Any
 
 import orjson
@@ -22,11 +23,15 @@ from app.core.database import engine
 from app.core.limiter import limiter
 from app.core.logging import setup_logging
 from app.middlewares.access_log import AccessLogMiddleware
+from app.middlewares.cache_control import CacheControlMiddleware
 from app.middlewares.error_handler import register_exception_handlers
 from app.middlewares.trace import TraceMiddleware
 from app.models.base import Base
 
 logger = structlog.get_logger(__name__)
+
+# 种子数据标记文件：避免每次启动都查库检测种子是否存在
+SEED_MARKER = os.path.join(os.path.dirname(__file__), "..", ".seed-initialized")
 
 
 @contextlib.asynccontextmanager
@@ -41,23 +46,31 @@ async def lifespan(app: FastAPI):
                 )
             )
 
-        try:
-            from sqlalchemy import select
+        # 已有标记文件则跳过种子检测，避免每次启动查库
+        if not os.path.exists(SEED_MARKER):
+            try:
+                from sqlalchemy import select
 
-            from app.core.database import AsyncSessionLocal
-            from app.models.novel import Novel
+                from app.core.database import AsyncSessionLocal
+                from app.models.novel import Novel
 
-            async with AsyncSessionLocal() as db:
-                exists = (await db.execute(select(Novel).limit(1))).scalars().first()
-                if not exists:
-                    from scripts.seed import seed
+                async with AsyncSessionLocal() as db:
+                    exists = (await db.execute(select(Novel).limit(1))).scalars().first()
+                    if not exists:
+                        from scripts.seed import seed
 
-                    await seed()
-                    logger.info("种子数据已自动写入")
-                else:
-                    logger.debug("种子数据已存在，跳过")
-        except Exception:
-            logger.warning("种子数据写入失败（非阻塞）", exc_info=True)
+                        await seed()
+                        logger.info("种子数据已自动写入")
+                    else:
+                        logger.debug("种子数据已存在，跳过")
+                # 写入标记，后续启动跳过检测
+                try:
+                    with open(SEED_MARKER, "w", encoding="utf-8") as f:
+                        f.write("initialized")
+                except OSError:
+                    logger.debug("写入种子标记失败（非阻塞）")
+            except Exception:
+                logger.warning("种子数据写入失败（非阻塞）", exc_info=True)
     else:
         # 生产模式：不自动建表，依赖 alembic 迁移
         logger.info("生产模式启动：依赖 alembic upgrade head 完成建表")
@@ -107,6 +120,7 @@ def create_app() -> FastAPI:
     app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(SlowAPIMiddleware)
     app.add_middleware(TraceMiddleware)
+    app.add_middleware(CacheControlMiddleware)
 
     # 请求日志
     app.add_middleware(AccessLogMiddleware)
