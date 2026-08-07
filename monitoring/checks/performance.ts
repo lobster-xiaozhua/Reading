@@ -5,7 +5,7 @@ const BACKEND = 'http://localhost:8000';
 test.describe('性能指标巡检', () => {
   test('搜索接口响应时间 P95 < 500ms', async ({ request }) => {
     const times: number[] = [];
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) {
       const start = Date.now();
       const res = await request.get(`${BACKEND}/api/v1/c/search/books`, {
         params: { keyword: 'test', page: 1, page_size: 12 },
@@ -14,7 +14,9 @@ test.describe('性能指标巡检', () => {
       expect(res.ok()).toBeTruthy();
     }
     times.sort((a, b) => a - b);
-    const p95 = times[Math.floor(times.length * 0.95)];
+    // 20 样本的 P95 = 第 19 个（索引 18），即 95% 分位
+    const idx = Math.floor((times.length - 1) * 0.95);
+    const p95 = times[idx] ?? times[times.length - 1]!;
     expect(p95).toBeLessThan(500);
   });
 
