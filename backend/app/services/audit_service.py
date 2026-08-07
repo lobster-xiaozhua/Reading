@@ -82,6 +82,18 @@ class AuditService:
             for h in histories
         ]
 
+    # ── 审核正文 ─────────────────────────────────────────
+    async def get_content(self, audit_id: int) -> str:
+        """获取指定审核项的正文内容（按需单条拉取，避免队列全量载入）。"""
+        record = await self.repo.get_by_id(audit_id)
+        if not record:
+            raise NotFoundError("审核记录不存在")
+        if record.target_type == "chapter":
+            chapter = await self.session.get(Chapter, record.target_id)
+            if chapter:
+                return chapter.content_text or chapter.content or ""
+        return ""
+
     # ── 提交审核 ─────────────────────────────────────────
     async def submit_audit(
         self, body: AuditSubmitBody, operator_id: int, operator_name: str
@@ -248,7 +260,6 @@ class AuditService:
             if chapter:
                 target_title = chapter.title
                 chapter_title = chapter.title
-                content = chapter.content_text or chapter.content or ""
                 word_count = chapter.word_count or 0
                 novel = novels.get(chapter.novel_id)
                 if novel:

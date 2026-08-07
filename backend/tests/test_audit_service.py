@@ -195,7 +195,7 @@ class TestRecordToItem:
         assert item.target_type == "chapter"
         assert item.chapter_title == chapter.title
         assert item.novel_title == novel.title
-        assert item.content == chapter.content_text
+        assert item.content == ""  # 队列项不返回正文，按需通过 get_content 拉取
 
     async def test_record_with_sensitive_hits(self, svc, db_session):
         import json

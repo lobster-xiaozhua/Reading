@@ -36,6 +36,17 @@ async def get_audit_history(
     return ok(request, await svc.get_history(int(item_id)))
 
 
+@router.get("/{item_id}/content")
+async def get_audit_content(
+    request: Request,
+    item_id: str,
+    _admin=Depends(require_permission("audit.list")),
+    db: AsyncSession = Depends(get_db),
+):
+    svc = AuditService(db)
+    return ok(request, await svc.get_content(int(item_id)))
+
+
 @router.post("/submit")
 async def submit_audit(
     request: Request,

@@ -209,6 +209,12 @@ export async function fetchAuditHistory(
   }));
 }
 
+/** 拉取审核项正文（按需加载，避免队列全量载入） */
+export async function fetchAuditContent(itemId: string): Promise<string> {
+  const data = await http.get<{ content: string }>(`/audits/${itemId}/content`);
+  return data?.content ?? "";
+}
+
 /** 提交审核结果 */
 export async function submitAudit(
   params: AuditSubmitParams,

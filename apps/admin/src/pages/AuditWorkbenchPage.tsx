@@ -24,6 +24,7 @@ import { useAuthStore } from "@/stores/authStore";
 import {
   fetchAuditQueue,
   fetchAuditHistory,
+  fetchAuditContent,
   submitAudit,
   splitContentBySensitive,
   AUDIT_LEVEL_OPTIONS,
@@ -53,6 +54,7 @@ export default function AuditWorkbenchPage() {
   const [filterLevel, setFilterLevel] = useState<AuditLevel | "all">("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [history, setHistory] = useState<AuditHistoryEntry[]>([]);
+  const [content, setContent] = useState("");
   const [comment, setComment] = useState("");
   const [rejectReason, setRejectReason] = useState<RejectReason | undefined>();
   const [submitting, setSubmitting] = useState(false);
@@ -98,6 +100,21 @@ export default function AuditWorkbenchPage() {
     (async () => {
       const h = await fetchAuditHistory(selectedId);
       if (!cancelled) setHistory(h);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  useEffect(() => {
+    if (!selectedId) {
+      setContent("");
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const c = await fetchAuditContent(selectedId);
+      if (!cancelled) setContent(c);
     })();
     return () => {
       cancelled = true;
@@ -197,11 +214,8 @@ export default function AuditWorkbenchPage() {
 
   const segments = useMemo(() => {
     if (!currentItem) return [];
-    return splitContentBySensitive(
-      currentItem.content,
-      currentItem.sensitiveHits,
-    );
-  }, [currentItem]);
+    return splitContentBySensitive(content, currentItem.sensitiveHits);
+  }, [currentItem, content]);
 
   return (
     <div className="b-audit-workbench-page">
