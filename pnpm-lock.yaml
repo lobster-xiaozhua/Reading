@@ -55,6 +55,9 @@ importers:
 
   apps/admin:
     dependencies:
+      '@ant-design/charts':
+        specifier: ^2.6.7
+        version: 2.6.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@ant-design/icons':
         specifier: ^5.4.0
         version: 5.6.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -73,12 +76,6 @@ importers:
       '@novel/b-end':
         specifier: workspace:*
         version: link:../../packages/b-end
-      '@novel/components':
-        specifier: workspace:*
-        version: link:../../packages/components
-      '@novel/icons':
-        specifier: workspace:*
-        version: link:../../packages/icons
       '@novel/tokens':
         specifier: workspace:*
         version: link:../../packages/tokens
