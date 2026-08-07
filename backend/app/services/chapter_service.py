@@ -194,14 +194,22 @@ class ChapterService:
 
         async def _process_chapter(cid: int) -> None:
             chapter = await self._get_chapter(cid)
-            target_map = {"submit": "pending", "publish": "published"}
-            target = target_map.get(body.action)
-            if not target:
-                raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {body.action}")
-            ChapterStateMachine.assert_transition(chapter.status, target)
-            chapter.status = target
-            if target == "published":
-                chapter.published_at = int(time.time() * 1000)
+            if body.action == "offline":
+                ChapterStateMachine.assert_transition(chapter.status, "offline")
+                chapter.status = "offline"
+            elif body.action == "delete":
+                if chapter.status == "published":
+                    raise BizError(ErrorCode.BIZ_ERROR, "已发布章节不能直接删除，请先下架")
+                chapter.deleted = 1
+            else:
+                target_map = {"submit": "pending", "publish": "published"}
+                target = target_map.get(body.action)
+                if not target:
+                    raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {body.action}")
+                ChapterStateMachine.assert_transition(chapter.status, target)
+                chapter.status = target
+                if target == "published":
+                    chapter.published_at = int(time.time() * 1000)
 
         success_count, failed = await batch_execute(
             body.ids, _process_chapter, logger_name="chapter_service.batch_operate"

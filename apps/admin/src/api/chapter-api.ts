@@ -202,38 +202,20 @@ export async function batchOperateChapters(
   ids: string[],
   action: "publish" | "offline" | "delete" | "submit-audit",
 ): Promise<{ success: boolean; failed?: string[] }> {
-  const failed: string[] = [];
   const numericIds = ids.map(Number);
 
   try {
-    if (action === "publish" || action === "submit-audit") {
-      const data = await http.post<{
-        success: boolean;
-        failed?: { id: string; reason: string }[];
-      }>("/chapters/batch-operate", {
-        ids: numericIds,
-        action: action === "submit-audit" ? "submit" : "publish",
-      });
-      if (!data.success && data.failed) {
-        return { success: false, failed: data.failed.map((f) => String(f.id)) };
-      }
-      return { success: true };
+    const data = await http.post<{
+      success: boolean;
+      failed?: { id: string; reason: string }[];
+    }>("/chapters/batch-operate", {
+      ids: numericIds,
+      action: action === "submit-audit" ? "submit" : action,
+    });
+    if (!data.success && data.failed) {
+      return { success: false, failed: data.failed.map((f) => String(f.id)) };
     }
-    if (action === "offline") {
-      for (const id of ids) {
-        const res = await transitionChapterStatus(id, "offline");
-        if (!res.success) failed.push(id);
-      }
-      return { success: failed.length === 0, failed };
-    }
-    if (action === "delete") {
-      for (const id of ids) {
-        const res = await deleteChapter(id);
-        if (!res.success) failed.push(id);
-      }
-      return { success: failed.length === 0, failed };
-    }
-    return { success: false, failed: ids };
+    return { success: true };
   } catch {
     return { success: false, failed: ids };
   }

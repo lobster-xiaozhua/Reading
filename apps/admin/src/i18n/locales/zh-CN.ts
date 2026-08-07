@@ -319,6 +319,7 @@ export default {
       "删除后章节不可恢复，已发布章节需逐个标题匹配确认。",
     message: {
       sortWarning: "请切换为「按序号排序」后再拖拽",
+      sortPaginatedWarning: "当前为分页视图，拖拽仅影响本页会覆盖其他章节序号，请先放大分页或关闭筛选",
       sortUpdated: "排序已更新",
       sortFailed: "排序保存失败，已回滚",
       titleUpdated: "章节标题已更新",

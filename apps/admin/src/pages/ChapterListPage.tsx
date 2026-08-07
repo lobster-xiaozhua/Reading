@@ -327,6 +327,11 @@ export default function ChapterListPage() {
       message.warning(t("chapter:message.sortWarning"));
       return;
     }
+    // 分页下仅当当前页包含全部章节时才允许拖拽排序，否则提交部分列表会覆盖其他章节序号
+    if (total > pageSize) {
+      message.warning(t("chapter:message.sortPaginatedWarning"));
+      return;
+    }
     const oldIndex = dataSource.findIndex((c) => c.id === active.id);
     const newIndex = dataSource.findIndex((c) => c.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
