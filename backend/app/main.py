@@ -100,7 +100,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
         expose_headers=["X-Trace-Id"],
     )
-    app.add_middleware(GZipMiddleware, minimum_size=4096)
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     app.add_middleware(SlowAPIMiddleware)
     app.add_middleware(TraceMiddleware)
 

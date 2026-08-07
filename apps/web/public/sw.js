@@ -52,8 +52,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(req.url);
 
-  // 同源且为章节正文 API（约定路径 /api/chapter/*）
-  if (url.origin === self.location.origin && /\/api\/chapter\//.test(url.pathname)) {
+  // 同源且为章节正文 API（约定路径 /api/v1/c/books/*/chapters/*）
+  if (url.origin === self.location.origin && /\/api\/v1\/c\/books\/.*\/chapters\//.test(url.pathname)) {
     event.respondWith(chapterCacheFirst(req));
     return;
   }

@@ -36,6 +36,28 @@ export class ApiError extends Error {
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1/b";
 const AUTH_STORAGE_KEY = "atlas-admin-auth";
 
+/** 简易内存请求缓存：GET 请求 30 秒内命中缓存 */
+const cache = new Map<string, { data: unknown; expiresAt: number }>();
+const CACHE_TTL = 30_000;
+
+export function clearHttpCache(): void {
+  cache.clear();
+}
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (Date.now() > entry.expiresAt) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data as T;
+}
+
+function setCache<T>(key: string, data: T): void {
+  cache.set(key, { data, expiresAt: Date.now() + CACHE_TTL });
+}
+
 /** 从 localStorage 读取当前 token（authStore persist 落盘） */
 export function getAccessToken(): string | null {
   try {
@@ -64,8 +86,13 @@ function handleUnauthorized(): void {
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const token = getAccessToken();
   const method = options.method ?? "GET";
+  const cacheKey = `${method}:${path}`;
+  if (method === "GET") {
+    const cached = getCached<T>(cacheKey);
+    if (cached !== null) return cached;
+  }
+  const token = getAccessToken();
   let res: Response;
   try {
     res = await fetch(`${BASE_URL}${path}`, {
@@ -115,6 +142,9 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
       traceId: body.traceId,
     });
     throw new ApiError(body.code, message, res.status, body.traceId);
+  }
+  if (method === "GET") {
+    setCache(cacheKey, body.data as T);
   }
   return body.data as T;
 }

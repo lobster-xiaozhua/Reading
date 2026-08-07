@@ -35,6 +35,10 @@ class CacheKeys:
         return f"c:book:{book_id}:rating"
 
     @staticmethod
+    def chapters(book_id: int) -> str:
+        return f"c:book:{book_id}:chapters"
+
+    @staticmethod
     def book_click(book_id: int) -> str:
         return f"c:book:click:{book_id}"
 

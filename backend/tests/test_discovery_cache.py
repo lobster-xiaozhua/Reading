@@ -68,8 +68,8 @@ class TestDiscoveryCache:
 
         assert 0 < await redis_client.ttl(CacheKeys.BANNERS) <= 300
         assert 0 < await redis_client.ttl(CacheKeys.rank("hot")) <= 600
-        assert 0 < await redis_client.ttl(CacheKeys.CATEGORIES) <= 3600
-        assert 0 < await redis_client.ttl(CacheKeys.TAGS) <= 3600
+        assert 0 < await redis_client.ttl(CacheKeys.CATEGORIES) <= 86401
+        assert 0 < await redis_client.ttl(CacheKeys.TAGS) <= 86401
 
     async def test_home_aggregate_hit_skips_db(self, db_session, redis_client, db_query_counter):
         counts, reset = db_query_counter

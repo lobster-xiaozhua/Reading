@@ -35,6 +35,7 @@ logger = structlog.get_logger(__name__)
 _TTL_BOOK = 3600  # 1 小时（热门书籍高频访问，减少回源）
 _TTL_RATING = 600
 _TTL_CHAPTER = 600  # 章节正文缓存（B 端更新依赖 TTL 自然过期）
+_TTL_CHAPTERS = 600  # 章节列表缓存
 
 
 class BookService:
@@ -72,8 +73,19 @@ class BookService:
             章节列表项。
         """
         novel = await self._get_published_novel(book_id)
+        cache_key = CacheKeys.chapters(novel.id)
+        cached = await self.redis.get(cache_key)
+        if cached:
+            try:
+                return [ChapterListItem.model_validate(x) for x in json.loads(cached)]
+            except Exception:
+                logger.debug("章节列表缓存解析失败 book_id=%s", book_id, exc_info=True)
         chapters = await self.chapter_repo.list_by_novel(novel.id, status="published")
-        return [_chapter_to_list_item(c, novel.id) for c in chapters]
+        items = [_chapter_to_list_item(c, novel.id) for c in chapters]
+        await cache_set(
+            self.redis, cache_key, [x.model_dump(mode="json") for x in items], _TTL_CHAPTERS
+        )
+        return items
 
     # ── 章节正文 ─────────────────────────────────────────
     async def get_chapter(

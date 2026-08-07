@@ -30,12 +30,19 @@ logger = structlog.get_logger(__name__)
 
 # 缓存 TTL（秒）
 _TTL_BANNERS = 300  # 5 分钟
+
 _TTL_HOT_BOOKS = 300
+
 _TTL_FREE_LIMITED = 300
+
 _TTL_EDITOR_PICKS = 300
+
 _TTL_RANKING = 600  # 10 分钟
-_TTL_CATEGORIES = 3600
-_TTL_TAGS = 3600
+
+_TTL_CATEGORIES = 86400  # 24 小时（分类极少变更）
+
+_TTL_TAGS = 86400  # 24 小时（标签极少变更）
+
 _TTL_HOME = 300  # 聚合接口取各模块最小 TTL
 
 
