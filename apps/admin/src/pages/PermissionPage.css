@@ -3,11 +3,49 @@
  * BEM 命名: pp = Permission Page
  * ============================================================ */
 
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Layout */
 .pp-layout {
   display: flex;
   gap: var(--space-4);
   min-height: 600px;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 侧边栏列表项 staggered 进入 */
+.pp-sidebar .ant-list-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.pp-sidebar .ant-list-item:nth-child(1) { animation-delay: 0ms; }
+.pp-sidebar .ant-list-item:nth-child(2) { animation-delay: 50ms; }
+.pp-sidebar .ant-list-item:nth-child(3) { animation-delay: 100ms; }
+.pp-sidebar .ant-list-item:nth-child(4) { animation-delay: 150ms; }
+.pp-sidebar .ant-list-item:nth-child(n+5) { animation-delay: 200ms; }
+
+/* 内容区卡片进入 */
+.pp-content-area > .ant-card {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 150ms both;
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .pp-layout,
+  .pp-sidebar .ant-list-item,
+  .pp-content-area > .ant-card {
+    animation: none;
+  }
 }
 
 .pp-sidebar {

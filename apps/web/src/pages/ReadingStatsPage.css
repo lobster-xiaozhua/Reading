@@ -4,12 +4,46 @@
  * 03 文档 §5.7
  * ============================================================ */
 
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* 覆盖 container-page 的 1200px，限定单列 720px 居中 */
 .reading-stats-page.container-page {
   max-width: 720px;
   padding-top: var(--space-4);
   padding-bottom: var(--space-10);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
 }
+
+/* Section staggered 进入 */
+.reading-stats-page__section {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate) both;
+}
+
+.reading-stats-page__section:nth-child(1) { animation-delay: 0ms; }
+.reading-stats-page__section:nth-child(2) { animation-delay: 100ms; }
+.reading-stats-page__section:nth-child(3) { animation-delay: 200ms; }
+.reading-stats-page__section:nth-child(4) { animation-delay: 300ms; }
 
 /* ---------- 顶部返回 + 标题 ---------- */
 .reading-stats-page__header {

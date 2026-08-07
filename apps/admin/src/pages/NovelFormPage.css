@@ -1,0 +1,69 @@
+/* ============================================================
+ * NovelFormPage · 小说编辑表单样式
+ * ============================================================ */
+
+/* 卡片 staggered 进入动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.b-form-page .ant-card {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) both;
+}
+
+.b-form-page .ant-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.b-form-page .ant-card:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.b-form-page .ant-card:nth-child(3) {
+  animation-delay: 200ms;
+}
+
+/* 表单字段焦点过渡 */
+.b-form-page .ant-form-item-has-error .ant-input,
+.b-form-page .ant-form-item-has-error .ant-input-number,
+.b-form-page .ant-form-item-has-error .ant-select-selector,
+.b-form-page .ant-form-item-has-error .ant-picker {
+  transition: border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+/* 上传组件动画 */
+.b-form-page .ant-upload-list-picture-card-container {
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.b-form-page .ant-upload-list-picture-card-container:hover {
+  transform: scale(1.02);
+}
+
+/* 树形选择器滚动条美化 */
+.b-form-page .ant-tree-treenode {
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .b-form-page .ant-card {
+    animation: none;
+  }
+
+  .b-form-page .ant-upload-list-picture-card-container {
+    transition: none;
+  }
+
+  .b-form-page .ant-tree-treenode {
+    transition: none;
+  }
+}

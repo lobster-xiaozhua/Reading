@@ -1,0 +1,40 @@
+/* ============================================================
+ * UserListPage 样式
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 页面容器动画 */
+.user-list-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 表格行 staggered 进入 */
+.ant-table-row {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.ant-table-row:nth-child(1) { animation-delay: 0ms; }
+.ant-table-row:nth-child(2) { animation-delay: 50ms; }
+.ant-table-row:nth-child(3) { animation-delay: 100ms; }
+.ant-table-row:nth-child(4) { animation-delay: 150ms; }
+.ant-table-row:nth-child(5) { animation-delay: 200ms; }
+.ant-table-row:nth-child(n+6) { animation-delay: 250ms; }
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .user-list-page,
+  .ant-table-row {
+    animation: none;
+  }
+}

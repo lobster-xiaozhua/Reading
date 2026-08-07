@@ -1,0 +1,45 @@
+/* ============================================================
+ * NotFoundPage · 404 页面
+ * ============================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.not-found-page {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+}
+
+.not-found-page .ant-result {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+.not-found-page .ant-btn {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) 200ms both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .not-found-page,
+  .not-found-page .ant-result,
+  .not-found-page .ant-btn {
+    animation: none;
+  }
+}

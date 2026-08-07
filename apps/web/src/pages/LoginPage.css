@@ -1,3 +1,30 @@
+/* ============================================================
+ * LoginPage · 登录/注册页
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -5,6 +32,7 @@
   justify-content: center;
   background: linear-gradient(135deg, var(--color-bg-page) 0%, var(--color-brand-bg) 50%, var(--color-bg-surface) 100%);
   padding: 16px;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
 }
 
 .login-card {
@@ -16,6 +44,7 @@
   box-shadow: var(--sh-3);
   position: relative;
   overflow: hidden;
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
 }
 .login-card::before {
   content: "";
@@ -33,6 +62,8 @@
   font-size: var(--font-size-h2);
   margin: 0 0 var(--space-6);
   color: var(--color-text-primary);
+  opacity: 0;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 
 .login-tabs {
@@ -40,6 +71,8 @@
   gap: 0;
   margin-bottom: var(--space-6);
   border-bottom: 1px solid var(--color-border-default);
+  opacity: 0;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
 }
 
 .login-tab {
@@ -68,6 +101,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  opacity: 0;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 300ms both;
 }
 
 .login-input {
@@ -78,7 +113,9 @@
   font-size: var(--font-size-small);
   outline: none;
   box-sizing: border-box;
-  transition: border-color var(--dur-fast) var(--ease-standard);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 
 .login-input:focus {
@@ -90,6 +127,7 @@
   color: var(--color-feedback-error);
   font-size: var(--font-size-xs);
   margin: 0;
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
 }
 
 .login-submit {
@@ -104,13 +142,19 @@
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-standard),
-    transform var(--dur-instant) var(--ease-standard);
+    transform var(--dur-instant) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+  opacity: 0;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 400ms both;
 }
 .login-submit:hover {
   background: linear-gradient(to right, var(--color-brand-hover), var(--color-accent-hover));
+  box-shadow: 0 4px 12px var(--color-brand-bg);
+  transform: translateY(-1px);
 }
 .login-submit:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: scale(0.97) translateY(0);
+  box-shadow: none;
 }
 .login-submit:disabled {
   opacity: 0.6;
@@ -122,4 +166,20 @@
   color: var(--color-text-tertiary);
   font-size: var(--font-size-xs);
   margin: var(--space-5) 0 0;
+  opacity: 0;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 500ms both;
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .login-page,
+  .login-card,
+  .login-title,
+  .login-tabs,
+  .login-form,
+  .login-error,
+  .login-submit,
+  .login-hint {
+    animation: none;
+  }
 }

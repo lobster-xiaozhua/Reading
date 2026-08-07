@@ -10,6 +10,11 @@ from app.models.base import Base
 ModelT = TypeVar("ModelT", bound=Base)
 
 
+def split_csv(value: str) -> list[str]:
+    """将逗号分隔的多选筛选参数拆分为值列表（过滤空项）。"""
+    return [v for v in (item.strip() for item in value.split(",")) if v]
+
+
 class BaseRepository(Generic[ModelT]):
     """泛型仓储基类。
 

@@ -1,7 +1,34 @@
+/* ============================================================
+ * SearchPage · 搜索页
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .search-page {
   padding-top: var(--space-6);
   padding-bottom: var(--space-10);
   position: relative;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 联想建议浮层进入 */
+.search-page__suggest {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+}
+
+/* 搜索结果 staggered 进入 */
+.search-page__result-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
 }
 
 /* ---------- 搜索表单 ---------- */

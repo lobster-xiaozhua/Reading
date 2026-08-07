@@ -1,0 +1,77 @@
+/* ============================================================
+ * ChartsShowcasePage 样式
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.b-charts-showcase-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 图表卡片 staggered 进入 */
+.b-charts-showcase-page .ant-card {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate) both;
+}
+
+.b-charts-showcase-page .ant-row .ant-col:nth-child(1) .ant-card {
+  animation-delay: 0ms;
+}
+.b-charts-showcase-page .ant-row .ant-col:nth-child(2) .ant-card {
+  animation-delay: 100ms;
+}
+.b-charts-showcase-page .ant-row .ant-col:nth-child(3) .ant-card {
+  animation-delay: 200ms;
+}
+.b-charts-showcase-page .ant-row .ant-col:nth-child(4) .ant-card {
+  animation-delay: 300ms;
+}
+.b-charts-showcase-page .ant-row .ant-col:nth-child(5) .ant-card {
+  animation-delay: 400ms;
+}
+.b-charts-showcase-page .ant-row .ant-col:nth-child(6) .ant-card {
+  animation-delay: 500ms;
+}
+
+/* Segmented 切换过渡 */
+.b-charts-showcase-page .ant-segmented {
+  transition: all var(--dur-fast) var(--ease-standard);
+}
+
+/* 图表容器 hover 效果 */
+.b-charts-showcase-page .ant-card {
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.b-charts-showcase-page .ant-card:hover {
+  box-shadow: var(--sh-3);
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .b-charts-showcase-page,
+  .b-charts-showcase-page .ant-card {
+    animation: none;
+    transition: none;
+  }
+}

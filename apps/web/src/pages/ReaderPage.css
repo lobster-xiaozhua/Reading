@@ -1,34 +1,17 @@
-.reader-page__loading {
-  min-height: 100vh;
-  padding: var(--space-8) var(--space-4);
-  background: var(--read-bg-day, var(--color-bg-page));
-}
-.reader-page__empty {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.reader-page__back-btn {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-brand);
-  background: var(--color-brand);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-small);
-  cursor: pointer;
-  transition: all var(--dur-fast) var(--ease-standard);
-}
-.reader-page__back-btn:hover {
-  background: var(--color-brand-hover);
-}
-.reader-page__back-btn:active {
-  transform: scale(0.95);
-}
+/* ============================================================
+ * ReaderPage · 阅读器页
+ * ============================================================ */
 
-/* 阅读器章节切换淡入动画 */
-.reader-page__chapter-enter {
-  animation: reader-fade-in var(--dur-normal) var(--ease-decelerate);
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes reader-fade-in {
@@ -39,5 +22,108 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 抽屉滑入动画 */
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 章节列表项进入 */
+@keyframes chapterItemEnter {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Loading 状态 */
+.reader-page__loading {
+  min-height: 100vh;
+  padding: var(--space-8) var(--space-4);
+  background: var(--read-bg-day, var(--color-bg-page));
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 空状态 */
+.reader-page__empty {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 返回按钮 */
+.reader-page__back-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-small);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.reader-page__back-btn:hover {
+  background: var(--color-brand-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px var(--color-brand-bg);
+}
+.reader-page__back-btn:active {
+  transform: scale(0.95) translateY(0);
+  box-shadow: none;
+}
+
+/* 章节切换淡入动画 */
+.reader-page__chapter-enter {
+  animation: reader-fade-in var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 目录抽屉动画 */
+.reader-page .ant-drawer-content {
+  animation: drawerSlideIn var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 章节列表项 staggered 进入 */
+.reader-page .chapter-list-item {
+  animation: chapterItemEnter var(--dur-fast) var(--ease-decelerate) both;
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .reader-page__loading,
+  .reader-page__empty,
+  .reader-page__back-btn:hover,
+  .reader-page__chapter-enter,
+  .reader-page .ant-drawer-content,
+  .reader-page .chapter-list-item {
+    animation: none;
   }
 }

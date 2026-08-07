@@ -1,0 +1,452 @@
+/* ============================================================
+ * Global Micro-interactions · 全局微交互增强
+ * ============================================================ */
+
+/* ============================================
+ * 按钮涟漪效果
+ * ============================================ */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: var(--color-overlay-white-30);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+}
+
+.btn-ripple:active::after {
+  width: 300px;
+  height: 300px;
+  opacity: 0;
+}
+
+/* ============================================
+ * 输入框聚焦增强
+ * ============================================ */
+.input-enhanced {
+  position: relative;
+}
+
+.input-enhanced input,
+.input-enhanced textarea {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.input-enhanced input:focus,
+.input-enhanced textarea:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+  outline: none;
+}
+
+/* 输入框标签浮动 */
+.input-floating-label label {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-small);
+  pointer-events: none;
+  transition:
+    top var(--dur-fast) var(--ease-decelerate),
+    font-size var(--dur-fast) var(--ease-decelerate),
+    color var(--dur-fast) var(--ease-standard);
+  background: transparent;
+  padding: 0 4px;
+}
+
+.input-floating-label input:focus ~ label,
+.input-floating-label input:not(:placeholder-shown) ~ label,
+.input-floating-label textarea:focus ~ label,
+.input-floating-label textarea:not(:placeholder-shown) ~ label {
+  top: 0;
+  font-size: var(--font-size-overline);
+  color: var(--color-brand);
+  background: var(--color-bg-surface);
+}
+
+/* ============================================
+ * 卡片悬浮增强
+ * ============================================ */
+.card-hover-enhanced {
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.card-hover-enhanced:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-4);
+  border-color: var(--color-brand-border);
+}
+
+.card-hover-enhanced:active {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+ * 链接悬浮效果
+ * ============================================ */
+.link-hover-underline {
+  position: relative;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.link-hover-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-brand);
+  transition: width var(--dur-fast) var(--ease-decelerate);
+  border-radius: var(--radius-full);
+}
+
+.link-hover-underline:hover::after {
+  width: 100%;
+}
+
+/* ============================================
+ * 图标按钮悬浮
+ * ============================================ */
+.icon-btn-hover {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.icon-btn-hover:hover {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  transform: scale(1.1);
+}
+
+.icon-btn-hover:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+ * 标签页指示器
+ * ============================================ */
+.tab-indicator-enhanced {
+  position: relative;
+}
+
+.tab-indicator-enhanced::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
+  transform: scaleX(0);
+  transition: transform var(--dur-fast) var(--ease-decelerate);
+}
+
+.tab-indicator-enhanced.is-active::after {
+  transform: scaleX(1);
+}
+
+/* ============================================
+ * 下拉菜单增强
+ * ============================================ */
+.dropdown-enhanced .ant-dropdown-menu-item {
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    padding-left var(--dur-fast) var(--ease-decelerate);
+}
+
+.dropdown-enhanced .ant-dropdown-menu-item:hover {
+  padding-left: calc(var(--space-3) + 4px);
+  background: var(--color-brand-bg);
+}
+
+/* ============================================
+ * 模态框进入动画
+ * ============================================ */
+.modal-enhanced {
+  animation: modalSlideIn 0.3s var(--ease-decelerate);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 遮罩层淡入 */
+.modal-enhanced .ant-modal-mask {
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================
+ * 抽屉滑入增强
+ * ============================================ */
+.drawer-enhanced {
+  animation: drawerSlideIn 0.3s var(--ease-decelerate);
+}
+
+@keyframes drawerSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+ * 通知/消息增强
+ * ============================================ */
+.notification-enhanced {
+  animation: notificationSlideIn 0.3s var(--ease-decelerate);
+  box-shadow: var(--sh-4);
+}
+
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+ * 骨架屏 shimmer 效果
+ * ============================================ */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-15) 50%,
+    transparent 100%
+  );
+  animation: shimmerSweep 2s infinite;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* ============================================
+ * 加载状态脉冲
+ * ============================================ */
+.loading-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ============================================
+ * 空状态进入
+ * ============================================ */
+.empty-state-enhanced {
+  animation: emptyStateFloat 0.5s var(--ease-decelerate);
+}
+
+@keyframes emptyStateFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+ * 图片懒加载淡入
+ * ============================================ */
+.image-lazy-load {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-decelerate);
+}
+
+.image-lazy-load.loaded {
+  opacity: 1;
+}
+
+/* ============================================
+ * 滚动条美化
+ * ============================================ */
+.scrollbar-enhanced::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+
+.scrollbar-enhanced::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Firefox */
+.scrollbar-enhanced {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) transparent;
+}
+
+/* ============================================
+ * 选中状态增强
+ * ============================================ */
+::selection {
+  background: var(--color-brand-bg);
+  color: var(--color-brand-active);
+}
+
+/* ============================================
+ * 焦点可见性增强（无障碍）
+ * ============================================ */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * 文本选择高亮
+ * ============================================ */
+.text-highlight {
+  background: linear-gradient(
+    180deg,
+    transparent 60%,
+    var(--color-brand-bg) 60%
+  );
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.text-highlight:hover {
+  background: linear-gradient(
+    180deg,
+    transparent 40%,
+    var(--color-brand-bg) 40%
+  );
+}
+
+/* ============================================
+ * 数字滚动容器
+ * ============================================ */
+.number-scroll-container {
+  display: inline-flex;
+  overflow: hidden;
+  font-family: var(--font-mono);
+}
+
+.number-scroll-digit {
+  display: inline-flex;
+  flex-direction: column;
+  transition: transform 0.3s var(--ease-decelerate);
+}
+
+/* ============================================
+ * Tooltip 增强
+ * ============================================ */
+.tooltip-enhanced {
+  transition:
+    opacity var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-decelerate);
+}
+
+/* ============================================
+ * Badge 徽标增强
+ * ============================================ */
+.badge-bounce {
+  animation: badgeBounce 0.4s var(--ease-decelerate);
+}
+
+@keyframes badgeBounce {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================
+ * 减弱动效适配
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .btn-ripple::after,
+  .card-hover-enhanced,
+  .link-hover-underline::after,
+  .icon-btn-hover,
+  .modal-enhanced,
+  .drawer-enhanced,
+  .notification-enhanced,
+  .skeleton-shimmer::after,
+  .loading-pulse,
+  .empty-state-enhanced,
+  .image-lazy-load,
+  .badge-bounce {
+    animation: none;
+    transition: none;
+  }
+}

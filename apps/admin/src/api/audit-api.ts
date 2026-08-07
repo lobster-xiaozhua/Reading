@@ -176,7 +176,8 @@ function mapItem(raw: BackendAuditItem): AuditItem {
 
 /** 拉取待审队列 */
 export async function fetchAuditQueue(
-  level: AuditLevel | "all" = "all",
+  /** 逗号分隔的多选级别，空串表示全部 */
+  level: string = "all",
 ): Promise<{
   list: AuditItem[];
   stats: AuditQueueStats;

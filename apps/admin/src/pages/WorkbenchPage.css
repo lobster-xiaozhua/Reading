@@ -3,6 +3,119 @@
  * BEM 命名: wp = Workbench Page
  * ============================================================ */
 
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 数据卡片悬浮效果 */
+@keyframes cardFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+/* 数据增长脉冲 */
+@keyframes dataPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 页面容器 */
+.workbench-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 数据卡片增强 */
+.workbench-page .ant-card {
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.workbench-page .ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-4);
+  border-color: var(--color-brand-border);
+}
+
+.workbench-page .ant-card:active {
+  transform: translateY(-1px);
+}
+
+/* 统计数值强调 */
+.workbench-page .stat-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.2;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+.workbench-page .ant-card:hover .stat-value {
+  color: var(--color-brand);
+}
+
+/* 趋势指示器 */
+.workbench-page .trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-small);
+  font-weight: 600;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-full);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.workbench-page .ant-card:hover .trend-indicator {
+  transform: scale(1.1);
+}
+
+.trend-indicator--up {
+  color: var(--color-feedback-success);
+  background: var(--color-feedback-success-bg);
+}
+
+.trend-indicator--down {
+  color: var(--color-feedback-error);
+  background: var(--color-feedback-error-bg);
+}
+
+.trend-indicator--neutral {
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-subtle);
+}
+
 /* Chart header */
 .wp-chart-header {
   display: flex;
@@ -14,6 +127,7 @@
 .wp-chart-title {
   color: var(--color-text-secondary);
   font-size: var(--font-size-body, 14px);
+  font-weight: 500;
 }
 
 /* Metric button group */
@@ -26,22 +140,35 @@
 .wp-metric-btn {
   padding: 4px 12px;
   font-size: var(--font-size-xs);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm, 4px);
   background: transparent;
   color: var(--color-text-secondary);
   cursor: pointer;
   font-family: inherit;
   transition:
-    background var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out);
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.wp-metric-btn:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+  transform: translateY(-1px);
+}
+
+.wp-metric-btn:active {
+  transform: translateY(0) scale(0.95);
 }
 
 .wp-metric-btn--active {
   border-color: var(--color-brand);
-  background: var(--color-brand-bg);
-  color: var(--color-brand);
+  background: var(--color-brand);
+  color: var(--color-text-inverse);
+  font-weight: 500;
 }
 
 .wp-chart-wrapper {
@@ -49,7 +176,7 @@
 }
 
 .wp-chart-fade-in {
-  animation: wpFadeIn 0.4s ease-out;
+  animation: wpFadeIn 0.4s var(--ease-decelerate);
 }
 
 @keyframes wpFadeIn {
@@ -60,5 +187,78 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 图表卡片 */
+.wp-chart-card {
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.wp-chart-card:hover {
+  box-shadow: var(--sh-3);
+  transform: translateY(-2px);
+}
+
+/* 快捷操作按钮 */
+.wp-quick-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.wp-quick-action:hover {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-brand-bg);
+}
+
+.wp-quick-action:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* 通知徽章 */
+.wp-notification-badge {
+  position: relative;
+}
+
+.wp-notification-badge::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-feedback-error);
+  border: 2px solid var(--color-bg-surface);
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .workbench-page,
+  .workbench-page .ant-card,
+  .workbench-page .trend-indicator,
+  .wp-metric-btn,
+  .wp-chart-card,
+  .wp-quick-action {
+    animation: none;
+    transition: none;
   }
 }

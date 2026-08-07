@@ -30,6 +30,7 @@ import {
 import { http } from "@/api/http";
 import { useAuthStore } from "@/stores/authStore";
 import { ShelveModal } from "@/components/ShelveModal";
+import "./NovelDetailPage.css";
 
 export default function NovelDetailPage() {
   const { t } = useTranslation();
@@ -404,7 +405,7 @@ export default function NovelDetailPage() {
   ) : undefined;
 
   return (
-    <>
+    <div className="novel-detail-page">
       <DetailCardTemplate
         title={novel?.title ?? t("novelDetail:title")}
         breadcrumb={[
@@ -453,6 +454,6 @@ export default function NovelDetailPage() {
         onClose={() => setShelveModalOpen(false)}
         onConfirm={handleShelveConfirm}
       />
-    </>
+    </div>
   );
 }

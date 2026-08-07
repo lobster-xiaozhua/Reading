@@ -1,4 +1,4 @@
-import { BookMeta, Button, type Chapter } from "@novel/components";
+import { BookMeta, Button, StatCard, type Chapter } from "@novel/components";
 import { NavigationChevronLeft } from "@novel/icons";
 import { LazyImage } from "@/components/LazyImage";
 import type { BookSummary } from "@/api/types";
@@ -50,24 +50,21 @@ export function BookDetailHero({
           size="detailed"
         />
         <div className="book-detail__stats">
-          <div className="book-detail__stat">
-            <span className="book-detail__stat-value">
-              {book.rating.toFixed(1)}
-            </span>
-            <span className="book-detail__stat-label">评分</span>
-          </div>
-          <div className="book-detail__stat">
-            <span className="book-detail__stat-value">
-              {(book.followCount / 10000).toFixed(1)}万
-            </span>
-            <span className="book-detail__stat-label">收藏</span>
-          </div>
-          <div className="book-detail__stat">
-            <span className="book-detail__stat-value">
-              {(book.clickCount / 10000).toFixed(0)}万
-            </span>
-            <span className="book-detail__stat-label">点击</span>
-          </div>
+          <StatCard
+            value={book.rating.toFixed(1)}
+            label="评分"
+            className="book-detail__stat"
+          />
+          <StatCard
+            value={`${(book.followCount / 10000).toFixed(1)}万`}
+            label="收藏"
+            className="book-detail__stat"
+          />
+          <StatCard
+            value={`${(book.clickCount / 10000).toFixed(0)}万`}
+            label="点击"
+            className="book-detail__stat"
+          />
         </div>
         <div className="book-detail__actions">
           <Button

@@ -4,7 +4,7 @@ from sqlalchemy import select
 
 from app.core.config import settings
 from app.models.novel import Banner, Category, Novel, Tag
-from app.repositories.base import BaseRepository
+from app.repositories.base import BaseRepository, split_csv
 
 
 class NovelRepository(BaseRepository[Novel]):
@@ -57,9 +57,9 @@ class NovelRepository(BaseRepository[Novel]):
         if search_key:
             stmt = stmt.where(Novel.title.contains(search_key))
         if status and status != "all":
-            stmt = stmt.where(Novel.status == status)
+            stmt = stmt.where(Novel.status.in_(split_csv(status)))
         if category and category != "all":
-            stmt = stmt.where(Novel.category == category)
+            stmt = stmt.where(Novel.category.in_(split_csv(category)))
         if date_range and len(date_range) == 2:
             stmt = stmt.where(Novel.updated_at >= date_range[0], Novel.updated_at <= date_range[1])
         stmt = stmt.order_by(Novel.updated_at.desc())

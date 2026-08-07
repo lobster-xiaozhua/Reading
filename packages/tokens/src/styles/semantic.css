@@ -37,6 +37,14 @@
   --color-brand-bg: var(--brand-2);
   --color-brand-border: var(--brand-3);
 
+  /* ---------- L2 Semantic · 品牌发光（光晕/按钮辉光等视觉装饰，随主题切换） ---------- */
+  --color-brand-glow-0: rgba(24, 144, 255, 0);
+  --color-brand-glow-20: rgba(24, 144, 255, 0.2);
+  --color-brand-glow-25: rgba(24, 144, 255, 0.25);
+  --color-brand-glow-30: rgba(24, 144, 255, 0.3);
+  --color-brand-glow-35: rgba(24, 144, 255, 0.35);
+  --color-brand-glow-40: rgba(24, 144, 255, 0.4);
+
   /* ---------- L2 Semantic · 强调（C 端 accent） ---------- */
   --color-accent: var(--accent-7);
   --color-accent-hover: var(--accent-8);
@@ -59,11 +67,26 @@
   --color-rank-silver-gradient: linear-gradient(135deg, #C0C0C0, #A0A0A0);
   --color-rank-bronze-gradient: linear-gradient(135deg, #CD7F32, #A06030);
 
+  /* ---------- L2 Semantic · 排行榜 Top3 奖牌阴影（03 §6.3） ---------- */
+  --color-rank-gold-shadow: rgba(255, 215, 0, 0.3);
+  --color-rank-silver-shadow: rgba(192, 192, 192, 0.3);
+  --color-rank-bronze-shadow: rgba(205, 127, 50, 0.3);
+
   /* ---------- L2 Semantic · 遮罩 / 覆盖层（轮播图、卡片悬浮控件） ---------- */
   --color-overlay-gradient: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.72) 100%);
   --color-overlay-medium: rgba(0, 0, 0, 0.4);
   --color-overlay-strong: rgba(0, 0, 0, 0.6);
   --color-overlay-dot: rgba(255, 255, 255, 0.5);
+
+  /* ---------- L2 Semantic · 装饰光泽 / 阴影（按钮涟漪、卡片光泽、轻阴影） ---------- */
+  --color-overlay-white-10: rgba(255, 255, 255, 0.1);
+  --color-overlay-white-12: rgba(255, 255, 255, 0.12);
+  --color-overlay-white-15: rgba(255, 255, 255, 0.15);
+  --color-overlay-white-20: rgba(255, 255, 255, 0.2);
+  --color-overlay-white-25: rgba(255, 255, 255, 0.25);
+  --color-overlay-white-30: rgba(255, 255, 255, 0.3);
+  --color-shadow-soft-10: rgba(0, 0, 0, 0.1);
+  --color-shadow-soft-15: rgba(0, 0, 0, 0.15);
 
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
@@ -236,6 +259,15 @@
   --color-brand-active: var(--brand-8);
   --color-brand-bg: rgba(24, 144, 255, 0.16);
   --color-brand-border: rgba(24, 144, 255, 0.32);
+
+  /* 品牌发光暗色重定义：跟随暗色主品牌色 #40A9FF（brand-6） */
+  --color-brand-glow-0: rgba(64, 169, 255, 0);
+  --color-brand-glow-20: rgba(64, 169, 255, 0.2);
+  --color-brand-glow-25: rgba(64, 169, 255, 0.25);
+  --color-brand-glow-30: rgba(64, 169, 255, 0.3);
+  --color-brand-glow-35: rgba(64, 169, 255, 0.35);
+  --color-brand-glow-40: rgba(64, 169, 255, 0.4);
+
   --color-accent: var(--accent-6);
   --color-accent-hover: var(--accent-7);
   --color-accent-active: var(--accent-8);
@@ -306,6 +338,14 @@
     --color-brand-active: var(--brand-8);
     --color-brand-bg: rgba(24, 144, 255, 0.16);
     --color-brand-border: rgba(24, 144, 255, 0.32);
+
+    --color-brand-glow-0: rgba(64, 169, 255, 0);
+    --color-brand-glow-20: rgba(64, 169, 255, 0.2);
+    --color-brand-glow-25: rgba(64, 169, 255, 0.25);
+    --color-brand-glow-30: rgba(64, 169, 255, 0.3);
+    --color-brand-glow-35: rgba(64, 169, 255, 0.35);
+    --color-brand-glow-40: rgba(64, 169, 255, 0.4);
+
     --color-accent: var(--accent-6);
     --color-accent-hover: var(--accent-7);
     --color-accent-active: var(--accent-8);

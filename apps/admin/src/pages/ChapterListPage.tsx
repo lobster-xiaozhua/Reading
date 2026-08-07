@@ -75,6 +75,7 @@ import {
   CHAPTER_STATUS_OPTIONS,
   CHAPTER_STATUS_TAG,
 } from "@/api/chapter-api";
+import "./ChapterListPage.css";
 
 interface RowContextValue {
   listeners?: ReturnType<typeof useSortable>["listeners"];

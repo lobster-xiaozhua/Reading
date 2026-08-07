@@ -3,12 +3,30 @@
  * 单列居中 max-width 720px；BEM 命名，根类 follow-page
  * ============================================================ */
 
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .follow-page {
   width: 100%;
   max-width: 720px;
   margin: 0 auto;
   padding: var(--space-4) var(--space-4) var(--space-8);
   min-height: 100vh;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 列表项 staggered 进入 */
+.follow-page__list > li {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
 }
 
 /* ---------- 顶部栏 ---------- */

@@ -1,0 +1,84 @@
+/* ============================================================
+ * LoginPage · B 端登录页
+ * ============================================================ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 页面级动画 */
+.login-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 卡片进入 */
+.login-page .ant-card {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 标题进入 */
+.login-page .ant-typography {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+}
+
+/* 表单进入 */
+.login-page .ant-form {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
+}
+
+/* 按钮进入 */
+.login-page .ant-btn {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 300ms both;
+}
+
+/* 演示账号列表 staggered 进入 */
+.login-page .demo-account-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.login-page .demo-account-item:nth-child(1) { animation-delay: 350ms; }
+.login-page .demo-account-item:nth-child(2) { animation-delay: 400ms; }
+.login-page .demo-account-item:nth-child(3) { animation-delay: 450ms; }
+.login-page .demo-account-item:nth-child(4) { animation-delay: 500ms; }
+
+/* 演示账号 Tag hover */
+.login-page .demo-account-item .ant-tag {
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.login-page .demo-account-item .ant-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--color-brand-bg);
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .login-page,
+  .login-page .ant-card,
+  .login-page .ant-typography,
+  .login-page .ant-form,
+  .login-page .ant-btn,
+  .login-page .demo-account-item {
+    animation: none;
+  }
+}

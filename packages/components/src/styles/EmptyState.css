@@ -18,6 +18,13 @@
   align-items: center;
   justify-content: center;
   color: var(--color-text-tertiary);
+  /* 轻微浮动：空状态插画更生动 */
+  animation: novel-empty-float 3s var(--ease-standard) infinite;
+}
+
+@keyframes novel-empty-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
 
 .novel-empty__title {
@@ -41,6 +48,36 @@
   margin-top: var(--space-6);
   display: flex;
   gap: var(--space-3);
+}
+
+/* ---------- 细节边缘 ---------- */
+
+/* 空状态整卡进入动画 */
+.novel-empty.is-enter {
+  animation: novel-empty-enter var(--dur-normal) var(--ease-decelerate) both;
+}
+
+@keyframes novel-empty-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 暗色模式：插画颜色提亮，避免灰底上不可见 */
+[data-theme='dark'] .novel-empty__illustration {
+  color: var(--color-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-empty__illustration,
+  .novel-empty.is-enter {
+    animation: none;
+  }
 }
 
 /* ---------- Skeleton ---------- */
@@ -93,6 +130,11 @@
 @keyframes novel-skeleton-shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* ---------- 细节边缘：骨架屏首尾呼吸 ---------- */
+.novel-skeleton__line:first-child {
+  width: 40%;
 }
 
 @media (prefers-reduced-motion: reduce) {

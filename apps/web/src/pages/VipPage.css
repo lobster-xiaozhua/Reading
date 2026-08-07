@@ -3,9 +3,43 @@
  * 暖橙主调（accent-orange）· BEM · 令牌消费
  * ============================================================ */
 
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .vip-page {
   padding-top: var(--space-4);
   padding-bottom: var(--space-10);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 权益卡进入 */
+.vip-page__benefit {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate) 100ms both;
+}
+
+/* Section staggered 进入 */
+.vip-page__section {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
 }
 
 /* ---------- 返回按钮 ---------- */

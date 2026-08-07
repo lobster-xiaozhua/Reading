@@ -1,0 +1,406 @@
+/* ============================================================
+ * Global Micro-interactions · B 端全局微交互增强
+ * ============================================================ */
+
+/* ============================================
+ * 按钮涟漪效果
+ * ============================================ */
+.b-btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.b-btn-ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: var(--color-overlay-white-25);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s ease, height 0.5s ease, opacity 0.5s ease;
+}
+
+.b-btn-ripple:active::after {
+  width: 280px;
+  height: 280px;
+  opacity: 0;
+}
+
+/* ============================================
+ * 数据卡片悬浮
+ * ============================================ */
+.b-stat-card {
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.b-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sh-4);
+  border-color: var(--color-brand-border);
+}
+
+.b-stat-card:active {
+  transform: translateY(-1px);
+}
+
+/* ============================================
+ * 表格行增强
+ * ============================================ */
+.b-table-row-enhanced {
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.b-table-row-enhanced:hover {
+  background: var(--color-brand-bg) !important;
+  box-shadow: inset 3px 0 0 var(--color-brand);
+}
+
+/* ============================================
+ * 操作按钮组
+ * ============================================ */
+.b-action-group .ant-btn {
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.b-action-group .ant-btn:hover {
+  transform: translateY(-1px);
+}
+
+.b-action-group .ant-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* ============================================
+ * 状态标签增强
+ * ============================================ */
+.b-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.b-status-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px var(--color-shadow-soft-10);
+}
+
+/* ============================================
+ * 进度条增强
+ * ============================================ */
+.b-progress-enhanced {
+  position: relative;
+  height: 8px;
+  background: var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.b-progress-enhanced .b-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
+  border-radius: var(--radius-full);
+  transition: width var(--dur-normal) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+.b-progress-enhanced .b-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-20) 50%,
+    transparent 100%
+  );
+  animation: bShimmerSweep 2.5s infinite;
+}
+
+@keyframes bShimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ============================================
+ * 搜索框增强
+ * ============================================ */
+.b-search-enhanced {
+  position: relative;
+}
+
+.b-search-enhanced input {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.b-search-enhanced input:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+}
+
+/* ============================================
+ * 筛选器增强
+ * ============================================ */
+.b-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.b-filter-chip:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+  transform: translateY(-1px);
+}
+
+.b-filter-chip.is-active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-text-inverse);
+}
+
+.b-filter-chip:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* ============================================
+ * 分页增强
+ * ============================================ */
+.b-pagination-enhanced .ant-pagination-item {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+
+.b-pagination-enhanced .ant-pagination-item:hover {
+  transform: scale(1.1);
+  border-color: var(--color-brand);
+}
+
+.b-pagination-enhanced .ant-pagination-item-active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+/* ============================================
+ * 卡片标题增强
+ * ============================================ */
+.b-card-title-enhanced {
+  position: relative;
+  padding-left: var(--space-3);
+}
+
+.b-card-title-enhanced::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: linear-gradient(180deg, var(--color-brand), var(--color-accent));
+  border-radius: var(--radius-sm);
+}
+
+/* ============================================
+ * 空状态增强
+ * ============================================ */
+.b-empty-state {
+  animation: bEmptyFloat 0.5s var(--ease-decelerate);
+}
+
+@keyframes bEmptyFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+ * 加载骨架屏
+ * ============================================ */
+.b-skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.b-skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-12) 50%,
+    transparent 100%
+  );
+  animation: bShimmerSweep 2s infinite;
+}
+
+/* ============================================
+ * 通知徽章
+ * ============================================ */
+.b-notification-dot {
+  position: relative;
+  display: inline-block;
+}
+
+.b-notification-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-feedback-error);
+  border: 2px solid var(--color-bg-surface);
+  animation: bPulse 2s infinite;
+}
+
+@keyframes bPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+/* ============================================
+ * 快捷操作按钮
+ * ============================================ */
+.b-quick-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.b-quick-action:hover {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  border-color: var(--color-brand-border);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--color-brand-bg);
+}
+
+.b-quick-action:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* ============================================
+ * 图表卡片悬浮
+ * ============================================ */
+.b-chart-card {
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.b-chart-card:hover {
+  box-shadow: var(--sh-3);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+ * 表单验证反馈
+ * ============================================ */
+.b-form-item-enhanced .ant-form-item-control-input-content {
+  position: relative;
+}
+
+.b-form-item-enhanced.has-error input {
+  border-color: var(--color-feedback-error) !important;
+  animation: bShake 0.3s ease;
+}
+
+.b-form-item-enhanced.has-success input {
+  border-color: var(--color-feedback-success) !important;
+}
+
+@keyframes bShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* ============================================
+ * 焦点可见性增强（无障碍）
+ * ============================================ */
+.b-focus-visible *:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+/* ============================================
+ * 减弱动效适配
+ * ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .b-btn-ripple::after,
+  .b-stat-card,
+  .b-table-row-enhanced,
+  .b-action-group .ant-btn,
+  .b-status-tag,
+  .b-filter-chip,
+  .b-pagination-enhanced .ant-pagination-item,
+  .b-empty-state,
+  .b-skeleton-shimmer::after,
+  .b-notification-dot::after,
+  .b-quick-action,
+  .b-chart-card,
+  .b-form-item-enhanced.has-error input {
+    animation: none;
+    transition: none;
+  }
+}

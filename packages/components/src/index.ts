@@ -145,6 +145,7 @@ export {
   type BookRecommendProps,
   type RecommendBookItem,
 } from "./BookRecommend.js";
+export { StatCard, type StatCardProps } from "./StatCard.js";
 
 // P2.4 状态模式 Hook
 export {

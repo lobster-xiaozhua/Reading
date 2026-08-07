@@ -13,6 +13,7 @@ import {
   fetchRankingTrend,
   fetchCategoryDistribution,
 } from "@/api/chart-api";
+import "./ChartsShowcasePage.css";
 
 const BLineChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BLineChart })));
 const BColumnChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BColumnChart })));

@@ -1,0 +1,70 @@
+/* ============================================================
+ * ChapterListPage 样式
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 页面容器 */
+.b-chapter-list-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 统计信息进入 */
+.b-chapter-list-page .ant-space-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.b-chapter-list-page .ant-space-item:nth-child(1) { animation-delay: 100ms; }
+.b-chapter-list-page .ant-space-item:nth-child(2) { animation-delay: 200ms; }
+.b-chapter-list-page .ant-space-item:nth-child(3) { animation-delay: 300ms; }
+
+/* 表格行 staggered 进入 */
+.b-chapter-list-page .ant-table-row {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+/* 拖拽中的行 */
+.b-chapter-list-page .ant-table-row.dragging {
+  box-shadow: 0 4px 12px var(--color-brand-bg);
+  z-index: 10;
+  position: relative;
+}
+
+/* 编辑图标 hover */
+.b-chapter-edit-icon {
+  opacity: 0 !important;
+}
+
+.b-chapter-list-page .ant-table-row:hover .b-chapter-edit-icon {
+  opacity: 0.6 !important;
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .b-chapter-list-page,
+  .b-chapter-list-page .ant-space-item,
+  .b-chapter-list-page .ant-table-row {
+    animation: none;
+  }
+}

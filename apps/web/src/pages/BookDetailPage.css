@@ -1,6 +1,48 @@
+/* ============================================================
+ * 页面级淡入动画
+ * ============================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 按钮涟漪效果 */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 呼吸光晕 */
+@keyframes breatheGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--color-brand-glow-40);
+  }
+  50% {
+    box-shadow: 0 0 0 12px var(--color-brand-glow-0);
+  }
+}
+
 .book-detail {
   padding-top: var(--space-4);
   padding-bottom: var(--space-10);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
 }
 
 /* ---------- 面包屑 ---------- */
@@ -18,6 +60,7 @@
 .book-detail__breadcrumb a {
   color: var(--color-text-secondary);
   text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-standard);
 }
 .book-detail__breadcrumb a:hover {
   color: var(--color-brand);
@@ -36,6 +79,7 @@
   border-bottom: 1px solid var(--color-border-subtle);
   margin-bottom: var(--space-8);
   position: relative;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 .book-detail__cover {
   position: relative;
@@ -45,10 +89,12 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--sh-4);
-  transition: transform var(--dur-slow) var(--ease-standard);
+  transition: transform var(--dur-slow) var(--ease-standard), box-shadow var(--dur-slow) var(--ease-standard);
+  cursor: pointer;
 }
 .book-detail__cover:hover {
-  transform: scale(1.02);
+  transform: scale(1.05);
+  box-shadow: var(--sh-5);
 }
 .book-detail__cover img {
   width: 100%;
@@ -64,6 +110,7 @@
   font-size: var(--font-size-overline);
   font-weight: 600;
   color: var(--color-text-inverse);
+  z-index: 1;
 }
 .book-detail__flag--vip {
   background: var(--color-accent-orange);
@@ -78,27 +125,15 @@
 }
 .book-detail__stats {
   display: flex;
-  gap: var(--space-8);
-  padding: var(--space-4) 0;
+  gap: var(--space-6);
+  padding: var(--space-5) 0;
   border-top: 1px solid var(--color-border-subtle);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 .book-detail__stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-}
-.book-detail__stat-value {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--color-accent-orange);
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-}
-.book-detail__stat-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
+  gap: 4px;
 }
 .book-detail__actions {
   display: flex;
@@ -107,33 +142,62 @@
 }
 .book-detail__read-btn {
   min-width: 140px;
-  transition: transform var(--dur-instant) var(--ease-standard);
+  transition: transform var(--dur-instant) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+  box-shadow: 0 2px 8px var(--color-brand-glow-25);
+  position: relative;
+  overflow: hidden;
+}
+.book-detail__read-btn:hover {
+  box-shadow: 0 4px 16px var(--color-brand-glow-35);
+  transform: translateY(-1px);
 }
 .book-detail__read-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 1px 4px var(--color-brand-glow-20);
 }
+
 .book-detail__last-read {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-4);
+  padding: var(--space-4) var(--space-5);
   background: linear-gradient(135deg, var(--color-brand-bg), var(--color-bg-surface));
   border: 1px solid var(--color-brand-border);
   border-radius: var(--radius-lg);
   position: relative;
   overflow: hidden;
+  box-shadow: var(--sh-2);
+  transition: box-shadow var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+  cursor: pointer;
+}
+.book-detail__last-read:hover {
+  box-shadow: var(--sh-3);
+  transform: translateY(-1px);
+}
+.book-detail__last-read:active {
+  transform: translateY(0);
 }
 .book-detail__last-read::before {
   content: "";
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 80px;
-  height: 80px;
+  top: -20px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
   background: var(--color-brand-bg);
   border-radius: 50%;
-  transform: translate(30%, -30%);
-  opacity: 0.5;
+  opacity: 0.4;
+}
+.book-detail__last-read::after {
+  content: "";
+  position: absolute;
+  bottom: -30px;
+  left: 40px;
+  width: 60px;
+  height: 60px;
+  background: var(--color-brand-bg);
+  border-radius: 50%;
+  opacity: 0.3;
 }
 .book-detail__last-read-info {
   display: flex;
@@ -168,12 +232,25 @@
   background: var(--color-border-default);
   border-radius: var(--radius-full);
   overflow: hidden;
+  position: relative;
 }
 .book-detail__last-read-fill {
   height: 100%;
-  background: linear-gradient(to right, var(--color-brand), var(--color-accent-orange));
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent-orange));
   border-radius: var(--radius-full);
-  transition: width var(--dur-base) var(--ease-standard);
+  transition: width var(--dur-normal) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+}
+.book-detail__last-read-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, var(--color-overlay-white-30), transparent);
+  animation: shimmer 2s infinite;
 }
 .book-detail__last-read-pct {
   font-size: var(--font-size-overline);
@@ -198,25 +275,28 @@
   z-index: 1;
   transition:
     background var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 .book-detail__last-read-btn:hover {
   background: var(--color-brand);
   color: var(--color-text-inverse);
+  transform: translateY(-1px);
 }
 .book-detail__last-read-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.97) translateY(0);
 }
 
 /* ---------- 区块标题 ---------- */
 .book-detail__section-title {
-  margin: 0 0 var(--space-4);
+  margin: 0 0 var(--space-5);
   font-family: var(--font-serif);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
   position: relative;
-  padding-left: var(--space-3);
+  padding-left: var(--space-4);
+  line-height: 1.3;
 }
 .book-detail__section-title::before {
   content: "";
@@ -224,9 +304,9 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 16px;
-  background: var(--color-brand);
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--color-brand), var(--color-brand-hover));
   border-radius: var(--radius-sm);
 }
 
@@ -252,6 +332,24 @@
 }
 .book-detail__chapters {
   max-height: 600px;
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+}
+
+/* Tab 切换过渡 */
+.book-detail__tabs [role="tabpanel"] {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+}
+
+/* 章节列表项交互 */
+.book-detail__chapter-item {
+  transition: background var(--dur-fast) var(--ease-standard);
+  border-radius: var(--radius-sm);
+}
+.book-detail__chapter-item:hover {
+  background: var(--color-bg-subtle);
+}
+.book-detail__chapter-item:active {
+  background: var(--color-border-subtle);
 }
 
 /* ---------- 写评论 ---------- */
@@ -296,7 +394,7 @@
   padding: 0;
   border: none;
   background: transparent;
-  font-size: 22px;
+  font-size: 24px;
   color: var(--color-border-default);
   cursor: pointer;
   transition:
@@ -307,8 +405,11 @@
   color: var(--color-accent-orange);
 }
 .book-detail__star-btn:hover {
-  transform: scale(1.2);
+  transform: scale(1.3);
   color: var(--color-accent-orange);
+}
+.book-detail__star-btn:active {
+  transform: scale(1.1);
 }
 .book-detail__write-comment-input {
   width: 100%;
@@ -321,6 +422,7 @@
   resize: vertical;
   font-family: inherit;
   line-height: 1.6;
+  transition: border-color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
 .book-detail__write-comment-input:focus {
   outline: none;
@@ -340,6 +442,7 @@
   font-size: 13px;
   border-radius: var(--radius-md);
   cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 .book-detail__write-comment-cancel:hover {
   background: var(--color-bg-subtle);
@@ -353,10 +456,15 @@
   font-weight: 500;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: opacity var(--dur-fast) var(--ease-standard);
+  transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
 .book-detail__write-comment-submit:hover:not(:disabled) {
   opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px var(--color-brand-glow-30);
+}
+.book-detail__write-comment-submit:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
 }
 .book-detail__write-comment-submit:disabled {
   opacity: 0.5;
@@ -372,9 +480,23 @@
 .book-detail__comment {
   padding: var(--space-4) 0;
   border-bottom: 1px solid var(--color-border-subtle);
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+  transition: background var(--dur-fast) var(--ease-standard);
+  border-radius: var(--radius-sm);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
 }
+.book-detail__comment:nth-child(1) { animation-delay: 0ms; }
+.book-detail__comment:nth-child(2) { animation-delay: 50ms; }
+.book-detail__comment:nth-child(3) { animation-delay: 100ms; }
+.book-detail__comment:nth-child(4) { animation-delay: 150ms; }
+.book-detail__comment:nth-child(5) { animation-delay: 200ms; }
+.book-detail__comment:nth-child(n+6) { animation-delay: 250ms; }
 .book-detail__comment:last-child {
   border-bottom: none;
+}
+.book-detail__comment:hover {
+  background: var(--color-bg-subtle);
 }
 .book-detail__comment-header {
   display: flex;
@@ -388,6 +510,10 @@
   border-radius: var(--radius-full);
   object-fit: cover;
   flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+.book-detail__comment:hover .book-detail__comment-avatar {
+  transform: scale(1.05);
 }
 .book-detail__comment-avatar--sm {
   width: 28px;
@@ -440,13 +566,13 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-1) var(--space-3);
   border: none;
   background: transparent;
   color: var(--color-text-tertiary);
   font-size: 13px;
   cursor: pointer;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   transition:
     transform var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard),
@@ -454,13 +580,14 @@
 }
 .book-detail__comment-like:hover {
   color: var(--color-rose);
-  background: var(--color-bg-subtle);
+  background: var(--color-rose-bg);
 }
 .book-detail__comment-like:active {
   transform: scale(0.85);
 }
 .book-detail__comment-like.is-liked {
   color: var(--color-rose);
+  animation: breatheGlow 2s infinite;
 }
 .book-detail__replies {
   list-style: none;
@@ -519,7 +646,10 @@
     box-shadow: var(--sh-5);
   }
   .book-detail__stat-value {
-    font-size: 24px;
+    font-size: 28px;
+  }
+  .book-detail__stats {
+    gap: var(--space-10);
   }
   .book-detail__related-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -529,5 +659,21 @@
 @media (min-width: 1280px) {
   .book-detail__related-grid {
     grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ---------- 减弱动效适配 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .book-detail,
+  .book-detail__hero,
+  .book-detail__chapters,
+  .book-detail__comment,
+  .book-detail__tabs [role="tabpanel"],
+  .book-detail__read-btn,
+  .book-detail__last-read,
+  .book-detail__comment-like,
+  .book-detail__write-comment-submit {
+    animation: none;
+    transition: none;
   }
 }

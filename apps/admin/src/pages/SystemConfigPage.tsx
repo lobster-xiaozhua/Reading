@@ -10,7 +10,7 @@ import {
   Tag,
   Typography,
   Input,
-  Select,
+  Radio,
   App,
 } from "antd";
 import {
@@ -28,6 +28,7 @@ import {
 } from "@/api/sensitive-api";
 import type { SensitiveWordLibMeta } from "@/api/sensitive-api";
 import { BPageHeader } from "@novel/b-end";
+import "./SystemConfigPage.css";
 
 const { Text } = Typography;
 
@@ -155,7 +156,7 @@ export default function SystemConfigPage() {
   ];
 
   return (
-    <div>
+    <div className="system-config-page">
       <BPageHeader title={t("system:title")} />
       <Space direction="vertical" style={{ width: "100%" }} size="large">
         <Card
@@ -241,19 +242,15 @@ export default function SystemConfigPage() {
           </div>
           <div>
             <Text>{t("system:addModal.level")}</Text>
-            <Select
+            <Radio.Group
               value={newLevel}
-              onChange={setNewLevel}
-              style={{ width: "100%" }}
+              onChange={(e) => setNewLevel(e.target.value as 1 | 2 | 3)}
+              className="filter-checkbox-group is-vertical"
             >
-              <Select.Option value={1}>
-                {t("system:level.strict")}
-              </Select.Option>
-              <Select.Option value={2}>
-                {t("system:level.warning")}
-              </Select.Option>
-              <Select.Option value={3}>{t("system:level.hint")}</Select.Option>
-            </Select>
+              <Radio value={1}>{t("system:level.strict")}</Radio>
+              <Radio value={2}>{t("system:level.warning")}</Radio>
+              <Radio value={3}>{t("system:level.hint")}</Radio>
+            </Radio.Group>
           </div>
           <div>
             <Text>{t("system:addModal.suggestion")}</Text>

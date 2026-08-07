@@ -5,7 +5,7 @@ import time
 from sqlalchemy import select
 
 from app.models.royalty import RoyaltyDetail
-from app.repositories.base import BaseRepository
+from app.repositories.base import BaseRepository, split_csv
 
 
 class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
@@ -23,9 +23,9 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         """B 端分页查询稿费记录，按月/状态/作者筛选。"""
         stmt = select(RoyaltyDetail)
         if month:
-            stmt = stmt.where(RoyaltyDetail.month == month)
+            stmt = stmt.where(RoyaltyDetail.month.in_(split_csv(month)))
         if status and status != "all":
-            stmt = stmt.where(RoyaltyDetail.status == status)
+            stmt = stmt.where(RoyaltyDetail.status.in_(split_csv(status)))
         stmt = stmt.order_by(RoyaltyDetail.created_at.desc())
         return await self.paginate(stmt, page, page_size)
 

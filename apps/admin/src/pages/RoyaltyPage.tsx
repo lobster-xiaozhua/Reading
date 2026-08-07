@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, Row, Col, Select, Button, Space, App } from "antd";
+import { Card, Row, Col, Checkbox, Button, Space, App } from "antd";
 import { BPageHeader, BRoyaltyDetail, SettlementFlow } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
 import type { RoyaltyDetailRow } from "@novel/b-end";
@@ -11,7 +11,7 @@ import {
   SETTLEMENT_STATUS_LABEL,
 } from "@/api/royalty-api";
 import type { RoyaltyDetail, RoyaltyStats } from "@/api/royalty-api";
-import type { SettlementStatus } from "@novel/types";
+import "./RoyaltyPage.css";
 
 function formatAmount(n: number): string {
   return n.toLocaleString("zh-CN");
@@ -26,10 +26,8 @@ export default function RoyaltyPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [filterMonth, setFilterMonth] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<SettlementStatus | "all">(
-    "all",
-  );
+  const [filterMonth, setFilterMonth] = useState<string[]>([]);
+  const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const monthOptions = Array.from({ length: 6 }).map((_, i) => {
@@ -43,8 +41,8 @@ export default function RoyaltyPage() {
     setLoading(true);
     try {
       const res = await fetchRoyaltyList({
-        month: filterMonth || undefined,
-        status: filterStatus,
+        month: filterMonth.length > 0 ? filterMonth.join(",") : undefined,
+        status: filterStatus.length > 0 ? filterStatus.join(",") : "all",
         page,
         pageSize,
       });
@@ -154,7 +152,7 @@ export default function RoyaltyPage() {
   };
 
   return (
-    <div>
+    <div className="royalty-page">
       <BPageHeader title={t("royalty:title")} breadcrumb={breadcrumb} />
 
       <Card
@@ -207,35 +205,39 @@ export default function RoyaltyPage() {
         title={t("royalty:detail")}
         size="small"
         extra={
-          <Space>
-            <Select
-              placeholder={t("royalty:month")}
-              allowClear
-              style={{ width: 140 }}
-              value={filterMonth || undefined}
+          <Space wrap>
+            <Checkbox.Group
+              value={filterMonth}
               onChange={(v) => {
-                setFilterMonth(v ?? "");
+                setFilterMonth(v as string[]);
                 setPage(1);
               }}
-              options={monthOptions}
-            />
-            <Select
-              placeholder={t("royalty:status")}
-              allowClear
-              style={{ width: 120 }}
-              value={filterStatus === "all" ? undefined : filterStatus}
+              className="filter-checkbox-group"
+            >
+              {monthOptions.map((m) => (
+                <Checkbox key={m.value} value={m.value}>
+                  {m.label}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
+            <Checkbox.Group
+              value={filterStatus}
               onChange={(v) => {
-                setFilterStatus((v as SettlementStatus) ?? "all");
+                setFilterStatus(v as string[]);
                 setPage(1);
               }}
-              options={Object.entries(SETTLEMENT_STATUS_LABEL).map(
-                ([k, v]) => ({ label: v.text, value: k }),
-              )}
-            />
+              className="filter-checkbox-group"
+            >
+              {Object.entries(SETTLEMENT_STATUS_LABEL).map(([k, v]) => (
+                <Checkbox key={k} value={k}>
+                  {v.text}
+                </Checkbox>
+              ))}
+            </Checkbox.Group>
             <Button
               onClick={() => {
-                setFilterMonth("");
-                setFilterStatus("all");
+                setFilterMonth([]);
+                setFilterStatus([]);
                 setPage(1);
               }}
             >

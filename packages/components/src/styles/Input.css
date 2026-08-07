@@ -115,3 +115,49 @@
 .novel-input.is-disabled:hover {
   border-color: var(--color-border-subtle);
 }
+.novel-input.is-disabled .novel-input__input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+/* ---------- 细节边缘 ---------- */
+
+/* 浏览器自动填充：修复黄底背景（WebKit 无 hover 选择器方案） */
+.novel-input__input:-webkit-autofill,
+.novel-input__input:-webkit-autofill:hover,
+.novel-input__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg-surface) inset;
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: var(--color-brand);
+}
+[data-theme='dark'] .novel-input__input:-webkit-autofill,
+[data-theme='dark'] .novel-input__input:-webkit-autofill:hover,
+[data-theme='dark'] .novel-input__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg-surface) inset;
+}
+
+/* type=number：隐藏原生上下 spinner，保持视觉统一 */
+.novel-input__input::-webkit-outer-spin-button,
+.novel-input__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.novel-input__input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* type=date / time / month：暗色下修复原生控件图标对比度 */
+.novel-input__input[type='date'],
+.novel-input__input[type='time'],
+.novel-input__input[type='month'],
+.novel-input__input[type='datetime-local'] {
+  color-scheme: light;
+}
+[data-theme='dark'] .novel-input__input[type='date'],
+[data-theme='dark'] .novel-input__input[type='time'],
+[data-theme='dark'] .novel-input__input[type='month'],
+[data-theme='dark'] .novel-input__input[type='datetime-local'] {
+  color-scheme: dark;
+}

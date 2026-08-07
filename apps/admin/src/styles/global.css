@@ -141,3 +141,142 @@ textarea:focus-visible,
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
+
+/* ============================================================
+ * 细节边缘体验 · Edge Cases（B 端）
+ * ============================================================ */
+
+/* ---------- 长文本换行：URL/长英文单词不撑破布局 ---------- */
+.ant-typography,
+.ant-card,
+.ant-table-cell,
+.ant-descriptions-item-content {
+  overflow-wrap: break-word;
+}
+
+/* ---------- 数字输入 spinner 隐藏（全局兜底） ---------- */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---------- 深色模式：AntD 输入框自动填充修复 ---------- */
+.ant-input:-webkit-autofill,
+.ant-input:-webkit-autofill:hover,
+.ant-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg-surface) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+[data-theme='dark'] .ant-input:-webkit-autofill,
+[data-theme='dark'] .ant-input:-webkit-autofill:hover,
+[data-theme='dark'] .ant-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-text-primary);
+  -webkit-box-shadow: 0 0 0 1000px var(--color-bg-surface) inset;
+}
+
+/* ---------- AntD 表格行 hover 细节 ---------- */
+.ant-table-tbody > tr:hover > td {
+  background: var(--color-brand-bg) !important;
+}
+
+/* 状态 Tag 在行 hover 时轻微放大反馈 */
+.ant-table-tbody > tr:hover .ant-tag {
+  transition: transform var(--dur-fast) var(--ease-standard);
+  transform: scale(1.05);
+}
+
+/* ---------- 触屏 hover 粘滞修复 ---------- */
+@media (hover: none) {
+  .ant-card:hover,
+  .ant-table-tbody > tr:hover > td {
+    box-shadow: none;
+    transform: none;
+    background: inherit !important;
+  }
+}
+
+/* ---------- 桌面滚动条美化 ---------- */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-strong);
+    background-clip: padding-box;
+  }
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-default) transparent;
+  }
+}
+
+/* ---------- 深色模式：过亮图片降噪（B 端截图/封面） ---------- */
+[data-theme='dark'] img {
+  filter: brightness(0.92) contrast(1.05);
+}
+
+/* ---------- 表格空数据状态：柔和留白 ---------- */
+.ant-table-placeholder .ant-empty {
+  margin-block: var(--space-16);
+}
+
+/* ---------- AntD 卡片标题数字等宽 ---------- */
+.ant-statistic-content {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 选中文本高亮（与主题一致） ---------- */
+::selection {
+  background: var(--color-brand-bg);
+  color: var(--color-brand-active);
+}
+
+/* ---------- 移动端长按高亮透明 ---------- */
+.ant-btn,
+.ant-tag {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 分页边界：末页无更多时不显示禁用态灰块干扰 ---------- */
+.ant-pagination-disabled {
+  opacity: 0.45;
+}
+
+/* ---------- 筛选复选框组：细致分类横向排列，超出自动换行 ---------- */
+.filter-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  max-width: 560px;
+}
+.filter-checkbox-group .ant-checkbox-wrapper {
+  margin-inline-end: 0;
+}
+
+/* 子页面（弹窗/抽屉/内嵌面板）纵向排列 */
+.filter-checkbox-group.is-vertical {
+  flex-direction: column;
+  gap: var(--space-2);
+  max-width: none;
+}
+
+/* 选项较多的横向排列场景，放开宽度限制 */
+.filter-checkbox-group.is-wide {
+  max-width: none;
+}

@@ -1,0 +1,195 @@
+/* ============================================================
+ * NovelListPage 样式
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 表格行 staggered 进入 */
+.ant-table-row {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.ant-table-row:nth-child(1) { animation-delay: 0ms; }
+.ant-table-row:nth-child(2) { animation-delay: 50ms; }
+.ant-table-row:nth-child(3) { animation-delay: 100ms; }
+.ant-table-row:nth-child(4) { animation-delay: 150ms; }
+.ant-table-row:nth-child(5) { animation-delay: 200ms; }
+.ant-table-row:nth-child(n+6) { animation-delay: 250ms; }
+
+/* 表格行 hover 增强 */
+.ant-table-row:hover {
+  background: var(--color-brand-bg) !important;
+  box-shadow: 0 1px 4px var(--color-brand-bg);
+}
+
+/* 表格单元格交互 */
+.ant-table-cell {
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+/* 状态标签悬浮效果 */
+.ant-table-row:hover .ant-tag {
+  transform: scale(1.05);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+/* 操作按钮增强 */
+.ant-table-row .action-btn {
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.ant-table-row:hover .action-btn {
+  opacity: 1;
+}
+
+.action-btn:hover {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.action-btn--danger:hover {
+  background: var(--color-feedback-error-bg);
+  color: var(--color-feedback-error);
+}
+
+/* 封面图片悬浮 */
+.novel-cover-thumb {
+  border-radius: var(--radius-sm);
+  transition:
+    transform var(--dur-slow) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+  cursor: pointer;
+}
+
+.ant-table-row:hover .novel-cover-thumb {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px var(--color-shadow-soft-15);
+}
+
+/* 进度条悬浮提示 */
+.novel-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.novel-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: relative;
+}
+
+.novel-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
+  border-radius: var(--radius-full);
+  transition: width var(--dur-normal) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+}
+
+/*  shimmer 效果 */
+.novel-progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-20) 50%,
+    transparent 100%
+  );
+  animation: shimmerSweep 3s infinite;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 搜索框增强 */
+.novel-search-input {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.novel-search-input:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+}
+
+/* 筛选器增强 */
+.novel-filter-select {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.novel-filter-select:hover {
+  border-color: var(--color-brand-border);
+}
+
+/* 分页增强 */
+.ant-pagination-item {
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.ant-pagination-item:hover {
+  transform: scale(1.1);
+  border-color: var(--color-brand);
+}
+
+.ant-pagination-item-active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .ant-table-row,
+  .novel-cover-thumb,
+  .action-btn,
+  .ant-tag,
+  .ant-pagination-item {
+    animation: none;
+    transition: none;
+  }
+}

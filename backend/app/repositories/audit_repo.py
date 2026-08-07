@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import func, select
 
 from app.models.audit import AuditHistory, AuditRecord, SensitiveWord
-from app.repositories.base import BaseRepository
+from app.repositories.base import BaseRepository, split_csv
 
 
 class AuditRepository(BaseRepository[AuditRecord]):
@@ -18,7 +18,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
         """分页查询待审核队列，可按级别筛选。"""
         stmt = select(AuditRecord).where(AuditRecord.status == "pending")
         if level and level != "all":
-            stmt = stmt.where(AuditRecord.level == level)
+            stmt = stmt.where(AuditRecord.level.in_(split_csv(level)))
         stmt = stmt.order_by(AuditRecord.submitted_at.desc())
         return await self.paginate(stmt, page, page_size)
 
@@ -59,7 +59,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
         """获取审核统计：待审核数/今日处理数/按级别分布。"""
         base = select(AuditRecord).where(AuditRecord.status == "pending")
         if level != "all":
-            base = base.where(AuditRecord.level == level)
+            base = base.where(AuditRecord.level.in_(split_csv(level)))
         pending = (
             await self.session.execute(select(func.count()).select_from(base.subquery()))
         ).scalar_one()

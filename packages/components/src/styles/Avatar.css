@@ -45,4 +45,39 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  /* 图片加载完成前保持占位背景，避免破图/白闪 */
+  background: var(--color-bg-subtle);
+}
+
+/* ---------- 细节边缘 ---------- */
+
+/* 图片加载失败时隐藏破损图占位（配合组件 onError 逻辑切换到文字回退） */
+.novel-avatar__img.is-error {
+  display: none;
+}
+
+.novel-avatar__fallback-text {
+  font-size: 0.45em;
+  color: var(--color-brand);
+  max-width: 80%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 4px;
+}
+
+/* 图片淡入：避免加载完成瞬间突兀 */
+.novel-avatar__img.is-loaded {
+  animation: novel-avatar-fade-in var(--dur-fast) var(--ease-decelerate);
+}
+
+@keyframes novel-avatar-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-avatar__img.is-loaded {
+    animation: none;
+  }
 }

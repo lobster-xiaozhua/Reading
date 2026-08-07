@@ -319,3 +319,137 @@ textarea:focus-visible,
   clip: auto;
   white-space: normal;
 }
+
+/* ============================================================
+ * 细节边缘体验 · Edge Cases
+ * ============================================================ */
+
+/* ---------- 长文本换行：URL/长英文单词不撑破布局 ---------- */
+p,
+li,
+dd,
+blockquote {
+  overflow-wrap: break-word;
+}
+
+/* ---------- 图片边缘 ---------- */
+/* 加载中的图片保持占位背景，避免白闪 */
+img {
+  background-color: var(--color-bg-subtle);
+}
+/* 深色模式下降低过亮图片的刺眼感 */
+[data-theme='dark'] img {
+  filter: brightness(0.9) contrast(1.05);
+}
+[data-theme='dark'] img.novel-img--full-bright {
+  filter: none;
+}
+/* 加载失败：显示 alt 文字（居中灰色） */
+img[alt]:not([alt='']) {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  object-fit: contain;
+  padding: var(--space-1);
+}
+
+/* ---------- 触屏 hover 粘滞修复 ---------- */
+/* 触屏设备上取消 hover 悬浮效果，避免点击后状态残留 */
+@media (hover: none) {
+  .card-hover:hover,
+  .hover-rise:hover,
+  .row-hover:hover {
+    transform: none;
+    box-shadow: none;
+    background: none;
+  }
+}
+
+/* ---------- iOS 橡皮筋 / 过度滚动控制 ---------- */
+html,
+body {
+  overscroll-behavior-y: none;
+}
+.novel-reader__content {
+  overscroll-behavior-y: contain;
+}
+
+/* ---------- 滚动锚定：sticky 顶栏不遮挡锚点目标 ---------- */
+[id] {
+  scroll-margin-top: calc(var(--reader-toolbar-height, 56px) + var(--space-4));
+}
+
+/* ---------- 文本渲染优化 ---------- */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 数字输入 spinner 隐藏（全局兜底） ---------- */
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+/* ---------- 搜索框清除按钮（WebKit 原生） ---------- */
+input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ---------- 表单禁用 placeholder ---------- */
+input:disabled::placeholder,
+textarea:disabled::placeholder {
+  color: var(--color-text-disabled);
+}
+
+/* ---------- 移动端文本选择菜单 / 长按 ---------- */
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+img {
+  -webkit-user-drag: none;
+}
+
+/* ---------- 页面滚动条美化（桌面） ---------- */
+@media (hover: hover) and (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-default);
+    border-radius: var(--radius-full);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-strong);
+    background-clip: padding-box;
+  }
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-default) transparent;
+  }
+}
+
+/* ---------- 平滑滚动（仅非减弱动效） ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* ---------- 隐藏滚动条的横向滚动容器 ---------- */
+.scroll-x {
+  scrollbar-width: none;
+}

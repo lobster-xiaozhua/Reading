@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Form,
   Input,
-  Select,
+  Checkbox,
   Radio,
   Switch,
   InputNumber,
@@ -25,6 +25,7 @@ import {
 } from "@/api/novel-api";
 import type { NovelFormValues } from "@/api/novel-api";
 import { http } from "@/api/http";
+import "./NovelFormPage.css";
 
 const { TextArea } = Input;
 
@@ -154,9 +155,12 @@ export default function NovelFormPage() {
 
   const handleDraft = async () => {
     const values = form.getFieldsValue();
-    values.status = "draft" as BNovelStatus;
-    values.id = novelId;
-    await submitNovel(values as NovelFormValues);
+    const draftValues: NovelFormValues = {
+      ...values,
+      status: "draft" as BNovelStatus,
+      id: novelId,
+    };
+    await submitNovel(draftValues);
     message.success(t("novelForm:message.saved"));
   };
 
@@ -171,13 +175,16 @@ export default function NovelFormPage() {
       message.error(t("novelForm:message.imageTooLarge"));
       return Upload.LIST_IGNORE;
     }
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const dataUrl = e.target?.result as string;
-      form.setFieldValue("cover", dataUrl);
-    };
-    reader.readAsDataURL(file);
-    return false;
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        form.setFieldValue("cover", dataUrl);
+        resolve(dataUrl);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   return (
@@ -244,18 +251,22 @@ export default function NovelFormPage() {
             { required: true, message: t("novelForm:field.categoryRequired") },
           ]}
         >
-          <Select
-            options={CATEGORY_OPTIONS}
-            placeholder={t("novelForm:field.categoryPlaceholder")}
-          />
+          <Radio.Group className="filter-checkbox-group">
+            {CATEGORY_OPTIONS.map((c) => (
+              <Radio key={c.value} value={c.value}>
+                {c.label}
+              </Radio>
+            ))}
+          </Radio.Group>
         </Form.Item>
 
         <Form.Item name="tags" label={t("novelForm:field.tags")}>
-          <Select
-            mode="tags"
-            placeholder={t("novelForm:field.tagsPlaceholder")}
-            tokenSeparators={[","]}
-            options={TAG_SUGGESTIONS.map((tag) => ({ value: tag, label: tag }))}
+          <Checkbox.Group
+            className="filter-checkbox-group is-wide"
+            options={TAG_SUGGESTIONS.map((tag) => ({
+              label: tag,
+              value: tag,
+            }))}
           />
         </Form.Item>
 

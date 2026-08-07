@@ -9,7 +9,7 @@ import {
   Input,
   App,
   Modal,
-  Select,
+  Checkbox,
 } from "antd";
 import type { TableColumnsType } from "antd";
 import {
@@ -20,6 +20,7 @@ import {
 import { useAuthStore } from "@/stores/authStore";
 import { http } from "@/api/http";
 import { BPageHeader } from "@novel/b-end";
+import "./UserListPage.css";
 
 const { confirm } = Modal;
 
@@ -51,7 +52,7 @@ export default function UserListPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [searchKey, setSearchKey] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState<string[]>([]);
 
   const loadData = useCallback(
     async (targetPage?: number) => {
@@ -62,7 +63,7 @@ export default function UserListPage() {
           page: p,
           page_size: pageSize,
           search_key: searchKey,
-          role: roleFilter === "all" ? undefined : roleFilter,
+          role: roleFilter.length > 0 ? roleFilter.join(",") : undefined,
         });
         setData(res.items ?? []);
         setTotal(res.total ?? 0);
@@ -160,7 +161,7 @@ export default function UserListPage() {
 ], [t, hasPermission, handleBan]);
 
   return (
-    <div>
+    <div className="user-list-page">
       <BPageHeader title={t("user:title")} />
       <Card>
         <Space
@@ -183,19 +184,17 @@ export default function UserListPage() {
               style={{ width: 240 }}
               allowClear
             />
-            <Select
+            <Checkbox.Group
               value={roleFilter}
-              onChange={setRoleFilter}
-              style={{ width: 120 }}
+              onChange={(v) => {
+                setRoleFilter(v as string[]);
+                setPage(1);
+              }}
+              className="filter-checkbox-group"
             >
-              <Select.Option value="all">{t("user:filterAll")}</Select.Option>
-              <Select.Option value="reader">
-                {t("user:filterReader")}
-              </Select.Option>
-              <Select.Option value="author">
-                {t("user:filterAuthor")}
-              </Select.Option>
-            </Select>
+              <Checkbox value="reader">{t("user:filterReader")}</Checkbox>
+              <Checkbox value="author">{t("user:filterAuthor")}</Checkbox>
+            </Checkbox.Group>
             <Button icon={<ReloadOutlined />} onClick={() => loadData()}>
               {t("common:refresh")}
             </Button>

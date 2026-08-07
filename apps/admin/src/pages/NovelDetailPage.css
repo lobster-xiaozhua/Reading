@@ -1,0 +1,64 @@
+/* ============================================================
+ * NovelDetailPage 样式
+ * ============================================================ */
+
+/* 页面级动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 页面容器 */
+.novel-detail-page {
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+}
+
+/* 工作流步骤进入 */
+.novel-detail-page .ant-steps-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.novel-detail-page .ant-steps-item:nth-child(1) { animation-delay: 100ms; }
+.novel-detail-page .ant-steps-item:nth-child(2) { animation-delay: 200ms; }
+.novel-detail-page .ant-steps-item:nth-child(3) { animation-delay: 300ms; }
+
+/* 统计信息进入 */
+.novel-detail-page .ant-descriptions-item {
+  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+/* 卡片 staggered 进入 */
+.novel-detail-page .ant-card {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate) both;
+}
+
+.novel-detail-page .ant-card:nth-child(1) { animation-delay: 100ms; }
+.novel-detail-page .ant-card:nth-child(2) { animation-delay: 250ms; }
+.novel-detail-page .ant-card:nth-child(3) { animation-delay: 400ms; }
+
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .novel-detail-page,
+  .novel-detail-page .ant-steps-item,
+  .novel-detail-page .ant-descriptions-item,
+  .novel-detail-page .ant-card {
+    animation: none;
+  }
+}

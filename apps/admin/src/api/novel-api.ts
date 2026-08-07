@@ -12,8 +12,10 @@ export interface NovelListParams {
   page: number;
   pageSize: number;
   searchKey?: string;
-  status?: BNovelStatus | "all";
-  category?: string | "all";
+  /** 逗号分隔的多选状态，空串/未传表示全部 */
+  status?: string;
+  /** 逗号分隔的多选分类，空串/未传表示全部 */
+  category?: string;
   dateRange?: [number, number] | null;
 }
 

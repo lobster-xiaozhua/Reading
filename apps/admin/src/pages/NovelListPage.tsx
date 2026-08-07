@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Tag, Dropdown, Button, Space, App, Tooltip } from "antd";
+import { Tag, Dropdown, Button, Space, App, Tooltip, Checkbox } from "antd";
 import type { TableColumnsType } from "antd";
 import {
   EditOutlined,
@@ -46,8 +46,8 @@ export default function NovelListPage() {
 
   const [status, setStatus] = useState<ListPageStatus>("loading");
   const [searchKey, setSearchKey] = useState("");
-  const [filterStatus, setFilterStatus] = useState<BNovelStatus | "all">("all");
-  const [filterCategory, setFilterCategory] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [advancedValues, setAdvancedValues] = useState<Record<string, unknown>>(
     {},
   );
@@ -69,14 +69,14 @@ export default function NovelListPage() {
         page,
         pageSize,
         searchKey,
-        status: filterStatus,
-        category: filterCategory,
+        status: filterStatus.length > 0 ? filterStatus.join(",") : "all",
+        category: filterCategory.length > 0 ? filterCategory.join(",") : "all",
       });
       setDataSource(res.list);
       setTotal(res.total);
       setStatus(
         res.list.length === 0
-          ? searchKey || filterStatus !== "all" || filterCategory !== "all"
+          ? searchKey || filterStatus.length > 0 || filterCategory.length > 0
             ? "no-search-result"
             : "empty"
           : "idle",
@@ -97,8 +97,8 @@ export default function NovelListPage() {
 
   const handleReset = () => {
     setSearchKey("");
-    setFilterStatus("all");
-    setFilterCategory("all");
+    setFilterStatus([]);
+    setFilterCategory([]);
     setAdvancedValues({});
     setPage(1);
   };
@@ -387,50 +387,40 @@ export default function NovelListPage() {
       name: "status",
       label: t("novel:filter.status"),
       control: (
-        <select
+        <Checkbox.Group
           value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value as BNovelStatus | "all");
+          onChange={(v) => {
+            setFilterStatus(v as string[]);
             setPage(1);
           }}
-          style={{
-            height: 32,
-            borderRadius: "var(--radius-md, 8px)",
-            border: "1px solid var(--color-border)",
-            padding: "0 var(--space-2)",
-          }}
+          className="filter-checkbox-group"
         >
-          {NOVEL_STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>
+          {NOVEL_STATUS_OPTIONS.filter((o) => o.value !== "all").map((o) => (
+            <Checkbox key={o.value} value={o.value}>
               {o.label}
-            </option>
+            </Checkbox>
           ))}
-        </select>
+        </Checkbox.Group>
       ),
     },
     {
       name: "category",
       label: t("novel:filter.category"),
       control: (
-        <select
+        <Checkbox.Group
           value={filterCategory}
-          onChange={(e) => {
-            setFilterCategory(e.target.value);
+          onChange={(v) => {
+            setFilterCategory(v as string[]);
             setPage(1);
           }}
-          style={{
-            height: 32,
-            borderRadius: "var(--radius-md, 8px)",
-            border: "1px solid var(--color-border)",
-            padding: "0 var(--space-2)",
-          }}
+          className="filter-checkbox-group"
         >
-          {NOVEL_CATEGORIES.map((c) => (
-            <option key={c.value} value={c.value}>
+          {NOVEL_CATEGORIES.filter((c) => c.value !== "all").map((c) => (
+            <Checkbox key={c.value} value={c.value}>
               {c.label}
-            </option>
+            </Checkbox>
           ))}
-        </select>
+        </Checkbox.Group>
       ),
     },
   ];

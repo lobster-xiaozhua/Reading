@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/authStore";
 import type { LoginCredentials } from "@/api/types";
+import "./LoginPage.css";
 
 const { Title, Text } = Typography;
 
@@ -172,6 +173,7 @@ export default function LoginPage() {
             {DEMO_ACCOUNTS.map((acc) => (
               <div
                 key={acc.label}
+                className="demo-account-item"
                 style={{
                   display: "flex",
                   alignItems: "center",

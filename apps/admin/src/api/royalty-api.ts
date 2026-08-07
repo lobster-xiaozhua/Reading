@@ -157,8 +157,10 @@ interface BackendRoyaltyList {
 }
 
 export interface RoyaltyListParams {
+  /** 逗号分隔的多选月份 */
   month?: string;
-  status?: SettlementStatus | "all";
+  /** 逗号分隔的多选状态，空串/未传表示全部 */
+  status?: string;
   author?: string;
   page?: number;
   pageSize?: number;

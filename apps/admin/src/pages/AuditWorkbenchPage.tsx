@@ -6,7 +6,8 @@ import {
   List,
   Tag,
   Input,
-  Select,
+  Checkbox,
+  Radio,
   Button,
   Space,
   Empty,
@@ -17,7 +18,7 @@ import {
   App,
   Badge,
 } from "antd";
-import type { AuditLevel, AuditResult, RejectReason } from "@novel/types";
+import type { AuditResult, RejectReason } from "@novel/types";
 import { BPageHeader } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
 import { useAuthStore } from "@/stores/authStore";
@@ -51,7 +52,7 @@ export default function AuditWorkbenchPage() {
 
   const [status, setStatus] = useState<PageStatus>("loading");
   const [queue, setQueue] = useState<AuditItem[]>([]);
-  const [filterLevel, setFilterLevel] = useState<AuditLevel | "all">("all");
+  const [filterLevel, setFilterLevel] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [history, setHistory] = useState<AuditHistoryEntry[]>([]);
   const [content, setContent] = useState("");
@@ -72,7 +73,9 @@ export default function AuditWorkbenchPage() {
   const loadData = useCallback(async () => {
     setStatus("loading");
     try {
-      const { list, stats } = await fetchAuditQueue(filterLevel);
+      const { list, stats } = await fetchAuditQueue(
+        filterLevel.length > 0 ? filterLevel.join(",") : "all",
+      );
       setQueue(list);
       setPendingCount(stats.pendingCount);
       setTodayProcessed(stats.todayProcessed);
@@ -255,13 +258,15 @@ export default function AuditWorkbenchPage() {
           <Card
             title={t("audit:leftPanel")}
             extra={
-              <Select
+              <Checkbox.Group
                 value={filterLevel}
                 onChange={(v) => {
-                  setFilterLevel(v);
+                  setFilterLevel(v as string[]);
                 }}
-                options={AUDIT_LEVEL_OPTIONS}
-                className="awb-sidebar-filter"
+                options={AUDIT_LEVEL_OPTIONS.filter(
+                  (o) => o.value !== "all",
+                ).map((o) => ({ label: o.label, value: o.value }))}
+                className="filter-checkbox-group awb-sidebar-filter"
               />
             }
             className="awb-sidebar"
@@ -451,16 +456,17 @@ export default function AuditWorkbenchPage() {
                       <label className="awb-operation-label">
                         {t("audit:operation.rejectReasonLabel")}
                       </label>
-                      <Select
+                      <Radio.Group
                         value={rejectReason}
-                        onChange={setRejectReason}
-                        options={REJECT_REASON_OPTIONS}
-                        placeholder={t(
-                          "audit:operation.rejectReasonPlaceholder",
-                        )}
-                        className="awb-reject-reason"
-                        allowClear
-                      />
+                        onChange={(e) => setRejectReason(e.target.value)}
+                        className="filter-checkbox-group is-vertical"
+                      >
+                        {REJECT_REASON_OPTIONS.map((o) => (
+                          <Radio key={o.value} value={o.value}>
+                            {o.label}
+                          </Radio>
+                        ))}
+                      </Radio.Group>
                     </div>
                     <TextArea
                       value={comment}

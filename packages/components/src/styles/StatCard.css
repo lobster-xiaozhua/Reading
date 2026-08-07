@@ -1,0 +1,69 @@
+/* ============================================================
+ * StatCard · 统计卡片样式
+ * ============================================================ */
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-card__value {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-accent-orange);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.stat-card__value--mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card__label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
+/* ---------- 细节边缘 ---------- */
+
+/* 数值渐变过渡：数据刷新时平滑，避免数字跳变生硬 */
+.stat-card__value {
+  transition: opacity var(--dur-normal) var(--ease-standard);
+}
+.stat-card__value.is-updating {
+  opacity: 0.4;
+}
+
+/* 长数值：收紧字距保持一行可读 */
+.stat-card__value--mono {
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.02em;
+}
+
+/* 进入动画 */
+.stat-card.is-enter {
+  animation: stat-card-enter var(--dur-normal) var(--ease-decelerate) both;
+}
+
+@keyframes stat-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-card.is-enter {
+    animation: none;
+  }
+  .stat-card__value {
+    transition: none;
+  }
+}

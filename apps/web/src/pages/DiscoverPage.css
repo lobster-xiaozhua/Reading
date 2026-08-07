@@ -1,6 +1,43 @@
+/* ============================================================
+ * DiscoverPage · 发现页样式
+ * ============================================================ */
+
+/* ---------- 页面级淡入 ---------- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 光泽扫过动画 */
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 脉冲呼吸动画 */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 var(--color-brand-glow-30);
+  }
+  50% {
+    box-shadow: 0 0 0 8px var(--color-brand-glow-0);
+  }
+}
+
 .discover-page {
   padding-top: var(--space-6);
   padding-bottom: var(--space-16);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
 }
 
 .discover-page__banner {
@@ -8,12 +45,12 @@
 }
 
 .discover-page__section {
-  margin-bottom: var(--space-12);
+  margin-bottom: var(--space-10);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 
 /* ============================================
  * 编辑精选 - Bento 网格布局
- * 首项占 2 格宽度，打破传统等宽网格
  * ============================================ */
 .discover-page__picks-grid {
   display: grid;
@@ -34,11 +71,38 @@
     transform var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
 }
 .discover-page__pick-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--sh-3);
+  transform: translateY(-4px);
+  box-shadow: var(--sh-4);
   border-color: var(--color-brand);
+}
+.discover-page__pick-card:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+/* 卡片光泽扫过效果 */
+.discover-page__pick-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-10) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+.discover-page__pick-card:hover::after {
+  transform: translateX(100%);
 }
 
 /* Bento 首项：大卡片 */
@@ -65,6 +129,7 @@
   height: 110px;
   border-radius: var(--radius-md);
   overflow: hidden;
+  box-shadow: var(--sh-2);
 }
 .discover-page__pick-cover {
   width: 100%;
@@ -73,7 +138,7 @@
   transition: transform var(--dur-slow) var(--ease-standard);
 }
 .discover-page__pick-card:hover .discover-page__pick-cover {
-  transform: scale(1.05);
+  transform: scale(1.08);
 }
 .discover-page__pick-overlay {
   position: absolute;
@@ -95,6 +160,11 @@
   color: var(--color-text-inverse);
   font-size: var(--font-size-caption);
   font-weight: 500;
+  transform: translateY(4px);
+  transition: transform var(--dur-fast) var(--ease-decelerate);
+}
+.discover-page__pick-card:hover .discover-page__pick-read {
+  transform: translateY(0);
 }
 
 .discover-page__pick-info {
@@ -120,7 +190,7 @@
   margin: 0;
   font-size: var(--font-size-caption);
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -154,7 +224,6 @@
 
 /* ============================================
  * 本周热门 - 横向错落布局
- * 卡片高度交替变化，打破传统等高水平
  * ============================================ */
 .discover-page__hot-scroll {
   display: flex;
@@ -174,8 +243,8 @@
   margin-top: var(--space-6);
 }
 .discover-page__hot-scroll > *:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--sh-3);
+  transform: translateY(-6px);
+  box-shadow: var(--sh-4);
 }
 
 /* ============================================
@@ -203,14 +272,14 @@
   transition: transform var(--dur-fast) var(--ease-standard);
 }
 .discover-page__free-scroll > *:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
 }
 .discover-page__free-scroll-fade {
   position: absolute;
   right: 0;
   top: 0;
   bottom: 0;
-  width: 60px;
+  width: 80px;
   background: linear-gradient(to right, transparent, var(--color-bg-page));
   pointer-events: none;
 }
@@ -227,10 +296,11 @@
   display: inline-block;
   padding: 2px var(--space-3);
   border-radius: var(--radius-sm);
-  background: var(--color-accent-orange-bg);
+  background: linear-gradient(135deg, var(--color-accent-orange-bg), var(--color-accent-orange-bg));
   color: var(--color-accent-orange);
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: 600;
+  animation: pulseGlow 3s infinite;
 }
 
 /* ============================================
@@ -253,16 +323,28 @@
   min-height: 90px;
   transition:
     transform var(--dur-fast) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard);
+    box-shadow var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
 }
 .discover-page__category-item:hover {
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-4px) scale(1.03);
   box-shadow: var(--sh-3);
+  border-color: var(--color-brand);
+  background: var(--color-brand-bg);
+}
+.discover-page__category-item:active {
+  transform: translateY(-2px) scale(1.01);
 }
 .discover-page__category-name {
   font-size: var(--font-size-small);
   font-weight: 600;
   color: var(--color-text-primary);
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.discover-page__category-item:hover .discover-page__category-name {
+  color: var(--color-brand);
 }
 .discover-page__category-count {
   font-size: var(--font-size-overline);
@@ -278,7 +360,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-bottom: 2px solid var(--color-border-subtle);
 }
 .discover-page__rank-tabs {
   display: flex;
@@ -292,10 +374,11 @@
   font-size: var(--font-size-small);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
+  margin-bottom: -2px;
   transition:
     color var(--dur-fast) var(--ease-standard),
     border-color var(--dur-fast) var(--ease-standard);
+  position: relative;
 }
 .discover-page__rank-tab:hover {
   color: var(--color-brand);
@@ -306,7 +389,17 @@
 .discover-page__rank-tab.is-active {
   color: var(--color-brand);
   border-bottom-color: var(--color-brand);
-  font-weight: 500;
+  font-weight: 600;
+}
+.discover-page__rank-tab.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
 }
 .discover-page__rank-more {
   font-size: var(--font-size-caption);
@@ -342,8 +435,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: var(--radius-sm);
   background: var(--color-bg-subtle);
   color: var(--color-text-tertiary);
@@ -354,19 +447,22 @@
   transition: transform var(--dur-fast) var(--ease-standard);
 }
 .discover-page__rank-item:hover .discover-page__rank-num {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 .discover-page__rank-num.is-top-1 {
   background: var(--color-rank-gold-gradient);
   color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--color-rank-gold-shadow);
 }
 .discover-page__rank-num.is-top-2 {
   background: var(--color-rank-silver-gradient);
   color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--color-rank-silver-shadow);
 }
 .discover-page__rank-num.is-top-3 {
   background: var(--color-rank-bronze-gradient);
   color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--color-rank-bronze-shadow);
 }
 .discover-page__rank-info {
   flex: 1;
@@ -395,7 +491,7 @@
 .discover-page__rank-score {
   font-size: var(--font-size-xs);
   color: var(--color-accent-orange);
-  font-weight: 500;
+  font-weight: 600;
   flex-shrink: 0;
 }
 
@@ -437,401 +533,21 @@
   }
 }
 
+/* ============================================
+ * 减弱动效适配
+ * ============================================ */
 @media (prefers-reduced-motion: reduce) {
+  .discover-page,
+  .discover-page__section,
   .discover-page__pick-card,
   .discover-page__pick-cover,
   .discover-page__hot-scroll > *,
   .discover-page__free-scroll > *,
   .discover-page__category-item,
   .discover-page__rank-item,
-  .discover-page__rank-num {
-    transition: none;
-  }
-  .discover-page__pick-card:hover .discover-page__pick-cover {
-    transform: none;
-  }
-}
-
-.discover-page__banner {
-  margin-bottom: var(--space-10);
-}
-
-.discover-page__section {
-  margin-bottom: var(--space-10);
-}
-
-/* ============================================
- * 编辑精选 - 卡片网格
- * ============================================ */
-.discover-page__picks-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-4);
-}
-
-.discover-page__pick-card {
-  display: flex;
-  gap: var(--space-4);
-  padding: var(--space-4);
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  color: var(--color-text-primary);
-  transition:
-    transform var(--transition-smooth),
-    box-shadow var(--transition-smooth),
-    border-color var(--transition-smooth);
-}
-.discover-page__pick-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--sh-3);
-  border-color: var(--color-brand);
-}
-
-.discover-page__pick-cover-wrap {
-  position: relative;
-  flex-shrink: 0;
-  width: 100px;
-  height: 134px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-.discover-page__pick-cover {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--dur-slow) var(--ease-standard);
-}
-.discover-page__pick-card:hover .discover-page__pick-cover {
-  transform: scale(1.05);
-}
-.discover-page__pick-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-overlay-medium);
-  opacity: 0;
-  transition: opacity var(--dur-fast) var(--ease-standard);
-}
-.discover-page__pick-card:hover .discover-page__pick-overlay {
-  opacity: 1;
-}
-.discover-page__pick-read {
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--color-brand);
-  color: var(--color-text-inverse);
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.discover-page__pick-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-.discover-page__pick-title {
-  margin: 0;
-  font-size: 17px;
-  font-weight: 600;
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color var(--transition-smooth);
-}
-.discover-page__pick-card:hover .discover-page__pick-title {
-  color: var(--color-brand);
-}
-.discover-page__pick-intro {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex: 1;
-}
-.discover-page__pick-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-}
-.discover-page__pick-author {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.discover-page__pick-rating {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: auto;
-  color: var(--color-accent-orange);
-  font-weight: 500;
-}
-.discover-page__pick-star {
-  font-size: var(--font-size-small);
-  line-height: 1;
-}
-
-/* ============================================
- * 本周热门 - 横向滚动
- * ============================================ */
-.discover-page__hot-scroll {
-  display: flex;
-  gap: var(--space-3);
-  padding-bottom: var(--space-2);
-}
-.discover-page__hot-scroll > * {
-  flex-shrink: 0;
-  transition:
-    transform var(--transition-smooth),
-    box-shadow var(--transition-smooth);
-}
-.discover-page__hot-scroll > *:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--sh-3);
-}
-
-/* ============================================
- * 限免专区 - 网格
- * ============================================ */
-.discover-page__free-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: var(--space-4);
-}
-.discover-page__free-item {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  transition: transform var(--transition-smooth);
-}
-.discover-page__free-item:hover {
-  transform: translateY(-4px);
-}
-.discover-page__free-meta {
-  display: flex;
-  justify-content: center;
-}
-.discover-page__free-badge {
-  display: inline-block;
-  padding: 2px var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--color-accent-orange-bg);
-  color: var(--color-accent-orange);
-  font-size: var(--font-size-xs);
-  font-weight: 500;
-}
-
-/* ============================================
- * 分类入口 - 紧凑网格
- * ============================================ */
-.discover-page__category-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2);
-}
-.discover-page__category-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--space-3) var(--space-2);
-  border-radius: var(--radius-lg);
-  text-decoration: none;
-  transition:
-    transform var(--transition-smooth),
-    box-shadow var(--transition-smooth);
-}
-.discover-page__category-item:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--sh-2);
-}
-.discover-page__category-name {
-  font-size: var(--font-size-small);
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-.discover-page__category-count {
-  font-size: 11px;
-  color: var(--color-text-tertiary);
-}
-
-/* ============================================
- * 排行榜
- * ============================================ */
-.discover-page__rank-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-.discover-page__rank-tabs {
-  display: flex;
-  gap: var(--space-1);
-}
-.discover-page__rank-tab {
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-small);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition:
-    color var(--transition-smooth),
-    border-color var(--transition-smooth);
-}
-.discover-page__rank-tab:hover {
-  color: var(--color-brand);
-}
-.discover-page__rank-tab:active {
-  opacity: 0.8;
-}
-.discover-page__rank-tab.is-active {
-  color: var(--color-brand);
-  border-bottom-color: var(--color-brand);
-  font-weight: 500;
-}
-.discover-page__rank-more {
-  font-size: 13px;
-  color: var(--color-text-tertiary);
-  text-decoration: none;
-  transition: color var(--transition-smooth);
-}
-.discover-page__rank-more:hover {
-  color: var(--color-brand);
-}
-
-.discover-page__rank-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.discover-page__rank-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-2);
-  border-bottom: 1px solid var(--color-border-subtle);
-  transition: background var(--transition-smooth);
-  border-radius: var(--radius-sm);
-}
-.discover-page__rank-item:last-child {
-  border-bottom: none;
-}
-.discover-page__rank-item:hover {
-  background: var(--color-bg-subtle);
-}
-.discover-page__rank-num {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-tertiary);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 600;
-  flex-shrink: 0;
-  transition: transform var(--transition-smooth);
-}
-.discover-page__rank-item:hover .discover-page__rank-num {
-  transform: scale(1.1);
-}
-.discover-page__rank-num.is-top-1 {
-  background: var(--color-rank-gold-gradient);
-  color: var(--color-text-inverse);
-}
-.discover-page__rank-num.is-top-2 {
-  background: var(--color-rank-silver-gradient);
-  color: var(--color-text-inverse);
-}
-.discover-page__rank-num.is-top-3 {
-  background: var(--color-rank-bronze-gradient);
-  color: var(--color-text-inverse);
-}
-.discover-page__rank-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-decoration: none;
-}
-.discover-page__rank-title {
-  font-size: var(--font-size-small);
-  color: var(--color-text-primary);
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color var(--transition-smooth);
-}
-.discover-page__rank-item:hover .discover-page__rank-title {
-  color: var(--color-brand);
-}
-.discover-page__rank-author {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-}
-.discover-page__rank-score {
-  font-size: var(--font-size-xs);
-  color: var(--color-accent-orange);
-  font-weight: 500;
-  flex-shrink: 0;
-}
-
-/* ============================================
- * 响应式
- * ============================================ */
-@media (min-width: 640px) {
-  .discover-page__picks-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .discover-page__category-grid {
-    grid-template-columns: repeat(5, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
-  .discover-page__picks-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  .discover-page__pick-card {
-    flex-direction: column;
-  }
-  .discover-page__pick-cover-wrap {
-    width: 100%;
-    height: 200px;
-  }
-  .discover-page__category-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .discover-page__pick-card,
-  .discover-page__pick-cover,
-  .discover-page__free-item,
-  .discover-page__category-item,
-  .discover-page__rank-item,
-  .discover-page__rank-num {
+  .discover-page__rank-num,
+  .discover-page__free-badge {
+    animation: none;
     transition: none;
   }
   .discover-page__pick-card:hover .discover-page__pick-cover {
