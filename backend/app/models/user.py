@@ -47,5 +47,6 @@ class Admin(Base, IdMixin, TimestampMixin):
     avatar: Mapped[str] = mapped_column(String(255), default="")
     email: Mapped[str] = mapped_column(String(128), default="")
     password_hash: Mapped[str] = mapped_column(String(128), default="")
+    role_key: Mapped[str] = mapped_column(String(32), default="super-admin", comment="关联 roles 表")
     enabled: Mapped[int] = mapped_column(Integer, default=1)
     last_login_at: Mapped[int] = mapped_column(BigInteger, default=0)

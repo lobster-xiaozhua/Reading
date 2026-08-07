@@ -35,6 +35,7 @@
   padding-bottom: var(--space-8);
   border-bottom: 1px solid var(--color-border-subtle);
   margin-bottom: var(--space-8);
+  position: relative;
 }
 .book-detail__cover {
   position: relative;
@@ -43,7 +44,11 @@
   margin: 0 auto;
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--sh-3);
+  box-shadow: var(--sh-4);
+  transition: transform var(--dur-slow) var(--ease-standard);
+}
+.book-detail__cover:hover {
+  transform: scale(1.02);
 }
 .book-detail__cover img {
   width: 100%;
@@ -56,7 +61,7 @@
   left: var(--space-2);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: var(--font-size-overline);
   font-weight: 600;
   color: var(--color-text-inverse);
 }
@@ -69,12 +74,12 @@
 .book-detail__meta {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 .book-detail__stats {
   display: flex;
-  gap: var(--space-6);
-  padding: var(--space-3) 0;
+  gap: var(--space-8);
+  padding: var(--space-4) 0;
   border-top: 1px solid var(--color-border-subtle);
   border-bottom: 1px solid var(--color-border-subtle);
 }
@@ -85,13 +90,14 @@
 }
 .book-detail__stat-value {
   font-family: var(--font-mono);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--color-accent-orange);
   line-height: 1.2;
+  font-variant-numeric: tabular-nums;
 }
 .book-detail__stat-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
 }
 .book-detail__actions {
@@ -101,37 +107,60 @@
 }
 .book-detail__read-btn {
   min-width: 140px;
+  transition: transform var(--dur-instant) var(--ease-standard);
+}
+.book-detail__read-btn:active {
+  transform: scale(0.97);
 }
 .book-detail__last-read {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  background: var(--color-brand-bg);
-  border: 1px solid var(--color-border-subtle);
+  padding: var(--space-4) var(--space-4);
+  background: linear-gradient(135deg, var(--color-brand-bg), var(--color-bg-surface));
+  border: 1px solid var(--color-brand-border);
   border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.book-detail__last-read::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 80px;
+  height: 80px;
+  background: var(--color-brand-bg);
+  border-radius: 50%;
+  transform: translate(30%, -30%);
+  opacity: 0.5;
 }
 .book-detail__last-read-info {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  position: relative;
+  z-index: 1;
 }
 .book-detail__last-read-label {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
   flex-shrink: 0;
 }
 .book-detail__last-read-text {
-  font-size: 13px;
+  font-size: var(--font-size-small);
   color: var(--color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-weight: 500;
 }
 .book-detail__last-read-progress {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  position: relative;
+  z-index: 1;
 }
 .book-detail__last-read-track {
   flex: 1;
@@ -142,15 +171,16 @@
 }
 .book-detail__last-read-fill {
   height: 100%;
-  background: var(--color-brand);
+  background: linear-gradient(to right, var(--color-brand), var(--color-accent-orange));
   border-radius: var(--radius-full);
   transition: width var(--dur-base) var(--ease-standard);
 }
 .book-detail__last-read-pct {
-  font-size: 11px;
+  font-size: var(--font-size-overline);
   font-family: var(--font-mono);
   color: var(--color-text-tertiary);
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
 }
 .book-detail__last-read-btn {
   display: inline-flex;
@@ -161,9 +191,11 @@
   border: 1px solid var(--color-brand);
   background: transparent;
   color: var(--color-brand);
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   border-radius: var(--radius-md);
   cursor: pointer;
+  position: relative;
+  z-index: 1;
   transition:
     background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard);
@@ -171,6 +203,9 @@
 .book-detail__last-read-btn:hover {
   background: var(--color-brand);
   color: var(--color-text-inverse);
+}
+.book-detail__last-read-btn:active {
+  transform: scale(0.97);
 }
 
 /* ---------- 区块标题 ---------- */
@@ -201,7 +236,7 @@
 }
 .book-detail__intro-text {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--font-size-small);
   line-height: 1.8;
   color: var(--color-text-secondary);
 }
@@ -235,7 +270,7 @@
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
   color: var(--color-text-tertiary);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   text-align: left;
   transition: border-color var(--dur-fast) var(--ease-standard);
@@ -281,7 +316,7 @@
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: var(--color-bg-page);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-primary);
   resize: vertical;
   font-family: inherit;
@@ -366,7 +401,7 @@
   min-width: 0;
 }
 .book-detail__comment-name {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   font-weight: 500;
   color: var(--color-text-primary);
 }
@@ -380,7 +415,7 @@
   font-weight: 600;
 }
 .book-detail__comment-time {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
 }
 .book-detail__comment-rating {
@@ -393,7 +428,7 @@
 }
 .book-detail__comment-content {
   margin: 0 0 var(--space-2);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   line-height: 1.7;
   color: var(--color-text-primary);
 }
@@ -481,6 +516,10 @@
     width: 200px;
     height: 268px;
     margin: 0;
+    box-shadow: var(--sh-5);
+  }
+  .book-detail__stat-value {
+    font-size: 24px;
   }
   .book-detail__related-grid {
     grid-template-columns: repeat(4, 1fr);

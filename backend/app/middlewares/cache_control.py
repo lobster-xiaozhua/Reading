@@ -12,6 +12,9 @@ _STATIC_CACHE: dict[str, int] = {
     "/api/v1/c/banners": 300,
     "/api/v1/c/search/hot": 300,
     "/api/v1/c/discovery/home": 60,
+    "/api/v1/c/books/hot": 120,
+    "/api/v1/c/books/free-limited": 120,
+    "/api/v1/c/books/editor-picks": 300,
 }
 
 

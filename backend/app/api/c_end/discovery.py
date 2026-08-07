@@ -22,14 +22,19 @@ router = APIRouter()
 async def get_discovery_home(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_home_payload())
 
 
 @router.get("/banners")
-async def get_banners(request: Request, db: AsyncSession = Depends(get_db)):
-    svc = DiscoveryService(db, await get_redis_client())
+async def get_banners(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_banners())
 
 
@@ -38,8 +43,9 @@ async def get_hot_books(
     request: Request,
     limit: int = Query(6, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_hot_books(limit))
 
 
@@ -48,8 +54,9 @@ async def get_free_limited_books(
     request: Request,
     limit: int = Query(6, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_free_limited_books(limit))
 
 
@@ -58,8 +65,9 @@ async def get_editor_picks(
     request: Request,
     limit: int = Query(6, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_editor_picks(limit))
 
 
@@ -69,20 +77,29 @@ async def get_ranking(
     rank_type: str,
     limit: int = Query(100, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = DiscoveryService(db, await get_redis_client())
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_ranking(rank_type, limit))
 
 
 @router.get("/categories")
-async def get_categories(request: Request, db: AsyncSession = Depends(get_db)):
-    svc = DiscoveryService(db, await get_redis_client())
+async def get_categories(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_categories())
 
 
 @router.get("/tags")
-async def get_tags(request: Request, db: AsyncSession = Depends(get_db)):
-    svc = DiscoveryService(db, await get_redis_client())
+async def get_tags(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = DiscoveryService(db, redis)
     return ok(request, await svc.get_tags())
 
 
@@ -92,8 +109,9 @@ async def get_recommendations(
     limit: int = Query(6, ge=1, le=50),
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = RecommendService(db, await get_redis_client())
+    svc = RecommendService(db, redis)
     return ok(request, await svc.get_recommendations(reader_id, limit))
 
 
@@ -102,8 +120,9 @@ async def get_topics(
     request: Request,
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.get_topics(limit))
 
 
@@ -112,8 +131,9 @@ async def get_book_lists(
     request: Request,
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.get_book_lists(limit))
 
 
@@ -122,6 +142,7 @@ async def get_reviews(
     request: Request,
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.get_reviews(limit))

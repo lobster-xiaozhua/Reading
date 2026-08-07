@@ -24,13 +24,13 @@ class _FakeModel:
 async def test_cache_set_dict_serialized():
     redis = _FakeRedis()
     await cache_set(redis, "key:dict", {"a": 1}, 60)
-    assert redis.data["key:dict"] == '{"a": 1}'
+    assert redis.data["key:dict"] == '{"a":1}'
 
 
 async def test_cache_set_list_serialized():
     redis = _FakeRedis()
     await cache_set(redis, "key:list", [1, "x"], 60)
-    assert redis.data["key:list"] == '[1, "x"]'
+    assert redis.data["key:list"] == '[1,"x"]'
 
 
 async def test_cache_set_model_uses_model_dump_json():

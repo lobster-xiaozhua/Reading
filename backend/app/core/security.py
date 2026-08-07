@@ -1,5 +1,6 @@
 """安全工具：JWT 编解码、密码哈希。"""
 
+import os
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -8,13 +9,17 @@ import jwt
 
 from app.core.config import settings
 
+# 测试环境降低 bcrypt cost factor（4 轮 vs 生产 12 轮），加速认证测试
+_TEST_BCRYPT_ROUNDS = int(os.environ.get("BCRYPT_ROUNDS", "12"))
+_TEST_MODE = os.environ.get("DEBUG", "false") == "true"
+
 
 # ── 密码 ────────────────────────────────────────────────
 def hash_password(raw: str) -> str:
-    """bcrypt 哈希。"""
-    # bcrypt 限制 72 字节，超长截断
+    """bcrypt 哈希。测试环境使用低 cost factor 加速。"""
+    rounds = 4 if _TEST_MODE else 12
     raw_bytes = raw.encode("utf-8")[:72]
-    return bcrypt.hashpw(raw_bytes, bcrypt.gensalt(rounds=12)).decode("utf-8")
+    return bcrypt.hashpw(raw_bytes, bcrypt.gensalt(rounds=rounds)).decode("utf-8")
 
 
 def verify_password(raw: str, hashed: str) -> bool:

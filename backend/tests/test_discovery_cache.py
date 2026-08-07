@@ -37,10 +37,10 @@ class TestDiscoveryCache:
 
         assert len(result) == 1
         assert result[0].title == "回填书"
-        # 未命中后已回填
+        # 未命中后已回填；TTL 含 ±10% 抖动，放宽上限
         assert await redis_client.exists(CacheKeys.HOT_BOOKS)
         ttl = await redis_client.ttl(CacheKeys.HOT_BOOKS)
-        assert 0 < ttl <= 300
+        assert 0 < ttl <= 330
 
     async def test_hit_skips_db_query(self, db_session, redis_client, db_query_counter):
         counts, reset = db_query_counter
@@ -66,10 +66,11 @@ class TestDiscoveryCache:
         await svc.get_categories()
         await svc.get_tags()
 
-        assert 0 < await redis_client.ttl(CacheKeys.BANNERS) <= 300
-        assert 0 < await redis_client.ttl(CacheKeys.rank("hot")) <= 600
-        assert 0 < await redis_client.ttl(CacheKeys.CATEGORIES) <= 86401
-        assert 0 < await redis_client.ttl(CacheKeys.TAGS) <= 86401
+        # TTL 含 ±10% 抖动，放宽断言上限
+        assert 0 < await redis_client.ttl(CacheKeys.BANNERS) <= 330
+        assert 0 < await redis_client.ttl(CacheKeys.rank("hot")) <= 660
+        assert 0 < await redis_client.ttl(CacheKeys.CATEGORIES) <= 95041
+        assert 0 < await redis_client.ttl(CacheKeys.TAGS) <= 95041
 
     async def test_home_aggregate_hit_skips_db(self, db_session, redis_client, db_query_counter):
         counts, reset = db_query_counter

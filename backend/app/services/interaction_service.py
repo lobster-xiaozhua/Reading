@@ -31,6 +31,10 @@ from app.schemas.c_end import (
 logger = structlog.get_logger(__name__)
 
 _TTL_PROGRESS = 90 * 24 * 3600  # 90 天
+_PROGRESS_FLUSH_INTERVAL = 5  # 阅读进度落库最小间隔（秒），避免高频写 DB
+
+# 阅读进度落库节流：reader_id -> last_flush_ts
+_last_progress_flush: dict[int, float] = {}
 
 
 class InteractionService:
@@ -42,17 +46,9 @@ class InteractionService:
         self.shelf_repo = BookshelfRepository(session)
         self.history_repo = ReadingHistoryRepository(session)
 
-    # ── 书架操作 ─────────────────────────────────────────
+# ── 书架操作 ─────────────────────────────────────────
     async def add_to_bookshelf(self, reader_id: int, novel_id: int) -> bool:
-        """将作品加入读者书架（已存在则直接返回成功）。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 作品 ID。
-
-        Returns:
-            操作是否成功。
-        """
+        """将作品加入读者书架（已存在则直接返回成功）。"""
         novel = await self._get_novel(novel_id)
         if await self.shelf_repo.is_in_shelf(reader_id, novel.id):
             return True
@@ -61,19 +57,20 @@ class InteractionService:
         return True
 
     async def remove_from_bookshelf(self, reader_id: int, novel_id: int) -> bool:
-        """将作品移出读者书架。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 作品 ID。
-
-        Returns:
-            是否实际移除了记录。
-        """
+        """将作品移出读者书架。"""
         removed = await self.shelf_repo.remove(reader_id, novel_id)
         if removed:
             await self.session.commit()
         return removed
+
+    async def batch_remove_bookshelf(self, reader_id: int, novel_ids: list[int]) -> int:
+        """批量移出书架，返回实际移除数量。"""
+        count = 0
+        for nid in novel_ids:
+            if await self.shelf_repo.remove(reader_id, nid):
+                count += 1
+        await self.session.commit()
+        return count
 
     # ── 阅读进度 ─────────────────────────────────────────
     async def report_reading_progress(
@@ -115,9 +112,13 @@ class InteractionService:
         except Exception:
             logger.debug("阅读进度写入 Redis 失败 reader=%s", reader_id, exc_info=True)
 
-        # 同步落库
-        await self.history_repo.upsert(reader_id, novel_id, chapter_id, chapter_index, percent)
-        await self.session.commit()
+        # 同步落库（节流：5 秒内同一读者只落库一次）
+        now = time.time()
+        last_flush = _last_progress_flush.get(reader_id, 0.0)
+        if now - last_flush >= _PROGRESS_FLUSH_INTERVAL:
+            _last_progress_flush[reader_id] = now
+            await self.history_repo.upsert(reader_id, novel_id, chapter_id, chapter_index, percent)
+            await self.session.commit()
         return True
 
     # ── 评论 ──────────────────────────────────────────
@@ -174,6 +175,37 @@ class InteractionService:
         comment.likes += 1
         await self.session.commit()
         return True
+
+    # ── 评论回复 ──────────────────────────────────────
+    async def reply_comment(self, reader_id: int, comment_id: int, content: str) -> str:
+        """回复评论。
+
+        Args:
+            reader_id: 读者 ID。
+            comment_id: 被回复的评论 ID。
+            content: 回复内容。
+
+        Returns:
+            创建的回复 ID。
+        """
+        if not content or not content.strip():
+            raise ParamError("回复内容不能为空")
+        parent = await self.session.get(CommentModel, comment_id)
+        if not parent:
+            raise NotFoundError("评论不存在")
+        reply = CommentModel(
+            novel_id=parent.novel_id,
+            reader_id=reader_id,
+            parent_id=comment_id,
+            content=content.strip(),
+            likes=0,
+            status=1,
+            created_at=int(time.time() * 1000),
+        )
+        self.session.add(reply)
+        await self.session.flush()
+        await self.session.commit()
+        return str(reply.id)
 
     # ── 打赏 ──────────────────────────────────────────
     async def create_reward(

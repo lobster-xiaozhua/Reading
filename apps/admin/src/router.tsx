@@ -12,6 +12,7 @@ import { BEndLayout } from "./layouts/BEndLayout";
 import { RequireAuth } from "./router/RequireAuth";
 import { RequirePermission } from "./router/RequirePermission";
 import { Spin } from "antd";
+import { initRoutePrefetch } from "./utils/routePrefetchRegistry";
 
 // 路由级代码分割
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -98,3 +99,6 @@ export const router: ReturnType<typeof createBrowserRouter> =
     { path: "/404", element: withSuspense(<NotFoundPage />) },
     { path: "*", element: <Navigate to="/404" replace /> },
   ]);
+
+// 路由速通：注册预加载策略，登录后空闲预取业务路由
+initRoutePrefetch();

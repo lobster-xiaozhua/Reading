@@ -22,8 +22,9 @@ async def get_search_suggestions(
     request: Request,
     keyword: str = Query("", description="搜索关键词"),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SearchService(db, await get_redis_client())
+    svc = SearchService(db, redis)
     return ok(request, await svc.get_suggestions(keyword))
 
 
@@ -35,8 +36,9 @@ async def search_books(
     page: int = Query(1, ge=1),
     page_size: int = Query(12, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SearchService(db, await get_redis_client())
+    svc = SearchService(db, redis)
     return ok(request, await svc.search_books(keyword, page, page_size))
 
 
@@ -45,6 +47,7 @@ async def get_hot_searches(
     request: Request,
     limit: int = Query(10, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SearchService(db, await get_redis_client())
+    svc = SearchService(db, redis)
     return ok(request, await svc.get_hot_searches(limit))

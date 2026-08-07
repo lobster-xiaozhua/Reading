@@ -10,6 +10,8 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     include: ['src/**/*.test.{ts,tsx}'],
+    pool: 'forks',
+    poolOptions: { forks: { maxForks: 2, minForks: 1 } },
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],

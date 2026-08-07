@@ -4,6 +4,7 @@
 全部走 Cache-Aside 策略，缓存命中直接返回，未命中回查库并回填。
 """
 
+import asyncio
 import json
 
 import redis.asyncio as redis
@@ -54,11 +55,49 @@ class DiscoveryService:
         self.redis = redis_client
         self.novel_repo = NovelRepository(session)
 
+    # ── 缓存预热 ─────────────────────────────────────────
+    async def warmup(self) -> dict[str, int]:
+        """启动时预热核心缓存，返回各模块写入条数。"""
+        results: dict[str, int] = {}
+        try:
+            banners = await self.get_banners()
+            results["banners"] = len(banners)
+        except Exception:
+            logger.warning("预热 banners 失败", exc_info=True)
+        try:
+            books = await self.get_hot_books(10)
+            results["hot_books"] = len(books)
+        except Exception:
+            logger.warning("预热 hot_books 失败", exc_info=True)
+        try:
+            ranks = await asyncio.gather(
+                self.get_ranking("hot", 20),
+                self.get_ranking("follow", 20),
+                self.get_ranking("ticket", 20),
+                self.get_ranking("new", 20),
+            )
+            for rank_type, items in zip(("hot", "follow", "ticket", "new"), ranks, strict=False):
+                results[f"ranking:{rank_type}"] = len(items)
+        except Exception:
+            logger.warning("预热 rankings 失败", exc_info=True)
+        try:
+            categories = await self.get_categories()
+            results["categories"] = len(categories)
+        except Exception:
+            logger.warning("预热 categories 失败", exc_info=True)
+        try:
+            tags = await self.get_tags()
+            results["tags"] = len(tags)
+        except Exception:
+            logger.warning("预热 tags 失败", exc_info=True)
+        logger.info("缓存预热完成", **results)
+        return results
+
     # ── 聚合首页 ────────────────────────────────────────
     async def get_home_payload(self, rank_limit: int = 8) -> DiscoverHome:
         """聚合发现页全部模块数据，单模块失败降级为空数组。
 
-        各模块复用既有 Cache-Aside 缓存方法；聚合结果整体再套一层 HOME 缓存。
+        各模块复用既有 Cache-Aside 缓存方法；排行榜 4 路并发执行。
         """
         cached = await self.redis.get(CacheKeys.HOME)
         if cached:
@@ -67,26 +106,30 @@ class DiscoveryService:
             except Exception:
                 logger.warning("聚合缓存解析失败，回源重建", exc_info=True)
 
-        def safe(fn):
-            async def _run() -> list:
-                try:
-                    return await fn
-                except Exception:
-                    logger.warning("发现页模块加载失败", exc_info=True)
-                    return []
+        async def safe(fn):
+            try:
+                return await fn
+            except Exception:
+                logger.warning("发现页模块加载失败", exc_info=True)
+                return []
 
-            return _run
+        # 排行榜 4 路并发，其余模块并行
+        rank_coros = {
+            "hot": safe(self.get_ranking("hot", rank_limit)),
+            "follow": safe(self.get_ranking("follow", rank_limit)),
+            "ticket": safe(self.get_ranking("ticket", rank_limit)),
+            "new": safe(self.get_ranking("new", rank_limit)),
+        }
+        ranks = await asyncio.gather(*rank_coros.values())
+        rankings = dict(zip(("hot", "follow", "ticket", "new"), ranks, strict=False))
 
         payload = DiscoverHome(
-            banners=await safe(self.get_banners())(),
-            hotBooks=await safe(self.get_hot_books(10))(),
-            freeBooks=await safe(self.get_free_limited_books(10))(),
-            editorPicks=await safe(self.get_editor_picks(6))(),
-            categories=await safe(self.get_categories())(),
-            rankings={
-                rank_type: await safe(self.get_ranking(rank_type, rank_limit))()
-                for rank_type in ("hot", "follow", "ticket", "new")
-            },
+            banners=await safe(self.get_banners()),
+            hotBooks=await safe(self.get_hot_books(10)),
+            freeBooks=await safe(self.get_free_limited_books(10)),
+            editorPicks=await safe(self.get_editor_picks(6)),
+            categories=await safe(self.get_categories()),
+            rankings=rankings,
         )
         try:
             await self.redis.set(CacheKeys.HOME, payload.model_dump_json(), ex=_TTL_HOME)

@@ -2,6 +2,7 @@
 
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.novel import Banner, Category, Novel, Tag
 from app.repositories.base import BaseRepository
 
@@ -97,17 +98,25 @@ class NovelRepository(BaseRepository[Novel]):
         return list(result.scalars().all())
 
     async def search(self, keyword: str, limit: int = 20) -> list[Novel]:
-        """根据标题关键词搜索已发布作品。"""
-        stmt = (
-            select(Novel)
-            .where(
-                Novel.deleted == 0,
-                Novel.status == "published",
-                Novel.title.contains(keyword),
+        """根据标题关键词搜索已发布作品。
+
+        MySQL 使用 FULLTEXT MATCH...AGAINST（走 idx_novels_title_author_ft），
+        SQLite 回退 LIKE 模糊匹配。
+        """
+        from sqlalchemy import text
+
+        base = select(Novel).where(Novel.deleted == 0, Novel.status == "published")
+        if settings.db_url.startswith("mysql"):
+            # FULLTEXT 检索：标题+作者
+            match_expr = text(
+                "MATCH(title, author_name) AGAINST (:kw IN BOOLEAN MODE)"
             )
-            .limit(limit)
-        )
-        result = await self.session.execute(stmt)
+            stmt = base.where(match_expr.bindparams(kw=keyword)).order_by(
+                text("MATCH(title, author_name) AGAINST (:kw2 IN BOOLEAN MODE) DESC").bindparams(kw2=keyword)
+            )
+        else:
+            stmt = base.where(Novel.title.contains(keyword))
+        result = await self.session.execute(stmt.limit(limit))
         return list(result.scalars().all())
 
     async def get_categories(self) -> list[Category]:

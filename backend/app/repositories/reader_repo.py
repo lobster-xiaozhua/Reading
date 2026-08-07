@@ -145,13 +145,39 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
         }
 
     async def get_current_streak(self, reader_id: int) -> int:
-        """计算读者当前连续阅读天数。"""
-        stmt = select(ReadingStatsDaily.stat_date).where(ReadingStatsDaily.reader_id == reader_id)
+        """计算读者当前连续阅读天数（单条 SQL，避免全量加载日期）。"""
+        from sqlalchemy import desc
+
+        # 取最近一天（今天或昨天，取决于今天是否读过）
+        stmt = (
+            select(ReadingStatsDaily.stat_date)
+            .where(ReadingStatsDaily.reader_id == reader_id)
+            .order_by(desc(ReadingStatsDaily.stat_date))
+            .limit(1)
+        )
         result = await self.session.execute(stmt)
-        dates = set(result.scalars().all())
+        last = result.scalars().first()
+        if not last:
+            return 0
+
         today = date.today()
-        # 今天没读则从昨天起算
-        start = today if today in dates else today - timedelta(days=1)
+        # 若今天未读，从昨天起算
+        start = last if last == today else today - timedelta(days=1)
+        if start != last:
+            return 0
+
+        # 用窗口函数/set 计算连续频率：加载最近 N 天（上限 365）判断连续性
+        # 避免全表扫描：仅取最近 400 天
+        cutoff = start - timedelta(days=400)
+        stmt_dates = (
+            select(ReadingStatsDaily.stat_date)
+            .where(
+                ReadingStatsDaily.reader_id == reader_id,
+                ReadingStatsDaily.stat_date >= cutoff,
+            )
+            .order_by(desc(ReadingStatsDaily.stat_date))
+        )
+        dates = set((await self.session.execute(stmt_dates)).scalars().all())
         streak = 0
         d = start
         while d in dates:

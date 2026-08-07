@@ -4,10 +4,10 @@ export default defineConfig({
   testDir: './checks',
   timeout: 30000,
   expect: { timeout: 10000 },
-  fullyParallel: false,
+  fullyParallel: true,
   forbidOnly: true,
   retries: 1,
-  workers: 1,
+  workers: 4,
   reporter: [
     ['list'],
     ['json', { outputFile: './results.json' }],

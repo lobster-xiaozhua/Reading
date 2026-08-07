@@ -26,8 +26,9 @@ async def get_current_user(
     request: Request,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_profile(reader_id))
 
 
@@ -37,8 +38,9 @@ async def get_bookshelf(
     tab: str = Query("all"),
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_bookshelf(reader_id, tab))
 
 
@@ -48,8 +50,9 @@ async def get_reading_history(
     limit: int = Query(20, ge=1, le=100),
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_reading_history(reader_id, limit))
 
 
@@ -59,8 +62,9 @@ async def get_reward_records(
     limit: int = Query(20, ge=1, le=100),
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_reward_records(reader_id, limit))
 
 
@@ -69,8 +73,9 @@ async def get_stats_overview(
     request: Request,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_stats_overview(reader_id))
 
 
@@ -80,8 +85,9 @@ async def get_heatmap(
     days: int = Query(365, ge=1, le=730),
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_heatmap(reader_id, days))
 
 
@@ -90,8 +96,9 @@ async def get_preferences(
     request: Request,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_preferences(reader_id))
 
 
@@ -100,8 +107,9 @@ async def get_badges(
     request: Request,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_badges(reader_id))
 
 
@@ -110,8 +118,9 @@ async def get_follow_list(
     request: Request,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_follow_list(reader_id))
 
 
@@ -152,8 +161,9 @@ async def read_all_follows(
 async def get_vip_plans(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_vip_plans())
 
 
@@ -161,6 +171,7 @@ async def get_vip_plans(
 async def get_payment_methods(
     request: Request,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = UserCenterService(db, await get_redis_client())
+    svc = UserCenterService(db, redis)
     return ok(request, await svc.get_payment_methods())

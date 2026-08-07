@@ -23,8 +23,9 @@ async def login(
     request: Request,
     body: LoginCredentials,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuthService(db, await get_redis_client())
+    svc = AuthService(db, redis)
     return ok(request, await svc.login(body.username, body.password, body.remember))
 
 
@@ -33,8 +34,9 @@ async def refresh(
     request: Request,
     body: RefreshRequest,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuthService(db, await get_redis_client())
+    svc = AuthService(db, redis)
     return ok(request, await svc.refresh(body.refresh_token))
 
 
@@ -43,8 +45,9 @@ async def logout(
     request: Request,
     authorization: str = Header(default=""),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuthService(db, await get_redis_client())
+    svc = AuthService(db, redis)
     token = authorization.removeprefix("Bearer ").strip()
     return ok(request, await svc.logout(token))
 
@@ -54,6 +57,7 @@ async def get_current_user(
     request: Request,
     admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuthService(db, await get_redis_client())
+    svc = AuthService(db, redis)
     return ok(request, await svc.get_current_user(admin))

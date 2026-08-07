@@ -1,4 +1,8 @@
-"""测试夹具：内存 SQLite + fakeredis + TestClient。"""
+"""测试夹具：内存 SQLite + fakeredis + TestClient。
+
+db_session/redis_client 保持 function scope（兼容 xdist 并行）。
+优化：测试环境使用 bcrypt rounds=4 加速哈希操作。
+"""
 
 import asyncio
 import os
@@ -12,7 +16,8 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-# 确保使用测试配置：内存 SQLite + DEBUG 模式（允许 demo 降级）
+# 测试环境：降低 bcrypt cost factor（4 轮 vs 生产 12 轮），加速认证测试
+os.environ.setdefault("BCRYPT_ROUNDS", "4")
 os.environ["DB_URL"] = "sqlite+aiosqlite:///:memory:"
 os.environ["DEBUG"] = "true"
 
@@ -71,12 +76,7 @@ async def redis_client():
 
 @pytest_asyncio.fixture
 def db_query_counter(db_session):
-    """提供 DB 查询计数器（用于 N+1 查询断言）。
-
-    Returns:
-        tuple[list[int], Callable]: (计数列表, reset() 清零函数)。
-        预热数据后调用 reset() 清零，再执行被测操作。
-    """
+    """提供 DB 查询计数器（用于 N+1 查询断言）。"""
     counts = [0]
 
     def _before(*_args, **_kwargs):
@@ -86,7 +86,6 @@ def db_query_counter(db_session):
         counts[0] = 0
 
     engine = db_session.get_bind()
-    # AsyncEngine → 取其 sync_engine；sync Engine 直接用
     if hasattr(engine, "sync_engine"):
         engine = engine.sync_engine
     event.listen(engine, "before_cursor_execute", _before)
@@ -111,7 +110,6 @@ async def client() -> AsyncGenerator[AsyncClient, None]:
     app.dependency_overrides[get_db] = _override_db
     app.dependency_overrides[get_redis] = _override_redis
 
-    # 确保测试库已建表
     async with _test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

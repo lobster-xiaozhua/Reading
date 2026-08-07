@@ -17,6 +17,7 @@ from app.core.redis import CacheKeys
 from app.models.novel import Chapter, Novel
 from app.models.reading import Bookshelf, ReadingStatsDaily
 from app.models.user import Reader
+from app.models.vip import VipPlanModel
 from app.repositories.chapter_repo import ChapterRepository
 from app.repositories.novel_repo import NovelRepository
 from app.repositories.reader_repo import (
@@ -28,6 +29,7 @@ from app.schemas.c_end import (
     Badge,
     BookshelfItem,
     FollowItem,
+    FollowStatus,
     HeatmapCell,
     PaymentMethodItem,
     PreferenceItem,
@@ -38,7 +40,6 @@ from app.schemas.c_end import (
     UserProfileStats,
     VipPlan,
 )
-from app.schemas.enums import FollowStatus
 from app.services._converters import novel_to_c_summary
 from app.utils.cache import cache_set
 
@@ -308,7 +309,28 @@ class UserCenterService:
 
     # ── VIP 套餐 ─────────────────────────────────────────
     async def get_vip_plans(self) -> list[VipPlan]:
-        """获取 VIP 套餐列表。"""
+        """获取 VIP 套餐列表（优先查 DB，无数据时返回默认值）。"""
+        from sqlalchemy import select
+
+        stmt = (
+            select(VipPlanModel)
+            .where(VipPlanModel.enabled == 1)
+            .order_by(VipPlanModel.sort)
+        )
+        rows = (await self.session.execute(stmt)).scalars().all()
+        if rows:
+            return [
+                VipPlan(
+                    id=r.plan_id,
+                    name=r.name,
+                    price_per_month=r.price_per_month,
+                    original_price=r.original_price,
+                    total_price=r.total_price,
+                    discount=r.discount,
+                    recommended=bool(r.recommended),
+                )
+                for r in rows
+            ]
         return _default_vip_plans()
 
     # ── 支付方式 ─────────────────────────────────────────

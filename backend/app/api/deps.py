@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import ForbiddenError, UnauthorizedError
-from app.core.redis import get_redis_client
+from app.core.redis import get_circuit_breaker, get_redis_client
 from app.core.security import decode_token
 from app.schemas.common import Response
 from app.schemas.enums import ALL_PERMISSIONS
@@ -43,6 +43,7 @@ async def get_current_admin(
 
     未携带 token 时仅在 DEBUG 模式下降级为 demo 超级管理员（便于前端联调），
     生产环境强制校验 token。
+    熔断器 OPEN 时降级为 demo 模式（可用性优先于强一致性）。
     """
     if not authorization or not authorization.startswith("Bearer "):
         if settings.debug:
@@ -68,10 +69,30 @@ async def get_current_admin(
         raise UnauthorizedError("Token 类型错误")
 
     admin_id_str = payload.get("sub")
+    cb = get_circuit_breaker()
+    if cb.is_open:
+        # 熔断器 OPEN：Redis 不可用，降级为 demo 模式（可用性优先）
+        if settings.debug:
+            request.state.admin = AdminContext(
+                id=int(admin_id_str) if admin_id_str else 1,
+                username=payload.get("username", settings.demo_admin_username),
+                roles=["super-admin"],
+                permissions=ALL_PERMISSIONS,
+            )
+            logger.warning("Redis 熔断，鉴权降级为 demo 模式")
+            return cast(AdminContext, request.state.admin)
+        # 生产环境熔断时仍要求 Redis，拒绝请求
+        raise RuntimeError("服务暂不可用，请稍后重试")
+
     redis_client = await get_redis_client()
-    cached = await redis_client.get(f"auth:access:{token}")
-    if not cached or cached != admin_id_str:
-        raise UnauthorizedError("会话已失效，请重新登录")
+    try:
+        cached = await redis_client.get(f"auth:access:{token}")
+        if not cached or cached != admin_id_str:
+            raise UnauthorizedError("会话已失效，请重新登录")
+        cb.record_success()
+    except Exception:
+        cb.record_failure()
+        raise UnauthorizedError("会话校验失败，请重新登录") from None
 
     roles = payload.get("roles", [])
     perms = ALL_PERMISSIONS if "super-admin" in roles else payload.get("permissions", [])
@@ -94,6 +115,7 @@ async def get_current_reader(
 
     未携带 token 时仅在 DEBUG 模式下降级为 demo 读者（便于前端联调），
     生产环境强制校验 token。
+    熔断器 OPEN 时降级为 demo 模式（可用性优先于强一致性）。
     """
     if not authorization or not authorization.startswith("Bearer "):
         if settings.debug:
@@ -113,10 +135,25 @@ async def get_current_reader(
         raise UnauthorizedError("Token 类型错误")
 
     reader_id_str = payload.get("sub")
+    cb = get_circuit_breaker()
+    if cb.is_open:
+        # 熔断器 OPEN：降级为 demo 读者（可用性优先）
+        if settings.debug:
+            reader_id = int(reader_id_str) if reader_id_str else settings.demo_reader_id
+            request.state.reader_id = reader_id
+            logger.warning("Redis 熔断，读者鉴权降级为 demo 模式 reader_id=%s", reader_id)
+            return reader_id
+        raise RuntimeError("服务暂不可用，请稍后重试")
+
     redis_client = await get_redis_client()
-    cached = await redis_client.get(f"auth:access:{token}")
-    if not cached or cached != reader_id_str:
-        raise UnauthorizedError("会话已失效，请重新登录")
+    try:
+        cached = await redis_client.get(f"auth:access:{token}")
+        if not cached or cached != reader_id_str:
+            raise UnauthorizedError("会话已失效，请重新登录")
+        cb.record_success()
+    except Exception:
+        cb.record_failure()
+        raise UnauthorizedError("会话校验失败，请重新登录") from None
 
     reader_id = int(reader_id_str)
     request.state.reader_id = reader_id

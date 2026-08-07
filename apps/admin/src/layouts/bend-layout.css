@@ -125,7 +125,7 @@
 .bend-header__breadcrumb {
   flex: 1;
   min-width: 0;
-  font-size: 14px;
+  font-size: var(--font-size-small);
 }
 
 .bend-header__right {
@@ -196,7 +196,7 @@
 }
 
 .bend-header__username {
-  font-size: 14px;
+  font-size: var(--font-size-small);
   color: var(--color-text-primary);
   max-width: 120px;
   overflow: hidden;

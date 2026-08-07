@@ -83,6 +83,43 @@
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   box-shadow: var(--sh-1);
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.reading-stats-page__stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-3);
+}
+/* 各统计卡片顶部分隔色带 */
+.reading-stats-page__stat-card:nth-child(1)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--color-brand), var(--color-accent));
+}
+.reading-stats-page__stat-card:nth-child(2)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--color-accent-orange), var(--color-accent-orange-hover));
+}
+.reading-stats-page__stat-card:nth-child(3)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(to right, var(--color-rose), var(--color-rose-light));
 }
 .reading-stats-page__stat-value {
   font-family: var(--font-mono);

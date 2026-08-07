@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { http } from "../api/http";
+import { http, clearHttpCache } from "../api/http";
 
 const AUTH_KEY = "atlas-admin-auth";
 
@@ -14,6 +14,7 @@ function mockResponse(data: unknown, status = 200) {
 beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
+  clearHttpCache();
 });
 
 describe("http.get", () => {

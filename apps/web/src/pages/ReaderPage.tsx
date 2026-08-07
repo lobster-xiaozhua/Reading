@@ -180,19 +180,6 @@ export default function ReaderPage() {
     }
   }, [bookId, navigate]);
 
-  const handleSeek = useCallback(
-    (chapterNum: number) => {
-      const c = cacheRef.current;
-      const target = chapters[chapterNum - 1];
-      if (target) {
-        navigate(`/read/${bookId}/${target.id}`, { replace: true });
-        c.goto(target.id);
-        setChapterPercent(0);
-      }
-    },
-    [chapters, bookId, navigate],
-  );
-
   const handleBack = useCallback(() => {
     navigate(`/book/${bookId}`);
   }, [bookId, navigate]);
@@ -254,6 +241,7 @@ export default function ReaderPage() {
     <>
       <div ref={readerContainerRef} style={{ position: "relative" }}>
         <Reader
+          key={cache.current?.id ?? "initial"}
           chapter={cache.current}
           loading={cache.loading}
           error={cache.error}
@@ -262,15 +250,11 @@ export default function ReaderPage() {
           }
           totalChapters={chapters.length}
           chapterPercent={chapterPercent}
-          settings={settings}
+settings={settings}
           onSettingsChange={updateAll}
           onPrev={cache.prevId ? handlePrev : undefined}
           onNext={cache.nextId ? handleNext : undefined}
-          onSeek={handleSeek}
-          onCatalog={() => setCatalogOpen(true)}
-          onBack={handleBack}
-          onProgress={setChapterPercent}
-          className="reader-page"
+          className="reader-page reader-page__chapter-enter"
         />
         <SelectionPopover bookId={bookId} chapterId={cache.current?.id ?? ""} />
       </div>

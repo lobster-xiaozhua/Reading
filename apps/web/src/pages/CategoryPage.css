@@ -18,17 +18,18 @@
 
 /* ---------- 左侧分类树 ---------- */
 .category-page__sidebar {
-  background: var(--color-bg-surface);
+  background: linear-gradient(180deg, var(--color-bg-surface), var(--color-bg-subtle));
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   align-self: start;
   position: sticky;
   top: var(--space-4);
+  box-shadow: var(--sh-1);
 }
 .category-page__sidebar-title {
   margin: 0 0 var(--space-3);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -51,27 +52,30 @@
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   border-radius: var(--radius-md);
   text-align: left;
   transition:
     background var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 .category-page__cat-item:hover {
   background: var(--color-bg-subtle);
   color: var(--color-text-primary);
+  transform: translateX(4px);
 }
 .category-page__cat-item.is-active {
-  background: var(--color-brand-bg);
+  background: linear-gradient(90deg, var(--color-brand-bg), transparent);
   color: var(--color-brand);
   font-weight: 500;
+  border-left: 3px solid var(--color-brand);
 }
 .category-page__cat-count {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
 }
 .category-page__cat-item.is-active .category-page__cat-count {
@@ -92,7 +96,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   cursor: pointer;
   border-radius: var(--radius-sm);
   text-align: left;
@@ -137,7 +141,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition:
@@ -252,7 +256,7 @@
   background: var(--color-brand);
   color: var(--color-text-inverse);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
 }
 .category-page__reset-btn:hover {

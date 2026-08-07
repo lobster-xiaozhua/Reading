@@ -13,6 +13,8 @@ class Comment(Base, IdMixin):
     __table_args__ = (
         Index("idx_comments_novel_id", "novel_id"),
         Index("idx_comments_reader_id", "reader_id"),
+        # 评论列表按点赞降序：novel_id + status + likes 复合索引
+        Index("idx_comments_novel_status_likes", "novel_id", "status", "likes"),
     )
 
     novel_id: Mapped[int] = mapped_column(BigInteger)

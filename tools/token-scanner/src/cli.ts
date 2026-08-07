@@ -50,6 +50,10 @@ const defaultIgnore = [
   '**/public/**',
   // P5 Mock 数据：封面占位图色值由 hue 动态生成，属数据而非样式；P6 接真实 API 后移除
   'apps/web/src/api/mockData.ts',
+  // P7 程序化封面生成：SVG 模板内渐变色与文字半透明色为数据而非样式色值，需保持硬编码以实现动态主题
+  'apps/web/src/utils/generateDefaultCover.ts',
+  // 覆盖率报告为工具生成文件，非项目源码
+  '**/coverage/**',
 ];
 
 const result = scan({

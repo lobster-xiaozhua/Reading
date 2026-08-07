@@ -15,6 +15,7 @@ import {
   ContentCategory,
   SystemUser,
 } from "@novel/icons";
+import { hoverPrefetch } from "@/utils/routePrefetchRegistry";
 import "./BottomTabBar.css";
 
 interface TabItem {
@@ -51,6 +52,7 @@ export function BottomTabBar() {
                 `bottom-tab-bar__link${isActive ? " is-active" : ""}`
               }
               aria-label={label}
+              onPointerEnter={hoverPrefetch(to)}
             >
               <IconCmp size="md" />
               <span className="bottom-tab-bar__label">{label}</span>

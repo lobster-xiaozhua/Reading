@@ -277,7 +277,10 @@ class BookService:
 
     async def _incr_click(self, book_id: int) -> None:
         try:
-            await self.redis.incr(CacheKeys.book_click(book_id))
+            # 使用 Pipeline 批量提交，减少 RTT
+            pipe = self.redis.pipeline()
+            pipe.incr(CacheKeys.book_click(book_id))
+            await pipe.execute()
         except Exception:
             logger.debug("点击计数失败 book_id=%s", book_id, exc_info=True)
 

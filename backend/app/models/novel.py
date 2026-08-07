@@ -16,6 +16,11 @@ class Novel(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         Index("idx_novels_deleted", "deleted"),
         Index("idx_novels_author_id", "author_id"),
         Index("idx_novels_sort_click", "click_count", "rating"),
+        Index("idx_novels_status_cat_click", "status", "category", "click_count"),
+        Index("idx_novels_status_click", "status", "click_count"),
+        Index("idx_novels_status_completed", "status", "is_completed"),
+        # 全文搜索索引（MySQL 生效，SQLite 忽略）
+        Index("idx_novels_title_author_ft", "title", "author_name", mysql_prefix="FULLTEXT"),
     )
 
     title: Mapped[str] = mapped_column(String(128))
@@ -48,6 +53,8 @@ class Chapter(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     __table_args__ = (
         Index("idx_chapters_novel_index", "novel_id", "index", unique=True),
         Index("idx_chapters_status", "status", "audit_level"),
+        # 章节列表：novel_id + status 复合索引
+        Index("idx_chapters_novel_status", "novel_id", "status"),
     )
 
     novel_id: Mapped[int] = mapped_column(BigInteger)

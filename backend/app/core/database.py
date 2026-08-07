@@ -27,8 +27,8 @@ else:
     _pool_kw = {
         "pool_size": settings.db_pool_size,
         "max_overflow": settings.db_max_overflow,
-        "pool_recycle": settings.db_pool_recycle,
-        "pool_timeout": 30,
+        "pool_recycle": 1800,
+        "pool_timeout": 15,
     }
 
 engine = create_async_engine(

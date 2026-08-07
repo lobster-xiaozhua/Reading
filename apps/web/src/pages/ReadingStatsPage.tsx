@@ -134,7 +134,7 @@ function StatCard({
   }
   return (
     <div className="reading-stats-page__stat-card">
-      <span className="reading-stats-page__stat-value">{format(value)}</span>
+      <span className="reading-stats-page__stat-value num-tabular">{format(value)}</span>
       <span className="reading-stats-page__stat-label">{label}</span>
     </div>
   );

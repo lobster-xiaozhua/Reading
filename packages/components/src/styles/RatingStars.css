@@ -45,7 +45,7 @@
 
 /* ---------- 尺寸（sm 12 / md 16 / lg 24，03 §6.4 规格） ---------- */
 .novel-rating--sm {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
 .novel-rating--md {
   font-size: 16px;

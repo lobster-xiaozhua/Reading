@@ -19,8 +19,9 @@ async def get_kpi(
     request: Request,
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = WorkbenchService(db, await get_redis_client())
+    svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_kpi())
 
 
@@ -29,8 +30,9 @@ async def get_overviews(
     request: Request,
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = WorkbenchService(db, await get_redis_client())
+    svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_overviews())
 
 
@@ -40,8 +42,9 @@ async def get_word_count_trend(
     days: int = Query(30, ge=1, le=365),
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = WorkbenchService(db, await get_redis_client())
+    svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_word_count_trend(days))
 
 
@@ -51,7 +54,8 @@ async def get_dashboard(
     days: int = Query(30, ge=1, le=365),
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
     """工作台仪表盘聚合接口：一次返回 KPI + 概览 + 趋势，减少网络往返。"""
-    svc = WorkbenchService(db, await get_redis_client())
+    svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_dashboard(days))

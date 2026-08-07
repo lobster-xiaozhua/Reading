@@ -31,6 +31,7 @@ async def register(
     request: Request,
     body: RegisterBody,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
     from sqlalchemy import select
 
@@ -51,7 +52,7 @@ async def register(
     await db.commit()
     await db.refresh(reader)
 
-    svc = CAuthService(db, await get_redis_client())
+    svc = CAuthService(db, redis)
     res = await svc.register(reader.id, reader.username, reader.nickname, reader.avatar or "")
     return ok(request, res)
 
@@ -62,8 +63,9 @@ async def login(
     request: Request,
     body: LoginBody,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = CAuthService(db, await get_redis_client())
+    svc = CAuthService(db, redis)
     res = await svc.login(body.username, body.password)
     return ok(request, res)
 
@@ -73,8 +75,9 @@ async def refresh(
     request: Request,
     body: RefreshRequest,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = CAuthService(db, await get_redis_client())
+    svc = CAuthService(db, redis)
     res = await svc.refresh(body.refresh_token)
     return ok(request, res)
 

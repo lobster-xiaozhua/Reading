@@ -12,9 +12,16 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-novel}
       MYSQL_USER: ${MYSQL_USER:-novel}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-novel_pw}
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=0.5
+      --log-queries-not-using-indexes=0
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./logs/mysql:/var/log/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-novel_root_pw}"]
       interval: 5s

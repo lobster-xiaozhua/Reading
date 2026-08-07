@@ -20,8 +20,9 @@ async def get_sensitive_word_lib(
     request: Request,
     _admin=Depends(require_permission("system.config")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SensitiveService(db, await get_redis_client())
+    svc = SensitiveService(db, redis)
     return ok(request, await svc.get_lib())
 
 
@@ -31,8 +32,9 @@ async def add_sensitive_word(
     body: AddSensitiveWordBody,
     _admin=Depends(require_permission("system.config")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SensitiveService(db, await get_redis_client())
+    svc = SensitiveService(db, redis)
     return ok(request, await svc.add_word(body))
 
 
@@ -42,10 +44,11 @@ async def check_sensitive_words(
     body: SensitiveCheckBody,
     _admin=Depends(require_permission("system.config")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
     if not body.text:
         return ok(request, {"hasSensitive": False, "hits": []})
-    svc = SensitiveService(db, await get_redis_client())
+    svc = SensitiveService(db, redis)
     hits = await svc.scan(body.text)
     return ok(
         request,
@@ -63,6 +66,7 @@ async def remove_sensitive_word(
     level: int = Query(None, description="敏感词级别"),
     _admin=Depends(require_permission("system.config")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = SensitiveService(db, await get_redis_client())
+    svc = SensitiveService(db, redis)
     return ok(request, await svc.remove_word(text, level))

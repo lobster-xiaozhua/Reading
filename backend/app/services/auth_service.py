@@ -2,6 +2,7 @@
 
 双 Token 鉴权：access token 8h + refresh token 30d/90d。
 登录失败锁定、会话管理走 Redis。
+登录时查询 admin.role_key → 获取真实角色权限，替代硬编码 super-admin。
 """
 
 import time
@@ -17,6 +18,7 @@ from app.core.exceptions import BizError, ErrorCode
 from app.core.redis import CacheKeys
 from app.core.security import create_token, decode_token, hash_password, verify_password
 from app.models.user import Admin
+from app.repositories.role_repo import RoleRepository
 from app.schemas.auth import AdminUserInfo, BLoginResponse
 from app.schemas.enums import ALL_PERMISSIONS
 
@@ -35,6 +37,21 @@ class AuthService:
     def __init__(self, session: AsyncSession, redis_client: redis.Redis) -> None:
         self.session = session
         self.redis = redis_client
+        self.role_repo = RoleRepository(session)
+
+    # ── 角色权限解析 ─────────────────────────────────────
+    async def _resolve_roles_perms(
+        self, admin: Admin
+    ) -> tuple[list[str], list[str]]:
+        """根据管理员角色解析 roles 与 permissions。
+
+        super-admin 拥有全部权限；其余角色查询 role_permissions 表。
+        """
+        role_key = admin.role_key or "super-admin"
+        if role_key == "super-admin":
+            return ["super-admin"], ALL_PERMISSIONS
+        perms = await self.role_repo.get_permissions(role_key)
+        return [role_key], perms
 
     # ── 登录 ──────────────────────────────────────────
     async def login(self, username: str, password: str, remember: bool = False) -> BLoginResponse:
@@ -56,9 +73,8 @@ class AuthService:
         # 清除失败计数
         await self.redis.delete(fail_key)
 
-        # 颁发双 Token
-        roles = ["super-admin"]  # demo：默认超管，生产环境查 admin_roles 表
-        perms = ALL_PERMISSIONS
+        # 解析真实角色权限（替代硬编码 super-admin）
+        roles, perms = await self._resolve_roles_perms(admin)
         extra = {
             "username": admin.username,
             "nickname": admin.nickname,
@@ -126,8 +142,8 @@ class AuthService:
         # 轮换：旧 refresh 失效
         await self.redis.delete(CacheKeys.refresh_token(refresh_token))
 
-        roles = ["super-admin"]
-        perms = ALL_PERMISSIONS
+        # 解析真实角色权限
+        roles, perms = await self._resolve_roles_perms(admin)
         extra = {
             "username": admin.username,
             "nickname": admin.nickname,

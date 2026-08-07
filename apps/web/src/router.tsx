@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { AppLayout } from "./layouts/AppLayout";
 import { ReaderLayout } from "./layouts/ReaderLayout";
 import { PageLoading } from "./components/PageLoading";
+import { initRoutePrefetch } from "./utils/routePrefetchRegistry";
 
 // 路由级代码分割：首屏仅加载当前页 chunk
 const DiscoverPage = lazy(() => import("./pages/DiscoverPage"));
@@ -49,7 +50,10 @@ export const router: ReturnType<typeof createBrowserRouter> =
       element: <ReaderLayout />,
       children: [{ index: true, element: withSuspense(<ReaderPage />) }],
     },
-    { path: "/login", element: withSuspense(<LoginPage />) },
-    { path: "/404", element: withSuspense(<NotFoundPage />) },
-    { path: "*", element: <Navigate to="/404" replace /> },
-  ]);
+{ path: "/login", element: withSuspense(<LoginPage />) },
+  { path: "/404", element: withSuspense(<NotFoundPage />) },
+  { path: "*", element: <Navigate to="/404" replace /> },
+]);
+
+// 路由速通：注册预加载策略，空闲时预取高概率路由
+initRoutePrefetch();

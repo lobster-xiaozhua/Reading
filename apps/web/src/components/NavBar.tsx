@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Dropdown, Avatar } from "@novel/components";
 import { useUserStore } from "@/stores/userStore";
 import { fetcher } from "@/api/fetcher";
+import { hoverPrefetch } from "@/utils/routePrefetchRegistry";
 import type { Category } from "@/api/types";
 import "./NavBar.css";
 
@@ -61,7 +62,12 @@ export function NavBar() {
         </Link>
 
         <nav className="novel-navbar__nav" aria-label="主导航">
-          <NavLink to="/" end className="novel-navbar__nav-link">
+          <NavLink
+            to="/"
+            end
+            className="novel-navbar__nav-link"
+            onPointerEnter={hoverPrefetch("/discover")}
+          >
             首页
           </NavLink>
           <Dropdown
@@ -71,11 +77,19 @@ export function NavBar() {
               label: <Link to={c.to}>{c.label}</Link>,
             }))}
           >
-            <NavLink to="/category" className="novel-navbar__nav-link">
+            <NavLink
+              to="/category"
+              className="novel-navbar__nav-link"
+              onPointerEnter={hoverPrefetch("/category")}
+            >
               分类
             </NavLink>
           </Dropdown>
-          <NavLink to="/search" className="novel-navbar__nav-link">
+          <NavLink
+            to="/search"
+            className="novel-navbar__nav-link"
+            onPointerEnter={hoverPrefetch("/search")}
+          >
             搜索
           </NavLink>
         </nav>
@@ -128,7 +142,11 @@ export function NavBar() {
               </Link>
             </Dropdown>
           ) : (
-            <button type="button" className="novel-navbar__login-btn">
+            <button
+              type="button"
+              className="novel-navbar__login-btn"
+              onPointerEnter={hoverPrefetch("/login")}
+            >
               登录
             </button>
           )}

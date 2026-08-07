@@ -94,6 +94,75 @@ img {
   display: none;
 }
 
+/* ---------- 通用布局工具类（抽象高频重复模式） ---------- */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+.flex-col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.truncate-single {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 卡片悬浮效果 ---------- */
+.card-hover {
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-3);
+}
+
+/* ---------- 按钮按压效果 ---------- */
+.btn-press {
+  transition: transform var(--dur-instant) var(--ease-standard);
+}
+.btn-press:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* ---------- 统计数字等宽 ---------- */
+.num-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 列表行悬浮高亮 ---------- */
+.row-hover {
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+.row-hover:hover {
+  background: var(--color-bg-subtle);
+}
+
 .hover-rise {
   transition:
     transform var(--transition-smooth),

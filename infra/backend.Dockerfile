@@ -9,6 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 COPY backend/pyproject.toml ./
+COPY backend/gunicorn_conf.py ./
 RUN pip install --no-cache-dir "." gunicorn uvicorn[standard]
 
 COPY backend/app ./app
@@ -19,4 +20,4 @@ COPY backend/alembic.ini ./
 EXPOSE 8000
 
 # 启动前执行迁移，再以 Gunicorn 多 worker 承载
-CMD sh -c "alembic upgrade head && gunicorn app.main:app -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 -w 4 --access-logfile -"
+CMD sh -c "alembic upgrade head && gunicorn app.main:app -c gunicorn_conf.py"

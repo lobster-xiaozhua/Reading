@@ -15,7 +15,7 @@
   background: var(--color-brand);
   color: var(--color-text-inverse);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--font-size-small);
   cursor: pointer;
   transition: all var(--dur-fast) var(--ease-standard);
 }
@@ -24,4 +24,20 @@
 }
 .reader-page__back-btn:active {
   transform: scale(0.95);
+}
+
+/* 阅读器章节切换淡入动画 */
+.reader-page__chapter-enter {
+  animation: reader-fade-in var(--dur-normal) var(--ease-decelerate);
+}
+
+@keyframes reader-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

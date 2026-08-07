@@ -28,9 +28,9 @@ class Settings(BaseSettings):
     # ── 数据库 ────────────────────────────────────────────
     # 默认 SQLite（开发/测试零依赖）；生产用 mysql+asyncmy://...
     db_url: str = "sqlite+aiosqlite:///./novel.db"
-    db_pool_size: int = 10
-    db_max_overflow: int = 20
-    db_pool_recycle: int = 3600
+    db_pool_size: int = 20
+    db_max_overflow: int = 30
+    db_pool_recycle: int = 1800
     db_echo: bool = False
 
     # ── Redis ─────────────────────────────────────────────

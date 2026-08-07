@@ -12,7 +12,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, PlainTextResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -32,6 +32,23 @@ logger = structlog.get_logger(__name__)
 
 # 种子数据标记文件：避免每次启动都查库检测种子是否存在
 SEED_MARKER = os.path.join(os.path.dirname(__file__), "..", ".seed-initialized")
+
+# ── 简单内存指标计数器 ─────────────────────────────────────
+_request_counts: dict[str, int] = {}   # path -> count
+_request_durations: dict[str, list[float]] = {}  # path -> [durations]
+_request_errors: dict[str, int] = {}   # path -> error count
+
+
+def _inc_metric(path: str, duration_ms: float, status: int) -> None:
+    """记录请求指标（非阻塞，线程安全使用 Python GIL）。"""
+    key = path.split("?")[0]  # 去掉 query string
+    _request_counts[key] = _request_counts.get(key, 0) + 1
+    _request_durations.setdefault(key, []).append(duration_ms)
+    # 保留最近 200 条耗时记录
+    if len(_request_durations[key]) > 200:
+        _request_durations[key] = _request_durations[key][-200:]
+    if status >= 500:
+        _request_errors[key] = _request_errors.get(key, 0) + 1
 
 
 @contextlib.asynccontextmanager
@@ -72,8 +89,21 @@ async def lifespan(app: FastAPI):
             except Exception:
                 logger.warning("种子数据写入失败（非阻塞）", exc_info=True)
     else:
-        # 生产模式：不自动建表，依赖 alembic 迁移
+        # 生产模式：不自动建表，依赖 alembic 迁移；启动后预热核心缓存
         logger.info("生产模式启动：依赖 alembic upgrade head 完成建表")
+        try:
+            from app.core.database import AsyncSessionLocal
+            from app.core.redis import get_redis_client
+
+            async with AsyncSessionLocal() as db:
+                redis_client = await get_redis_client()
+                from app.services.discovery_service import DiscoveryService
+
+                warmup_svc = DiscoveryService(db, redis_client)
+                stats = await warmup_svc.warmup()
+                logger.info("缓存预热完成", **stats)
+        except Exception:
+            logger.warning("缓存预热失败（非阻塞）", exc_info=True)
 
     yield
 
@@ -132,6 +162,60 @@ def create_app() -> FastAPI:
     @app.get("/health", tags=["系统"])
     async def health() -> dict:
         return {"status": "ok", "version": __version__}
+
+    # 指标端点（Prometheus 格式，仅生产可用）
+    @app.get("/metrics", tags=["系统"])
+    async def metrics() -> PlainTextResponse:
+        lines: list[str] = []
+        lines.append("# HELP http_requests_total Total HTTP requests by path")
+        lines.append("# TYPE http_requests_total counter")
+        for path, count in sorted(_request_counts.items()):
+            safe_path = path.replace("/", "_").strip("_") or "root"
+            lines.append(f'http_requests_total{{path="{safe_path}"}} {count}')
+
+        lines.append("")
+        lines.append("# HELP http_request_duration_ms HTTP request duration in milliseconds")
+        lines.append("# TYPE http_request_duration_ms histogram")
+        for path, durations in sorted(_request_durations.items()):
+            if not durations:
+                continue
+            safe_path = path.replace("/", "_").strip("_") or "root"
+            lines.append(
+                f'http_request_duration_ms{{path="{safe_path}"}} '
+                f'{{le="50"}} {sum(1 for d in durations if d <= 50)}'
+            )
+            lines.append(
+                f'http_request_duration_ms{{path="{safe_path}"}} '
+                f'{{le="100"}} {sum(1 for d in durations if d <= 100)}'
+            )
+            lines.append(
+                f'http_request_duration_ms{{path="{safe_path}"}} '
+                f'{{le="200"}} {sum(1 for d in durations if d <= 200)}'
+            )
+            lines.append(
+                f'http_request_duration_ms{{path="{safe_path}"}} '
+                f'{{le="500"}} {sum(1 for d in durations if d <= 500)}'
+            )
+            lines.append(
+                f'http_request_duration_ms{{path="{safe_path}"}} '
+                f'{{le="+Inf"}} {len(durations)}'
+            )
+            lines.append(
+                f"http_request_duration_ms_sum{{path=\"{safe_path}\"}} "
+                f"{sum(durations):.0f}"
+            )
+            lines.append(
+                f"http_request_duration_ms_count{{path=\"{safe_path}\"}} {len(durations)}"
+            )
+
+        lines.append("")
+        lines.append("# HELP http_request_errors_total Total HTTP 5xx errors by path")
+        lines.append("# TYPE http_request_errors_total counter")
+        for path, count in sorted(_request_errors.items()):
+            safe_path = path.replace("/", "_").strip("_") or "root"
+            lines.append(f'http_request_errors_total{{path="{safe_path}"}} {count}')
+
+        return PlainTextResponse("\n".join(lines) + "\n")
 
     # 业务路由（C/B 端物理隔离，§2.3）
     _register_routers(app)

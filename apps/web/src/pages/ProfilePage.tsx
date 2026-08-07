@@ -160,25 +160,25 @@ export default function ProfilePage() {
               </div>
               <div className="profile-page__user-stats">
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">
+                  <span className="profile-page__stat-value num-tabular">
                     {profile.stats.readingDays}
                   </span>
                   <span className="profile-page__stat-label">连续阅读</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">
+                  <span className="profile-page__stat-value num-tabular">
                     {Math.floor(profile.stats.readingMinutes / 60)}
                   </span>
                   <span className="profile-page__stat-label">阅读时长(h)</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">
+                  <span className="profile-page__stat-value num-tabular">
                     {(profile.stats.readWords / 10000).toFixed(0)}万
                   </span>
                   <span className="profile-page__stat-label">阅读字数</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value">
+                  <span className="profile-page__stat-value num-tabular">
                     {profile.stats.bookshelfCount}
                   </span>
                   <span className="profile-page__stat-label">书架</span>
@@ -509,10 +509,10 @@ const THEME_LABEL: Record<ReaderTheme, string> = {
   day: "日间", night: "夜间", eye: "护眼", parchment: "羊皮纸",
 };
 const THEME_PREVIEW: Record<ReaderTheme, { bg: string; text: string }> = {
-  day: { bg: "#ffffff", text: "#333333" },
-  night: { bg: "#1a1a2e", text: "#e0e0e0" },
-  eye: { bg: "#f5e6c8", text: "#5c4033" },
-  parchment: { bg: "#f8f0e0", text: "#5c4a2e" },
+  day: { bg: "var(--color-bg-surface)", text: "var(--color-text-primary)" },
+  night: { bg: "var(--read-bg-night)", text: "var(--read-text-night)" },
+  eye: { bg: "var(--read-bg-day)", text: "var(--read-text-day)" },
+  parchment: { bg: "var(--novel-read-bg)", text: "var(--novel-read-text)" },
 };
 const PAGE_MODE_LABEL: Record<ReaderPageMode, string> = {
   scroll: "滚动", slide: "滑动", click: "点击",

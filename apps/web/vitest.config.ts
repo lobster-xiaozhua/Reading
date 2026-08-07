@@ -11,6 +11,8 @@ export default defineConfig({
     globals: true,
     setupFiles: ['src/__tests__/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    pool: 'forks',
+    poolOptions: { forks: { maxForks: 2, minForks: 1 } },
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],

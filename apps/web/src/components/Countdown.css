@@ -7,7 +7,7 @@
   background: var(--color-accent-orange-bg);
   color: var(--color-accent-orange);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: 500;
   line-height: 16px;
 }

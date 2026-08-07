@@ -26,7 +26,7 @@
   border: none;
   border-radius: var(--radius-sm);
   background: var(--color-brand);
-  color: #fff;
+  color: var(--color-text-inverse);
   font-size: var(--font-size-body);
   cursor: pointer;
 }

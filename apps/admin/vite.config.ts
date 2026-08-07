@@ -34,8 +34,9 @@ export default defineConfig(async () => {
     },
   },
   build: {
-    target: 'es2021',
-    sourcemap: true,
+    target: 'es2022',
+    minify: 'esbuild',
+    sourcemap: false,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {

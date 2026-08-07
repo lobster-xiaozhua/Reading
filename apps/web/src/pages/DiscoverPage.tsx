@@ -77,14 +77,14 @@ export default function DiscoverPage() {
                 <EmptyState title="暂无精选推荐" />
               ) : (
                 <div className="discover-page__picks-grid">
-                  {home.editorPicks
-                    .filter(Boolean)
-                    .slice(0, 6)
-                    .map((b) => (
+{home.editorPicks
+                      .filter(Boolean)
+                      .slice(0, 6)
+                      .map((b, idx) => (
                       <Link
                         key={b.id}
                         to={`/book/${b.id}`}
-                        className="discover-page__pick-card"
+                        className={`discover-page__pick-card${idx === 0 ? " discover-page__pick-card--featured" : ""}`}
                       >
                         <div className="discover-page__pick-cover-wrap">
                           <LazyImage
@@ -152,7 +152,7 @@ export default function DiscoverPage() {
             </DiscoverModule>
           </section>
 
-          <section className="discover-page__section container-page">
+<section className="discover-page__section container-page">
             <SectionTitle
               title="限免专区"
               subtitle="FREE"
@@ -162,26 +162,29 @@ export default function DiscoverPage() {
               {home.freeBooks.length === 0 ? (
                 <EmptyState title="暂无限免书籍" />
               ) : (
-                <div className="discover-page__free-grid">
-                  {home.freeBooks.filter(Boolean).map((b) => (
-                    <div key={b.id} className="discover-page__free-item">
-                      <BookCard
-                        book={toBook(b)}
-                        variant="grid"
-                        size="sm"
-onClick={() => handleBookClick(b.id)}
-                      />
-                      <div className="discover-page__free-meta">
-                        {b.freeDeadline ? (
-                          <Countdown deadline={b.freeDeadline} />
-                        ) : (
-                          <span className="discover-page__free-badge">
-                            限免中
-                          </span>
-                        )}
+                <div className="discover-page__free-section">
+                  <div className="discover-page__free-scroll">
+                    {home.freeBooks.filter(Boolean).map((b) => (
+                      <div key={b.id} className="discover-page__free-item">
+                        <BookCard
+                          book={toBook(b)}
+                          variant="grid"
+                          size="sm"
+                          onClick={() => handleBookClick(b.id)}
+                        />
+                        <div className="discover-page__free-meta">
+                          {b.freeDeadline ? (
+                            <Countdown deadline={b.freeDeadline} />
+                          ) : (
+                            <span className="discover-page__free-badge">
+                              限免中
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                  <div className="discover-page__free-scroll-fade" aria-hidden />
                 </div>
               )}
             </DiscoverModule>

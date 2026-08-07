@@ -34,8 +34,10 @@ export default defineConfig(async () => {
     },
   },
   build: {
-    target: 'es2021',
+    target: 'es2022',
+    minify: 'esbuild',
     sourcemap: process.env.CI ? false : 'hidden',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {

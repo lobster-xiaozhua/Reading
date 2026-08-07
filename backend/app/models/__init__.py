@@ -16,6 +16,7 @@ from app.models.royalty import RoyaltyDetail
 from app.models.rum import RumEvent
 from app.models.system_config import SystemConfigModel
 from app.models.user import Admin, Author, Reader
+from app.models.vip import VipPlanModel
 
 __all__ = [
     "Admin",
@@ -45,4 +46,5 @@ __all__ = [
     "SystemConfigModel",
     "Tag",
     "TimestampMixin",
+    "VipPlanModel",
 ]

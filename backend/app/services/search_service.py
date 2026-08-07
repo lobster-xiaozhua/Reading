@@ -4,6 +4,8 @@
 当前实现基于 MySQL LIKE 查询 + 拼音兜底，后续可平替为 Elasticsearch。
 """
 
+import asyncio
+import contextlib
 import json
 
 import redis.asyncio as redis
@@ -53,8 +55,10 @@ class SearchService:
         self.novel_repo = NovelRepository(session)
 
     # ── 搜索建议 ─────────────────────────────────────────
+    _TTL_PINYIN_CANDIDATES = 600  # 拼音候选集缓存 10 分钟
+
     async def get_suggestions(self, keyword: str) -> list[SearchSuggestion]:
-        """获取搜索建议（书名/作者/标签匹配）。
+        """获取搜索建议（书名/作者/标签匹配），3 路并发查询。
 
         Args:
             keyword: 搜索关键词。
@@ -71,33 +75,54 @@ class SearchService:
         if cached:
             return [SearchSuggestion.model_validate(s) for s in json.loads(cached)]
 
-        suggestions: list[SearchSuggestion] = []
-        # 书名匹配
-        novels = await self.novel_repo.search(keyword, limit=3)
-        for n in novels:
-            suggestions.append(SearchSuggestion(type="book", text=n.title, book_id=str(n.id)))
-        # 拼音兜底：纯拼音关键词且无书名命中时，按书名全拼匹配
-        if not novels and keyword.isascii() and keyword.isalpha():
-            candidates = await self._pinyin_candidates()
-            for n in _pinyin_match(candidates, keyword)[:3]:
-                suggestions.append(SearchSuggestion(type="book", text=n.title, book_id=str(n.id)))
-        # 作者名匹配
-        author_stmt = (
-            select(Novel.author_name)
-            .where(
-                Novel.deleted == 0,
-                Novel.status == "published",
-                Novel.author_name.contains(keyword),
+        # 3 路并发：书名、作者、标签
+        async def search_books():
+            novels = await self.novel_repo.search(keyword, limit=3)
+            return [
+                SearchSuggestion(type="book", text=n.title, book_id=str(n.id))
+                for n in novels
+            ]
+
+        async def search_authors():
+            stmt = (
+                select(Novel.author_name)
+                .where(
+                    Novel.deleted == 0,
+                    Novel.status == "published",
+                    Novel.author_name.contains(keyword),
+                )
+                .distinct()
+                .limit(3)
             )
-            .distinct()
-            .limit(3)
+            return [
+                SearchSuggestion(type="author", text=name)
+                for name in (await self.session.execute(stmt)).scalars().all()
+            ]
+
+        async def search_tags():
+            stmt = select(Tag.name).where(Tag.name.contains(keyword)).limit(2)
+            return [
+                SearchSuggestion(type="tag", text=name)
+                for name in (await self.session.execute(stmt)).scalars().all()
+            ]
+
+        book_res, author_res, tag_res = await asyncio.gather(
+            search_books(),
+            search_authors(),
+            search_tags(),
         )
-        for name in (await self.session.execute(author_stmt)).scalars().all():
-            suggestions.append(SearchSuggestion(type="author", text=name))
-        # 标签匹配
-        tag_stmt = select(Tag.name).where(Tag.name.contains(keyword)).limit(2)
-        for name in (await self.session.execute(tag_stmt)).scalars().all():
-            suggestions.append(SearchSuggestion(type="tag", text=name))
+
+        suggestions = list(book_res)
+        # 拼音兜底：纯拼音关键词且无书名命中时
+        if not book_res and keyword.isascii() and keyword.isalpha():
+            candidates = await self._pinyin_candidates()
+            suggestions.extend(
+                SearchSuggestion(type="book", text=n.title, book_id=str(n.id))
+                for n in _pinyin_match(candidates, keyword)[:3]
+            )
+
+        suggestions.extend(author_res)
+        suggestions.extend(tag_res)
 
         result = suggestions[:_MAX_SUGGESTIONS]
         await cache_set(self.redis, key, result, _TTL_SUGGESTION)
@@ -149,14 +174,25 @@ class SearchService:
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _pinyin_candidates(self) -> list[Novel]:
-        """取拼音兜底候选集（已发布作品，按点击量降序取 Top N）。"""
+        """取拼音兜底候选集（已发布作品，按点击量降序取 Top N），缓存 10 分钟。"""
+        cached = await self.redis.get(CacheKeys.PINYIN_CANDIDATES)
+        if cached:
+            return [Novel(**d) for d in json.loads(cached)]
+
         stmt = (
             select(Novel)
             .where(Novel.deleted == 0, Novel.status == "published")
             .order_by(Novel.click_count.desc())
             .limit(_PINYIN_CANDIDATES)
         )
-        return list((await self.session.execute(stmt)).scalars().all())
+        novels = list((await self.session.execute(stmt)).scalars().all())
+        with contextlib.suppress(Exception):
+            await self.redis.set(
+                CacheKeys.PINYIN_CANDIDATES,
+                json.dumps([{k: v for k, v in n.__dict__.items() if not k.startswith("_")} for n in novels]),
+                ex=self._TTL_PINYIN_CANDIDATES,
+            )
+        return novels
 
     async def _search_novels(
         self, keyword: str, page: int, page_size: int
@@ -164,31 +200,21 @@ class SearchService:
         if not keyword or not keyword.strip():
             return [], 0
         keyword = keyword.strip()
+        # 单次查询同时匹配书名和作者名，减少往返次数
         stmt = (
             select(Novel)
             .where(
                 Novel.deleted == 0,
                 Novel.status == "published",
-                Novel.title.contains(keyword),
+                (
+                    Novel.title.contains(keyword)
+                    | Novel.author_name.contains(keyword)
+                ),
             )
             .order_by(Novel.click_count.desc())
         )
-        # 若标题搜索结果不足，补充作者名匹配
         count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
         total = (await self.session.execute(count_stmt)).scalar_one()
-        if total == 0:
-            stmt = (
-                select(Novel)
-                .where(
-                    Novel.deleted == 0,
-                    Novel.status == "published",
-                    Novel.author_name.contains(keyword),
-                )
-                .order_by(Novel.click_count.desc())
-            )
-            count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
-            total = (await self.session.execute(count_stmt)).scalar_one()
-        # 拼音兜底：纯拼音关键词仍未命中时，按书名全拼匹配
         if total == 0 and keyword.isascii() and keyword.isalpha():
             matched = _pinyin_match(await self._pinyin_candidates(), keyword)
             total = len(matched)

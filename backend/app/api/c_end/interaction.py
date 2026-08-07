@@ -44,8 +44,9 @@ async def add_to_bookshelf(
     novel_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.add_to_bookshelf(reader_id, novel_id))
 
 
@@ -55,9 +56,26 @@ async def remove_from_bookshelf(
     novel_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.remove_from_bookshelf(reader_id, novel_id))
+
+
+class BatchRemoveBody(BaseModel):
+    novel_ids: list[int] = Field(..., description="要移出书架的作品 ID 列表")
+
+
+@router.post("/me/bookshelf/batch-remove")
+async def batch_remove_bookshelf(
+    request: Request,
+    body: BatchRemoveBody,
+    reader_id: int = Depends(get_current_reader),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = InteractionService(db, redis)
+    return ok(request, {"removed": await svc.batch_remove_bookshelf(reader_id, body.novel_ids)})
 
 
 @router.post("/me/reading-progress")
@@ -68,8 +86,9 @@ async def report_reading_progress(
     novel_id: int = 0,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(
         request,
         await svc.report_reading_progress(
@@ -89,8 +108,9 @@ async def create_comment(
     body: AddCommentBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     comment_id = await svc.create_comment(reader_id, book_id, body.content, body.rating)
     return ok(request, {"id": comment_id})
 
@@ -101,9 +121,24 @@ async def like_comment(
     comment_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.like_comment(comment_id, reader_id))
+
+
+@router.post("/comments/{comment_id}/reply")
+async def reply_comment(
+    request: Request,
+    comment_id: int,
+    body: AddCommentBody,
+    reader_id: int = Depends(get_current_reader),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = InteractionService(db, redis)
+    reply_id = await svc.reply_comment(reader_id, comment_id, body.content)
+    return ok(request, {"id": reply_id})
 
 
 @router.post("/books/{book_id}/rewards")
@@ -114,8 +149,9 @@ async def create_reward(
     body: RewardBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     record_id = await svc.create_reward(reader_id, book_id, body.type, body.amount)
     return ok(request, {"id": record_id})
 
@@ -127,6 +163,7 @@ async def submit_rating(
     body: RatingBody,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = InteractionService(db, await get_redis_client())
+    svc = InteractionService(db, redis)
     return ok(request, await svc.submit_rating(reader_id, book_id, body.rating))

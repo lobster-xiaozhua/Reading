@@ -49,8 +49,9 @@ async def get_book(
     request: Request,
     book_id: int,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_book(book_id))
 
 
@@ -59,8 +60,9 @@ async def get_chapters(
     request: Request,
     book_id: int,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_chapters(book_id))
 
 
@@ -71,11 +73,12 @@ async def get_chapter(
     chapter_id: int,
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
     """获取章节正文，VIP 章节需校验读者会员状态。"""
     reader = await db.get(Reader, reader_id)
     reader_vip = bool(reader and reader.is_vip and reader.vip_expire_at > int(time.time() * 1000))
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(
         request,
         await svc.get_chapter(book_id, chapter_id, reader_vip=reader_vip),
@@ -88,8 +91,9 @@ async def get_related_books(
     book_id: int,
     limit: int = Query(6, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_related_books(book_id, limit))
 
 
@@ -99,8 +103,9 @@ async def get_comments(
     book_id: int,
     limit: int = Query(20, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_comments(book_id, limit))
 
 
@@ -109,8 +114,9 @@ async def get_rating_distribution(
     request: Request,
     book_id: int,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_rating_distribution(book_id))
 
 
@@ -119,7 +125,8 @@ async def get_book_detail(
     request: Request,
     book_id: int,
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
     """书籍详情页聚合接口：一次返回书籍+章节+评分，减少网络请求数。"""
-    svc = BookService(db, await get_redis_client())
+    svc = BookService(db, redis)
     return ok(request, await svc.get_book_detail(book_id))
