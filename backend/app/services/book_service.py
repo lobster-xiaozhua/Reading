@@ -19,6 +19,7 @@ from app.models.novel import Chapter, Novel
 from app.repositories.chapter_repo import ChapterRepository
 from app.repositories.novel_repo import NovelRepository
 from app.schemas.c_end import (
+    BookDetailResponse,
     BookSummary,
     ChapterContent,
     ChapterListItem,
@@ -222,6 +223,21 @@ class BookService:
         dist = RatingDistribution(total=total, average=avg, buckets=buckets)
         await cache_set(self.redis, CacheKeys.book_rating(novel.id), dist, _TTL_RATING)
         return dist
+
+    # ── 详情页聚合 ───────────────────────────────────────
+    async def get_book_detail(self, book_id: int) -> BookDetailResponse:
+        """一次性返回书籍详情 + 章节列表 + 评分分布，减少网络往返。
+
+        Args:
+            book_id: 书籍 ID。
+
+        Returns:
+            聚合后的详情页数据。
+        """
+        book = await self.get_book(book_id)
+        chapters = await self.get_chapters(book_id)
+        rating = await self.get_rating_distribution(book_id)
+        return BookDetailResponse(book=book, chapters=chapters, rating=rating)
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _get_published_novel(self, book_id: int) -> Novel:

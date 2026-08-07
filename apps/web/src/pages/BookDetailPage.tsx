@@ -61,30 +61,39 @@ export default function BookDetailPage() {
   const [order, setOrder] = useState<ChapterOrder>("asc");
   const [tab, setTab] = useState<DetailTab>("chapters");
 
-  /* ---------- 数据加载：并行请求 + 统一状态管理 ---------- */
+  /* ---------- 数据加载：聚合接口 + 并行请求 ---------- */
   const fetchBookData = useCallback(async () => {
-    const results = await Promise.allSettled([
-      fetcher.getBook(bookId),
-      fetcher.getChapters(bookId),
+    const [detail, related, comments] = await Promise.allSettled([
+      fetcher.getBookDetail(bookId),
       fetcher.getRelatedBooks(bookId),
       fetcher.getComments(bookId),
-      fetcher.getRatingDistribution(bookId),
     ]);
-    return results.map((r) => (r.status === "fulfilled" ? r.value : null));
+    return {
+      detail: detail.status === "fulfilled" ? detail.value : null,
+      related: related.status === "fulfilled" ? related.value : [],
+      comments: comments.status === "fulfilled" ? comments.value : [],
+    };
   }, [bookId]);
 
-  const bookState = useAsyncState<
-    (BookSummary | null | ChapterSummary[] | BookSummary[] | Comment[] | RatingDist | null)[]
-  >(fetchBookData, {
+  const bookState = useAsyncState<{
+    detail: {
+      book: BookSummary | null;
+      chapters: ChapterSummary[];
+      rating: RatingDist | null;
+    } | null;
+    related: BookSummary[];
+    comments: Comment[];
+  }>(fetchBookData, {
     deps: [bookId],
     loadingDelay: 200,
   });
 
-  const book = (bookState.data?.[0] ?? null) as BookSummary | null;
-  const chapters = (bookState.data?.[1] ?? EMPTY_CHAPTERS) as ChapterSummary[];
-  const related = (bookState.data?.[2] ?? EMPTY_RELATED) as BookSummary[];
-  const comments = (bookState.data?.[3] ?? EMPTY_COMMENTS) as Comment[];
-  const rating = (bookState.data?.[4] ?? null) as RatingDist | null;
+  const detail = bookState.data?.detail ?? null;
+  const book = detail?.book ?? null;
+  const chapters = detail?.chapters ?? EMPTY_CHAPTERS;
+  const rating = detail?.rating ?? null;
+  const related = bookState.data?.related ?? EMPTY_RELATED;
+  const comments = bookState.data?.comments ?? EMPTY_COMMENTS;
 
   /* ---------- 已读章节集合（来自历史） ---------- */
   const readChapterIds = useMemo(() => {

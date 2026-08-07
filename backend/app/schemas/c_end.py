@@ -308,10 +308,19 @@ class DiscoverHome(CamelModel):
     rankings: dict[str, list[RankItem]] = {}
 
 
+class BookDetailResponse(CamelModel):
+    """书籍详情页聚合响应（一次返回书籍+章节+评分，减少网络往返）。"""
+
+    book: BookSummary | None = None
+    chapters: list[ChapterListItem] = []
+    rating: RatingDistribution | None = None
+
+
 # 显式再导出枚举，便于路由层引用
 __all__ = [
     "Badge",
     "Banner",
+    "BookDetailResponse",
     "BookList",
     "BookSummary",
     "BookshelfItem",

@@ -203,6 +203,20 @@ export const fetcher = {
     return http.get<RatingDistribution>(`/books/${bookId}/rating-distribution`);
   },
 
+  async getBookDetail(
+    bookId: string,
+  ): Promise<{
+    book: BookSummary | null;
+    chapters: ChapterListItem[];
+    rating: RatingDistribution | null;
+  }> {
+    return http.get<{
+      book: BookSummary | null;
+      chapters: ChapterListItem[];
+      rating: RatingDistribution | null;
+    }>(`/books/${bookId}/detail`);
+  },
+
   /* ---------- 分类页 ---------- */
   async getTags(): Promise<Tag[]> {
     return http.get<Tag[]>("/tags");

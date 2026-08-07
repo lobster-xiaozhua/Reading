@@ -112,3 +112,14 @@ async def get_rating_distribution(
 ):
     svc = BookService(db, await get_redis_client())
     return ok(request, await svc.get_rating_distribution(book_id))
+
+
+@router.get("/books/{book_id}/detail")
+async def get_book_detail(
+    request: Request,
+    book_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """书籍详情页聚合接口：一次返回书籍+章节+评分，减少网络请求数。"""
+    svc = BookService(db, await get_redis_client())
+    return ok(request, await svc.get_book_detail(book_id))
