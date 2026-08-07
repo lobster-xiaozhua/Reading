@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Layout, Menu } from "antd";
 import type { MenuProps } from "antd";
@@ -70,6 +70,7 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const hasPermission = useAuthStore((s) => s.hasPermission);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   const items = useMemo(
     () => buildItems(menuConfig, hasPermission, t),
@@ -80,6 +81,16 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
     () => resolveSelectedKeys(location.pathname),
     [location.pathname],
   );
+
+  // 路由变化时重置 openKeys 为当前路径对应的父菜单
+  const currentOpened = useMemo(() => {
+    if (collapsed) return [];
+    return openKeys.length > 0 ? openKeys : opened;
+  }, [collapsed, openKeys, opened]);
+
+  const handleOpenChange = useCallback((keys: string[]) => {
+    setOpenKeys(keys);
+  }, []);
 
   const handleClick: MenuProps["onClick"] = (info) => {
     const findPath = (list: MenuItem[]): string | undefined => {
@@ -119,8 +130,8 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
         mode="inline"
         theme="light"
         selectedKeys={selected}
-        defaultOpenKeys={opened}
-        openKeys={collapsed ? [] : opened}
+        openKeys={currentOpened}
+        onOpenChange={handleOpenChange}
         items={items}
         onClick={handleClick}
         className="bend-sider__menu"

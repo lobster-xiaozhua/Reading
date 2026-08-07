@@ -29,7 +29,7 @@ export type BTableProps<T = Record<string, unknown>> = TableProps<T>;
  *   fixed: 'right'，width 120-160，以保证横向滚动时操作按钮常驻可见。
  */
 const BTableInner = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
-  ({ size = "middle", loading, pagination, ...rest }, ref) => {
+  ({ size = "middle", loading, pagination, scroll, ...rest }, ref) => {
     if (loading) {
       return <Skeleton active paragraph={{ rows: 6 }} />;
     }
@@ -47,6 +47,7 @@ const BTableInner = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
               }
             : pagination
         }
+        scroll={scroll ?? { x: "max-content" }}
         {...rest}
       />
     );

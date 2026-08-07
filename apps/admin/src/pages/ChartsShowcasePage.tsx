@@ -60,14 +60,7 @@ export default function ChartsShowcasePage() {
     (async () => {
       setLoading(true);
       try {
-        const [basic, wc, rh, rf, rt, cd] = await Promise.all([
-          fetchBasicChartData(),
-          fetchWordCountGrowth(),
-          fetchReadingHeatmap(),
-          fetchReadingFunnel(),
-          fetchRankingTrend(),
-          fetchCategoryDistribution(),
-        ]);
+        const basic = await fetchBasicChartData();
         if (cancelled) return;
         setLineData(basic.lineData);
         setColumnData(basic.columnData);
@@ -75,19 +68,37 @@ export default function ChartsShowcasePage() {
         setAreaData(basic.areaData);
         setHeatmapData(basic.heatmapData);
         setGaugeValue(basic.gaugeValue);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    if (tab !== "business") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [wc, rh, rf, rt, cd] = await Promise.all([
+          fetchWordCountGrowth(),
+          fetchReadingHeatmap(),
+          fetchReadingFunnel(),
+          fetchRankingTrend(),
+          fetchCategoryDistribution(),
+        ]);
+        if (cancelled) return;
         setWordCountData(wc);
         setReadingHeatmapData(rh);
         setFunnelData(rf);
         setRankingData(rt);
         setCategoryData(cd);
       } finally {
-        if (!cancelled) setLoading(false);
+        /* no-op */
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return () => { cancelled = true; };
+  }, [tab]);
 
   const breadcrumb: BPageHeaderProps["breadcrumb"] = [
     { title: t("charts:breadcrumb.charts") },

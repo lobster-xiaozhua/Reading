@@ -109,8 +109,10 @@ export default function NovelFormPage() {
     let cancelled = false;
     (async () => {
       try {
-        const data = await fetchNovelDetail(novelId!);
-        await loadChapters(novelId!);
+        const [data] = await Promise.all([
+          fetchNovelDetail(novelId!),
+          loadChapters(novelId!),
+        ]);
         if (cancelled || !data) {
           setStatus("editing");
           return;

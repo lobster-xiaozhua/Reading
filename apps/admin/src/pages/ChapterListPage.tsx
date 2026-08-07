@@ -288,16 +288,18 @@ export default function ChapterListPage() {
     }
     setStatus("loading");
     try {
-      const novel = await fetchNovelDetail(novelId);
+      const [novel, res] = await Promise.all([
+        fetchNovelDetail(novelId),
+        fetchChapterList({
+          novelId,
+          page,
+          pageSize,
+          searchKey,
+          status: filterStatus,
+          sortBy,
+        }),
+      ]);
       if (novel) setNovelTitle(novel.title);
-      const res = await fetchChapterList({
-        novelId,
-        page,
-        pageSize,
-        searchKey,
-        status: filterStatus,
-        sortBy,
-      });
       setDataSource(res.list);
       setTotal(res.total);
       setTotalWords(res.totalWords);
