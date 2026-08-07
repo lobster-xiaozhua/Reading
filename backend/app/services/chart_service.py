@@ -3,6 +3,7 @@
 提供工作台趋势、字数增长、阅读热力图、阅读漏斗、排行趋势、分类分布。
 """
 
+import asyncio
 import time
 from collections import defaultdict
 from datetime import date, timedelta
@@ -199,6 +200,24 @@ class ChartService:
             return BasicChartData(type=chart_type, data=[])
         data = await handler()
         return BasicChartData(type=chart_type, data=data)
+
+    # ── 图表聚合 ─────────────────────────────────────────
+    async def get_dashboard_charts(self) -> dict:
+        """一次返回全部业务图表数据（减少网络往返）。"""
+        wc, rh, rf, rt, cd = await asyncio.gather(
+            self.get_word_count_growth(),
+            self.get_reading_heatmap(),
+            self.get_reading_funnel(),
+            self.get_ranking_trend(),
+            self.get_category_distribution(),
+        )
+        return {
+            "wordCountGrowth": [p.model_dump() for p in wc.daily],
+            "readingHeatmap": [c.model_dump() for c in rh],
+            "readingFunnel": [f.model_dump() for f in rf],
+            "rankingTrend": [p.model_dump() for p in rt],
+            "categoryDistribution": [c.model_dump() for c in cd],
+        }
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _count(self, model, *filters) -> int:

@@ -87,3 +87,14 @@ async def get_basic_chart(
 ):
     svc = ChartService(db)
     return ok(request, await svc.get_basic_chart(type))
+
+
+@router.get("/dashboard")
+async def get_dashboard_charts(
+    request: Request,
+    _admin=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """图表页聚合接口：一次返回全部业务图表数据，减少网络往返。"""
+    svc = ChartService(db)
+    return ok(request, await svc.get_dashboard_charts())
