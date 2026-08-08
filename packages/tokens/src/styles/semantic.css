@@ -43,12 +43,12 @@
   --color-bg-tooltip: var(--gray-14);
 
   /* ---------- L2 Semantic · 渐变（引用 L1 Gradient） ---------- */
-  --gradient-brand-subtle: var(--gradient-brand-subtle);
-  --gradient-brand-strong: var(--gradient-brand-strong);
-  --gradient-warm: var(--gradient-warm);
-  --gradient-rose: var(--gradient-rose);
-  --gradient-gold: var(--gradient-gold);
-  --gradient-surface: var(--gradient-surface);
+  --gradient-brand-subtle: linear-gradient(135deg, #E6F7FF 0%, #F0F9FF 100%);
+  --gradient-brand-strong: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  --gradient-warm: linear-gradient(135deg, #FFF4E6 0%, #FFE4B5 100%);
+  --gradient-rose: linear-gradient(135deg, #FF6B6B 0%, #F5222D 100%);
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F7F7F8 100%);
 
   /* ---------- L2 Semantic · 品牌发光（光晕/按钮辉光等视觉装饰，随主题切换） ---------- */
   --color-brand-glow-0: rgba(24, 144, 255, 0);

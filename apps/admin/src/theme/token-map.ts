@@ -152,6 +152,13 @@ export const antdDarkTokenOverride = {
   // 文本/背景/边框已通过 [data-theme='dark'] CSS var 自动切换，无需在此重复
   // 但 AntD 部分组件（如 Card 描边）读取 JS 值，需显式覆盖
   colorBgSpotlight: color.gray.gray1,
+
+  // fill 系为 JS 色值（无法随 CSS var 切换），暗色下显式覆盖为深灰
+  colorFill: color.gray.gray8,
+  colorFillSecondary: color.gray.gray9,
+  colorFillTertiary: color.gray.gray10,
+  colorFillQuaternary: color.gray.gray11,
+  controlItemBgActiveHover: color.brand.brand3,
 } as const;
 
 export type AntdTokenMap = typeof antdTokenMap;
