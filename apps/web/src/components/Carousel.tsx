@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { LazyImage } from "@/components/LazyImage";
+import { NavigationChevronLeft, NavigationChevronRight } from "@novel/icons";
 import type { Banner } from "@/api/types";
 import "./Carousel.css";
 
@@ -79,13 +80,27 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
         ))}
       </div>
 
+      {/* 自动播放进度条 */}
+      <div className="novel-carousel__progress" aria-hidden>
+        {banners.map((_, i) => (
+          <div
+            key={i}
+            className="novel-carousel__progress-fill"
+            style={{
+              width: i === active ? '100%' : '0%',
+              transitionDuration: i === active ? `${interval}ms` : '0ms',
+            }}
+          />
+        ))}
+      </div>
+
       <button
         type="button"
         className="novel-carousel__arrow novel-carousel__arrow--prev"
         onClick={prev}
         aria-label="上一张"
       >
-        ‹
+        <NavigationChevronLeft size="lg" />
       </button>
       <button
         type="button"
@@ -93,7 +108,7 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
         onClick={next}
         aria-label="下一张"
       >
-        ›
+        <NavigationChevronRight size="lg" />
       </button>
 
       <div

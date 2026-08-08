@@ -37,6 +37,19 @@
   --color-brand-bg: var(--brand-2);
   --color-brand-border: var(--brand-3);
 
+  /* ---------- L2 Semantic · 表面层级（新增 raised / overlay / tooltip） ---------- */
+  --color-bg-raised: #FFFFFF;
+  --color-bg-overlay: #FFFFFF;
+  --color-bg-tooltip: var(--gray-14);
+
+  /* ---------- L2 Semantic · 渐变（引用 L1 Gradient） ---------- */
+  --gradient-brand-subtle: var(--gradient-brand-subtle);
+  --gradient-brand-strong: var(--gradient-brand-strong);
+  --gradient-warm: var(--gradient-warm);
+  --gradient-rose: var(--gradient-rose);
+  --gradient-gold: var(--gradient-gold);
+  --gradient-surface: var(--gradient-surface);
+
   /* ---------- L2 Semantic · 品牌发光（光晕/按钮辉光等视觉装饰，随主题切换） ---------- */
   --color-brand-glow-0: rgba(24, 144, 255, 0);
   --color-brand-glow-20: rgba(24, 144, 255, 0.2);
@@ -112,11 +125,17 @@
   --font-size-caption: 13px;
   --font-size-xs: 12px;
   --font-size-overline: 11px;
+  --font-size-tiny: 10px;
+  --font-size-button: 14px;
+  --font-size-body-lg: 17px;
+  --font-size-h4: 18px;
 
+  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
   --line-height-tight: 1.15;
   --line-height-normal: 1.5;
@@ -188,17 +207,31 @@
   --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
   --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.16);
 
+  /* ---------- 阴影增强（发光、内阴影、按压） ---------- */
+  --sh-glow-brand: 0 0 12px rgba(24, 144, 255, 0.3);
+  --sh-glow-rose: 0 0 12px rgba(245, 34, 45, 0.2);
+  --sh-inner: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  --sh-pressed: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+
   /* ---------- 动效 ---------- */
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
   --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
 
   --dur-instant: 90ms;
   --dur-fast: 150ms;
   --dur-normal: 240ms;
   --dur-slow: 360ms;
   --dur-deliberate: 540ms;
+
+  /* ---------- 过渡简写（组合 duration + easing） ---------- */
+  --transition-fade: opacity var(--dur-fast) var(--ease-standard);
+  --transition-slide: transform var(--dur-normal) var(--ease-decelerate);
+  --transition-spring: transform var(--dur-normal) var(--ease-spring);
+  --transition-expand: grid-template-rows var(--dur-normal) var(--ease-standard);
 
   /* ---------- 层级 z-index（6 级） ---------- */
   --z-index-base: 0;
@@ -281,6 +314,12 @@
   /* 玫红暗色微调 */
   --color-rose-bg: rgba(245, 34, 45, 0.16);
 
+  --color-bg-raised: var(--gray-11);
+  --color-bg-overlay: var(--gray-11);
+  --color-bg-tooltip: var(--gray-2);
+
+  --gradient-surface: var(--gradient-surface-dark);
+
   --color-feedback-success: var(--success-2);
   --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
   --color-feedback-warning: var(--warning-2);
@@ -355,7 +394,13 @@
     --color-accent-orange-active: var(--orange-5);
     --color-accent-orange-bg: rgba(240, 133, 40, 0.16);
 
-    --color-rose-bg: rgba(245, 34, 45, 0.16);
+--color-rose-bg: rgba(245, 34, 45, 0.16);
+
+  --color-bg-raised: var(--gray-11);
+  --color-bg-overlay: var(--gray-11);
+  --color-bg-tooltip: var(--gray-2);
+
+  --gradient-surface: var(--gradient-surface-dark);
 
     --color-feedback-success: var(--success-2);
     --color-feedback-success-bg: rgba(82, 196, 26, 0.16);

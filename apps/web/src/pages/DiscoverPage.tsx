@@ -9,12 +9,24 @@ import {
 import { Carousel } from "@/components/Carousel";
 import { LazyImage } from "@/components/LazyImage";
 import { SectionTitle } from "@/components/SectionTitle";
-import { Countdown } from "@/components/Countdown";
+import { RingCountdown } from "@/components/RingCountdown";
 import { ErrorState } from "@/components/ErrorState";
 import { DiscoverModule } from "@/components/DiscoverModule";
 import { fetcher } from "@/api/fetcher";
 import type { Category, DiscoverHome, RankType } from "@/api/types";
 import { toBook } from "@/utils/convert";
+import {
+  NovelFire,
+  NovelHeartFilled,
+  NovelEye,
+  NovelCrown,
+  NovelMedal,
+  NovelReward,
+  NovelBookClosed,
+  ContentBook,
+  NovelMoon,
+  NovelReadingGlasses,
+} from "@novel/icons";
 import "./DiscoverPage.css";
 
 const RANK_TABS: { key: RankType; label: string }[] = [
@@ -174,7 +186,11 @@ export default function DiscoverPage() {
                         />
                         <div className="discover-page__free-meta">
                           {b.freeDeadline ? (
-                            <Countdown deadline={b.freeDeadline} />
+                            <RingCountdown
+                              start={b.freeDeadline - 7 * 86400000}
+                              deadline={b.freeDeadline}
+                              size={56}
+                            />
                           ) : (
                             <span className="discover-page__free-badge">
                               限免中
@@ -272,14 +288,24 @@ export default function DiscoverPage() {
   );
 }
 
-const CATEGORY_COLORS = [
-  "var(--color-brand-bg)",
-  "var(--color-accent-orange-bg)",
-  "var(--color-rose-bg)",
-  "var(--color-feedback-success-bg)",
-  "var(--color-feedback-warning-bg)",
-  "var(--color-feedback-info-bg)",
-];
+const CATEGORY_ICON_MAP: Record<string, { icon: typeof NovelFire; color: string }> = {
+  '玄幻': { icon: NovelFire, color: 'var(--color-brand-bg)' },
+  '奇幻': { icon: NovelMoon, color: 'var(--color-brand-bg)' },
+  '武侠': { icon: NovelCrown, color: 'var(--color-accent-orange-bg)' },
+  '仙侠': { icon: NovelCrown, color: 'var(--color-accent-orange-bg)' },
+  '言情': { icon: NovelHeartFilled, color: 'var(--color-rose-bg)' },
+  '都市': { icon: ContentBook, color: 'var(--color-brand-bg)' },
+  '历史': { icon: NovelMedal, color: 'var(--color-feedback-warning-bg)' },
+  '游戏': { icon: NovelReward, color: 'var(--color-feedback-success-bg)' },
+  '悬疑': { icon: NovelEye, color: 'var(--gray-3)' },
+  '科幻': { icon: NovelReadingGlasses, color: 'var(--color-feedback-info-bg)' },
+};
+
+function getCategoryStyle(name: string): { icon: typeof NovelFire; color: string } {
+  const match = CATEGORY_ICON_MAP[name];
+  if (match) return match;
+  return { icon: NovelBookClosed, color: 'var(--color-bg-subtle)' };
+}
 
 const CategoryGrid = memo(function CategoryGrid({
   categories,
@@ -288,17 +314,20 @@ const CategoryGrid = memo(function CategoryGrid({
 }) {
   return (
     <div className="discover-page__category-grid">
-      {categories.filter(Boolean).map((c, idx) => {
-        const bgColor = CATEGORY_COLORS[idx % CATEGORY_COLORS.length];
+      {categories.filter(Boolean).map((c) => {
+        const { icon: IconComponent, color } = getCategoryStyle(c.name);
         return (
           <Link
             key={c.id}
             to={`/category?cat=${encodeURIComponent(c.name)}`}
-            className="discover-page__category-item"
-            style={{ background: bgColor }}
+            className="discover-page__category-item stagger-enter"
+            style={{ '--category-bg': color } as React.CSSProperties}
           >
+            <span className="discover-page__category-icon" aria-hidden>
+              <IconComponent size="xl" />
+            </span>
             <span className="discover-page__category-name">{c.name}</span>
-            <span className="discover-page__category-count">{c.count}</span>
+            <span className="discover-page__category-count">{c.count}本</span>
           </Link>
         );
       })}

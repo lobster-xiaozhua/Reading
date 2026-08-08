@@ -31,7 +31,8 @@
     "react-dom": "^19.0.0",
     "react-hotkeys-hook": "^4.6.2",
     "react-i18next": "^15.0.0",
-    "react-router-dom": "^6.28.0",
+    "react-router": "6.30.4",
+    "react-router-dom": "6.30.4",
     "zustand": "^4.5.5"
   },
   "devDependencies": {

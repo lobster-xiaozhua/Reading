@@ -20,6 +20,9 @@ export type {
   StatisticTrend,
 } from "./statistic-card/BStatisticCard.js";
 
+export { BSparkline } from "./statistic-card/BSparkline.js";
+export type { BSparklineProps } from "./statistic-card/BSparkline.js";
+
 export { BBatchActionBar } from "./batch-action-bar/BBatchActionBar.js";
 export type {
   BBatchActionBarProps,
@@ -38,6 +41,9 @@ export type { BResultProps, BResultStatus } from "./result/BResult.js";
 /* ---------- 批次 B · 表单与数据型（12 个） ---------- */
 export { BTable } from "./table/BTable.js";
 export type { BTableProps } from "./table/BTable.js";
+
+export { CompactTable } from "./table/CompactTable.js";
+export type { CompactTableProps } from "./table/CompactTable.js";
 
 export { BForm } from "./form/BForm.js";
 export { BFormItem } from "./form/BFormItem.js";

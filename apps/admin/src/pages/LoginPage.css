@@ -27,6 +27,30 @@
 /* 页面级动画 */
 .login-page {
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-bg-page) 0%, var(--color-brand-bg) 50%, var(--color-bg-surface) 100%);
+}
+
+/* 卡片进入 */
+.login-page .ant-card {
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 卡片顶部渐变装饰条 */
+.login-page .ant-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, var(--color-brand), var(--color-accent), var(--color-rose));
+  z-index: 1;
 }
 
 /* 卡片进入 */
@@ -47,6 +71,14 @@
 /* 按钮进入 */
 .login-page .ant-btn {
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 300ms both;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring);
+}
+
+.login-page .ant-btn:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
 /* 演示账号列表 staggered 进入 */
@@ -69,6 +101,10 @@
 .login-page .demo-account-item .ant-tag:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px var(--color-brand-bg);
+}
+
+.login-page .demo-account-item .ant-tag:active {
+  transform: scale(0.95);
 }
 
 /* 减弱动效适配 */

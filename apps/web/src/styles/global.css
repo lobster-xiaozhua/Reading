@@ -206,6 +206,52 @@ img {
   }
 }
 
+/* ============================================
+ * 页面级过渡（淡入 + 上移）
+ * ============================================ */
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+ * 交错入场（列表项逐条进入）
+ * ============================================ */
+@keyframes staggerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+ * 弹性按压效果（按钮/卡片）
+ * ============================================ */
+@keyframes springPress {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.96); }
+  70% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* ============================================
+ * 光泽扫过（卡片装饰）
+ * ============================================ */
+@keyframes shineSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 .fade-in {
   animation: fadeIn 300ms ease-out both;
 }
@@ -218,10 +264,71 @@ img {
   animation: scaleIn 200ms ease-out both;
 }
 
+/** 页面级淡入 */
+.page-fade-in {
+  animation: pageFadeIn 300ms var(--ease-decelerate) both;
+}
+
+/** 交错入场：每项偏移 50ms */
+.stagger-enter {
+  animation: staggerEnter 400ms var(--ease-decelerate) both;
+}
+
+.stagger-enter:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter:nth-child(2) { animation-delay: 50ms; }
+.stagger-enter:nth-child(3) { animation-delay: 100ms; }
+.stagger-enter:nth-child(4) { animation-delay: 150ms; }
+.stagger-enter:nth-child(5) { animation-delay: 200ms; }
+.stagger-enter:nth-child(6) { animation-delay: 250ms; }
+.stagger-enter:nth-child(7) { animation-delay: 300ms; }
+.stagger-enter:nth-child(8) { animation-delay: 350ms; }
+.stagger-enter:nth-child(9) { animation-delay: 400ms; }
+.stagger-enter:nth-child(10) { animation-delay: 450ms; }
+
+/** 弹性按压 */
+.spring-press {
+  transition: transform var(--dur-instant) var(--ease-spring);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.spring-press:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/** 光泽扫过装饰 */
+.shine-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-sweep::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-10) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
+.shine-sweep:hover::after {
+  transform: translateX(100%);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hover-rise:hover {
     transform: none;
   }
+  .page-fade-in,
+  .stagger-enter,
+  .spring-press,
+  .shine-sweep,
   *,
   *::before,
   *::after {

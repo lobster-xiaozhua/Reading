@@ -79,7 +79,50 @@
   border-bottom: 1px solid var(--color-border-subtle);
   margin-bottom: var(--space-8);
   position: relative;
+  overflow: hidden;
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+}
+
+/* 封面背景氛围光：模糊 + 光晕 */
+.book-detail__hero-bg {
+  position: absolute;
+  inset: -40px;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.book-detail__hero-blur {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(40px) brightness(0.5);
+  transform: scale(1.2);
+  opacity: 0.15;
+  transition: opacity var(--dur-slow) var(--ease-standard);
+}
+
+/* 氛围光下方渐变遮罩，让 hero 内容区不突兀 */
+.book-detail__hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    var(--color-bg-page) 0%,
+    transparent 30%,
+    transparent 70%,
+    var(--color-bg-page) 100%
+  );
+  pointer-events: none;
+}
+
+/* 封面和元信息在 z-index 2 层，在氛围光之上 */
+.book-detail__cover,
+.book-detail__meta {
+  position: relative;
+  z-index: 2;
 }
 .book-detail__cover {
   position: relative;
@@ -142,10 +185,11 @@
 }
 .book-detail__read-btn {
   min-width: 140px;
-  transition: transform var(--dur-instant) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+  transition: transform var(--dur-instant) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-standard);
   box-shadow: 0 2px 8px var(--color-brand-glow-25);
   position: relative;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 .book-detail__read-btn:hover {
   box-shadow: 0 4px 16px var(--color-brand-glow-35);
@@ -313,6 +357,7 @@
 /* ---------- 简介 ---------- */
 .book-detail__intro {
   margin-bottom: var(--space-8);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 150ms both;
 }
 .book-detail__intro-text {
   margin: 0;
@@ -324,6 +369,7 @@
 /* ---------- 评分 ---------- */
 .book-detail__rating {
   margin-bottom: var(--space-8);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 250ms both;
 }
 
 /* ---------- Tab 区 ---------- */
@@ -574,9 +620,10 @@
   cursor: pointer;
   border-radius: var(--radius-full);
   transition:
-    transform var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring),
     color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
+  -webkit-tap-highlight-color: transparent;
 }
 .book-detail__comment-like:hover {
   color: var(--color-rose);
@@ -613,6 +660,7 @@
   gap: var(--space-2);
   padding: var(--space-8) var(--space-4);
   text-align: center;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
 }
 .book-detail__reward-text {
   margin: 0;
@@ -631,6 +679,29 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: var(--space-4);
+}
+
+.book-detail__related-grid > * {
+  animation: staggerEnter 400ms var(--ease-decelerate) both;
+}
+
+.book-detail__related-grid > *:nth-child(1) { animation-delay: 0ms; }
+.book-detail__related-grid > *:nth-child(2) { animation-delay: 60ms; }
+.book-detail__related-grid > *:nth-child(3) { animation-delay: 120ms; }
+.book-detail__related-grid > *:nth-child(4) { animation-delay: 180ms; }
+.book-detail__related-grid > *:nth-child(5) { animation-delay: 240ms; }
+.book-detail__related-grid > *:nth-child(6) { animation-delay: 300ms; }
+.book-detail__related-grid > *:nth-child(n+7) { animation-delay: 360ms; }
+
+@keyframes staggerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ---------- 响应式 ---------- */
@@ -672,7 +743,9 @@
   .book-detail__read-btn,
   .book-detail__last-read,
   .book-detail__comment-like,
-  .book-detail__write-comment-submit {
+  .book-detail__write-comment-submit,
+  .book-detail__reward,
+  .book-detail__related-grid > * {
     animation: none;
     transition: none;
   }

@@ -1,6 +1,6 @@
 /* ============================================================
  * P2-3 · StatisticCard 统计卡片
- * title + value + prefix/suffix + trend up/down/flat + loading + onClick
+ * title + value + prefix/suffix + trend up/down/flat + sparkline + loading + onClick
  * Source: 04 §6.3
  * ============================================================ */
 
@@ -12,33 +12,25 @@ import {
   ArrowDownOutlined,
   MinusOutlined,
 } from "@ant-design/icons";
+import { BSparkline } from "./BSparkline";
 
 const { Text } = Typography;
 
 export type StatisticTrend = "up" | "down" | "flat";
 
 export interface BStatisticCardProps {
-  /** 指标标题 */
   title: string;
-  /** 主数值 */
   value: ReactNode;
-  /** 数值前缀（如 ¥、$） */
   prefix?: ReactNode;
-  /** 数值后缀（如 %、万） */
   suffix?: ReactNode;
-  /** 趋势方向 */
   trend?: StatisticTrend;
-  /** 趋势百分比文本（如 +12.5%） */
   trendText?: string;
-  /** 趋势描述（如 "较昨日"） */
   trendLabel?: string;
-  /** 加载态 */
+  sparkline?: number[];
   loading?: boolean;
-  /** 点击回调 */
   onClick?: () => void;
 }
 
-/** 趋势色映射 */
 function getTrendColor(trend: StatisticTrend): string {
   switch (trend) {
     case "up":
@@ -63,12 +55,6 @@ function getTrendIcon(trend: StatisticTrend) {
   }
 }
 
-/**
- * B 端统计卡片
- * - 工作台 KPI 指标展示
- * - 趋势色：up=success / down=error / flat=tertiary
- * - loading 时用 Skeleton 占位
- */
 export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
   function BStatisticCard(
     {
@@ -79,6 +65,7 @@ export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
       trend,
       trendText,
       trendLabel,
+      sparkline,
       loading,
       onClick,
     },
@@ -153,6 +140,9 @@ export const BStatisticCard = forwardRef<HTMLDivElement, BStatisticCardProps>(
                   </Text>
                 )}
               </div>
+            )}
+            {sparkline && sparkline.length > 0 && (
+              <BSparkline data={sparkline} height={24} dot={false} />
             )}
           </>
         )}

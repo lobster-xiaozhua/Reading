@@ -19,6 +19,17 @@ import "./WorkbenchPage.css";
 
 const BLineChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BLineChart })));
 
+/** 生成 KPI 迷你趋势数据（基于当前值构造有波动的序列） */
+function genSparkline(base: number, seed = 1): number[] {
+  const points: number[] = [];
+  let v = base * 0.6;
+  for (let i = 0; i < 12; i++) {
+    v = v + (Math.sin(i * 1.3 + seed) * 2 + (i % 3 === 0 ? 1.5 : -0.5));
+    points.push(Math.max(1, Math.round(v)));
+  }
+  return points;
+}
+
 export default function WorkbenchPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -48,6 +59,7 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: `${kpi.publishedNovels} ${t("workbench:published")}`,
             trendLabel: "",
+            sparkline: genSparkline(kpi.totalNovels, 3),
           },
           {
             key: "pendingAudit",
@@ -57,6 +69,7 @@ export default function WorkbenchPage() {
             trend: kpi.pendingAudit > 0 ? "down" : "up",
             trendText: "",
             trendLabel: t("workbench:needHandle"),
+            sparkline: genSparkline(kpi.pendingAudit, 7),
           },
           {
             key: "totalAuthors",
@@ -66,6 +79,7 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: "",
             trendLabel: "",
+            sparkline: genSparkline(kpi.totalAuthors, 5),
           },
           {
             key: "totalReaders",
@@ -75,6 +89,7 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: "",
             trendLabel: "",
+            sparkline: genSparkline(kpi.totalReaders, 1),
           },
         ]);
         setTodoCount(kpi.pendingAudit);

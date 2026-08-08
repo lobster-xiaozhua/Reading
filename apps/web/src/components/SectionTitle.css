@@ -15,6 +15,21 @@
   font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
+  position: relative;
+  padding-left: var(--space-3);
+}
+
+/* 装饰性左竖线 accent 条 */
+.novel-section-title__text::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12%;
+  bottom: 12%;
+  width: 4px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(180deg, var(--color-brand), var(--color-accent));
+  box-shadow: var(--sh-glow-brand);
 }
 .novel-section-title__sub {
   font-size: var(--font-size-xs);

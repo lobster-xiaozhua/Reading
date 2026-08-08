@@ -17,12 +17,18 @@
 @keyframes reader-fade-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: perspective(600px) rotateY(-4deg) translateX(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: perspective(600px) rotateY(0deg) translateX(0);
   }
+}
+
+/* 章节切换软翻页效果 */
+.reader-page__chapter-enter {
+  animation: reader-fade-in 350ms var(--ease-decelerate) both;
+  transform-origin: left center;
 }
 
 /* 抽屉滑入动画 */
@@ -101,9 +107,30 @@
   box-shadow: none;
 }
 
-/* 章节切换淡入动画 */
+/* 章节切换软翻页效果 */
 .reader-page__chapter-enter {
-  animation: reader-fade-in var(--dur-normal) var(--ease-decelerate);
+  animation: reader-fade-in 350ms var(--ease-decelerate) both;
+  transform-origin: left center;
+}
+
+/* 阅读进度条（顶部渐变） */
+.reader-page .reader-progress {
+  height: 3px;
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-sticky);
+}
+
+.reader-page .reader-progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
+  border-radius: var(--radius-full);
+  transition: width var(--dur-slow) var(--ease-standard);
 }
 
 /* 目录抽屉动画 */

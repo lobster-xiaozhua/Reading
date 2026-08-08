@@ -17,6 +17,7 @@ import { BFilterBar } from "@novel/b-end";
 import type { FilterField } from "@novel/b-end";
 import { BTable } from "@novel/b-end";
 import type { BTableProps } from "@novel/b-end";
+import { CompactTable } from "@novel/b-end";
 import { BBatchActionBar } from "@novel/b-end";
 import type { BatchAction } from "@novel/b-end";
 import { useAuthStore } from "@/stores/authStore";
@@ -76,6 +77,9 @@ export interface ListPageTemplateProps<T> {
   /** 清除选择 */
   onClearSelection?: () => void;
 
+  /** 是否使用紧凑型表格（默认 false） */
+  compact?: boolean;
+
   /* ---------- PageHeader extra ---------- */
   /** 新建按钮回调（不传则不显示） */
   onCreate?: () => void;
@@ -114,6 +118,7 @@ export function ListPageTemplate<T extends object>(
     onPaginationChange,
     rowSelection,
     selectedCount = 0,
+    compact = false,
     batchActions,
     onClearSelection,
     onCreate,
@@ -223,6 +228,55 @@ export function ListPageTemplate<T extends object>(
         collapsible={filters && filters.length > 4}
       />
 
+      {compact ? (
+        <CompactTable
+          columns={columns as any}
+          dataSource={dataSource as any}
+          rowKey={rowKey}
+          loading={loading ?? status === "loading"}
+          pagination={
+            pagination ?? {
+              pageSize: 20,
+              showSizeChanger: true,
+              pageSizeOptions: [10, 20, 50, 100],
+              showTotal: (t: number) => `共 ${t} 条`,
+              onChange: handlePaginationChange,
+            }
+          }
+          rowSelection={rowSelection as any}
+          locale={{
+            emptyText: isNoSearchResult ? (
+              <Result
+                status="info"
+                title="未找到匹配结果"
+                subTitle="试试调整筛选条件或搜索关键词。"
+                extra={onReset && <Button onClick={onReset}>清除筛选</Button>}
+              />
+            ) : isEmpty ? (
+              <Result
+                status="info"
+                title="暂无数据"
+                subTitle={
+                  onCreate && canCreate
+                    ? "点击右上角「新建」创建第一条数据。"
+                    : "当前暂无数据。"
+                }
+                extra={
+                  onCreate && canCreate ? (
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      onClick={onCreate}
+                    >
+                      新建
+                    </Button>
+                  ) : undefined
+                }
+              />
+            ) : undefined,
+          }}
+        />
+      ) : (
       <BTable
         columns={columns as any}
         dataSource={dataSource as any}
@@ -270,6 +324,7 @@ export function ListPageTemplate<T extends object>(
           ) : undefined,
         }}
       />
+      )}
 
       {batchActions && batchActions.length > 0 && (
         <BBatchActionBar

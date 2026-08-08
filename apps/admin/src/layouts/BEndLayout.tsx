@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Layout } from "antd";
-import { Outlet } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import { SiderMenu } from "./SiderMenu";
 import { HeaderBar } from "./HeaderBar";
 import { MultiTabs } from "./MultiTabs";
+import { AnimatedOutlet } from "./AnimatedOutlet";
 import "./bend-layout.css";
 
 const { Content } = Layout;
@@ -59,7 +59,7 @@ export function BEndLayout() {
             }}
           >
             <div className="bend-layout__inner">
-              <Outlet />
+              <AnimatedOutlet />
             </div>
           </Content>
         </Layout>

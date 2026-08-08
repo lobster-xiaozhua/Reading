@@ -4,6 +4,7 @@
 """
 
 import logging
+import logging.handlers
 import queue
 import sys
 
@@ -11,7 +12,7 @@ import structlog
 
 from app.core.config import settings
 
-# 日志队列：QueueHandler 线程安全地将日志从 worker 线程转发到主线程 handler
+# 日志队列：线程安全地将日志从 worker 线程转发到主线程 handler
 _log_queue: queue.Queue = queue.Queue(-1)
 
 
@@ -47,7 +48,8 @@ def setup_logging() -> None:
 
     if is_prod:
         # 生产模式：QueueHandler 将日志异步转发到主线程 handler，避免阻塞 worker
-        queue_handler = logging.QueueHandler(_log_queue)
+        # 使用 logging.handlers.QueueHandler（Python 3.2+ 均可用，顶层 QueueHandler 需 3.12+）
+        queue_handler = logging.handlers.QueueHandler(_log_queue)
         queue_handler.setLevel(log_level)
         queue_listener = logging.handlers.QueueListener(_log_queue, handler)
         queue_listener.start()

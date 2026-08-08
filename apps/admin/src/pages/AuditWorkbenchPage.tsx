@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { useHotkeys } from "react-hotkeys-hook";
 import {
   Card,
   List,
@@ -169,6 +170,17 @@ export default function AuditWorkbenchPage() {
       setFadingOutId(null);
     }
   };
+
+  // Ctrl+Enter: 通过, Ctrl+Delete: 驳回
+  useHotkeys("ctrl+enter", (e) => {
+    e.preventDefault();
+    if (canApprove && currentItem && !submitting) handleSubmit("approve");
+  }, { enabled: canApprove && !!currentItem && !submitting }, [canApprove, currentItem, submitting, handleSubmit]);
+
+  useHotkeys("ctrl+delete", (e) => {
+    e.preventDefault();
+    if (canReject && currentItem && rejectReason && !submitting) handleSubmit("reject");
+  }, { enabled: canReject && !!currentItem && !!rejectReason && !submitting }, [canReject, currentItem, rejectReason, submitting, handleSubmit]);
 
   const handleSensitiveClick = (hit: SensitiveHit) => {
     const el = hitRefs.current.get(hit.text + hit.offset);
@@ -482,6 +494,7 @@ export default function AuditWorkbenchPage() {
                         loading={submitting}
                         onClick={() => handleSubmit("approve")}
                         disabled={!canApprove}
+                        title="Ctrl+Enter"
                       >
                         {t("audit:operation.approve")}
                       </Button>
@@ -501,6 +514,7 @@ export default function AuditWorkbenchPage() {
                           !rejectReason ||
                           comment.trim().length < 10
                         }
+                        title="Ctrl+Delete"
                       >
                         {t("audit:operation.reject")}
                       </Button>

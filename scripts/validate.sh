@@ -245,6 +245,11 @@ frontend_tests() {
 backend_checks() {
   header "后端检查"
 
+  # 从 backend/.env 加载 JWT_SECRET（若存在），避免生产模式校验失败
+  if [ -f "backend/.env" ]; then
+    export JWT_SECRET=$(grep '^JWT_SECRET=' backend/.env | head -1 | cut -d= -f2-)
+  fi
+
   run_step "Ruff 代码检查"  "/tmp/validate-ruff.log"  ruff check backend/app/ backend/tests/
   run_step "模块导入检查"    "/tmp/validate-import.log" python3 -c "import sys; sys.path.insert(0, 'backend'); import app.main"
   run_step "后端健康检查"    "/tmp/validate-health.log" python3 -c "
@@ -281,7 +286,7 @@ security_audit() {
   header "安全审计"
 
   run_step "pnpm audit"  "/tmp/validate-pnpm-audit.log"  pnpm audit --audit-level=high || true
-  run_step "pip audit"   "/tmp/validate-pip-audit.log"   pip-audit --project backend || true
+  run_step "pip audit"   "/tmp/validate-pip-audit.log"   pip-audit /workspace/backend || true
 }
 
 # ── 快速检查（跳过构建和慢速测试）─────────────────────────

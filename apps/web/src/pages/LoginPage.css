@@ -161,6 +161,13 @@
   cursor: not-allowed;
 }
 
+.login-submit {
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
 .login-hint {
   text-align: center;
   color: var(--color-text-tertiary);

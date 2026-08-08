@@ -30,6 +30,7 @@ import {
   NavigationChevronRight,
 } from "@novel/icons";
 import { LazyImage } from "@/components/LazyImage";
+import { AnimatedNumber } from "@/components/AnimatedNumber";
 import { fetcher } from "@/api/fetcher";
 import type {
   BookList,
@@ -160,26 +161,26 @@ export default function ProfilePage() {
               </div>
               <div className="profile-page__user-stats">
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value num-tabular">
-                    {profile.stats.readingDays}
+                  <span className="profile-page__stat-value">
+                    <AnimatedNumber value={profile.stats.readingDays} suffix="天" />
                   </span>
                   <span className="profile-page__stat-label">连续阅读</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value num-tabular">
-                    {Math.floor(profile.stats.readingMinutes / 60)}
+                  <span className="profile-page__stat-value">
+                    <AnimatedNumber value={Math.floor(profile.stats.readingMinutes / 60)} suffix="h" />
                   </span>
-                  <span className="profile-page__stat-label">阅读时长(h)</span>
+                  <span className="profile-page__stat-label">阅读时长</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value num-tabular">
-                    {(profile.stats.readWords / 10000).toFixed(0)}万
+                  <span className="profile-page__stat-value">
+                    <AnimatedNumber value={Math.floor(profile.stats.readWords / 10000)} suffix="万" />
                   </span>
                   <span className="profile-page__stat-label">阅读字数</span>
                 </div>
                 <div className="profile-page__stat">
-                  <span className="profile-page__stat-value num-tabular">
-                    {profile.stats.bookshelfCount}
+                  <span className="profile-page__stat-value">
+                    <AnimatedNumber value={profile.stats.bookshelfCount} />
                   </span>
                   <span className="profile-page__stat-label">书架</span>
                 </div>

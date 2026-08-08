@@ -25,11 +25,12 @@
   }
 }
 
+/* 页面入场 */
 .b-charts-showcase-page {
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
 }
 
-/* 图表卡片 staggered 进入 */
+/* 图表卡片交错入场（6 列，每列延迟 100ms） */
 .b-charts-showcase-page .ant-card {
   animation: scaleIn var(--dur-normal) var(--ease-decelerate) both;
 }
@@ -53,18 +54,27 @@
   animation-delay: 500ms;
 }
 
-/* Segmented 切换过渡 */
-.b-charts-showcase-page .ant-segmented {
-  transition: all var(--dur-fast) var(--ease-standard);
-}
-
-/* 图表容器 hover 效果 */
+/* 图表卡片悬浮增强 */
 .b-charts-showcase-page .ant-card {
-  transition: box-shadow var(--dur-fast) var(--ease-standard);
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
 }
 
 .b-charts-showcase-page .ant-card:hover {
-  box-shadow: var(--sh-3);
+  transform: translateY(-3px);
+  box-shadow: var(--sh-4);
+  border-color: var(--color-brand-border);
+}
+
+.b-charts-showcase-page .ant-card:active {
+  transform: translateY(-1px);
+}
+
+/* Segmented 切换过渡 */
+.b-charts-showcase-page .ant-segmented {
+  transition: all var(--dur-fast) var(--ease-standard);
 }
 
 /* 减弱动效适配 */

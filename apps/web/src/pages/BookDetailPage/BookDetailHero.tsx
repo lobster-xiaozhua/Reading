@@ -27,6 +27,15 @@ export function BookDetailHero({
 }: BookDetailHeroProps) {
   return (
     <section className="book-detail__hero container-page">
+      {/* 封面背景氛围光 */}
+      <div className="book-detail__hero-bg" aria-hidden>
+        <LazyImage
+          src={book.cover}
+          alt=""
+          className="book-detail__hero-blur"
+          eager
+        />
+      </div>
       <div className="book-detail__cover">
         <LazyImage src={book.cover} alt={book.title} eager />
         {book.flags.includes("vip") ? (

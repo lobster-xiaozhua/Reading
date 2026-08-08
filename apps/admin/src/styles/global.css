@@ -280,3 +280,54 @@ input[type='number'] {
 .filter-checkbox-group.is-wide {
   max-width: none;
 }
+
+/* ============================================
+ * CompactTable · 紧凑型数据表格
+ * ============================================ */
+.compact-table .ant-table-thead > tr > th {
+  font-size: var(--font-size-caption, 13px);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: none;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
+.compact-table .ant-table-thead > tr > th,
+.compact-table .ant-table-tbody > tr > td {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.compact-table .ant-table-tbody > tr > td {
+  font-size: var(--font-size-small, 14px);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* 行悬浮：左侧品牌色指示条 */
+.compact-table .ant-table-tbody > tr {
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.compact-table .ant-table-tbody > tr:hover > td {
+  box-shadow: inset 3px 0 0 var(--color-brand);
+}
+
+/* 数字列等宽对齐（数据列） */
+.compact-table .num-tabular,
+.compact-table td.num-col {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+}
+
+/* 紧凑分页 */
+.compact-table .ant-pagination {
+  margin-top: var(--space-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .compact-table .ant-table-tbody > tr {
+    transition: none;
+  }
+}

@@ -83,6 +83,10 @@
 }
 .novel-carousel__arrow:hover {
   background: var(--color-overlay-strong);
+  transform: translateY(-50%) scale(1.1);
+}
+.novel-carousel__arrow:active {
+  transform: translateY(-50%) scale(0.95);
 }
 .novel-carousel__arrow--prev {
   left: var(--space-3);
@@ -98,6 +102,23 @@
   transform: translateX(-50%);
   display: flex;
   gap: var(--space-2);
+  align-items: center;
+}
+/* 自动播放进度条（每张 banner 上方的计时指示器） */
+.novel-carousel__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-overlay-white-20);
+  z-index: 1;
+}
+.novel-carousel__progress-fill {
+  height: 100%;
+  background: var(--color-text-inverse);
+  transition: width 0.1s linear;
+  border-radius: 0 var(--radius-full) 0 0;
 }
 .novel-carousel__dot {
   width: 8px;

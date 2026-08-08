@@ -287,6 +287,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  align-items: center;
 }
 .discover-page__free-meta {
   display: flex;
@@ -304,7 +305,7 @@
 }
 
 /* ============================================
- * 分类入口 - 大圆角沉浸式卡片
+ * 分类入口 - 图标化大圆角卡片
  * ============================================ */
 .discover-page__category-grid {
   display: grid;
@@ -316,26 +317,45 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-5) var(--space-3);
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
   border-radius: var(--radius-2xl);
   text-decoration: none;
-  min-height: 90px;
+  min-height: 100px;
   transition:
     transform var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard);
-  background: var(--color-bg-surface);
+  background: var(--category-bg, var(--color-bg-surface));
   border: 1px solid var(--color-border-subtle);
+  position: relative;
+  overflow: hidden;
 }
 .discover-page__category-item:hover {
   transform: translateY(-4px) scale(1.03);
   box-shadow: var(--sh-3);
   border-color: var(--color-brand);
-  background: var(--color-brand-bg);
 }
 .discover-page__category-item:active {
   transform: translateY(-2px) scale(1.01);
+}
+.discover-page__category-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  box-shadow: var(--sh-1);
+  transition:
+    transform var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+.discover-page__category-item:hover .discover-page__category-icon {
+  transform: scale(1.1);
+  color: var(--color-brand);
 }
 .discover-page__category-name {
   font-size: var(--font-size-small);

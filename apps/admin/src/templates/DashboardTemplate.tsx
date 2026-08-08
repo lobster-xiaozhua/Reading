@@ -24,6 +24,7 @@ export interface KpiItem {
   trend?: StatisticTrend;
   trendText?: string;
   trendLabel?: string;
+  sparkline?: number[];
 }
 
 export interface OverviewItem {
@@ -198,10 +199,10 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
               trend={kpi.trend}
               trendText={kpi.trendText}
               trendLabel={kpi.trendLabel}
+              sparkline={kpi.sparkline}
             />
-          ))
-        )}
-      </div>
+          )))}
+        </div>
 
       {/* 趋势图表 */}
       <Card
