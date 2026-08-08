@@ -10,7 +10,11 @@ class AuditRecord(Base, IdMixin):
     """审核记录。"""
 
     __tablename__ = "audit_records"
-    __table_args__ = (Index("idx_audit_target", "target_type", "target_id"),)
+    __table_args__ = (
+        Index("idx_audit_target", "target_type", "target_id"),
+        # 审核队列按 pending + 提交时间排序
+        Index("idx_audit_status_submitted", "status", "submitted_at"),
+    )
 
     target_type: Mapped[str] = mapped_column(String(20), comment="novel/chapter")
     target_id: Mapped[int] = mapped_column(BigInteger)

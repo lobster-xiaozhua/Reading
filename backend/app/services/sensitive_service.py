@@ -9,8 +9,10 @@ from datetime import date
 
 import redis.asyncio as redis
 import structlog
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import BizError, ErrorCode
 from app.repositories.audit_repo import SensitiveWordRepository
 from app.schemas.b_end import (
     AddSensitiveWordBody,
@@ -73,8 +75,13 @@ class SensitiveService:
             新增的敏感词项。
         """
         version = date.today().isoformat()
-        word = await self.repo.add(body.text, body.level, body.suggestion, version)
-        await self.session.commit()
+        try:
+            word = await self.repo.add(body.text, body.level, body.suggestion, version)
+            await self.session.commit()
+        except IntegrityError:
+            # 命中 (text, level) 唯一约束：按已存在处理
+            await self.session.rollback()
+            raise BizError(ErrorCode.PARAM_INVALID, "敏感词已存在") from None
         # 版本号自增并刷新 Trie
         await self._refresh_trie()
         return SensitiveWordItem(

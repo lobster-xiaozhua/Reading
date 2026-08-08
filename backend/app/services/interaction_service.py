@@ -11,7 +11,7 @@ from datetime import date
 
 import redis.asyncio as redis
 import structlog
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -220,13 +220,24 @@ class InteractionService:
         )
         if existing.scalars().first():
             return True
-        comment.likes += 1
         self.session.add(
             CommentLike(
                 comment_id=comment_id,
                 reader_id=reader_id,
                 created_at=int(time.time() * 1000),
             )
+        )
+        try:
+            await self.session.flush()
+        except IntegrityError:
+            # 并发重复点赞：唯一约束冲突，视为已点赞（幂等）
+            await self.session.rollback()
+            return True
+        # 原子自增，避免并发下 `likes += 1` 读改写丢失计数
+        await self.session.execute(
+            update(CommentModel)
+            .where(CommentModel.id == comment_id)
+            .values(likes=CommentModel.likes + 1)
         )
         await self.session.commit()
         return True
@@ -323,6 +334,12 @@ class InteractionService:
                     created_at=now,
                 )
             )
+        try:
+            await self.session.flush()
+        except IntegrityError:
+            # 并发重复提交评分：唯一约束冲突，按幂等处理
+            await self.session.rollback()
+            return True
         await self.session.commit()
         await self._recalc_rating(novel.id)
         # 失效评分分布缓存

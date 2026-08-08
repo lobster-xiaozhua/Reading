@@ -5,7 +5,6 @@
 
 import contextlib
 import os
-from collections import OrderedDict
 from typing import Any
 
 import orjson
@@ -35,33 +34,12 @@ logger = structlog.get_logger(__name__)
 # 种子数据标记文件：避免每次启动都查库检测种子是否存在
 SEED_MARKER = os.path.join(os.path.dirname(__file__), "..", ".seed-initialized")
 
-# ── 简单内存指标计数器 ─────────────────────────────────────
-_MAX_METRIC_PATHS = 500
-_request_counts: dict[str, int] = OrderedDict()   # path -> count
-_request_durations: dict[str, list[float]] = {}  # path -> [durations]
-_request_errors: dict[str, int] = {}   # path -> error count
-
-
-def _trim_metric_paths() -> None:
-    """按 LRU 淘汰：超过上限时移除最旧的 path，防止动态路径撑爆内存。"""
-    while len(_request_counts) > _MAX_METRIC_PATHS:
-        oldest = _request_counts.popitem(last=False)[0]
-        _request_durations.pop(oldest, None)
-        _request_errors.pop(oldest, None)
-
-
-def _inc_metric(path: str, duration_ms: float, status: int) -> None:
-    """记录请求指标（非阻塞，线程安全使用 Python GIL）。"""
-    key = path.split("?")[0]  # 去掉 query string
-    _request_counts.pop(key, None)
-    _request_counts[key] = _request_counts.get(key, 0) + 1
-    _request_durations.setdefault(key, []).append(duration_ms)
-    # 保留最近 200 条耗时记录
-    if len(_request_durations[key]) > 200:
-        _request_durations[key] = _request_durations[key][-200:]
-    if status >= 500:
-        _request_errors[key] = _request_errors.get(key, 0) + 1
-    _trim_metric_paths()
+# ── 进程内请求指标（由 AccessLogMiddleware 写入，/metrics 端点消费） ──
+from app.core.metrics import (  # noqa: E402
+    request_counts,
+    request_durations,
+    request_errors,
+)
 
 
 @contextlib.asynccontextmanager
@@ -75,6 +53,13 @@ async def lifespan(app: FastAPI):
                     sync_conn, checkfirst=True
                 )
             )
+        # 轻量兼容迁移：为旧库补充新增列（如 comments.deleted），避免 schema 漂移
+        try:
+            from app.core.database import ensure_schema_compat
+
+            await ensure_schema_compat()
+        except Exception:
+            logger.warning("schema compat 迁移失败（非阻塞）", exc_info=True)
 
         # 已有标记文件则跳过种子检测，避免每次启动查库
         if not os.path.exists(SEED_MARKER):
@@ -204,14 +189,14 @@ def create_app() -> FastAPI:
         lines: list[str] = []
         lines.append("# HELP http_requests_total Total HTTP requests by path")
         lines.append("# TYPE http_requests_total counter")
-        for path, count in sorted(_request_counts.items()):
+        for path, count in sorted(request_counts.items()):
             safe_path = path.replace("/", "_").strip("_") or "root"
             lines.append(f'http_requests_total{{path="{safe_path}"}} {count}')
 
         lines.append("")
         lines.append("# HELP http_request_duration_ms HTTP request duration in milliseconds")
         lines.append("# TYPE http_request_duration_ms histogram")
-        for path, durations in sorted(_request_durations.items()):
+        for path, durations in sorted(request_durations.items()):
             if not durations:
                 continue
             safe_path = path.replace("/", "_").strip("_") or "root"
@@ -246,7 +231,7 @@ def create_app() -> FastAPI:
         lines.append("")
         lines.append("# HELP http_request_errors_total Total HTTP 5xx errors by path")
         lines.append("# TYPE http_request_errors_total counter")
-        for path, count in sorted(_request_errors.items()):
+        for path, count in sorted(request_errors.items()):
             safe_path = path.replace("/", "_").strip("_") or "root"
             lines.append(f'http_request_errors_total{{path="{safe_path}"}} {count}')
 

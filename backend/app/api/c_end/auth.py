@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
@@ -53,7 +54,14 @@ async def register(
         password_hash=hash_password(body.password),
     )
     db.add(reader)
-    await db.commit()
+    try:
+        await db.commit()
+    except IntegrityError:
+        # 并发同名注册：唯一约束冲突，按重名处理
+        await db.rollback()
+        from app.core.exceptions import BizError, ErrorCode
+
+        raise BizError(ErrorCode.PARAM_INVALID, "用户名已存在") from None
     await db.refresh(reader)
 
     svc = CAuthService(db, redis)

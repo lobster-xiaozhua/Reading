@@ -1,6 +1,6 @@
 """请求日志中间件：记录方法、路径、状态码、耗时、trace_id。
 
-同时在生产环境记录指标数据至主进程 _request_counts 字典，供 /metrics 端点消费。
+同时在生产环境记录指标数据至主进程指标模块，供 /metrics 端点消费。
 """
 
 import time
@@ -9,6 +9,8 @@ import structlog
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
+
+from app.core.metrics import inc_metric
 
 logger = structlog.get_logger("api.access")
 
@@ -27,5 +29,7 @@ class AccessLogMiddleware(BaseHTTPMiddleware):
             duration_ms=int(duration_ms),
             query_string=str(request.url.query) if request.url.query else None,
         )
+
+        inc_metric(request.url.path, duration_ms, response.status_code)
 
         return response

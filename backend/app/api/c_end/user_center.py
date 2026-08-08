@@ -9,6 +9,7 @@ import time
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
@@ -154,7 +155,6 @@ async def read_all_follows(
         .limit(100)
     )
     rows = (await db.execute(stmt)).scalars().all()
-    updated = 0
     now = int(time.time() * 1000)
     for novel_id in rows:
         db.add(
@@ -165,9 +165,13 @@ async def read_all_follows(
                 read_at=now,
             )
         )
-        updated += 1
-    await db.commit()
-    return ok(request, {"updatedCount": updated})
+    try:
+        await db.commit()
+    except IntegrityError:
+        # 并发下唯一约束冲突：已存在记录视为已读，不报错
+        await db.rollback()
+        return ok(request, {"updatedCount": 0})
+    return ok(request, {"updatedCount": len(rows)})
 
 
 @router.get("/vip/plans")

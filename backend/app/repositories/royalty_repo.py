@@ -5,6 +5,7 @@ import time
 from sqlalchemy import select
 
 from app.models.royalty import RoyaltyDetail
+from app.models.user import Author
 from app.repositories.base import BaseRepository, split_csv
 
 
@@ -26,6 +27,11 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
             stmt = stmt.where(RoyaltyDetail.month.in_(split_csv(month)))
         if status and status != "all":
             stmt = stmt.where(RoyaltyDetail.status.in_(split_csv(status)))
+        if author_name:
+            # 作者名模糊搜索（作者表按笔名匹配）
+            stmt = stmt.join(Author, RoyaltyDetail.author_id == Author.id).where(
+                Author.pen_name.like(f"%{author_name}%")
+            )
         stmt = stmt.order_by(RoyaltyDetail.created_at.desc())
         return await self.paginate(stmt, page, page_size)
 

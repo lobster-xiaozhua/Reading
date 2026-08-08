@@ -136,6 +136,7 @@ class ChapterService:
             更新后的章节详情。
         """
         chapter = await self._get_chapter(chapter_id)
+        novel_id = chapter.novel_id
         if body.title is not None:
             chapter.title = body.title
         if body.content is not None:
@@ -148,6 +149,9 @@ class ChapterService:
         if body.is_vip is not None:
             chapter.is_vip = 1 if body.is_vip else 0
         await self.session.commit()
+        # 编辑标题/内容/VIP 后失效 C 端缓存，避免读者读到旧内容
+        await self._evict_chapters_cache(novel_id)
+        await self._evict_chapter_cache(chapter)
         return await self.get_detail(chapter_id)
 
     # ── 章节排序 ─────────────────────────────────────────

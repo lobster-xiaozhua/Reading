@@ -19,6 +19,10 @@ class Novel(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
         Index("idx_novels_status_cat_click", "status", "category", "click_count"),
         Index("idx_novels_status_click", "status", "click_count"),
         Index("idx_novels_status_completed", "status", "is_completed"),
+        # 排行榜排序：follow_count / rating_count / published_at（均先按 status 过滤）
+        Index("idx_novels_status_follow", "status", "follow_count"),
+        Index("idx_novels_status_rating", "status", "rating_count"),
+        Index("idx_novels_status_published", "status", "published_at"),
         # 全文搜索索引（MySQL 生效，SQLite 忽略）
         Index("idx_novels_title_author_ft", "title", "author_name", mysql_prefix="FULLTEXT"),
     )

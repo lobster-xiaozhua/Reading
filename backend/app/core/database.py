@@ -73,3 +73,41 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             raise
         finally:
             await session.close()
+
+
+async def ensure_schema_compat() -> None:
+    """启动时轻量兼容迁移：为已存在但缺失软删列的旧表补充 ``deleted`` 列。
+
+    ``create_all(checkfirst=True)`` 不会 ALTER 已有表，模型新增软删列后旧库会缺列
+    （例如评论软删引入的 ``comments.deleted``）。此处仅补充 ``deleted INTEGER DEFAULT 0``，
+    不对其他列做通用推断，避免类型/默认值转换风险；生产环境依赖 alembic 迁移。
+    """
+    from sqlalchemy import inspect, text
+
+    from app.models import Base
+
+    if not _is_sqlite:
+        return
+    compat_logger = structlog.get_logger("api.database")
+    async with engine.begin() as conn:
+        table_names = await conn.run_sync(
+            lambda sync_conn: inspect(sync_conn).get_table_names()
+        )
+        for table_name, table in Base.metadata.tables.items():
+            if table_name not in table_names or "deleted" not in table.c:
+                continue
+            existing = await conn.run_sync(
+                lambda sync_conn, t=table_name: [
+                    c["name"] for c in inspect(sync_conn).get_columns(t)
+                ]
+            )
+            if "deleted" not in existing:
+                await conn.execute(
+                    text(
+                        f"ALTER TABLE {table_name} "
+                        "ADD COLUMN deleted INTEGER DEFAULT 0"
+                    )
+                )
+                compat_logger.info(
+                    "schema compat: added deleted column to %s", table_name
+                )
