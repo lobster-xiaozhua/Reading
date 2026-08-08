@@ -313,8 +313,14 @@ async def seed_content(db) -> None:
                     novel_id=novel.id,
                     index=ci + 1,
                     title=f"第{ci + 1}章 {title}开篇",
-                    content="示例章节内容……" * 30,
-                    content_text="示例章节内容……" * 30,
+                    content="\n\n".join(
+                        f"这是《{title}》第{ci + 1}章的第{i + 1}段示例正文，用于演示阅读器段落渲染、翻页与章节切换效果。"
+                        for i in range(30)
+                    ),
+                    content_text="\n\n".join(
+                        f"这是《{title}》第{ci + 1}章的第{i + 1}段示例正文，用于演示阅读器段落渲染、翻页与章节切换效果。"
+                        for i in range(30)
+                    ),
                     word_count=words,
                     pure_word_count=words - 120,
                     punctuation_word_count=words,

@@ -31,10 +31,12 @@ import "./ReaderPage.css";
 /** 稳定的空数组引用：避免 `?? []` 每次 render 产生新引用导致 useMemo/useCallback 每帧重算 */
 const EMPTY_CHAPTERS: ChapterSummary[] = [];
 
-/** 把章节正文段落转为 HTML（首段为章节标题，跳过） */
+/** 把章节正文段落转为 HTML（首段若与章节标题重复则跳过，Reader 已单独渲染标题） */
 function chapterToHtml(ch: ChapterContent): string {
   return ch.paragraphs
-    .slice(1) // 首段是章节标题，Reader 已单独渲染
+    .filter(
+      (p, i) => !(i === 0 && p.trim() === ch.title.trim()),
+    )
     .map((p) => `<p>${escapeHtml(p)}</p>`)
     .join("");
 }
