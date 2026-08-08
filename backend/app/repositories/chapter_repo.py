@@ -62,35 +62,6 @@ class ChapterRepository(BaseRepository[Chapter]):
 
         return list(rows), total, total_words
 
-    async def get_neighbor(self, novel_id: int, index: int, direction: str) -> Chapter | None:
-        """获取指定章节的上一章或下一章（prev/next）。"""
-        if direction == "prev":
-            stmt = (
-                select(Chapter)
-                .where(
-                    Chapter.novel_id == novel_id,
-                    Chapter.index < index,
-                    Chapter.deleted == 0,
-                    Chapter.status == "published",
-                )
-                .order_by(Chapter.index.desc())
-                .limit(1)
-            )
-        else:
-            stmt = (
-                select(Chapter)
-                .where(
-                    Chapter.novel_id == novel_id,
-                    Chapter.index > index,
-                    Chapter.deleted == 0,
-                    Chapter.status == "published",
-                )
-                .order_by(Chapter.index.asc())
-                .limit(1)
-            )
-        result = await self.session.execute(stmt)
-        return result.scalars().first()
-
     async def get_neighbors(
         self, novel_id: int, index: int
     ) -> tuple[Chapter | None, Chapter | None]:
@@ -125,21 +96,6 @@ class ChapterRepository(BaseRepository[Chapter]):
         prev_ch = next((c for c in chapters if c.index < index), None)
         next_ch = next((c for c in chapters if c.index > index), None)
         return prev_ch, next_ch
-
-    async def get_latest(self, novel_id: int) -> Chapter | None:
-        """获取指定作品的最新已发布章节。"""
-        stmt = (
-            select(Chapter)
-            .where(
-                Chapter.novel_id == novel_id,
-                Chapter.deleted == 0,
-                Chapter.status == "published",
-            )
-            .order_by(Chapter.index.desc())
-            .limit(1)
-        )
-        result = await self.session.execute(stmt)
-        return result.scalars().first()
 
     async def get_latest_batch(self, novel_ids: list[int]) -> dict[int, Chapter]:
         """批量获取多部作品的最新已发布章节，返回 {novel_id: chapter} 映射。"""

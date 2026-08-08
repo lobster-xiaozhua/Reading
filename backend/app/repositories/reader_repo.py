@@ -93,14 +93,6 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         await self.session.flush()
         return h
 
-    async def get_by_reader_novel(self, reader_id: int, novel_id: int) -> ReadingHistory | None:
-        """根据读者 ID 和作品 ID 获取单条阅读历史。"""
-        stmt = select(ReadingHistory).where(
-            ReadingHistory.reader_id == reader_id, ReadingHistory.novel_id == novel_id
-        )
-        result = await self.session.execute(stmt)
-        return result.scalars().first()
-
     async def get_by_reader_novels(
         self, reader_id: int, novel_ids: list[int]
     ) -> dict[int, ReadingHistory]:

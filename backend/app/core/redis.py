@@ -53,8 +53,8 @@ class CircuitBreaker:
             return False
 
 
-# 全局熔断器实例
-_redis_cb = CircuitBreaker("redis", threshold=5, reset_timeout=10.0)
+# 全局熔断器实例（模块底部随客户端一起定义，避免与上方重复定义覆盖）
+# 见 get_redis 下方的 _redis_cb
 
 
 class CacheKeys:
@@ -87,6 +87,9 @@ class CacheKeys:
     def chapters(book_id: int) -> str:
         return f"c:book:{book_id}:chapters"
 
+    # 点击计数（Redis 增量 → 定期合并回 DB）
+    BOOK_CLICK_PREFIX = "c:book:click:"
+
     @staticmethod
     def book_click(book_id: int) -> str:
         return f"c:book:click:{book_id}"
@@ -94,14 +97,6 @@ class CacheKeys:
     @staticmethod
     def rank(rank_type: str) -> str:
         return f"c:rank:{rank_type}"
-
-    @staticmethod
-    def rank_v1(rank_type: str, version: int = 1) -> str:
-        return f"c:rank:v{version}:{rank_type}"
-
-    @staticmethod
-    def recommend_cold(reader_id: int) -> str:
-        return f"c:recommend:cold:{reader_id}"
 
     RECOMMEND_HOT = "c:recommend:hot"
 
@@ -146,9 +141,6 @@ class CacheKeys:
 
     # 拼音候选集
     PINYIN_CANDIDATES = "c:pinyin:candidates"
-
-    # 熔断状态
-    CIRCUIT_STATE = "circuit:state"
 
 
 # 全局 Redis 客户端（懒初始化，便于测试替换）

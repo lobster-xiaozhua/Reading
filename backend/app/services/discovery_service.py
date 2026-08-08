@@ -8,6 +8,7 @@ import json
 
 import redis.asyncio as redis
 import structlog
+from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import CacheKeys
@@ -212,6 +213,10 @@ class DiscoveryService:
         if cached:
             return [RankItem.model_validate(r) for r in json.loads(cached)]
 
+        if rank_type == "hot":
+            # hot 排行按点击量排序：先将 Redis 增量合并回 DB，保证排序真实
+            await self._sync_click_counts()
+
         novels = await self.novel_repo.ranking(rank_type, limit)
         result = [
             RankItem(book=novel_to_c_summary(n), rank=i + 1, prev_rank=i + 1)
@@ -219,6 +224,51 @@ class DiscoveryService:
         ]
         await cache_set(self.redis, key, [r.model_dump(mode="json") for r in result], _TTL_RANKING)
         return result
+
+    async def _sync_click_counts(self) -> None:
+        """将 Redis 中的点击增量合并回 DB 并清零。
+
+        点击计数在响应路径只做 Redis INCR（低延迟），此处批量落库，
+        仅在 hot 排行榜缓存重建时触发，频率与缓存 TTL 绑定（10 分钟级）。
+        """
+        try:
+            batch: list[str] = []
+            async for key in self.redis.scan_iter(
+                match=CacheKeys.BOOK_CLICK_PREFIX + "*", count=100
+            ):
+                batch.append(key)
+                if len(batch) >= 200:
+                    await self._flush_click_counts(batch)
+                    batch = []
+            if batch:
+                await self._flush_click_counts(batch)
+        except Exception:
+            logger.debug("点击计数同步失败（非阻塞）", exc_info=True)
+
+    async def _flush_click_counts(self, keys: list[str]) -> None:
+        """读取一组点击键并累加到 DB，随后删除键，防止重复累计。"""
+        if not keys:
+            return
+        pipe = self.redis.pipeline()
+        for k in keys:
+            pipe.get(k)
+        values = await pipe.execute()
+        for k, v in zip(keys, values, strict=True):
+            if not v:
+                await self.redis.delete(k)
+                continue
+            try:
+                book_id = int(k.rsplit(":", 1)[-1])
+            except ValueError:
+                await self.redis.delete(k)
+                continue
+            await self.session.execute(
+                update(Novel)
+                .where(Novel.id == book_id)
+                .values(click_count=Novel.click_count + int(v))
+            )
+            await self.redis.delete(k)
+        await self.session.commit()
 
     # ── 分类树 ──────────────────────────────────────────
     async def get_categories(self) -> list[CategoryNode]:

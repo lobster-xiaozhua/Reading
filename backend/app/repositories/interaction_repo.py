@@ -22,16 +22,6 @@ class CommentRepository(BaseRepository[Comment]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
-    async def list_by_chapter(self, chapter_id: int) -> list[Comment]:
-        """获取指定章节的评论列表，按时间降序排列。"""
-        stmt = (
-            select(Comment)
-            .where(Comment.chapter_id == chapter_id, Comment.status == 1)
-            .order_by(Comment.created_at.desc())
-        )
-        result = await self.session.execute(stmt)
-        return list(result.scalars().all())
-
 
 class ReviewRepository(BaseRepository[Review]):
     model = Review

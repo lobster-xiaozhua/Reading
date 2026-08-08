@@ -4,12 +4,15 @@
 状态转换走 ``NovelStateMachine`` 校验。
 """
 
+import contextlib
 import time
 
+import redis.asyncio as redis
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
+from app.core.redis import CacheKeys
 from app.models.novel import Novel
 from app.repositories.novel_repo import NovelRepository
 from app.schemas.b_end import (
@@ -30,8 +33,9 @@ logger = structlog.get_logger(__name__)
 class NovelService:
     """B 端作品管理服务。"""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, redis_client: redis.Redis | None = None) -> None:
         self.session = session
+        self.redis = redis_client
         self.repo = NovelRepository(session)
 
     # ── 作品列表 ─────────────────────────────────────────
@@ -109,6 +113,9 @@ class NovelService:
         novel.is_completed = 1 if body.is_completed else 0
         await self.session.flush()
         await self.session.commit()
+        if novel_id:
+            # 编辑基本信息后失效 C 端书籍/聚合缓存
+            await self._evict_novel_caches(novel_id)
         return novel_to_b_detail(novel)
 
     # ── 批量操作 ─────────────────────────────────────────
@@ -146,6 +153,9 @@ class NovelService:
 
         _, failed = await batch_execute(ids, _run, logger_name="novel_service.batch_operate")
         await self.session.commit()
+        # 状态流转后失效对应作品的 C 端缓存
+        for nid in ids:
+            await self._evict_novel_caches(nid)
         return BatchOperateResponse(success=len(failed) == 0, failed=failed or None)
 
     # ── 状态流转 ─────────────────────────────────────────
@@ -168,7 +178,27 @@ class NovelService:
         elif target == "offline":
             novel.shelved_at = now
         await self.session.commit()
+        await self._evict_novel_caches(novel_id)
         return novel_to_b_detail(novel)
+
+    async def _evict_novel_caches(self, novel_id: int) -> None:
+        """状态/信息变更后失效 C 端书籍详情、章节列表与聚合/排行缓存。"""
+        if not self.redis:
+            return
+        keys = [
+            CacheKeys.book(novel_id),
+            CacheKeys.chapters(novel_id),
+            CacheKeys.HOME,
+            CacheKeys.HOT_BOOKS,
+            CacheKeys.FREE_LIMITED,
+            CacheKeys.EDITOR_PICKS,
+            CacheKeys.rank("hot"),
+            CacheKeys.rank("follow"),
+            CacheKeys.rank("ticket"),
+            CacheKeys.rank("new"),
+        ]
+        with contextlib.suppress(Exception):
+            await self.redis.delete(*keys)
 
     # ── 批量提审 ─────────────────────────────────────────
     async def _batch_submit_audit(self, novel_id: int, **kwargs) -> None:

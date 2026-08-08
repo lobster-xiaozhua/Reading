@@ -200,7 +200,11 @@ class AuditService:
         if not self.redis:
             return
         with contextlib.suppress(Exception):
-            await self.redis.delete(CacheKeys.chapter(chapter.novel_id, chapter.id))
+            # 同时失效单章正文与章节列表缓存，新发布章节能及时出现在 C 端目录
+            await self.redis.delete(
+                CacheKeys.chapter(chapter.novel_id, chapter.id),
+                CacheKeys.chapters(chapter.novel_id),
+            )
 
     async def _get_next_id(self, current_id: int) -> str | None:
         """获取下一条待审项 ID。"""

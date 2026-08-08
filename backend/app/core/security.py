@@ -10,7 +10,6 @@ import jwt
 from app.core.config import settings
 
 # 测试环境降低 bcrypt cost factor（4 轮 vs 生产 12 轮），加速认证测试
-_TEST_BCRYPT_ROUNDS = int(os.environ.get("BCRYPT_ROUNDS", "12"))
 _TEST_MODE = os.environ.get("DEBUG", "false") == "true"
 
 

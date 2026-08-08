@@ -48,7 +48,7 @@ class BaseRepository(Generic[ModelT]):
     ) -> tuple[list[ModelT], int]:
         """标准分页查询（OFFSET-based），返回 (items, total)。
 
-        适用于中小数据量；大数据量场景请使用 paginate_keyset。
+        适用于中小数据量。
         """
         count_stmt = select(func.count()).select_from(stmt.order_by(None).subquery())
         total = (await self.session.execute(count_stmt)).scalar_one()
@@ -56,26 +56,3 @@ class BaseRepository(Generic[ModelT]):
             stmt.offset((page - 1) * page_size).limit(page_size)
         )
         return list(result.scalars().all()), total
-
-    async def paginate_keyset(
-        self,
-        stmt,
-        page_size: int = 20,
-        last_id: int | None = None,
-    ) -> tuple[list[ModelT], bool]:
-        """游标分页（keyset pagination），避免大 OFFSET 性能退化。
-
-        Args:
-            stmt: 不含 ORDER BY / LIMIT 的基查询，须包含按主键排序的子句。
-            page_size: 每页条数。
-            last_id: 上一页最后一条记录的主键，首次翻页传 None。
-
-        Returns:
-            (items, has_more)
-        """
-        base = stmt.order_by(self.model.id.asc())
-        if last_id is not None:
-            base = base.where(self.model.id > last_id)
-        rows = (await self.session.execute(base.limit(page_size + 1))).scalars().all()
-        has_more = len(rows) > page_size
-        return rows[:page_size], has_more

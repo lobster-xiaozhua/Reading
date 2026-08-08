@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_admin, ok, require_permission
 from app.core.database import get_db
+from app.core.redis import get_redis_client
 from app.models.audit import AuditHistory as AuditHistoryModel
 from app.models.audit import AuditRecord as AuditRecordModel
 from app.models.interaction import Comment as CommentModel
@@ -67,10 +68,11 @@ async def get_novel_detail(
 async def submit_novel(
     request: Request,
     body: NovelSubmitBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.create")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     return ok(request, await svc.submit_novel(body))
 
 
@@ -79,10 +81,11 @@ async def update_novel(
     request: Request,
     novel_id: int,
     body: NovelSubmitBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.edit")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     return ok(request, await svc.submit_novel(body, novel_id))
 
 
@@ -90,10 +93,11 @@ async def update_novel(
 async def batch_operate(
     request: Request,
     body: NovelBatchOperateBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.edit")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     result = await svc.batch_result(body.ids, body.action, body.reason, body.comment)
     return ok(request, result)
 
@@ -102,10 +106,11 @@ async def batch_operate(
 async def submit_for_audit(
     request: Request,
     body: NovelBatchOperateBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.edit")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     result = await svc.batch_result(body.ids, "submit-audit")
     return ok(request, result)
 
@@ -114,10 +119,11 @@ async def submit_for_audit(
 async def approve_novel(
     request: Request,
     body: NovelBatchOperateBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("audit.approve")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     result = await svc.batch_result(body.ids, "approve")
     return ok(request, result)
 
@@ -126,10 +132,11 @@ async def approve_novel(
 async def shelve_novel(
     request: Request,
     body: NovelBatchOperateBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.shelve")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     result = await svc.batch_result(body.ids, "shelve", body.reason, body.comment)
     return ok(request, result)
 
@@ -138,10 +145,11 @@ async def shelve_novel(
 async def reshelve_novel(
     request: Request,
     body: NovelBatchOperateBody,
+    redis = Depends(get_redis_client),
     _admin=Depends(require_permission("novel.shelve")),
     db: AsyncSession = Depends(get_db),
 ):
-    svc = NovelService(db)
+    svc = NovelService(db, redis)
     result = await svc.batch_result(body.ids, "reshelve")
     return ok(request, result)
 
