@@ -239,7 +239,7 @@
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-semibold);
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+  box-shadow: 0 2px 8px var(--color-accent-orange-bg);
 }
 /* 节省角标 */
 .vip-page__plan-save {

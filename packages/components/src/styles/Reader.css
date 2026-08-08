@@ -414,11 +414,11 @@
   background: linear-gradient(
     135deg,
     var(--color-brand-bg) 0%,
-    rgba(255, 255, 255, 0.02) 100%
+    var(--color-overlay-white-10) 100%
   );
   border: 1px solid var(--color-brand-border);
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--sh-3);
   position: relative;
   overflow: hidden;
 }

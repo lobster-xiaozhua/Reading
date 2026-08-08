@@ -148,7 +148,7 @@
   overflow: hidden;
   box-shadow:
     var(--sh-4),
-    0 20px 40px -12px rgba(0, 0, 0, 0.25);
+    var(--sh-5);
   transition:
     transform var(--dur-slow) var(--ease-spring),
     box-shadow var(--dur-slow) var(--ease-standard);
@@ -159,7 +159,7 @@
   transform: scale(1.06) translateY(-4px);
   box-shadow:
     var(--sh-5),
-    0 24px 56px -16px rgba(0, 0, 0, 0.3);
+    var(--sh-4);
   animation-play-state: paused;
 }
 .book-detail__cover img {

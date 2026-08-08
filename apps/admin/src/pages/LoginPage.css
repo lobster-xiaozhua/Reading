@@ -59,7 +59,7 @@
 .login-orb {
   position: absolute;
   border-radius: var(--radius-full);
-  filter: blur(56px);
+  filter: blur(48px);
   opacity: 0.45;
   pointer-events: none;
 }

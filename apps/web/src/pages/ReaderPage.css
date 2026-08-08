@@ -118,7 +118,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-index-sticky);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--sh-2);
 }
 
 .reader-page .reader-progress__fill {
@@ -139,7 +139,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.3) 50%,
+    var(--color-overlay-white-30) 50%,
     transparent 100%
   );
   animation: shimmer 2s infinite;
