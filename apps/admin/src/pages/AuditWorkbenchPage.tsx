@@ -80,16 +80,17 @@ export default function AuditWorkbenchPage() {
       setQueue(list);
       setPendingCount(stats.pendingCount);
       setTodayProcessed(stats.todayProcessed);
-      if (list.length > 0 && !list.find((i) => i.id === selectedId)) {
-        setSelectedId(list[0]!.id);
-      } else if (list.length === 0) {
-        setSelectedId(null);
-      }
+      // 函数式更新选中项，避免 loadData 依赖 selectedId 造成「选中变化→重建→重复请求」
+      setSelectedId((prev) => {
+        if (list.length === 0) return null;
+        if (prev && list.some((i) => i.id === prev)) return prev;
+        return list[0]!.id;
+      });
       setStatus(list.length === 0 ? "empty" : "ready");
     } catch {
       setStatus("error");
     }
-  }, [filterLevel, selectedId]);
+  }, [filterLevel]);
 
   useEffect(() => {
     loadData();

@@ -62,16 +62,17 @@ export default function PermissionPage() {
     try {
       const list = await fetchRoleList();
       setRoles(list);
-      if (list.length > 0 && !list.find((r) => r.key === selectedRoleKey)) {
-        setSelectedRoleKey(list[0]!.key);
-      } else if (list.length === 0) {
-        setSelectedRoleKey(null);
-      }
+      // 函数式更新选中角色，避免依赖 selectedRoleKey 造成「选中变化→重建→重复请求」
+      setSelectedRoleKey((prev) => {
+        if (list.length === 0) return null;
+        if (prev && list.some((r) => r.key === prev)) return prev;
+        return list[0]!.key;
+      });
       setStatus(list.length === 0 ? "empty" : "ready");
     } catch {
       setStatus("error");
     }
-  }, [selectedRoleKey]);
+  }, []);
 
   useEffect(() => {
     loadData();
