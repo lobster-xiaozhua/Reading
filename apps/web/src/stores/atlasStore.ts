@@ -26,6 +26,13 @@ export interface HistoryEntry {
   readAt: number;
 }
 
+export interface BookmarkEntry {
+  bookId: string;
+  chapterId: string;
+  chapterTitle: string;
+  createdAt: number;
+}
+
 export interface AtlasState {
   /* ---- auth ---- */
   token: string | null;
@@ -43,6 +50,9 @@ export interface AtlasState {
   /* ---- history ---- */
   entries: Record<string, HistoryEntry>;
 
+  /* ---- bookmarks ---- */
+  bookmarks: BookmarkEntry[];
+
   /* ---- actions ---- */
   login: (username: string, password: string) => Promise<void>;
   setAuth: (token: string, user: ReaderUser, expiresAt?: number, refreshToken?: string) => void;
@@ -54,15 +64,23 @@ export interface AtlasState {
   refresh: () => Promise<void>;
   logout: () => void;
 
+  /* ---- bookmarks actions ---- */
+  addBookmark: (entry: BookmarkEntry) => void;
+  removeBookmark: (bookId: string, chapterId: string) => void;
+  clearBookmarks: () => void;
+
   /* ---- helpers ---- */
   isInBookshelf: (bookId: string) => boolean;
   getEntry: (bookId: string) => HistoryEntry | undefined;
+  isBookmarked: (bookId: string, chapterId: string) => boolean;
+  getBookmarks: (bookId: string) => BookmarkEntry[];
 }
 
 /* ---------- 常量 ---------- */
 
 const DEFAULT_TOKEN_TTL = 8 * 60 * 60 * 1000;
 const RECORD_DEBOUNCE_MS = 3_000;
+const MAX_RECORD_KEYS = 200;
 const lastRecordTime: Record<string, number> = {};
 
 /** 重置记录防抖时间戳（测试用） */
@@ -92,6 +110,9 @@ export const useAtlasStore = create<AtlasState>()(
 
       /* ---- history ---- */
       entries: {},
+
+      /* ---- bookmarks ---- */
+      bookmarks: [],
 
       /* ---- actions ---- */
       login: async (username, password) => {
@@ -164,12 +185,34 @@ export const useAtlasStore = create<AtlasState>()(
         const lastTime = lastRecordTime[entry.bookId];
         if (lastTime !== undefined && entry.readAt - lastTime < RECORD_DEBOUNCE_MS) return;
         lastRecordTime[entry.bookId] = entry.readAt;
+        // LRU 上限：超限时按插入顺序清掉最旧一半，防止字典无限增长
+        const keys = Object.keys(lastRecordTime);
+        if (keys.length > MAX_RECORD_KEYS) {
+          const removeCount = keys.length - MAX_RECORD_KEYS;
+          for (let i = 0; i < removeCount; i++) {
+            const k = keys[i];
+            if (k) delete lastRecordTime[k];
+          }
+        }
         set((state) => ({
           entries: { ...state.entries, [entry.bookId]: entry },
         }));
       },
 
       clearHistory: () => set({ entries: {} }),
+
+      /* ---- bookmarks ---- */
+      addBookmark: (entry) =>
+        set((state) => ({
+          bookmarks: [...state.bookmarks, entry],
+        })),
+      removeBookmark: (bookId, chapterId) =>
+        set((state) => ({
+          bookmarks: state.bookmarks.filter(
+            (b) => !(b.bookId === bookId && b.chapterId === chapterId),
+          ),
+        })),
+      clearBookmarks: () => set({ bookmarks: [] }),
 
       refresh: async () => {
         const { refreshToken, token } = get();
@@ -188,6 +231,11 @@ export const useAtlasStore = create<AtlasState>()(
       },
 
       logout: () => {
+        // 通知后端失效 refresh token（fire-and-forget，失败不影响本地登出）
+        const { refreshToken, token } = get();
+        if (refreshToken || token) {
+          void fetcher.auth.logout(refreshToken ?? undefined).catch(() => {});
+        }
         set({
           token: null,
           authUser: null,
@@ -205,6 +253,12 @@ export const useAtlasStore = create<AtlasState>()(
       /* ---- helpers ---- */
       isInBookshelf: (bookId) => get().bookshelfIds.includes(bookId),
       getEntry: (bookId) => get().entries[bookId],
+      isBookmarked: (bookId, chapterId) =>
+        get().bookmarks.some(
+          (b) => b.bookId === bookId && b.chapterId === chapterId,
+        ),
+      getBookmarks: (bookId) =>
+        get().bookmarks.filter((b) => b.bookId === bookId),
     }),
     {
       name: "atlas-store",
@@ -218,6 +272,7 @@ export const useAtlasStore = create<AtlasState>()(
         bookshelfIds: state.bookshelfIds,
         followedBookListIds: state.followedBookListIds,
         entries: state.entries,
+        bookmarks: state.bookmarks,
       }),
     },
   ),

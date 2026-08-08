@@ -4,12 +4,15 @@
 已发布章节删除需标题匹配（对齐前端 mock）。
 """
 
+import contextlib
 import time
 
+import redis.asyncio as redis
 import structlog
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
+from app.core.redis import CacheKeys
 from app.models.novel import Chapter
 from app.repositories.chapter_repo import ChapterRepository
 from app.schemas.b_end import (
@@ -32,8 +35,9 @@ logger = structlog.get_logger(__name__)
 class ChapterService:
     """B 端章节管理服务。"""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, redis_client: redis.Redis | None = None) -> None:
         self.session = session
+        self.redis = redis_client
         self.repo = ChapterRepository(session)
 
     # ── 章节列表 ─────────────────────────────────────────
@@ -160,6 +164,7 @@ class ChapterService:
         ordered_ids = [int(i) for i in body.ordered_ids]
         await self.repo.reorder(novel_id, ordered_ids)
         await self.session.commit()
+        await self._evict_chapters_cache(novel_id)
         return True
 
     # ── 状态流转 ─────────────────────────────────────────
@@ -179,6 +184,8 @@ class ChapterService:
         if body.target == "published":
             chapter.published_at = int(time.time() * 1000)
         await self.session.commit()
+        await self._evict_chapters_cache(chapter.novel_id)
+        await self._evict_chapter_cache(chapter)
         return await self.get_detail(chapter_id)
 
     # ── 批量操作 ─────────────────────────────────────────
@@ -249,6 +256,20 @@ class ChapterService:
         if not chapter or chapter.deleted:
             raise NotFoundError("章节不存在")
         return chapter
+
+    async def _evict_chapters_cache(self, novel_id: int) -> None:
+        """失效章节列表缓存（目录/排序变更后调用）。"""
+        if not self.redis:
+            return
+        with contextlib.suppress(Exception):
+            await self.redis.delete(CacheKeys.chapters(novel_id))
+
+    async def _evict_chapter_cache(self, chapter: Chapter) -> None:
+        """失效单章正文缓存（状态流转后调用）。"""
+        if not self.redis:
+            return
+        with contextlib.suppress(Exception):
+            await self.redis.delete(CacheKeys.chapter(chapter.novel_id, chapter.id))
 
 
 def _to_list_item(ch: Chapter) -> BChapterListItem:

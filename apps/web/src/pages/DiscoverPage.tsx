@@ -145,19 +145,33 @@ export default function DiscoverPage() {
               subtitle="HOT"
               moreTo="/category?sort=hot"
             />
-            <DiscoverModule loading={pageLoading} skeletonRows={3}>
+            <DiscoverModule loading={pageLoading} skeletonRows={5}>
               {home.hotBooks.length === 0 ? (
                 <EmptyState title="暂无热门推荐" />
               ) : (
-                <div className="discover-page__hot-scroll scroll-x">
-                  {home.hotBooks.filter(Boolean).map((b) => (
-                    <BookCard
+                <div className="discover-page__hot-grid">
+                  {home.hotBooks.filter(Boolean).slice(0, 6).map((b, idx) => (
+                    <div
                       key={b.id}
-                      book={toBook(b)}
-                      variant="horizontal"
-                      size="sm"
-                      onClick={() => handleBookClick(b.id)}
-                    />
+                      className="discover-page__hot-item"
+                      style={
+                        { "--hot-rank": idx + 1 } as React.CSSProperties
+                      }
+                    >
+                      <span
+                        className="discover-page__hot-rank"
+                        aria-hidden
+                      >
+                        {idx + 1}
+                      </span>
+                      <BookCard
+                        book={toBook(b)}
+                        variant="grid"
+                        size="md"
+                        showIntro
+                        onClick={() => handleBookClick(b.id)}
+                      />
+                    </div>
                   ))}
                 </div>
               )}
@@ -174,33 +188,47 @@ export default function DiscoverPage() {
               {home.freeBooks.length === 0 ? (
                 <EmptyState title="暂无限免书籍" />
               ) : (
-                <div className="discover-page__free-section">
-                  <div className="discover-page__free-scroll">
-                    {home.freeBooks.filter(Boolean).map((b) => (
-                      <div key={b.id} className="discover-page__free-item">
+                <div className="discover-page__free-grid">
+                  {home.freeBooks.filter(Boolean).slice(0, 4).map((b) => {
+                    const hasDeadline = Boolean(b.freeDeadline);
+                    const expired =
+                      hasDeadline && (b.freeDeadline ?? 0) < Date.now();
+                    return (
+                      <div
+                        key={b.id}
+                        className="discover-page__free-item"
+                      >
+                        <div className="discover-page__free-tag" aria-hidden>
+                          限免
+                        </div>
                         <BookCard
                           book={toBook(b)}
                           variant="grid"
-                          size="sm"
+                          size="md"
+                          showIntro
                           onClick={() => handleBookClick(b.id)}
                         />
                         <div className="discover-page__free-meta">
-                          {b.freeDeadline ? (
-                            <RingCountdown
-                              start={b.freeDeadline - 7 * 86400000}
-                              deadline={b.freeDeadline}
-                              size={56}
-                            />
+                          {hasDeadline && !expired ? (
+                            <div className="discover-page__free-countdown">
+                              <RingCountdown
+                                start={(b.freeDeadline ?? 0) - 7 * 86400000}
+                                deadline={b.freeDeadline ?? 0}
+                                size={64}
+                              />
+                              <span className="discover-page__free-countdown-label">
+                                剩余免费
+                              </span>
+                            </div>
                           ) : (
                             <span className="discover-page__free-badge">
-                              限免中
+                              {expired ? "已结束" : "限免中"}
                             </span>
                           )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="discover-page__free-scroll-fade" aria-hidden />
+                    );
+                  })}
                 </div>
               )}
             </DiscoverModule>
@@ -297,7 +325,7 @@ const CATEGORY_ICON_MAP: Record<string, { icon: typeof NovelFire; color: string 
   '都市': { icon: ContentBook, color: 'var(--color-brand-bg)' },
   '历史': { icon: NovelMedal, color: 'var(--color-feedback-warning-bg)' },
   '游戏': { icon: NovelReward, color: 'var(--color-feedback-success-bg)' },
-  '悬疑': { icon: NovelEye, color: 'var(--gray-3)' },
+  '悬疑': { icon: NovelEye, color: 'var(--color-bg-subtle)' },
   '科幻': { icon: NovelReadingGlasses, color: 'var(--color-feedback-info-bg)' },
 };
 

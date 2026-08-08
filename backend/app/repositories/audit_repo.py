@@ -40,6 +40,8 @@ class AuditRepository(BaseRepository[AuditRecord]):
         result: str,
         comment: str,
         reject_reason: str = "",
+        operator_ip: str = "",
+        user_agent: str = "",
     ) -> AuditHistory:
         """添加一条审核操作历史记录。"""
         h = AuditHistory(
@@ -49,6 +51,8 @@ class AuditRepository(BaseRepository[AuditRecord]):
             result=result,
             comment=comment,
             reject_reason=reject_reason,
+            operator_ip=operator_ip,
+            user_agent=user_agent[:255],
             created_at=int(time.time() * 1000),
         )
         self.session.add(h)
@@ -121,7 +125,13 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         return False
 
     async def current_version(self) -> str:
-        """获取敏感词库当前版本号。"""
-        stmt = select(func.max(SensitiveWord.lib_version))
-        result = await self.session.execute(stmt)
-        return result.scalar_one() or ""
+        """获取敏感词库当前版本号（count:max_updated_at 组合，任何增删都会变化）。
+
+        避免仅用日期：同一天多次增删词时版本不变，多实例无法感知变更。
+        """
+        stmt = select(
+            func.count(SensitiveWord.id),
+            func.coalesce(func.max(SensitiveWord.updated_at), 0),
+        )
+        count, max_ts = (await self.session.execute(stmt)).one()
+        return f"{count}:{max_ts}"

@@ -16,6 +16,7 @@ from app.core.database import get_db
 from app.core.redis import get_redis_client
 from app.models.novel import Novel
 from app.models.reading import ReadingHistory
+from app.schemas.c_end import ProfileUpdateBody
 from app.services.user_center_service import UserCenterService
 
 router = APIRouter()
@@ -30,6 +31,18 @@ async def get_current_user(
 ):
     svc = UserCenterService(db, redis)
     return ok(request, await svc.get_profile(reader_id))
+
+
+@router.put("/me/profile")
+async def update_profile(
+    request: Request,
+    body: ProfileUpdateBody,
+    reader_id: int = Depends(get_current_reader),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = UserCenterService(db, redis)
+    return ok(request, await svc.update_profile(reader_id, body.nickname, body.avatar))
 
 
 @router.get("/me/bookshelf")

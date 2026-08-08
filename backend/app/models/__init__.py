@@ -2,7 +2,7 @@
 
 from app.models.audit import AuditHistory, AuditRecord, SensitiveWord
 from app.models.base import Base, IdMixin, SoftDeleteMixin, TimestampMixin
-from app.models.interaction import Comment, Review, RewardRecord
+from app.models.interaction import Comment, CommentLike, NovelRating, Review, RewardRecord
 from app.models.notes import ReaderNote
 from app.models.novel import Banner, Category, Chapter, Novel, Tag
 from app.models.permission import Permission as PermissionModel
@@ -29,8 +29,10 @@ __all__ = [
     "Category",
     "Chapter",
     "Comment",
+    "CommentLike",
     "IdMixin",
     "Novel",
+    "NovelRating",
     "PermissionModel",
     "Reader",
     "ReadingHistory",

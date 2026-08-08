@@ -1,6 +1,6 @@
 .selection-popover {
   position: fixed;
-  z-index: 1000;
+  z-index: var(--z-index-dropdown);
   background: var(--color-bg-elevated);
   border-radius: var(--radius-md);
   box-shadow: var(--sh-3);
@@ -16,7 +16,7 @@
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  color: var(--color-text);
+  color: var(--color-text-primary);
   cursor: pointer;
   font-size: var(--font-size-body);
   white-space: nowrap;
@@ -78,13 +78,13 @@
 }
 
 .selection-popover__textarea {
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   padding: var(--space-1);
   font-size: var(--font-size-body);
   resize: none;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
   font-family: inherit;
   line-height: var(--line-height-normal);
 }

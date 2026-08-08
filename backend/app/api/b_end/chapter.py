@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok, require_permission
 from app.core.database import get_db
+from app.core.redis import get_redis_client
 from app.schemas.b_end import (
     ChapterBatchOperateBody,
     ChapterReorderBody,
@@ -33,8 +34,9 @@ async def list_chapters(
     sort_by: str = Query("index"),
     _admin=Depends(require_permission("chapter.list")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(
         request,
         await svc.list_chapters(novel_id, page, page_size, search_key, status, sort_by),
@@ -47,8 +49,9 @@ async def get_chapter_detail(
     chapter_id: int,
     _admin=Depends(require_permission("chapter.list")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.get_detail(chapter_id))
 
 
@@ -58,8 +61,9 @@ async def create_chapter(
     body: ChapterSubmitBody,
     _admin=Depends(require_permission("chapter.create")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.create_chapter(body))
 
 
@@ -70,8 +74,9 @@ async def update_chapter(
     body: ChapterUpdateBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.update_chapter(chapter_id, body))
 
 
@@ -82,8 +87,9 @@ async def reorder_chapters(
     body: ChapterReorderBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.reorder_chapters(novel_id, body))
 
 
@@ -94,8 +100,9 @@ async def transition_chapter(
     body: ChapterTransitionBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.transition(chapter_id, body))
 
 
@@ -105,8 +112,9 @@ async def batch_operate_chapters(
     body: ChapterBatchOperateBody,
     _admin=Depends(require_permission("chapter.edit")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.batch_operate(body))
 
 
@@ -117,6 +125,7 @@ async def delete_chapter(
     title_match: str = Query("", description="已发布章节需标题匹配"),
     _admin=Depends(require_permission("chapter.delete")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = ChapterService(db)
+    svc = ChapterService(db, redis)
     return ok(request, await svc.delete_chapter(chapter_id, title_match))

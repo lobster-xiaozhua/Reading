@@ -26,6 +26,10 @@ class LoginBody(BaseModel):
     password: str
 
 
+class LogoutBody(BaseModel):
+    refresh_token: str | None = None
+
+
 @router.post("/register")
 async def register(
     request: Request,
@@ -66,7 +70,9 @@ async def login(
     redis = Depends(get_redis_client),
 ):
     svc = CAuthService(db, redis)
-    res = await svc.login(body.username, body.password)
+    res = await svc.login(
+        body.username, body.password, client_ip=request.client.host if request.client else ""
+    )
     return ok(request, res)
 
 
@@ -80,6 +86,18 @@ async def refresh(
     svc = CAuthService(db, redis)
     res = await svc.refresh(body.refresh_token)
     return ok(request, res)
+
+
+@router.post("/logout")
+async def logout(
+    request: Request,
+    body: LogoutBody,
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    svc = CAuthService(db, redis)
+    access_token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+    return ok(request, await svc.logout(access_token, body.refresh_token))
 
 
 @router.get("/me")

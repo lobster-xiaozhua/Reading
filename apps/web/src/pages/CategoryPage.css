@@ -23,7 +23,7 @@
   margin: 0 0 var(--space-6);
   font-family: var(--font-serif);
   font-size: 24px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 /* 侧边栏进入 */
@@ -52,7 +52,7 @@
 .category-page__sidebar-title {
   margin: 0 0 var(--space-3);
   font-size: var(--font-size-small);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -91,7 +91,7 @@
 .category-page__cat-item.is-active {
   background: linear-gradient(90deg, var(--color-brand-bg), transparent);
   color: var(--color-brand);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
   border-left: 3px solid var(--color-brand);
 }
 .category-page__cat-count {
@@ -132,7 +132,7 @@
 }
 .category-page__cat-sub-item.is-active {
   color: var(--color-brand);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
 }
 .category-page__cat-sub-item.is-active .category-page__cat-count {
   color: var(--color-brand);
@@ -176,7 +176,7 @@
 .category-page__sort-tab.is-active {
   color: var(--color-brand);
   border-bottom-color: var(--color-brand);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
 }
 .category-page__status-group {
   display: flex;
@@ -190,7 +190,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   cursor: pointer;
   border-radius: var(--radius-sm);
   transition:
@@ -200,7 +200,7 @@
 .category-page__status-btn.is-active {
   background: var(--color-bg-surface);
   color: var(--color-brand);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
   box-shadow: var(--sh-1);
 }
 
@@ -213,7 +213,7 @@
   border-bottom: 1px solid var(--color-border-subtle);
 }
 .category-page__tags-label {
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   color: var(--color-text-tertiary);
   flex-shrink: 0;
   padding-top: var(--space-1);
@@ -235,7 +235,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -246,7 +246,7 @@
 /* ---------- 结果统计 ---------- */
 .category-page__result-meta {
   padding: var(--space-3) 0;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   color: var(--color-text-tertiary);
 }
 .category-page__result-meta strong {

@@ -175,8 +175,11 @@ class ChapterRepository(BaseRepository[Chapter]):
         return {ch.novel_id: ch for ch in result.scalars().all()}
 
     async def reorder(self, novel_id: int, ordered_ids: list[int]) -> None:
-        """重排章节顺序（两步更新避免唯一约束冲突）。"""
-        # 第一步：全部移至负索引临时区
+        """重排章节顺序（两步更新避免唯一约束冲突）。
+
+        两步均在当前事务内 flush（未 commit），最终 commit 原子生效；
+        第一步先移到负索引临时区，避免唯一约束中间态冲突。
+        """
         for temp_index, cid in enumerate(ordered_ids):
             stmt = select(Chapter).where(Chapter.id == cid, Chapter.novel_id == novel_id)
             result = await self.session.execute(stmt)

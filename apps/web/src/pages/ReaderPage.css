@@ -17,7 +17,7 @@
 @keyframes reader-fade-in {
   from {
     opacity: 0;
-    transform: perspective(600px) rotateY(-4deg) translateX(10px);
+    transform: perspective(600px) rotateY(-2deg) translateX(8px);
   }
   to {
     opacity: 1;
@@ -27,7 +27,7 @@
 
 /* 章节切换软翻页效果 */
 .reader-page__chapter-enter {
-  animation: reader-fade-in 350ms var(--ease-decelerate) both;
+  animation: reader-fade-in 300ms var(--ease-decelerate) both;
   transform-origin: left center;
 }
 
@@ -47,7 +47,7 @@
 @keyframes chapterItemEnter {
   from {
     opacity: 0;
-    transform: translateX(8px);
+    transform: translateX(12px);
   }
   to {
     opacity: 1;
@@ -107,15 +107,9 @@
   box-shadow: none;
 }
 
-/* 章节切换软翻页效果 */
-.reader-page__chapter-enter {
-  animation: reader-fade-in 350ms var(--ease-decelerate) both;
-  transform-origin: left center;
-}
-
 /* 阅读进度条（顶部渐变） */
 .reader-page .reader-progress {
-  height: 3px;
+  height: 4px;
   background: var(--color-bg-subtle);
   border-radius: var(--radius-full);
   overflow: hidden;
@@ -124,6 +118,7 @@
   left: 0;
   right: 0;
   z-index: var(--z-index-sticky);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .reader-page .reader-progress__fill {
@@ -131,6 +126,28 @@
   background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   border-radius: var(--radius-full);
   transition: width var(--dur-slow) var(--ease-standard);
+  position: relative;
+}
+
+.reader-page .reader-progress__fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 /* 目录抽屉动画 */

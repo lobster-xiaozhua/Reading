@@ -75,9 +75,11 @@
 /* 统计数值强调 */
 .workbench-page .stat-value {
   font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 28px;
-  line-height: 1.2;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-tight);
+  font-variant-numeric: tabular-nums;
   transition: color var(--dur-fast) var(--ease-standard);
 }
 
@@ -91,7 +93,9 @@
   align-items: center;
   gap: 2px;
   font-size: var(--font-size-small);
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-caption);
+  font-variant-numeric: tabular-nums;
   padding: 2px var(--space-2);
   border-radius: var(--radius-full);
   transition: transform var(--dur-fast) var(--ease-standard);
@@ -127,7 +131,7 @@
 .wp-chart-title {
   color: var(--color-text-secondary);
   font-size: var(--font-size-body, 14px);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
 }
 
 /* Metric button group */
@@ -140,6 +144,9 @@
 .wp-metric-btn {
   padding: 4px 12px;
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-emphasis);
+  letter-spacing: var(--letter-spacing-wider);
+  line-height: var(--line-height-snug);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm, 4px);
   background: transparent;
@@ -168,7 +175,7 @@
   border-color: var(--color-brand);
   background: var(--color-brand);
   color: var(--color-text-inverse);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
 }
 
 .wp-chart-wrapper {

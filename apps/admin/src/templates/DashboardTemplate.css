@@ -1,0 +1,47 @@
+/* ============================================================
+ * DashboardTemplate · B 端工作台模板样式
+ * ============================================================ */
+
+.b-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.b-dashboard__quick-btn {
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body);
+  font-family: inherit;
+  line-height: 1.5;
+  transition:
+    color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.b-dashboard__quick-btn:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
+  transform: translateY(-1px);
+  box-shadow: var(--sh-1);
+}
+.b-dashboard__quick-btn:active {
+  transform: translateY(0) scale(0.97);
+}
+.b-dashboard__quick-btn:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .b-dashboard__quick-btn {
+    transition: none;
+  }
+}

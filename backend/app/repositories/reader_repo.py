@@ -129,6 +129,37 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
 class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
     model = ReadingStatsDaily
 
+    async def upsert_daily(
+        self,
+        reader_id: int,
+        stat_date: date,
+        duration_delta: int = 0,
+        words: int = 0,
+    ) -> ReadingStatsDaily:
+        """写入/更新读者每日阅读统计（同一天 upsert）。
+
+        duration_delta 累加会话时长；words 取当天读到的最新章节字数（取最大值，避免重复累加）。
+        """
+        stmt = select(ReadingStatsDaily).where(
+            ReadingStatsDaily.reader_id == reader_id,
+            ReadingStatsDaily.stat_date == stat_date,
+        )
+        existing = (await self.session.execute(stmt)).scalars().first()
+        if existing:
+            existing.duration_minutes = (existing.duration_minutes or 0) + duration_delta
+            if words:
+                existing.words = max(existing.words or 0, words)
+            return existing
+        daily = ReadingStatsDaily(
+            reader_id=reader_id,
+            stat_date=stat_date,
+            duration_minutes=duration_delta,
+            words=words,
+        )
+        self.session.add(daily)
+        await self.session.flush()
+        return daily
+
     async def get_overview(self, reader_id: int) -> dict:
         """获取读者阅读概览：总时长/总字数/阅读天数。"""
         stmt = select(

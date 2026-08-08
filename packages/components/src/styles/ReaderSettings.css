@@ -9,16 +9,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  max-height: 50vh;
-  padding: var(--space-6) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  max-height: 55vh;
+  padding: var(--space-6) var(--space-5) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   background: var(--color-bg-surface);
-  border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-none) var(--radius-none);
-  box-shadow: var(--sh-3);
+  border-radius: var(--radius-3xl) var(--radius-3xl) var(--radius-none) var(--radius-none);
+  box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
   transform: translateY(100%);
   transition: transform var(--dur-normal) var(--ease-decelerate);
   z-index: var(--z-index-modal);
   outline: none;
   overflow-y: auto;
+  border-top: 1px solid var(--color-border-subtle);
 }
 .novel-reader-settings.is-visible {
   transform: translateY(0);
@@ -108,37 +109,44 @@
 /* 滑块 */
 .novel-reader-settings__slider {
   flex: 1;
-  height: 4px;
+  height: 6px;
   appearance: none;
-  background: var(--color-bg-subtle);
+  background: linear-gradient(90deg, var(--color-brand) 0%, var(--color-bg-subtle) 0%);
   border-radius: var(--radius-full);
   outline: none;
   cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
 }
 .novel-reader-settings__slider::-webkit-slider-thumb {
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--color-brand);
-  border: 2px solid var(--color-bg-surface);
-  box-shadow: var(--sh-1);
+  border: 3px solid var(--color-bg-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: grab;
+  transition: transform var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-reader-settings__slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .novel-reader-settings__slider::-webkit-slider-thumb:active {
   cursor: grabbing;
+  transform: scale(1.05);
 }
 .novel-reader-settings__slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: var(--color-brand);
-  border: 2px solid var(--color-bg-surface);
-  box-shadow: var(--sh-1);
+  border: 3px solid var(--color-bg-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   cursor: grab;
 }
 .novel-reader-settings__slider:focus-visible {
-  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
   border-radius: var(--radius-sm);
 }
 
@@ -159,30 +167,32 @@
   gap: var(--space-1);
   padding: var(--space-1);
   background: var(--color-bg-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 .novel-reader-settings__segment {
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-5);
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-text-secondary);
   font-family: var(--font-sans);
   font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
-  transition: color var(--dur-fast) var(--ease-standard),
-    background var(--dur-fast) var(--ease-standard),
-    border-color var(--dur-fast) var(--ease-standard);
+  transition: all var(--dur-fast) var(--ease-standard);
+  letter-spacing: var(--letter-spacing-tight);
 }
 .novel-reader-settings__segment:hover {
   color: var(--color-text-primary);
+  background: var(--color-bg-surface);
 }
 .novel-reader-settings__segment.is-active {
-  border: 2px solid var(--color-brand);
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-  padding: calc(var(--space-2) - 1px) calc(var(--space-4) - 1px);
+  border: 1px solid var(--color-brand-border);
+  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-hover));
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
+  box-shadow: 0 2px 8px var(--color-brand-bg);
 }
 .novel-reader-settings__segment:focus-visible {
   outline: none;
@@ -192,26 +202,31 @@
 /* ---------- 主题色块（四选一） ---------- */
 .novel-reader-settings__themes {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 .novel-reader-settings__theme-swatch {
   position: relative;
-  width: 56px;
-  height: 56px;
-  border: 2px solid var(--color-border-default);
-  border-radius: var(--radius-md);
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   overflow: hidden;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: var(--space-1);
-  transition: border-color var(--dur-fast) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard);
+  padding-bottom: var(--space-2);
+  transition: all var(--dur-fast) var(--ease-standard);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.novel-reader-settings__theme-swatch:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 .novel-reader-settings__theme-swatch.is-active {
   border-color: var(--color-brand);
-  box-shadow: 0 0 0 3px var(--color-brand-bg);
+  box-shadow: 0 0 0 3px var(--color-brand-bg), 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 .novel-reader-settings__theme-swatch:focus-visible {
   outline: none;
@@ -221,6 +236,7 @@
   font-family: var(--font-sans);
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-medium);
+  opacity: 0.8;
 }
 
 /* ---------- H5 适配：行布局更紧凑 ---------- */

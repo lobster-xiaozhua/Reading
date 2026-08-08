@@ -2,7 +2,7 @@
  * P5-3 · 阅读器页
  * 路由 /read/:bookId/:chapterId?
  * 接入 useReaderCache（±2 预加载 / LRU 5）+ useReaderSettings
- * 章节切换 / 上下章 / 目录抽屉 / 阅读进度记录
+ * 章节切换 / 上下章 / 目录抽屉 / 阅读进度记录 / 书签 / 阅读时长
  * ============================================================ */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -40,7 +40,13 @@ function chapterToHtml(ch: ChapterContent): string {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/`/g, "&#96;");
 }
 
 export default function ReaderPage() {
@@ -48,6 +54,9 @@ export default function ReaderPage() {
   const navigate = useNavigate();
   const recordReading = useHistoryStore((s) => s.recordReading);
   const getEntry = useHistoryStore((s) => s.getEntry);
+  const isBookmarked = useHistoryStore((s) => s.isBookmarked(bookId, chapterId ?? ""));
+  const addBookmark = useHistoryStore((s) => s.addBookmark);
+  const removeBookmark = useHistoryStore((s) => s.removeBookmark);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [chapterPercent, setChapterPercent] = useState(0);
   const readerContainerRef = useRef<HTMLDivElement>(null);
@@ -84,7 +93,10 @@ export default function ReaderPage() {
         };
       }
       const ch = await fetcher.getChapter(bookId, id);
-      if (!ch) throw new Error("章节不存在");
+      if (!ch) {
+        // 章节不存在或 VIP 未解锁
+        throw new Error("章节内容不可用");
+      }
       const html = chapterToHtml(ch);
       // 回写离线缓存（不阻塞返回）
       void offlineCache.putChapter(bookId, ch.id, ch.title, html);
@@ -99,6 +111,34 @@ export default function ReaderPage() {
     maxCache: 5,
     preloadRadius,
   });
+
+  /* 下一章预览数据（章节末卡片） */
+  const nextChapterInfo = useMemo(() => {
+    if (!chapters.length || !cache.nextId) return null;
+    const nextIdx = chapters.findIndex((c) => c.id === cache.nextId);
+    if (nextIdx < 0) return null;
+    return { title: chapters[nextIdx]!.title };
+  }, [chapters, cache.nextId]);
+
+  /* 书签切换 */
+  const handleBookmark = useCallback(
+    (toggled: boolean) => {
+      if (!chapterId) return;
+      const ch = chapters.find((c) => c.id === chapterId);
+      if (!ch) return;
+      if (toggled) {
+        addBookmark({
+          bookId,
+          chapterId,
+          chapterTitle: ch.title,
+          createdAt: Date.now(),
+        });
+      } else {
+        removeBookmark(bookId, chapterId);
+      }
+    },
+    [bookId, chapterId, chapters, addBookmark, removeBookmark],
+  );
 
   /* P8-perf 章节切换耗时埋点：current 变化时 mark start/end */
   useEffect(() => {
@@ -147,6 +187,17 @@ export default function ReaderPage() {
       percent: chapterPercent,
       readAt: Date.now(),
     });
+    // 后端进度上报（与本地记录同步，fire-and-forget，失败不影响阅读）
+    fetcher
+      .reportReadingProgress({
+        novelId: bookId,
+        chapterId: ch.id,
+        chapterIndex: ch.index,
+        percent: chapterPercent,
+      })
+      .catch(() => {
+        /* 进度上报失败静默忽略 */
+      });
     // cache omitted: object recreated on every render; 依赖 cache.current 的 .id / .currentIndex 已覆盖切章场景
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -250,10 +301,13 @@ export default function ReaderPage() {
           }
           totalChapters={chapters.length}
           chapterPercent={chapterPercent}
-settings={settings}
+          settings={settings}
           onSettingsChange={updateAll}
           onPrev={cache.prevId ? handlePrev : undefined}
           onNext={cache.nextId ? handleNext : undefined}
+          isBookmarked={isBookmarked}
+          onBookmark={handleBookmark}
+          nextChapterTitle={nextChapterInfo?.title}
           className="reader-page reader-page__chapter-enter"
         />
         <SelectionPopover bookId={bookId} chapterId={cache.current?.id ?? ""} />

@@ -45,7 +45,7 @@
   margin: 0;
   font-family: var(--font-serif);
   font-size: 28px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   text-shadow: 0 2px 8px var(--color-overlay-strong);
 }
 .novel-carousel__subtitle {
@@ -159,7 +159,7 @@
     padding: var(--space-4);
   }
   .novel-carousel__title {
-    font-size: 20px;
+    font-size: var(--font-size-h3);
   }
   .novel-carousel__arrow {
     display: none;

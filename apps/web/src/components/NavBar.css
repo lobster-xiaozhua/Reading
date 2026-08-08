@@ -28,19 +28,31 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-md);
-  background: var(--color-brand);
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
   color: var(--color-text-inverse);
   font-family: var(--font-serif);
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body);
+  box-shadow: var(--sh-1), 0 0 12px var(--color-brand-glow-25);
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-spring);
+}
+.novel-navbar__logo:hover .novel-navbar__logo-mark {
+  box-shadow: var(--sh-2), 0 0 16px var(--color-brand-glow-35);
+  transform: scale(1.08);
 }
 .novel-navbar__logo-text {
   font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  background: linear-gradient(to right, var(--color-text-primary), var(--color-text-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .novel-navbar__nav {
@@ -67,7 +79,7 @@
 .novel-navbar__nav-link.is-active,
 .novel-navbar__nav-link[aria-current="page"] {
   color: var(--color-brand);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
 }
 
 .novel-navbar__search {
@@ -94,8 +106,9 @@
     background var(--dur-fast) var(--ease-standard);
 }
 .novel-navbar__search-input:focus {
-  border-color: var(--color-border-focus);
+  border-color: var(--color-brand);
   background: var(--color-bg-surface);
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
 }
 .novel-navbar__search-btn {
   height: 36px;

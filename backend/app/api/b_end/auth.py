@@ -26,7 +26,13 @@ async def login(
     redis = Depends(get_redis_client),
 ):
     svc = AuthService(db, redis)
-    return ok(request, await svc.login(body.username, body.password, body.remember))
+    res = await svc.login(
+        body.username,
+        body.password,
+        body.remember,
+        client_ip=request.client.host if request.client else "",
+    )
+    return ok(request, res)
 
 
 @router.post("/refresh")
@@ -43,13 +49,15 @@ async def refresh(
 @router.post("/logout")
 async def logout(
     request: Request,
+    body: RefreshRequest | None = None,
     authorization: str = Header(default=""),
     db: AsyncSession = Depends(get_db),
     redis = Depends(get_redis_client),
 ):
     svc = AuthService(db, redis)
     token = authorization.removeprefix("Bearer ").strip()
-    return ok(request, await svc.logout(token))
+    refresh_token = body.refresh_token if body else None
+    return ok(request, await svc.logout(token, refresh_token))
 
 
 @router.get("/me")

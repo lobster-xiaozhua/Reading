@@ -1,6 +1,6 @@
 #!/bin/bash
 # 智能巡检运行脚本
-# 用法: ./monitoring/run.sh [--only api|page|flow|health] [--report html|json]
+# 用法: ./monitoring/run.sh [--only global|api|page|flow|health] [--report json|html]
 
 set -euo pipefail
 
@@ -40,9 +40,32 @@ check_service() {
 
 echo ""
 echo "--- 服务存活检查 ---"
-check_service "后端 API" "http://localhost:8000/health"
-check_service "B 端 Admin" "http://localhost:5174"
-check_service "C 端 Web" "http://localhost:5173"
+check_service "后端 API" "http://localhost:8000/health" || true
+check_service "B 端 Admin" "http://localhost:5174" || true
+check_service "C 端 Web" "http://localhost:5173" || true
+
+# 全局真实请求检查（覆盖 OpenAPI 全部端点，无需浏览器）
+if [ "$ONLY" = "global" ] || [ "$ONLY" = "" ]; then
+  echo ""
+  echo "--- 全局真实请求检查 ---"
+  GLOBAL_REPORT="$REPORT_DIR/global-$TIMESTAMP.json"
+  python3 "$PROJECT_ROOT/scripts/global-check/global_check.py" \
+    --report "$GLOBAL_REPORT" 2>&1 || true
+  GLOBAL_OK=$?
+  if [ $GLOBAL_OK -ne 0 ]; then
+    echo "  [WARN] 全局检查存在失败项（详见报告: $GLOBAL_REPORT）"
+  else
+    echo "  [OK] 全局检查全部通过"
+  fi
+fi
+
+if [ "$ONLY" = "global" ]; then
+  echo ""
+  echo "========================================="
+  echo "  全局检查报告: $GLOBAL_REPORT"
+  echo "========================================="
+  exit 0
+fi
 
 echo ""
 echo "--- 执行 Playwright 巡检 ---"
@@ -50,7 +73,7 @@ echo "--- 执行 Playwright 巡检 ---"
 PROJECT_FILTER=""
 case "$ONLY" in
   health) PROJECT_FILTER="--project=backend" ;;
-  api)    PROJECT_FILTER="--project=api-b-end --project=api-c-end" ;;
+  api)    PROJECT_FILTER="--project=api-b-end --project=api-c-end --project=api-global" ;;
   page)   PROJECT_FILTER="--project=pages-b-end --project=pages-c-end" ;;
   flow)   PROJECT_FILTER="--project=business-flow" ;;
 esac

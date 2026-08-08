@@ -40,7 +40,10 @@ pnpm run validate:quick        # 快速预检 (跳过构建和慢速测试)
 pnpm run token-scan           # 代码安全扫描 (token-scanner 工具)
 pnpm run import-audit         # B 端 import 审计
 pnpm storybook                # 启动 Storybook (port 6006)
-bash monitoring/run.sh        # 全量 Playwright 巡检
+bash monitoring/run.sh        # 全量 Playwright 巡检 + 全局真实请求检查
+pnpm run global-check         # 全局真实请求检查（OpenAPI 全端点 + 页面，127 项）
+pnpm run global-check:api     # 仅 API 全端点检查
+pnpm run global-check:pages   # 仅前端页面检查
 pnpm audit                    # 前端依赖漏洞扫描
 pip-audit                     # 后端依赖漏洞扫描 (backend/ 目录)
 
@@ -84,12 +87,17 @@ bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试
 ## 巡检
 
 ```bash
-pnpm run monitor              # 全量 41 项检查
+pnpm run monitor              # 全量 41 项检查（Playwright）
 pnpm run monitor:health       # 仅后端健康检查
 pnpm run monitor:api          # 仅 API 接口巡检
 pnpm run monitor:page         # 仅前端页面渲染巡检
 pnpm run monitor:flow         # 仅业务链路巡检
+pnpm run monitor:global       # 全局真实请求检查（OpenAPI 全端点，127 项）
+pnpm run global-check         # 全局真实请求检查（含前端页面，自动拉起服务）
 ```
+
+> 全局真实请求检查通过真实 HTTP 请求遍历后端 OpenAPI 全部端点 + 前端页面，
+> 覆盖所有 127 项；脚本位于 `scripts/global-check/`，支持 `--tag api|pages`。
 
 ## 项目文档
 

@@ -94,6 +94,9 @@ export const fetcher = {
         refreshToken: string;
       }>("/auth/refresh", { refreshToken });
     },
+    async logout(refreshToken?: string) {
+      return http.post("/auth/logout", { refreshToken: refreshToken ?? null });
+    },
     async getMe() {
       return http.get<{
         id: string;
@@ -186,7 +189,10 @@ export const fetcher = {
         `/books/${bookId}/chapters/${chapterId}`,
       );
     } catch (err) {
-      if (err instanceof ApiError) return null;
+      if (err instanceof ApiError) {
+        // VIP 章节未解锁等错误静默返回 null，由上层处理
+        return null;
+      }
       throw err;
     }
   },
@@ -278,6 +284,13 @@ export const fetcher = {
   /* ---------- 个人中心 ---------- */
   async getCurrentUser(): Promise<UserProfile> {
     return http.get<UserProfile>("/me");
+  },
+
+  async updateProfile(payload: {
+    nickname?: string;
+    avatar?: string;
+  }): Promise<UserProfile> {
+    return http.put<UserProfile>("/me/profile", payload);
   },
 
   async getBookshelf(

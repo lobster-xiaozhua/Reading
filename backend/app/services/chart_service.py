@@ -3,7 +3,6 @@
 提供工作台趋势、字数增长、阅读热力图、阅读漏斗、排行趋势、分类分布。
 """
 
-import asyncio
 import time
 from collections import defaultdict
 from datetime import date, timedelta
@@ -127,21 +126,48 @@ class ChartService:
 
     # ── 阅读漏斗 ─────────────────────────────────────────
     async def get_reading_funnel(self) -> list[FunnelStage]:
-        """获取阅读漏斗数据（曝光/详情/加架/开读/回访）。"""
+        """获取阅读漏斗数据（基于真实行为统计）。
+
+        曝光=已发布作品数；详情/开读/回访来自 ReadingHistory 去重读者数；
+        加入书架来自 Bookshelf 去重读者数。
+        """
         total_novels = await self._count(Novel, Novel.deleted == 0, Novel.status == "published")
-        # 简化漏斗：曝光=作品数, 详情/加架/开读/回访用近似值
+        from app.models.reading import Bookshelf, ReadingHistory
+
+        detail = await self._distinct_readers(ReadingHistory)
+        bookshelf = await self._distinct_readers(Bookshelf)
+        reading = await self._distinct_readers(
+            ReadingHistory, ReadingHistory.percent > 0
+        )
+        seven_days = int(time.time() * 1000) - 7 * 86400 * 1000
+        returned = await self._distinct_readers(
+            ReadingHistory, ReadingHistory.read_at >= seven_days
+        )
+
+        counts = [total_novels, detail, bookshelf, reading, returned]
         stages = [
-            ("exposure", "曝光", total_novels),
-            ("detail", "详情查看", int(total_novels * 0.6)),
-            ("bookshelf", "加入书架", int(total_novels * 0.3)),
-            ("reading", "开始阅读", int(total_novels * 0.2)),
-            ("return", "7日回访", int(total_novels * 0.08)),
+            ("exposure", "曝光", counts[0]),
+            ("detail", "详情查看", counts[1]),
+            ("bookshelf", "加入书架", counts[2]),
+            ("reading", "开始阅读", counts[3]),
+            ("return", "7日回访", counts[4]),
         ]
         base = stages[0][2] if stages[0][2] else 1
         return [
             FunnelStage(stage=key, label=label, count=count, percent=round(count / base * 100, 1))
             for key, label, count in stages
         ]
+
+    async def _distinct_readers(self, model, *filters) -> int:
+        """统计模型中满足条件的去重读者数。"""
+        from sqlalchemy import func
+
+        stmt = (
+            select(func.count(func.distinct(model.reader_id)))
+            .select_from(model)
+            .where(*filters)
+        )
+        return int((await self.session.execute(stmt)).scalar_one() or 0)
 
     # ── 排行趋势 ─────────────────────────────────────────
     async def get_ranking_trend(self, days: int = 14) -> list[TrendPoint]:
@@ -203,14 +229,16 @@ class ChartService:
 
     # ── 图表聚合 ─────────────────────────────────────────
     async def get_dashboard_charts(self) -> dict:
-        """一次返回全部业务图表数据（减少网络往返）。"""
-        wc, rh, rf, rt, cd = await asyncio.gather(
-            self.get_word_count_growth(),
-            self.get_reading_heatmap(),
-            self.get_reading_funnel(),
-            self.get_ranking_trend(),
-            self.get_category_distribution(),
-        )
+        """一次返回全部业务图表数据（减少网络往返）。
+
+        注意：AsyncSession 不支持并发查询，这里改为顺序执行，
+        避免 SQLite 下 asyncio.gather 并发复用同一连接报错。
+        """
+        wc = await self.get_word_count_growth()
+        rh = await self.get_reading_heatmap()
+        rf = await self.get_reading_funnel()
+        rt = await self.get_ranking_trend()
+        cd = await self.get_category_distribution()
         return {
             "wordCountGrowth": [p.model_dump() for p in wc.daily],
             "readingHeatmap": [c.model_dump() for c in rh],

@@ -12,8 +12,8 @@
 .novel-section-title__text {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 600;
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   position: relative;
   padding-left: var(--space-3);
@@ -42,7 +42,7 @@
   align-items: center;
   gap: var(--space-1);
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   text-decoration: none;
   transition: color var(--dur-fast) var(--ease-standard);
 }

@@ -22,13 +22,15 @@ export function AnimatedNumber({
   const [display, setDisplay] = useState(0);
   const frameRef = useRef(0);
   const startTimeRef = useRef(0);
-  const prevValueRef = useRef(0);
+  const displayRef = useRef(0);
 
   useEffect(() => {
-    const startValue = prevValueRef.current;
+    // 动画中途 value 再次变化时，从当前显示值续跑而非回退到 0
+    const startValue = displayRef.current;
     const diff = value - startValue;
     if (diff === 0) {
       setDisplay(value);
+      displayRef.current = value;
       return;
     }
 
@@ -41,11 +43,10 @@ export function AnimatedNumber({
       const eased = 1 - Math.pow(1 - progress, 3);
       const current = Math.round(startValue + diff * eased);
       setDisplay(current);
+      displayRef.current = current;
 
       if (progress < 1) {
         frameRef.current = requestAnimationFrame(animate);
-      } else {
-        prevValueRef.current = value;
       }
     };
 

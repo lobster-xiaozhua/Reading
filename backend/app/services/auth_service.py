@@ -54,16 +54,19 @@ class AuthService:
         return [role_key], perms
 
     # ── 登录 ──────────────────────────────────────────
-    async def login(self, username: str, password: str, remember: bool = False) -> BLoginResponse:
-        # 登录失败次数检查
+    async def login(
+        self, username: str, password: str, remember: bool = False, client_ip: str = ""
+    ) -> BLoginResponse:
+        # 登录失败按 username 记录不同来源 IP 集合，防单 IP 刷锁他人账号
         fail_key = CacheKeys.login_fail(username)
-        fail_count = int(await self.redis.get(fail_key) or 0)
-        if fail_count >= _LOGIN_FAIL_LIMIT:
+        ip = client_ip or "unknown"
+        distinct = int(await self.redis.scard(fail_key) or 0)
+        if distinct >= _LOGIN_FAIL_LIMIT:
             raise BizError(ErrorCode.ACCOUNT_LOCKED, "账号已被锁定，请 15 分钟后重试")
 
         admin = await self._find_admin(username)
         if not admin or not verify_password(password, admin.password_hash):
-            await self.redis.incr(fail_key)
+            await self.redis.sadd(fail_key, ip)
             await self.redis.expire(fail_key, _LOGIN_LOCK_TTL)
             raise BizError(ErrorCode.INVALID_CREDENTIALS, "用户名或密码错误")
 
@@ -175,16 +178,19 @@ class AuthService:
         )
 
     # ── 登出 ──────────────────────────────────────────
-    async def logout(self, access_token: str) -> bool:
-        """登出，使 access token 失效。
+    async def logout(self, access_token: str, refresh_token: str | None = None) -> bool:
+        """登出，使 access token 与 refresh token 失效。
 
         Args:
             access_token: 访问令牌。
+            refresh_token: 可选，刷新令牌（一并失效，防止登出后续期）。
 
         Returns:
             操作是否成功。
         """
         await self.redis.delete(CacheKeys.access_token(access_token))
+        if refresh_token:
+            await self.redis.delete(CacheKeys.refresh_token(refresh_token))
         return True
 
     # ── 当前用户 ─────────────────────────────────────────

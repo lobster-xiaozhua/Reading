@@ -130,6 +130,12 @@
   --font-size-body-lg: 17px;
   --font-size-h4: 18px;
 
+  /* ---------- 字号语义化（用途命名） ---------- */
+  --font-size-prose: var(--font-size-body);
+  --font-size-prose-lg: var(--font-size-body-lg);
+  --font-size-eyebrow: var(--font-size-overline);
+  --font-size-label: var(--font-size-caption);
+
   --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
@@ -137,9 +143,43 @@
   --font-weight-bold: 700;
   --font-weight-extrabold: 800;
 
-  --line-height-tight: 1.15;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.7;
+  /* ---------- 字重语义化（按层级用途） ---------- */
+  --font-weight-heading: var(--font-weight-bold);
+  --font-weight-subheading: var(--font-weight-semibold);
+  --font-weight-body: var(--font-weight-regular);
+  --font-weight-emphasis: var(--font-weight-medium);
+  --font-weight-caption: var(--font-weight-medium);
+
+  /* ---------- 行高（5 级，按内容类型） ---------- */
+  --line-height-tighter: 1.1;   /* display / hero title */
+  --line-height-tight: 1.2;     /* heading 1-2 */
+  --line-height-snug: 1.35;     /* heading 3-4 / UI title */
+  --line-height-normal: 1.5;    /* body / input */
+  --line-height-relaxed: 1.7;   /* prose / long-form */
+  --line-height-loose: 1.85;    /* 阅读类正文 */
+
+  /* ---------- 行高语义化 ---------- */
+  --line-height-display: var(--line-height-tighter);
+  --line-height-heading: var(--line-height-tight);
+  --line-height-subheading: var(--line-height-snug);
+  --line-height-ui: var(--line-height-snug);
+  --line-height-prose: var(--line-height-relaxed);
+
+  /* ---------- 字间距（6 级） ---------- */
+  --letter-spacing-tighter: -0.04em;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ---------- 字间距语义化 ---------- */
+  --letter-spacing-heading: var(--letter-spacing-tight);
+  --letter-spacing-display: var(--letter-spacing-tighter);
+  --letter-spacing-body: var(--letter-spacing-normal);
+  --letter-spacing-caption: var(--letter-spacing-wide);
+  --letter-spacing-eyebrow: var(--letter-spacing-wider);
+  --letter-spacing-uppercase: var(--letter-spacing-widest);
 
   /* ---------- 小说正文 ---------- */
   --novel-font-family: var(--font-serif);

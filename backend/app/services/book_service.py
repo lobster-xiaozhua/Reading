@@ -14,8 +14,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import BizError, ErrorCode, NotFoundError
 from app.core.redis import CacheKeys
 from app.models.interaction import Comment as CommentModel
-from app.models.interaction import Review as ReviewModel
+from app.models.interaction import NovelRating
 from app.models.novel import Chapter, Novel
+from app.models.user import Reader
 from app.repositories.chapter_repo import ChapterRepository
 from app.repositories.novel_repo import NovelRepository
 from app.schemas.c_end import (
@@ -118,9 +119,9 @@ class BookService:
         return self._enforce_vip(content, reader_vip)
 
     async def _get_cached_chapter(self, chapter_id: int, novel_id: int) -> ChapterContent | None:
-        """读取章节缓存，校验书籍归属，解析失败或归属不符时回源。"""
+        """读取章节缓存，键含 novel_id 从根上避免跨书误命中。"""
         try:
-            cached = await self.redis.get(CacheKeys.chapter(chapter_id))
+            cached = await self.redis.get(CacheKeys.chapter(novel_id, chapter_id))
             if not cached:
                 return None
             data = json.loads(cached)
@@ -135,7 +136,7 @@ class BookService:
         try:
             await cache_set(
                 self.redis,
-                CacheKeys.chapter(chapter_id),
+                CacheKeys.chapter(novel_id, chapter_id),
                 {"novel_id": novel_id, "content": content.model_dump(mode="json")},
                 _TTL_CHAPTER,
             )
@@ -206,9 +207,9 @@ class BookService:
             return RatingDistribution.model_validate_json(cached)
 
         stmt = (
-            select(ReviewModel.rating, func.count())
-            .where(ReviewModel.novel_id == novel.id, ReviewModel.rating > 0)
-            .group_by(ReviewModel.rating)
+            select(NovelRating.rating, func.count())
+            .where(NovelRating.novel_id == novel.id, NovelRating.rating > 0)
+            .group_by(NovelRating.rating)
         )
         rows = (await self.session.execute(stmt)).all()
         total = sum(r[1] for r in rows)
@@ -228,24 +229,43 @@ class BookService:
     async def get_book_detail(self, book_id: int) -> BookDetailResponse:
         """一次性返回书籍详情 + 章节列表 + 评分分布，减少网络往返。
 
-        Args:
-            book_id: 书籍 ID。
-
-        Returns:
-            聚合后的详情页数据。
+        子模块失败时降级为空数组/None，不阻塞整页渲染。
         """
         book = await self.get_book(book_id)
-        chapters = await self.get_chapters(book_id)
-        rating = await self.get_rating_distribution(book_id)
+        chapters: list[ChapterListItem] = []
+        rating: RatingDistribution | None = None
+        try:
+            chapters = await self.get_chapters(book_id)
+        except Exception:
+            logger.warning("章节列表加载失败 book_id=%s", book_id, exc_info=True)
+        try:
+            rating = await self.get_rating_distribution(book_id)
+        except Exception:
+            logger.warning("评分分布加载失败 book_id=%s", book_id, exc_info=True)
         return BookDetailResponse(book=book, chapters=chapters, rating=rating)
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _get_published_novel(self, book_id: int) -> Novel:
         cached = await self.redis.get(CacheKeys.book(book_id))
         if cached:
-            data = json.loads(cached)
-            novel = Novel(**data)
-            return novel
+            try:
+                data = json.loads(cached)
+                # 缓存可能由旧版本写入而缺字段，缺失必要字段时回源数据库
+                required = {
+                    "id",
+                    "title",
+                    "author_name",
+                    "category",
+                    "status",
+                    "word_count",
+                    "flags",
+                    "tags_str",
+                    "updated_at",
+                }
+                if required.issubset(data):
+                    return Novel(**data)
+            except (ValueError, TypeError):
+                logger.debug("书籍缓存解析失败 book_id=%s，回源", book_id, exc_info=True)
 
         novel = await self.novel_repo.get_by_id(book_id)
         if not novel or novel.deleted or novel.status != "published":
@@ -270,6 +290,8 @@ class BookService:
                 "follow_count": novel.follow_count,
                 "click_count": novel.click_count,
                 "is_completed": novel.is_completed,
+                "tags_str": novel.tags_str,
+                "updated_at": novel.updated_at,
             },
             _TTL_BOOK,
         )
@@ -285,25 +307,44 @@ class BookService:
             logger.debug("点击计数失败 book_id=%s", book_id, exc_info=True)
 
     async def _list_comments_with_users(self, novel_id: int, limit: int) -> list[Comment]:
+        # 联查读者：填充昵称/头像，已注销（deleted）用户昵称显示「已注销」
         stmt = (
-            select(CommentModel)
-            .where(CommentModel.novel_id == novel_id, CommentModel.status == 1)
+            select(CommentModel, Reader)
+            .join(Reader, Reader.id == CommentModel.reader_id, isouter=True)
+            .where(
+                CommentModel.novel_id == novel_id,
+                CommentModel.status == 1,
+                CommentModel.deleted == 0,
+            )
             .order_by(CommentModel.likes.desc(), CommentModel.created_at.desc())
             .limit(limit)
         )
-        comments = list((await self.session.execute(stmt)).scalars().all())
+        rows = list((await self.session.execute(stmt)).all())
         return [
             Comment(
                 id=str(c.id),
                 book_id=str(c.novel_id),
-                user=CommentUser(id=str(c.reader_id), nickname="", avatar=""),
+                user=CommentUser(
+                    id=str(c.reader_id),
+                    nickname=_reader_nickname(reader),
+                    avatar=reader.avatar if reader else "",
+                ),
                 rating=c.rating,
                 content=c.content,
                 likes=c.likes,
                 created_at=c.created_at,
             )
-            for c in comments
+            for c, reader in rows
         ]
+
+
+def _reader_nickname(reader: Reader | None) -> str:
+    """读者展示昵称：已注销用户显示「已注销」，无记录显示「读者」。"""
+    if reader is None:
+        return "读者"
+    if reader.deleted:
+        return "已注销"
+    return reader.nickname or reader.username
 
 
 def _chapter_to_list_item(ch: Chapter, novel_id: int) -> ChapterListItem:

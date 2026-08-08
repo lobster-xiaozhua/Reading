@@ -4,6 +4,7 @@ import pytest
 
 from app.core.exceptions import NotFoundError, ParamError
 from app.models.notes import ReaderNote
+from app.models.novel import Chapter, Novel
 from app.schemas.c_end import NoteCreateBody, NoteUpdateBody
 from app.services.notes_service import NotesService
 
@@ -11,6 +12,41 @@ from app.services.notes_service import NotesService
 @pytest.fixture
 def svc(db_session):
     return NotesService(db_session)
+
+
+async def _create_published_novel(session, **kwargs):
+    defaults = {
+        "title": "测试小说",
+        "author_name": "测试作者",
+        "category": "xuanhuan",
+        "status": "published",
+        "word_count": 50000,
+        "rating": 4.5,
+        "is_completed": 0,
+        "flags": "",
+    }
+    defaults.update(kwargs)
+    novel = Novel(**defaults)
+    session.add(novel)
+    await session.flush()
+    return novel
+
+
+async def _create_published_chapter(session, novel_id, **kwargs):
+    defaults = {
+        "novel_id": novel_id,
+        "index": 1,
+        "title": "第一章",
+        "content": "正文内容",
+        "status": "published",
+        "word_count": 500,
+        "is_vip": 0,
+    }
+    defaults.update(kwargs)
+    chapter = Chapter(**defaults)
+    session.add(chapter)
+    await session.flush()
+    return chapter
 
 
 async def _create_note(session, **kwargs):
@@ -34,10 +70,12 @@ async def _create_note(session, **kwargs):
 
 
 class TestCreateNote:
-    async def test_create_success(self, svc):
+    async def test_create_success(self, svc, db_session):
+        novel = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, novel.id)
         body = NoteCreateBody(
-            novel_id=1,
-            chapter_id=1,
+            novel_id=novel.id,
+            chapter_id=chapter.id,
             text="精彩段落",
             paragraph_index=0,
             offset_start=0,
@@ -47,20 +85,24 @@ class TestCreateNote:
         assert note_id is not None
         assert len(note_id) > 0
 
-    async def test_create_empty_text_raises(self, svc):
-        body = NoteCreateBody(novel_id=1, chapter_id=1, text="")
+    async def test_create_empty_text_raises(self, svc, db_session):
+        novel = await _create_published_novel(db_session)
+        body = NoteCreateBody(novel_id=novel.id, chapter_id=1, text="")
         with pytest.raises(ParamError):
             await svc.create_note(1001, body)
 
-    async def test_create_whitespace_only_raises(self, svc):
-        body = NoteCreateBody(novel_id=1, chapter_id=1, text="   ")
+    async def test_create_whitespace_only_raises(self, svc, db_session):
+        novel = await _create_published_novel(db_session)
+        body = NoteCreateBody(novel_id=novel.id, chapter_id=1, text="   ")
         with pytest.raises(ParamError):
             await svc.create_note(1001, body)
 
-    async def test_create_with_annotation(self, svc):
+    async def test_create_with_annotation(self, svc, db_session):
+        novel = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, novel.id)
         body = NoteCreateBody(
-            novel_id=1,
-            chapter_id=1,
+            novel_id=novel.id,
+            chapter_id=chapter.id,
             text="好句",
             annotation="这是重点",
         )
@@ -68,6 +110,25 @@ class TestCreateNote:
         note = await svc.session.get(ReaderNote, int(note_id))
         assert note is not None
         assert note.annotation == "这是重点"
+
+    async def test_create_wrong_chapter_raises(self, svc, db_session):
+        """章节不属于该作品时拒绝创建。"""
+        novel = await _create_published_novel(db_session)
+        other = await _create_published_novel(db_session)
+        chapter = await _create_published_chapter(db_session, other.id)
+        body = NoteCreateBody(
+            novel_id=novel.id,
+            chapter_id=chapter.id,
+            text="越权笔记",
+        )
+        with pytest.raises(ParamError):
+            await svc.create_note(1001, body)
+
+    async def test_create_unpublished_novel_raises(self, svc, db_session):
+        novel = await _create_published_novel(db_session, status="draft")
+        body = NoteCreateBody(novel_id=novel.id, chapter_id=1, text="内容")
+        with pytest.raises(ParamError):
+            await svc.create_note(1001, body)
 
 
 class TestListNotes:

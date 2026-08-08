@@ -16,7 +16,7 @@
 .novel-rating-dist__score {
   font-family: var(--font-mono);
   font-size: 36px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-accent-orange);
   line-height: 1;
 }

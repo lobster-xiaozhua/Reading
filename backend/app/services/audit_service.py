@@ -4,14 +4,17 @@
 审核通过/驳回时联动章节状态流转。
 """
 
+import contextlib
 import json
 import time
 
+import redis.asyncio as redis
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError
+from app.core.redis import CacheKeys
 from app.models.audit import AuditRecord
 from app.models.novel import Chapter, Novel
 from app.repositories.audit_repo import AuditRepository
@@ -35,8 +38,9 @@ logger = structlog.get_logger(__name__)
 class AuditService:
     """B 端审核服务。"""
 
-    def __init__(self, session: AsyncSession) -> None:
+    def __init__(self, session: AsyncSession, redis_client: redis.Redis | None = None) -> None:
         self.session = session
+        self.redis = redis_client
         self.repo = AuditRepository(session)
 
     # ── 审核队列 ─────────────────────────────────────────
@@ -96,7 +100,12 @@ class AuditService:
 
     # ── 提交审核 ─────────────────────────────────────────
     async def submit_audit(
-        self, body: AuditSubmitBody, operator_id: int, operator_name: str
+        self,
+        body: AuditSubmitBody,
+        operator_id: int,
+        operator_name: str,
+        operator_ip: str = "",
+        user_agent: str = "",
     ) -> AuditSubmitResult:
         """提交审核结果（通过/驳回），联动章节状态流转。
 
@@ -104,6 +113,8 @@ class AuditService:
             body: 审核提交数据。
             operator_id: 操作人 ID。
             operator_name: 操作人姓名。
+            operator_ip: 操作人 IP（审计）。
+            user_agent: 操作人 UA（审计）。
 
         Returns:
             审核提交结果（含下一条待审项 ID）。
@@ -121,6 +132,8 @@ class AuditService:
                 body.reject_reason,
                 operator_id,
                 operator_name,
+                operator_ip,
+                user_agent,
             )
             nonlocal next_id
             if not next_id:
@@ -146,6 +159,8 @@ class AuditService:
         reject_reason: RejectReason | None,
         operator_id: int,
         operator_name: str,
+        operator_ip: str = "",
+        user_agent: str = "",
     ) -> None:
         now = int(time.time() * 1000)
         record.status = result.value
@@ -155,7 +170,7 @@ class AuditService:
         record.reject_reason = reject_reason.value if reject_reason else ""
         record.processed_at = now
 
-        # 写审核历史
+        # 写审核历史（含审计字段）
         await self.repo.add_history(
             record.id,
             operator_id,
@@ -163,6 +178,8 @@ class AuditService:
             result.value,
             comment,
             reject_reason.value if reject_reason else "",
+            operator_ip,
+            user_agent,
         )
 
         # 联动章节状态
@@ -176,6 +193,14 @@ class AuditService:
                 elif result == AuditResult.REJECT:
                     ChapterStateMachine.assert_transition(chapter.status, "draft")
                     chapter.status = "draft"
+                # 状态变更后失效 C 端章节缓存，避免读到旧状态
+                await self._evict_chapter_cache(chapter)
+
+    async def _evict_chapter_cache(self, chapter: Chapter) -> None:
+        if not self.redis:
+            return
+        with contextlib.suppress(Exception):
+            await self.redis.delete(CacheKeys.chapter(chapter.novel_id, chapter.id))
 
     async def _get_next_id(self, current_id: int) -> str | None:
         """获取下一条待审项 ID。"""

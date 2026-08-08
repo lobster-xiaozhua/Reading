@@ -145,6 +145,7 @@ export function NavBar() {
             <button
               type="button"
               className="novel-navbar__login-btn"
+              onClick={() => navigate("/login")}
               onPointerEnter={hoverPrefetch("/login")}
             >
               登录

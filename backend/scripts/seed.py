@@ -21,7 +21,7 @@ from app.models.permission import Permission, Role, RolePermission
 from app.models.reading import Bookshelf, ReadingHistory
 from app.models.royalty import RoyaltyDetail
 from app.models.user import Admin, Author, Reader
-from app.schemas.enums import ALL_PERMISSIONS, BUILTIN_ROLE_PERMISSIONS
+from app.schemas.enums import BUILTIN_ROLE_PERMISSIONS
 
 PERMISSIONS: list[tuple[str, str, str, str]] = [
     ("novel.list", "查看作品列表", "novel", "访问作品管理列表页"),
@@ -74,6 +74,20 @@ CATEGORIES: list[tuple[str, str, int]] = [
     ("scifi", "科幻", 3),
     ("romance", "言情", 4),
     ("urban", "都市", 5),
+]
+
+# 二级分类：(code, name, sort, parent_code)
+SUB_CATEGORIES: list[tuple[str, str, int, str]] = [
+    ("xuanhuan-qihuan", "奇幻", 1, "xuanhuan"),
+    ("xuanhuan-dongfang", "东方玄幻", 2, "xuanhuan"),
+    ("xianxia-xiuzhen", "修真", 1, "xianxia"),
+    ("xianxia-tianxian", "古典仙侠", 2, "xianxia"),
+    ("scifi-keji", "科技", 1, "scifi"),
+    ("scifi-yuanyu", "星际", 2, "scifi"),
+    ("romance-xiandai", "现代言情", 1, "romance"),
+    ("romance-gudai", "古代言情", 2, "romance"),
+    ("urban-dushi", "都市生活", 1, "urban"),
+    ("urban-zhichang", "职场", 2, "urban"),
 ]
 
 NOVELS: list[tuple[str, str, str, str, int]] = [
@@ -189,20 +203,42 @@ async def seed() -> None:
                 db.add(SensitiveWord(text=text, level=level, suggestion=suggestion, lib_version=version))
 
         # ── 分类 ───────────────────────────────
+        cat_ids: dict[str, int] = {}
         for code, name, sort in CATEGORIES:
             exists = (
                 await db.execute(select(Category).where(Category.code == code))
             ).scalars().first()
             if not exists:
-                db.add(Category(code=code, name=name, sort=sort, novel_count=0))
+                cat = Category(code=code, name=name, sort=sort, novel_count=0)
+                db.add(cat)
+                await db.flush()
+                cat_ids[code] = cat.id
+            else:
+                cat_ids[code] = exists.id
+
+        # ── 二级分类 ───────────────────────────
+        for code, name, sort, parent_code in SUB_CATEGORIES:
+            exists = (
+                await db.execute(select(Category).where(Category.code == code))
+            ).scalars().first()
+            if not exists:
+                db.add(
+                    Category(
+                        code=code,
+                        name=name,
+                        sort=sort,
+                        parent_id=cat_ids.get(parent_code, 0),
+                        novel_count=0,
+                    )
+                )
 
         # ── 内容域（作者/作品/章节/稿费）──────────
         if not (await db.execute(select(Author).limit(1))).scalars().first():
             await seed_content(db)
 
         # ── 互动数据（评论/书架/阅读历史）─────────
-        from app.models.interaction import Comment, RewardRecord
-        from app.models.novel import Novel, Chapter
+        from app.models.interaction import Comment
+        from app.models.novel import Chapter, Novel
 
         if not (await db.execute(select(Comment).limit(1))).scalars().first():
             now = int(time.time() * 1000)

@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import CacheKeys
 from app.models.novel import Chapter, Novel
-from app.models.reading import Bookshelf, ReadingStatsDaily
+from app.models.reading import Bookshelf, ReadingHistory, ReadingStatsDaily
 from app.models.user import Reader
 from app.models.vip import VipPlanModel
 from app.repositories.chapter_repo import ChapterRepository
@@ -93,8 +93,22 @@ class UserCenterService:
         )
 
     # ── 书架 ──────────────────────────────────────────
+    async def update_profile(
+        self, reader_id: int, nickname: str | None = None, avatar: str | None = None
+    ) -> UserProfile:
+        """更新读者资料（昵称/头像）。"""
+        reader = await self.session.get(Reader, reader_id)
+        if not reader:
+            return UserProfile(id=str(reader_id), nickname="游客")
+        if nickname is not None and nickname.strip():
+            reader.nickname = nickname.strip()
+        if avatar is not None:
+            reader.avatar = avatar
+        await self.session.commit()
+        return await self.get_profile(reader_id)
+
     async def get_bookshelf(self, reader_id: int, tab: str = "all") -> list[BookshelfItem]:
-        """获取读者书架列表。
+        """获取读者书架列表（用户级短缓存，写操作时失效）。
 
         Args:
             reader_id: 读者 ID。
@@ -103,6 +117,30 @@ class UserCenterService:
         Returns:
             书架列表。
         """
+        cache_key = CacheKeys.bookshelf(reader_id)
+        cached = await self.redis.get(cache_key)
+        if cached:
+            try:
+                items = [BookshelfItem.model_validate(x) for x in json.loads(cached)]
+                if tab == "all":
+                    return items
+                return _filter_bookshelf_tab(items, tab)
+            except Exception:
+                logger.debug("书架缓存解析失败，回源", exc_info=True)
+
+        items = await self._load_bookshelf(reader_id)
+        try:
+            await self.redis.set(
+                cache_key,
+                json.dumps([i.model_dump(mode="json") for i in items], ensure_ascii=False),
+                ex=60,
+            )
+        except Exception:
+            logger.debug("书架缓存写入失败", exc_info=True)
+        return _filter_bookshelf_tab(items, tab)
+
+    async def _load_bookshelf(self, reader_id: int) -> list[BookshelfItem]:
+        """读取书架全量数据（无缓存，批量查询避免 N+1）。"""
         shelves = await self.shelf_repo.list_by_reader(reader_id, limit=200)
         if not shelves:
             return []
@@ -110,29 +148,22 @@ class UserCenterService:
         novel_ids = [s.novel_id for s in shelves]
         novels = await self._get_novels_by_ids(novel_ids)
         novel_map = {n.id: n for n in novels}
+        existing_ids = [nid for nid in novel_ids if nid in novel_map]
+        history_map = await self.history_repo.get_by_reader_novels(reader_id, existing_ids)
 
         items: list[BookshelfItem] = []
-        filtered = [
-            s for s in shelves
-            if (s.novel_id in novel_map)
-            and not (tab == "ongoing" and novel_map[s.novel_id].is_completed)
-            and not (tab == "completed" and not novel_map[s.novel_id].is_completed)
-        ]
-        filtered_ids = [s.novel_id for s in filtered]
-        history_map = await self.history_repo.get_by_reader_novels(reader_id, filtered_ids)
-        for s in filtered:
-            novel = novel_map[s.novel_id]
+        for s in shelves:
+            if s.novel_id not in novel_map:
+                continue
             history = history_map.get(s.novel_id)
             items.append(
                 BookshelfItem(
-                    book=novel_to_c_summary(novel),
+                    book=novel_to_c_summary(novel_map[s.novel_id]),
                     added_at=s.added_at,
                     last_read_chapter_index=history.chapter_index if history else 0,
                     percent=float(history.percent) if history else 0.0,
                 )
             )
-        if tab == "recent":
-            items.sort(key=lambda x: x.percent, reverse=True)
         return items
 
     # ── 阅读历史 ─────────────────────────────────────────
@@ -269,18 +300,22 @@ class UserCenterService:
 
     # ── 阅读偏好 ─────────────────────────────────────────
     async def get_preferences(self, reader_id: int) -> list[PreferenceItem]:
-        """获取阅读偏好（按分类统计阅读占比）。
+        """获取阅读偏好（按分类统计已读章节字数占比）。
 
-        Args:
-            reader_id: 读者 ID。
-
-        Returns:
-            阅读偏好列表。
+        ReadingStatsDaily 无 novel_id，无法归属分类；
+        改为经 ReadingHistory → Chapter → Novel 链路聚合分类字数。
         """
         stmt = (
-            select(Novel.category, func.sum(ReadingStatsDaily.words))
-            .join(Novel, ReadingStatsDaily.reader_id == Novel.author_id)
-            .where(ReadingStatsDaily.reader_id == reader_id)
+            select(Novel.category, func.sum(Chapter.word_count))
+            .select_from(ReadingHistory)
+            .join(Chapter, Chapter.id == ReadingHistory.chapter_id)
+            .join(Novel, Novel.id == ReadingHistory.novel_id)
+            .where(
+                ReadingHistory.reader_id == reader_id,
+                Chapter.deleted == 0,
+                Chapter.status == "published",
+                Novel.deleted == 0,
+            )
             .group_by(Novel.category)
         )
         rows = (await self.session.execute(stmt)).all()
@@ -340,14 +375,27 @@ class UserCenterService:
 
     # ── 追更列表 ─────────────────────────────────────────
     async def get_follow_list(self, reader_id: int) -> list[FollowItem]:
-        """获取追更列表（含更新状态标记）。
+        """获取追更列表（含更新状态标记，用户级短缓存）。"""
+        cache_key = CacheKeys.follows(reader_id)
+        cached = await self.redis.get(cache_key)
+        if cached:
+            try:
+                return [FollowItem.model_validate(x) for x in json.loads(cached)]
+            except Exception:
+                logger.debug("追更缓存解析失败，回源", exc_info=True)
+        items = await self._load_follow_list(reader_id)
+        try:
+            await self.redis.set(
+                cache_key,
+                json.dumps([i.model_dump(mode="json") for i in items], ensure_ascii=False),
+                ex=60,
+            )
+        except Exception:
+            logger.debug("追更缓存写入失败", exc_info=True)
+        return items
 
-        Args:
-            reader_id: 读者 ID。
-
-        Returns:
-            追更列表。
-        """
+    async def _load_follow_list(self, reader_id: int) -> list[FollowItem]:
+        """读取追更列表（无缓存）。"""
         shelves = await self.shelf_repo.list_by_reader(reader_id, limit=200)
         if not shelves:
             return []
@@ -400,6 +448,21 @@ class UserCenterService:
     async def _count_shelf(self, reader_id: int) -> int:
         stmt = select(func.count()).where(Bookshelf.reader_id == reader_id)
         return (await self.session.execute(stmt)).scalar_one()
+
+
+def _filter_bookshelf_tab(items: list[BookshelfItem], tab: str) -> list[BookshelfItem]:
+    """按 tab 过滤书架列表（all/ongoing/completed/recent）。"""
+    if tab == "all":
+        return items
+    filtered = [
+        i
+        for i in items
+        if not (tab == "ongoing" and i.book.status.value == "completed")
+        and not (tab == "completed" and i.book.status.value != "completed")
+    ]
+    if tab == "recent":
+        filtered.sort(key=lambda x: x.percent, reverse=True)
+    return filtered
 
 
 def _build_badges(overview: dict) -> list[Badge]:

@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok
 from app.core.database import get_db
+from app.core.limiter import limiter
 from app.schemas.common import CamelModel
 from app.services.rum_service import RumService
 
@@ -35,12 +36,13 @@ class RumEventBody(CamelModel):
 
 
 @router.post("")
+@limiter.limit("600/minute")
 async def ingest_rum(
     request: Request,
     body: RumEventBody,
     db: AsyncSession = Depends(get_db),
 ):
-    """接收并落库一条前端上报事件。"""
+    """接收并落库一条前端上报事件（按 IP 限流，防恶意刷库）。"""
     logger.info(
         "rum_event",
         type=body.type,

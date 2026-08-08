@@ -55,26 +55,36 @@ class TestLogin:
     async def test_login_locked_account(self, svc, db_session, redis_client):
         await _create_admin(db_session)
         fail_key = CacheKeys.login_fail("admin")
-        await redis_client.set(fail_key, "5")
+        await redis_client.sadd(fail_key, "ip1", "ip2", "ip3", "ip4", "ip5")
         with pytest.raises(BizError, match="已被锁定"):
-            await svc.login("admin", "admin123")
+            await svc.login("admin", "admin123", client_ip="ip6")
 
     async def test_login_increments_fail_count(self, svc, db_session, redis_client):
         await _create_admin(db_session)
-        for _ in range(3):
+        for i in range(3):
             with pytest.raises(BizError):
-                await svc.login("admin", "wrong")
+                await svc.login("admin", "wrong", client_ip=f"ip{i}")
         fail_key = CacheKeys.login_fail("admin")
-        count = int(await redis_client.get(fail_key) or 0)
-        assert count == 3
+        distinct = int(await redis_client.scard(fail_key) or 0)
+        assert distinct == 3
+
+    async def test_login_same_ip_not_locked(self, svc, db_session, redis_client):
+        """同 IP 多次失败不累计（防单 IP 刷锁他人账号）。"""
+        await _create_admin(db_session)
+        for _ in range(10):
+            with pytest.raises(BizError):
+                await svc.login("admin", "wrong", client_ip="same-ip")
+        fail_key = CacheKeys.login_fail("admin")
+        distinct = int(await redis_client.scard(fail_key) or 0)
+        assert distinct == 1
 
     async def test_login_resets_fail_count_on_success(self, svc, db_session, redis_client):
         await _create_admin(db_session)
         fail_key = CacheKeys.login_fail("admin")
-        await redis_client.set(fail_key, "3")
-        result = await svc.login("admin", "admin123")
+        await redis_client.sadd(fail_key, "ip1", "ip2", "ip3")
+        result = await svc.login("admin", "admin123", client_ip="ip1")
         assert result.token is not None
-        count = int(await redis_client.get(fail_key) or 0)
+        count = int(await redis_client.scard(fail_key) or 0)
         assert count == 0
 
     async def test_login_remember_extends_ttl(self, svc, db_session):

@@ -32,6 +32,8 @@ import {
   SystemSettings,
   NovelMoon,
   NovelSun,
+  NovelBookmark,
+  NovelBookmarkFilled,
 } from "@novel/icons";
 
 export interface ReaderChapter {
@@ -74,12 +76,32 @@ export interface ReaderProps {
   disableSeek?: boolean;
   /** 自定义顶部栏右侧内容（替代默认设置按钮） */
   topBarExtra?: ReactNode;
+  /** 当前章节是否已书签 */
+  isBookmarked?: boolean;
+  /** 切换书签回调 */
+  onBookmark?: (toggled: boolean) => void;
+  /** 下一章标题（用于章节末预览卡） */
+  nextChapterTitle?: string;
+  /** 下一章预览文字（前 200 字） */
+  nextChapterPreview?: string;
+  /** 翻页模式 */
   className?: string;
 }
 
 /* ============================================================
  * Reader
  * ============================================================ */
+
+/** 格式化阅读时长 ms → "1h23m" 或 "23m" 或 "45s" */
+function formatElapsed(ms: number): string {
+  const s = Math.floor(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}h${String(m).padStart(2, "0")}m`;
+  if (m > 0) return `${m}m${String(sec).padStart(2, "0")}s`;
+  return `${sec}s`;
+}
 
 export function Reader({
   chapter,
@@ -98,12 +120,18 @@ export function Reader({
   onProgress,
   disableSeek = false,
   topBarExtra,
+  isBookmarked = false,
+  onBookmark,
+  nextChapterTitle,
+  nextChapterPreview,
   className,
 }: ReaderProps) {
   const [controlsVisible, setControlsVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const sessionStartRef = useRef<number>(Date.now());
 
   /* ---------- 主题/字体/行距通过 inline style 注入 CSS 变量 ---------- */
   const themeVars = THEME_VARS[settings.theme];
@@ -204,6 +232,20 @@ export function Reader({
       theme: settings.theme === "night" ? "day" : "night",
     });
   }, [settings, onSettingsChange]);
+
+  /* ---------- 书签切换 ---------- */
+  const toggleBookmark = useCallback(() => {
+    const toggled = !isBookmarked;
+    onBookmark?.(toggled);
+  }, [isBookmarked, onBookmark]);
+
+  /* ---------- 阅读时长计时器（每 1s 更新一次） ---------- */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedMs(Date.now() - sessionStartRef.current);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   /* ---------- P7-3 阅读器手势矩阵 ---------- */
   /* 手势优先级：长按 > 双击 > 滑动（左右/上下）> 单击
@@ -435,6 +477,16 @@ export function Reader({
             <div className="novel-reader__error" role="alert">
               <p>章节加载失败</p>
               <p className="novel-reader__error-detail">{error.message}</p>
+              <button
+                type="button"
+                className="novel-reader__nav-btn novel-reader__nav-btn--primary"
+                onClick={() => {
+                  // 触发重新加载
+                  window.location.reload();
+                }}
+              >
+                重试
+              </button>
             </div>
           ) : chapter ? (
             <article>
@@ -463,6 +515,32 @@ export function Reader({
                   上一章
                 </button>
               </div>
+              {/* 下一章预览卡 */}
+              {nextChapterTitle ? (
+                <div className="novel-reader__next-chapter-preview">
+                  <div className="novel-reader__next-chapter-preview-label">
+                    <span className="novel-reader__next-chapter-preview-badge">
+                      下一章
+                    </span>
+                    <span className="novel-reader__next-chapter-preview-title">
+                      {nextChapterTitle}
+                    </span>
+                  </div>
+                  {nextChapterPreview ? (
+                    <p className="novel-reader__next-chapter-preview-text">
+                      {nextChapterPreview}
+                    </p>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="novel-reader__nav-btn novel-reader__nav-btn--primary"
+                    onClick={onNext}
+                    disabled={!onNext}
+                  >
+                    立即阅读
+                  </button>
+                </div>
+              ) : null}
             </article>
           ) : loading ? (
             <div className="novel-reader__placeholder" aria-hidden />
@@ -494,17 +572,43 @@ export function Reader({
         >
           <NavigationChevronLeft size="lg" aria-hidden="true" />
         </button>
-        <div className="novel-reader__topbar-title">{chapter?.title ?? ""}</div>
+        <div className="novel-reader__topbar-title-wrap">
+          <div className="novel-reader__topbar-chapter-num">
+            {currentIndex != null && totalChapters != null
+              ? `${currentIndex} / ${totalChapters}`
+              : ""}
+          </div>
+          <div className="novel-reader__topbar-title">
+            {chapter?.title ?? ""}
+          </div>
+          <div className="novel-reader__topbar-elapsed">
+            {formatElapsed(elapsedMs)}
+          </div>
+        </div>
         <div className="novel-reader__topbar-right">
           {topBarExtra ?? (
-            <button
-              type="button"
-              className="novel-reader__icon-btn"
-              aria-label="阅读设置"
-              onClick={() => setSettingsVisible(true)}
-            >
-              <SystemSettings size="lg" aria-hidden="true" />
-            </button>
+            <>
+              <button
+                type="button"
+                className="novel-reader__icon-btn"
+                aria-label={isBookmarked ? "已收藏本章" : "收藏本章"}
+                onClick={toggleBookmark}
+              >
+                {isBookmarked ? (
+                  <NovelBookmarkFilled size="lg" aria-hidden="true" />
+                ) : (
+                  <NovelBookmark size="lg" aria-hidden="true" />
+                )}
+              </button>
+              <button
+                type="button"
+                className="novel-reader__icon-btn"
+                aria-label="阅读设置"
+                onClick={() => setSettingsVisible(true)}
+              >
+                <SystemSettings size="lg" aria-hidden="true" />
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -538,6 +642,19 @@ export function Reader({
         >
           <SystemSettings size="lg" aria-hidden="true" />
           <span>设置</span>
+        </button>
+        <button
+          type="button"
+          className="novel-reader__bar-btn"
+          aria-label={isBookmarked ? "已收藏本章" : "收藏本章"}
+          onClick={toggleBookmark}
+        >
+          {isBookmarked ? (
+            <NovelBookmarkFilled size="lg" aria-hidden="true" />
+          ) : (
+            <NovelBookmark size="lg" aria-hidden="true" />
+          )}
+          <span>书签</span>
         </button>
         <button
           type="button"

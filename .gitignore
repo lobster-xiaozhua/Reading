@@ -20,6 +20,8 @@ monitoring/reports/
 
 # 后端开发数据库 (自动生成)
 *.db
+*.db-shm
+*.db-wal
 *.sqlite
 .seed-initialized
 
@@ -28,4 +30,6 @@ monitoring/reports/
 htmlcov/
 .pytest_cache/
 .ruff_cache/
+global-check-report.json
+scripts/global-check/reports/
 monitoring/results.json

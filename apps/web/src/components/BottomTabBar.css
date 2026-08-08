@@ -79,6 +79,6 @@
   }
   .bottom-tab-bar__link.is-active {
     color: var(--color-brand);
-    font-weight: 700;
+    font-weight: var(--font-weight-bold);
   }
 }

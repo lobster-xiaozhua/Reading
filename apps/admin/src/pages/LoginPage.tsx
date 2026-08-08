@@ -9,7 +9,14 @@ import {
   Typography,
   Tag,
 } from "antd";
-import { LockOutlined, UserOutlined, BookOutlined } from "@ant-design/icons";
+import {
+  LockOutlined,
+  UserOutlined,
+  BookOutlined,
+  SafetyCertificateOutlined,
+  BarChartOutlined,
+  AuditOutlined,
+} from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuthStore } from "@/stores/authStore";
@@ -65,137 +72,136 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      className="login-page"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "var(--color-bg-page)",
-      }}
-    >
-      <Card
-        style={{ width: 400, boxShadow: "var(--sh-3)" }}
-        styles={{ body: { padding: "var(--space-8)" } }}
-      >
-        <div style={{ textAlign: "center", marginBottom: "var(--space-8)" }}>
-          <div
-            style={{
-              fontSize: 40,
-              color: "var(--color-brand)",
-              marginBottom: "var(--space-3)",
-            }}
-          >
-            <BookOutlined />
-          </div>
-          <Title level={2} style={{ marginBottom: "var(--space-2)" }}>
-            {t("login:title")}
-          </Title>
-          <Text type="secondary">{t("login:subtitle")}</Text>
-        </div>
+    <div className="login-page">
+      {/* 装饰光晕 */}
+      <div className="login-orb login-orb--a" aria-hidden />
+      <div className="login-orb login-orb--b" aria-hidden />
 
-        <Form<LoginCredentials>
-          form={form}
-          name="login"
-          layout="vertical"
-          initialValues={{ remember: true }}
-          onFinish={onFinish}
-          autoComplete="off"
+      {/* 左侧品牌区 */}
+      <div className="login-brand">
+        <div className="login-brand__badge">
+          <BookOutlined aria-hidden="true" />
+        </div>
+        <h1 className="login-brand__title">Atlas 小说管理平台</h1>
+        <p className="login-brand__desc">
+          一体化作品管理、内容审核与数据运营中枢
+        </p>
+        <ul className="login-brand__features">
+          <li>
+            <BarChartOutlined aria-hidden="true" />
+            <span>多维度经营数据看板</span>
+          </li>
+          <li>
+            <AuditOutlined aria-hidden="true" />
+            <span>全流程内容审核工作台</span>
+          </li>
+          <li>
+            <SafetyCertificateOutlined aria-hidden="true" />
+            <span>细粒度角色与权限体系</span>
+          </li>
+        </ul>
+      </div>
+
+      {/* 右侧登录表单 */}
+      <div className="login-panel">
+        <Card
+          className="login-card"
+          styles={{ body: { padding: "var(--space-8)" } }}
         >
-          <Form.Item
-            label={t("login:username")}
-            name="username"
-            rules={[
-              { required: true, message: t("login:usernameRequired") },
-              { min: 4, max: 20, message: t("login:usernameLength") },
-            ]}
-          >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder={t("login:usernamePlaceholder")}
-              autoComplete="username"
-            />
-          </Form.Item>
-
-          <Form.Item
-            label={t("login:password")}
-            name="password"
-            rules={[
-              { required: true, message: t("login:passwordRequired") },
-              { min: 6, max: 32, message: t("login:passwordLength") },
-            ]}
-          >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder={t("login:passwordPlaceholder")}
-              autoComplete="current-password"
-            />
-          </Form.Item>
-
-          <Form.Item name="remember" valuePropName="checked">
-            <Checkbox>{t("login:rememberMe")}</Checkbox>
-          </Form.Item>
-
-          <Form.Item style={{ marginBottom: 0 }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              block
-              size="large"
-            >
-              {t("login:login")}
-            </Button>
-          </Form.Item>
-        </Form>
-
-        <div style={{ marginTop: "var(--space-6)", textAlign: "center" }}>
-          <Text
-            type="secondary"
-            style={{
-              fontSize: 12,
-              display: "block",
-              marginBottom: "var(--space-2)",
-            }}
-          >
-            {t("login:demoAccount")}
-          </Text>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "var(--space-1)",
-              fontSize: 12,
-              color: "var(--color-text-tertiary)",
-            }}
-          >
-            {DEMO_ACCOUNTS.map((acc) => (
-              <div
-                key={acc.label}
-                className="demo-account-item"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "var(--space-2)",
-                }}
-              >
-                <span>
-                  {acc.label}: {acc.username} / {acc.password}
-                </span>
-                <Tag
-                  color="blue"
-                  style={{ cursor: "pointer", fontSize: 11 }}
-                  onClick={() => fillDemoAccount(acc.username, acc.password)}
-                >
-                  {t("login:fill")}
-                </Tag>
-              </div>
-            ))}
+          <div className="login-card__header">
+            <Title level={3} className="login-card__title">
+              {t("login:title")}
+            </Title>
+            <Text type="secondary">{t("login:subtitle")}</Text>
           </div>
-        </div>
-      </Card>
+
+          <Form<LoginCredentials>
+            form={form}
+            name="login"
+            layout="vertical"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete="off"
+            requiredMark={false}
+          >
+            <Form.Item
+              label={t("login:username")}
+              name="username"
+              rules={[
+                { required: true, message: t("login:usernameRequired") },
+                { min: 4, max: 20, message: t("login:usernameLength") },
+              ]}
+            >
+              <Input
+                prefix={<UserOutlined />}
+                placeholder={t("login:usernamePlaceholder")}
+                autoComplete="username"
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item
+              label={t("login:password")}
+              name="password"
+              rules={[
+                { required: true, message: t("login:passwordRequired") },
+                { min: 6, max: 32, message: t("login:passwordLength") },
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined />}
+                placeholder={t("login:passwordPlaceholder")}
+                autoComplete="current-password"
+                size="large"
+              />
+            </Form.Item>
+
+            <Form.Item name="remember" valuePropName="checked">
+              <Checkbox>{t("login:rememberMe")}</Checkbox>
+            </Form.Item>
+
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                block
+                size="large"
+              >
+                {t("login:login")}
+              </Button>
+            </Form.Item>
+          </Form>
+
+          <div className="login-card__demo">
+            <Text
+              type="secondary"
+              className="login-card__demo-label"
+            >
+              {t("login:demoAccount")}
+            </Text>
+            <div className="login-card__demo-list">
+              {DEMO_ACCOUNTS.map((acc) => (
+                <div
+                  key={acc.label}
+                  className="demo-account-item login-card__demo-row"
+                >
+                  <span className="login-card__demo-info">
+                    {acc.label}: {acc.username} / {acc.password}
+                  </span>
+                  <Tag
+                    color="blue"
+                    className="login-card__demo-fill"
+                    onClick={() => fillDemoAccount(acc.username, acc.password)}
+                  >
+                    {t("login:fill")}
+                  </Tag>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -104,7 +104,19 @@ async function chapterCacheFirst(req) {
   if (cached) return cached;
   try {
     const res = await fetch(req);
-    if (res && res.ok) cache.put(req, res.clone());
+    // 仅缓存业务成功响应（body.code === 0）。
+    // VIP 未解锁等错误虽然 HTTP 200，但 body.code 非 0，缓存会导致开通会员后仍读到旧错误。
+    if (res && res.ok) {
+      try {
+        const probe = res.clone();
+        const body = await probe.json();
+        if (body && body.code === 0) {
+          cache.put(req, res.clone());
+        }
+      } catch {
+        // 非 JSON 或解析失败，不缓存
+      }
+    }
     return res;
   } catch {
     return new Response('离线且无缓存', { status: 503, statusText: 'Offline' });

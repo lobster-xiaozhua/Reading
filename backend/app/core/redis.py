@@ -76,8 +76,8 @@ class CacheKeys:
         return f"c:book:{book_id}"
 
     @staticmethod
-    def chapter(chapter_id: int) -> str:
-        return f"c:chapter:{chapter_id}"
+    def chapter(novel_id: int, chapter_id: int) -> str:
+        return f"c:chapter:{novel_id}:{chapter_id}"
 
     @staticmethod
     def book_rating(book_id: int) -> str:
@@ -113,6 +113,14 @@ class CacheKeys:
     @staticmethod
     def heatmap(reader_id: int) -> str:
         return f"c:me:heatmap:{reader_id}"
+
+    @staticmethod
+    def bookshelf(reader_id: int) -> str:
+        return f"c:me:bookshelf:{reader_id}"
+
+    @staticmethod
+    def follows(reader_id: int) -> str:
+        return f"c:me:follows:{reader_id}"
 
     # B 端
     WORKBENCH_KPI = "b:workbench:kpi"

@@ -4,6 +4,8 @@ access token 8h + refresh token 30d/90d。
 """
 
 
+import contextlib
+
 import redis.asyncio as redis
 import structlog
 from sqlalchemy import select
@@ -29,15 +31,20 @@ class CAuthService:
         self.session = session
         self.redis = redis_client
 
-    async def login(self, username: str, password: str, remember: bool = False) -> CLoginResponse:
+    async def login(
+        self, username: str, password: str, remember: bool = False, client_ip: str = ""
+    ) -> CLoginResponse:
+        # 登录失败按 username 记录不同来源 IP 集合：
+        # 同 IP 多次失败不累计，跨 IP 失败达阈值才锁定，兼顾爆破防护与防误锁
         fail_key = CacheKeys.login_fail(username)
-        fail_count = int(await self.redis.get(fail_key) or 0)
-        if fail_count >= _LOGIN_FAIL_LIMIT:
+        ip = client_ip or "unknown"
+        distinct = int(await self.redis.scard(fail_key) or 0)
+        if distinct >= _LOGIN_FAIL_LIMIT:
             raise BizError(ErrorCode.ACCOUNT_LOCKED, "账号已被锁定，请 15 分钟后重试")
 
         reader = await self._find_reader(username)
         if not reader or not verify_password(password, reader.password_hash):
-            await self.redis.incr(fail_key)
+            await self.redis.sadd(fail_key, ip)
             await self.redis.expire(fail_key, _LOGIN_LOCK_TTL)
             raise BizError(ErrorCode.INVALID_CREDENTIALS, "用户名或密码错误")
 
@@ -108,6 +115,15 @@ class CAuthService:
         stmt = select(Reader).where(Reader.username == username)
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def logout(self, access_token: str, refresh_token: str | None = None) -> bool:
+        """登出：失效 access token 与 refresh token。"""
+        with contextlib.suppress(Exception):
+            await self.redis.delete(CacheKeys.access_token(access_token))
+        if refresh_token:
+            with contextlib.suppress(Exception):
+                await self.redis.delete(CacheKeys.refresh_token(refresh_token))
+        return True
 
     async def register(self, reader_id: int, username: str, nickname: str, avatar: str) -> CLoginResponse:
         extra = {"username": username, "nickname": nickname}

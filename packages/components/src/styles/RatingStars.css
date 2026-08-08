@@ -28,7 +28,7 @@
 }
 
 .novel-rating__layer--empty {
-  color: var(--gray-5);
+  color: var(--color-text-disabled);
 }
 
 .novel-rating__layer--filled {
@@ -48,7 +48,7 @@
   font-size: var(--font-size-xs);
 }
 .novel-rating--md {
-  font-size: 16px;
+  font-size: var(--font-size-body);
 }
 .novel-rating--lg {
   font-size: 24px;
@@ -69,7 +69,7 @@
   opacity: 0.6;
 }
 .novel-rating.is-disabled .novel-rating__layer--filled {
-  color: var(--gray-5);
+  color: var(--color-text-disabled);
 }
 
 /* ---------- 数字表达（无障碍双重表达） ---------- */

@@ -1,56 +1,161 @@
+/* ============================================================
+ * Footer · C 端底部信息栏（品牌化升级）
+ * ============================================================ */
+
 .novel-footer {
   margin-top: var(--space-16);
-  padding: var(--space-10) 0 var(--space-6);
+  padding: var(--space-10) 0 var(--space-8);
   background: var(--color-bg-surface);
   border-top: 1px solid var(--color-border-subtle);
 }
+
 .novel-footer__inner {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-4);
-  text-align: center;
+  gap: var(--space-8);
 }
+
+/* ---------- 品牌区 ---------- */
 .novel-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 320px;
+}
+
+.novel-footer__logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.novel-footer__logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+  color: var(--color-text-inverse);
+  flex-shrink: 0;
+}
+
+.novel-footer__logo-text {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.novel-footer__slogan {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.novel-footer__features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.novel-footer__features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.novel-footer__features svg {
+  color: var(--color-brand);
+  flex-shrink: 0;
+}
+
+/* ---------- 导航列 ---------- */
+.novel-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+}
+
+.novel-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.novel-footer__col-title {
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--space-1);
+}
+
+.novel-footer__col a {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: var(--space-1) 0;
+  transition:
+    color var(--dur-fast) var(--ease-standard),
+    padding-left var(--dur-fast) var(--ease-standard);
+}
+
+.novel-footer__col a:hover {
+  color: var(--color-brand);
+  padding-left: var(--space-2);
+}
+
+/* ---------- 底部元信息 ---------- */
+.novel-footer__meta {
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--color-border-subtle);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
+  text-align: center;
 }
-.novel-footer__logo {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-.novel-footer__slogan {
+
+.novel-footer__copy {
   margin: 0;
   font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
 }
-.novel-footer__nav {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-6);
-}
-.novel-footer__nav a {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-small);
-  text-decoration: none;
-  transition: color var(--transition-smooth);
-}
-.novel-footer__nav a:hover {
-  color: var(--color-brand);
-}
-.novel-footer__meta {
+
+.novel-footer__icp {
+  margin: 0;
   font-size: var(--font-size-xs);
-  color: var(--color-text-tertiary);
-  line-height: 1.6;
+  color: var(--color-text-disabled);
+}
+
+/* ---------- 响应式 ---------- */
+@media (min-width: 640px) {
+  .novel-footer__inner {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .novel-footer__cols {
+    grid-template-columns: repeat(2, 140px);
+  }
+
+  .novel-footer__meta {
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
 }
 
 @media (max-width: 768px) {
-  .novel-footer__nav {
-    flex-wrap: wrap;
-    gap: var(--space-4);
+  .novel-footer__cols {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

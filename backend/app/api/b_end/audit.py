@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok, require_permission
 from app.core.database import get_db
+from app.core.redis import get_redis_client
 from app.schemas.b_end import AuditSubmitBody
 from app.services.audit_service import AuditService
 
@@ -20,8 +21,9 @@ async def get_audit_queue(
     level: str = Query("all"),
     _admin=Depends(require_permission("audit.list")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuditService(db)
+    svc = AuditService(db, redis)
     return ok(request, await svc.get_queue(level))
 
 
@@ -31,8 +33,9 @@ async def get_audit_history(
     item_id: str,
     _admin=Depends(require_permission("audit.list")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuditService(db)
+    svc = AuditService(db, redis)
     return ok(request, await svc.get_history(int(item_id)))
 
 
@@ -42,8 +45,9 @@ async def get_audit_content(
     item_id: str,
     _admin=Depends(require_permission("audit.list")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuditService(db)
+    svc = AuditService(db, redis)
     return ok(request, await svc.get_content(int(item_id)))
 
 
@@ -53,9 +57,16 @@ async def submit_audit(
     body: AuditSubmitBody,
     admin=Depends(require_permission("audit.approve")),
     db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
 ):
-    svc = AuditService(db)
+    svc = AuditService(db, redis)
     return ok(
         request,
-        await svc.submit_audit(body, admin.id, admin.nickname or admin.username),
+        await svc.submit_audit(
+            body,
+            admin.id,
+            admin.nickname or admin.username,
+            operator_ip=request.client.host if request.client else "",
+            user_agent=request.headers.get("User-Agent", ""),
+        ),
     )

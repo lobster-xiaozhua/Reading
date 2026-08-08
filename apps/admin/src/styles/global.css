@@ -13,6 +13,10 @@ body {
   margin: 0;
   padding: 0;
   font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-normal);
+  letter-spacing: var(--letter-spacing-body);
   background: var(--color-bg-page);
   color: var(--color-text-primary);
   color-scheme: light dark;
@@ -21,7 +25,81 @@ body {
     color 0.3s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
 }
+
+#root {
+  min-height: 100vh;
+}
+
+/* ============================================================
+ * 排版基础 · Typography Foundation（B 端 PC 优先）
+ * ============================================================ */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: var(--font-weight-heading);
+  color: var(--color-text-primary);
+  text-wrap: balance;
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+}
+h1 {
+  font-size: var(--font-size-h1);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-extrabold);
+}
+h2 {
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-tight);
+  font-weight: var(--font-weight-bold);
+}
+h3 {
+  font-size: var(--font-size-h3);
+  line-height: var(--line-height-snug);
+  font-weight: var(--font-weight-bold);
+}
+h4 {
+  font-size: var(--font-size-h4);
+  line-height: var(--line-height-snug);
+  font-weight: var(--font-weight-semibold);
+}
+h5 {
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-snug);
+  font-weight: var(--font-weight-semibold);
+}
+h6 {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-snug);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+p {
+  margin: 0 0 var(--space-3);
+  text-wrap: pretty;
+  orphans: 3;
+  widows: 3;
+}
+
+/* 排版工具类 */
+.text-eyebrow {
+  font-size: var(--font-size-eyebrow);
+  font-weight: var(--font-weight-emphasis);
+  letter-spacing: var(--letter-spacing-eyebrow);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+.text-label {
+  font-size: var(--font-size-label);
+  font-weight: var(--font-weight-label);
+  letter-spacing: var(--letter-spacing-caption);
+  color: var(--color-text-secondary);
+}
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
 
 #root {
   min-height: 100vh;

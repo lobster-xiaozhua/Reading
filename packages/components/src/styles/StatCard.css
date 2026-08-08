@@ -9,22 +9,26 @@
 }
 
 .stat-card__value {
-  font-size: 26px;
-  font-weight: 700;
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
   color: var(--color-accent-orange);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  line-height: var(--line-height-tighter);
+  letter-spacing: var(--letter-spacing-tight);
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-card__value--mono {
   font-family: var(--font-mono);
-  font-variant-numeric: tabular-nums;
 }
 
 .stat-card__label {
   font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-emphasis);
+  letter-spacing: var(--letter-spacing-caption);
+  text-transform: uppercase;
+  line-height: var(--line-height-snug);
   color: var(--color-text-tertiary);
-  font-weight: 400;
+  font-weight: var(--font-weight-emphasis);
 }
 
 /* ---------- 细节边缘 ---------- */

@@ -16,21 +16,21 @@
 
 .error-state__title {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
 }
 
 .error-state__desc {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   color: var(--color-text-tertiary);
 }
 
 .error-state__retry {
   margin-top: var(--space-2);
   padding: var(--space-2) var(--space-6);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-default);
   border-radius: var(--radius-md);
   background: var(--color-bg-surface);
   color: var(--color-brand);

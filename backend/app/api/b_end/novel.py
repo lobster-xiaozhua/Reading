@@ -233,7 +233,11 @@ async def get_novel_comments(
 ):
     stmt = (
         select(CommentModel)
-        .where(CommentModel.novel_id == novel_id, CommentModel.status == 1)
+        .where(
+            CommentModel.novel_id == novel_id,
+            CommentModel.status == 1,
+            CommentModel.deleted == 0,
+        )
         .order_by(CommentModel.likes.desc())
         .limit(10)
     )

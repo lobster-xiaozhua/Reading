@@ -1,12 +1,12 @@
 """互动域 ORM：评论 / 书评 / 打赏（§4.2.4）。"""
 
-from sqlalchemy import BigInteger, Index, Integer, String, Text
+from sqlalchemy import BigInteger, Index, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.models.base import Base, IdMixin
+from app.models.base import Base, IdMixin, SoftDeleteMixin
 
 
-class Comment(Base, IdMixin):
+class Comment(Base, IdMixin, SoftDeleteMixin):
     """评论 / 段评。"""
 
     __tablename__ = "comments"
@@ -61,4 +61,33 @@ class RewardRecord(Base, IdMixin):
     novel_id: Mapped[int] = mapped_column(BigInteger)
     type: Mapped[str] = mapped_column(String(20), comment="ticket/recommend/tip")
     amount: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[int] = mapped_column(BigInteger, default=0)
+
+
+class CommentLike(Base, IdMixin):
+    """评论点赞（幂等：同一读者对同一评论仅一条）。"""
+
+    __tablename__ = "comment_likes"
+    __table_args__ = (
+        UniqueConstraint("comment_id", "reader_id", name="uq_comment_like_reader"),
+        Index("idx_comment_likes_comment_id", "comment_id"),
+    )
+
+    comment_id: Mapped[int] = mapped_column(BigInteger)
+    reader_id: Mapped[int] = mapped_column(BigInteger)
+    created_at: Mapped[int] = mapped_column(BigInteger, default=0)
+
+
+class NovelRating(Base, IdMixin):
+    """书籍评分（幂等：同一读者对同一作品仅一条，改评即更新）。"""
+
+    __tablename__ = "novel_ratings"
+    __table_args__ = (
+        UniqueConstraint("novel_id", "reader_id", name="uq_novel_rating_reader"),
+        Index("idx_novel_ratings_novel_id", "novel_id"),
+    )
+
+    novel_id: Mapped[int] = mapped_column(BigInteger)
+    reader_id: Mapped[int] = mapped_column(BigInteger)
+    rating: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[int] = mapped_column(BigInteger, default=0)

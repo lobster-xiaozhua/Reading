@@ -121,16 +121,28 @@ export function useReaderCache({
       if (cached) return cached;
       const inflight = inflightRef.current.get(id);
       if (inflight) return inflight;
-      const p = fetcher(id)
-        .then((ch) => {
-          cacheRef.current.set(id, ch);
-          inflightRef.current.delete(id);
-          return ch;
-        })
-        .catch((err) => {
-          inflightRef.current.delete(id);
-          throw err;
-        });
+
+      // 指数退避重试
+      const RETRY_MAX = 2;
+      const RETRY_DELAYS = [300, 1000];
+
+      const fetchWithRetry = async (): Promise<CachedChapter> => {
+        for (let attempt = 0; attempt <= RETRY_MAX; attempt++) {
+          try {
+            const result = await fetcher(id);
+            cacheRef.current.set(id, result);
+            inflightRef.current.delete(id);
+            return result;
+          } catch (err) {
+            if (attempt >= RETRY_MAX) throw err;
+            const delay = RETRY_DELAYS[attempt] ?? 1000;
+            await new Promise((r) => setTimeout(r, delay));
+          }
+        }
+        throw new Error("章节加载失败");
+      };
+
+      const p = fetchWithRetry();
       inflightRef.current.set(id, p);
       return p;
     },
@@ -167,15 +179,31 @@ export function useReaderCache({
         })
         .catch((err: unknown) => {
           if (cancelled) return;
-          setError(err instanceof Error ? err : new Error(String(err)));
-          setLoading(false);
+          // 加载失败后，自动尝试加载上一章（如果存在）
+          const fallbackId = prevId;
+          if (fallbackId && fallbackId !== currentId) {
+            loadChapter(fallbackId)
+              .then((fallback) => {
+                if (cancelled) return;
+                setCurrent(fallback);
+                setLoading(false);
+              })
+              .catch(() => {
+                if (cancelled) return;
+                setError(err instanceof Error ? err : new Error(String(err)));
+                setLoading(false);
+              });
+          } else {
+            setError(err instanceof Error ? err : new Error(String(err)));
+            setLoading(false);
+          }
         });
     }
 
     return () => {
       cancelled = true;
     };
-  }, [currentId, loadChapter]);
+  }, [currentId, loadChapter, prevId]);
 
   // 预加载 ±N 章（后台静默，不触发 loading/error）
   useEffect(() => {

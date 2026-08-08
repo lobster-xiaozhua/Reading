@@ -4,7 +4,6 @@
 当前实现基于 MySQL LIKE 查询 + 拼音兜底，后续可平替为 Elasticsearch。
 """
 
-import asyncio
 import contextlib
 import json
 
@@ -106,11 +105,9 @@ class SearchService:
                 for name in (await self.session.execute(stmt)).scalars().all()
             ]
 
-        book_res, author_res, tag_res = await asyncio.gather(
-            search_books(),
-            search_authors(),
-            search_tags(),
-        )
+        book_res = await search_books()
+        author_res = await search_authors()
+        tag_res = await search_tags()
 
         suggestions = list(book_res)
         # 拼音兜底：纯拼音关键词且无书名命中时

@@ -33,6 +33,10 @@ export default defineConfig({
       testMatch: '**/api.c-end*.ts',
     },
     {
+      name: 'api-global',
+      testMatch: '**/api.global*.ts',
+    },
+    {
       name: 'pages-b-end',
       testMatch: '**/pages.b-end*.ts',
     },

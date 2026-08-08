@@ -1,5 +1,6 @@
 /* ============================================================
- * LoginPage · B 端登录页
+ * LoginPage · B 端登录页（分屏品牌化重设计）
+ * 左侧品牌展示区 + 右侧表单卡片
  * ============================================================ */
 
 @keyframes fadeInUp {
@@ -24,25 +25,138 @@
   }
 }
 
+@keyframes floatA {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(-14px, 16px) scale(1.05);
+  }
+}
+@keyframes floatB {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(16px, -12px) scale(1.08);
+  }
+}
+
 /* 页面级动画 */
 .login-page {
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-bg-page) 0%, var(--color-brand-bg) 50%, var(--color-bg-surface) 100%);
+  background: linear-gradient(150deg, var(--color-bg-page) 0%, var(--color-brand-bg) 60%, var(--color-bg-surface) 100%);
+  overflow: hidden;
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  padding: var(--space-6);
 }
 
-/* 卡片进入 */
-.login-page .ant-card {
-  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+/* 装饰光晕 */
+.login-orb {
+  position: absolute;
+  border-radius: var(--radius-full);
+  filter: blur(56px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.login-orb--a {
+  width: 360px;
+  height: 360px;
+  top: -100px;
+  right: 4%;
+  background: var(--gradient-brand-strong);
+  animation: floatA 14s var(--ease-smooth) infinite;
+}
+.login-orb--b {
+  width: 300px;
+  height: 300px;
+  bottom: -90px;
+  left: 8%;
+  background: var(--color-rose-gradient);
+  opacity: 0.3;
+  animation: floatB 16s var(--ease-smooth) infinite;
+}
+
+/* 左侧品牌区 */
+.login-brand {
+  position: relative;
+  z-index: 1;
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  max-width: 380px;
+  padding: var(--space-4);
+  color: var(--color-text-primary);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+}
+.login-brand__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
+  color: var(--color-text-inverse);
+  font-size: 26px;
+  box-shadow: var(--sh-3), 0 0 28px var(--color-brand-glow-35);
+  margin-bottom: var(--space-2);
+}
+.login-brand__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.02em;
+}
+.login-brand__desc {
+  margin: 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+.login-brand__features {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.login-brand__features li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+.login-brand__features .anticon {
+  color: var(--color-brand);
+  font-size: var(--font-size-body);
+}
+
+/* 右侧登录面板 */
+.login-panel {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+  animation: scaleIn var(--dur-normal) var(--ease-decelerate) 150ms both;
+}
+
+.login-card {
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--sh-4) !important;
 }
-
-/* 卡片顶部渐变装饰条 */
-.login-page .ant-card::before {
+.login-card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -50,71 +164,123 @@
   right: 0;
   height: 4px;
   background: linear-gradient(to right, var(--color-brand), var(--color-accent), var(--color-rose));
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   z-index: 1;
 }
 
-/* 卡片进入 */
-.login-page .ant-card {
-  animation: scaleIn var(--dur-normal) var(--ease-decelerate);
+.login-card__header {
+  text-align: center;
+  margin-bottom: var(--space-6);
 }
-
-/* 标题进入 */
-.login-page .ant-typography {
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
-}
-
-/* 表单进入 */
-.login-page .ant-form {
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
-}
-
-/* 按钮进入 */
-.login-page .ant-btn {
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 300ms both;
-  transition:
-    background var(--dur-fast) var(--ease-standard),
-    border-color var(--dur-fast) var(--ease-standard),
-    transform var(--dur-instant) var(--ease-spring);
-}
-
-.login-page .ant-btn:active:not(:disabled) {
-  transform: scale(0.96);
+.login-card__title {
+  margin-bottom: var(--space-1) !important;
 }
 
 /* 演示账号列表 staggered 进入 */
+.login-card__demo {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+.login-card__demo-label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: var(--space-3);
+}
+.login-card__demo-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.login-card__demo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+.login-card__demo-fill {
+  cursor: pointer;
+  font-size: 11px;
+  margin-inline-end: 0;
+}
+
 .login-page .demo-account-item {
   animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
 }
-
 .login-page .demo-account-item:nth-child(1) { animation-delay: 350ms; }
 .login-page .demo-account-item:nth-child(2) { animation-delay: 400ms; }
 .login-page .demo-account-item:nth-child(3) { animation-delay: 450ms; }
 .login-page .demo-account-item:nth-child(4) { animation-delay: 500ms; }
 
-/* 演示账号 Tag hover */
 .login-page .demo-account-item .ant-tag {
   transition:
     transform var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
 }
-
 .login-page .demo-account-item .ant-tag:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 8px var(--color-brand-bg);
 }
-
 .login-page .demo-account-item .ant-tag:active {
   transform: scale(0.95);
+}
+
+/* 输入框聚焦提升 */
+.login-card .ant-input-affix-wrapper {
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.login-card .ant-input-affix-wrapper-focused {
+  box-shadow: 0 0 0 3px var(--color-brand-bg);
+}
+
+/* 提交按钮品牌渐变 */
+.login-card .ant-btn-primary {
+  background: linear-gradient(to right, var(--color-brand), var(--color-accent));
+  border: none;
+  transition:
+    transform var(--dur-instant) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    opacity var(--dur-fast) var(--ease-standard);
+}
+.login-card .ant-btn-primary:hover {
+  box-shadow: 0 4px 16px var(--color-brand-glow-30);
+  transform: translateY(-1px);
+  opacity: 0.94;
+}
+.login-card .ant-btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* 响应式：≥900px 分屏展示品牌区 */
+@media (min-width: 900px) {
+  .login-page {
+    gap: var(--space-16);
+  }
+  .login-brand {
+    display: flex;
+  }
+}
+
+/* 移动端隐藏部分装饰 */
+@media (max-width: 640px) {
+  .login-orb--b {
+    display: none;
+  }
 }
 
 /* 减弱动效适配 */
 @media (prefers-reduced-motion: reduce) {
   .login-page,
-  .login-page .ant-card,
-  .login-page .ant-typography,
-  .login-page .ant-form,
-  .login-page .ant-btn,
-  .login-page .demo-account-item {
+  .login-brand,
+  .login-panel,
+  .demo-account-item {
+    animation: none;
+  }
+  .login-orb {
     animation: none;
   }
 }

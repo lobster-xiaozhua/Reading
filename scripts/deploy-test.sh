@@ -87,13 +87,11 @@ start_backend() {
   echo "--- 启动后端 ---"
 
   export DEBUG=true
-  export DB_URL="${DB_URL:-sqlite+aiosqlite:///novel.db}"
+  # 测试环境使用独立数据库，避免触碰主库 novel.db
+  export DB_URL="${DB_URL:-sqlite+aiosqlite:///novel-test.db}"
   export JWT_SECRET="${JWT_SECRET:-test-jwt-secret-key-at-least-32-chars!!}"
 
-  # 清理旧数据库（测试环境重建）
-  rm -f "$ROOT/backend/novel.db"
-
-  info "启动后端服务 (port 8000)..."
+  info "启动后端服务 (port 8000, DB: $DB_URL)..."
   cd "$ROOT/backend"
   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
   BACKEND_PID=$!
@@ -174,6 +172,16 @@ run_tests() {
   ok "Ruff 检查通过"
 }
 
+# ── 运行全局真实请求检查 ─────────────────────────────────
+run_global_check() {
+  echo ""
+  echo "--- 全局真实请求检查 ---"
+
+  python3 "$ROOT/scripts/global-check/global_check.py" \
+    --report "$ROOT/global-check-report.json" 2>&1 | tail -30 || true
+  ok "全局真实请求检查完成（报告: $ROOT/global-check-report.json）"
+}
+
 # ── 运行巡检 ──────────────────────────────────────────────
 run_monitor() {
   echo ""
@@ -234,6 +242,7 @@ main() {
       run_tests
     fi
     if [ "$SKIP_MONITOR" = false ]; then
+      run_global_check
       run_monitor
     fi
   fi

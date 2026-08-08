@@ -5,11 +5,12 @@
 
 import contextlib
 import os
+from collections import OrderedDict
 from typing import Any
 
 import orjson
 import structlog
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
@@ -20,6 +21,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from app import __version__
 from app.core.config import settings
 from app.core.database import engine
+from app.core.exceptions import UnauthorizedError
 from app.core.limiter import limiter
 from app.core.logging import setup_logging
 from app.middlewares.access_log import AccessLogMiddleware
@@ -34,14 +36,24 @@ logger = structlog.get_logger(__name__)
 SEED_MARKER = os.path.join(os.path.dirname(__file__), "..", ".seed-initialized")
 
 # ── 简单内存指标计数器 ─────────────────────────────────────
-_request_counts: dict[str, int] = {}   # path -> count
+_MAX_METRIC_PATHS = 500
+_request_counts: dict[str, int] = OrderedDict()   # path -> count
 _request_durations: dict[str, list[float]] = {}  # path -> [durations]
 _request_errors: dict[str, int] = {}   # path -> error count
+
+
+def _trim_metric_paths() -> None:
+    """按 LRU 淘汰：超过上限时移除最旧的 path，防止动态路径撑爆内存。"""
+    while len(_request_counts) > _MAX_METRIC_PATHS:
+        oldest = _request_counts.popitem(last=False)[0]
+        _request_durations.pop(oldest, None)
+        _request_errors.pop(oldest, None)
 
 
 def _inc_metric(path: str, duration_ms: float, status: int) -> None:
     """记录请求指标（非阻塞，线程安全使用 Python GIL）。"""
     key = path.split("?")[0]  # 去掉 query string
+    _request_counts.pop(key, None)
     _request_counts[key] = _request_counts.get(key, 0) + 1
     _request_durations.setdefault(key, []).append(duration_ms)
     # 保留最近 200 条耗时记录
@@ -49,6 +61,7 @@ def _inc_metric(path: str, duration_ms: float, status: int) -> None:
         _request_durations[key] = _request_durations[key][-200:]
     if status >= 500:
         _request_errors[key] = _request_errors.get(key, 0) + 1
+    _trim_metric_paths()
 
 
 @contextlib.asynccontextmanager
@@ -123,14 +136,23 @@ class _ORJSONResponse(JSONResponse):
 def create_app() -> FastAPI:
     setup_logging()
 
+    # 生产环境关闭文档端点，避免暴露 OpenAPI 结构
+    docs_kwargs = (
+        {"docs_url": None, "redoc_url": None, "openapi_url": None}
+        if not settings.debug
+        else {
+            "docs_url": "/docs",
+            "redoc_url": "/redoc",
+            "openapi_url": "/openapi.json",
+        }
+    )
+
     app = FastAPI(
         title=settings.app_name,
         version=__version__,
-        docs_url="/docs",
-        redoc_url="/redoc",
-        openapi_url="/openapi.json",
         lifespan=lifespan,
         default_response_class=_ORJSONResponse,
+        **docs_kwargs,
     )
 
     app.state.orjson_available = True
@@ -163,9 +185,22 @@ def create_app() -> FastAPI:
     async def health() -> dict:
         return {"status": "ok", "version": __version__}
 
-    # 指标端点（Prometheus 格式，仅生产可用）
+    # 指标端点（Prometheus 格式；生产环境要求有效 JWT，避免暴露内部路径）
     @app.get("/metrics", tags=["系统"])
-    async def metrics() -> PlainTextResponse:
+    async def metrics(request: Request) -> PlainTextResponse:
+        if not settings.debug:
+            authorization = request.headers.get("Authorization", "")
+            token = authorization.removeprefix("Bearer ").strip()
+            if not token:
+                raise UnauthorizedError("未授权访问指标")
+            try:
+                from app.core.security import decode_token
+
+                payload = decode_token(token)
+                if payload.get("type") != "access":
+                    raise ValueError("token 类型错误")
+            except Exception as err:
+                raise UnauthorizedError("Token 无效或已过期") from err
         lines: list[str] = []
         lines.append("# HELP http_requests_total Total HTTP requests by path")
         lines.append("# TYPE http_requests_total counter")

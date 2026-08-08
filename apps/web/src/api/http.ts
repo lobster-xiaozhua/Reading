@@ -1,5 +1,5 @@
 import { reportError } from "@/utils/report";
-import { useAuthStore, isTokenExpired } from "@/stores/authStore";
+import { useAuthStore } from "@/stores/authStore";
 import { getBizMessage } from "@/api/errorMap";
 
 const AUTH_KEY = "atlas-store";
@@ -9,6 +9,22 @@ export interface ApiResponse<T = unknown> {
   message: string;
   data: T | null;
   traceId?: string | null;
+}
+
+/** token 内存缓存：localStorage 未变时避免每次请求重复 JSON.parse */
+let cachedToken: string | null = null;
+let cachedTokenRaw: string | null = null;
+
+function getToken(): string | null {
+  try {
+    const raw = localStorage.getItem(AUTH_KEY);
+    if (raw === cachedTokenRaw) return cachedToken;
+    cachedTokenRaw = raw;
+    cachedToken = raw ? (JSON.parse(raw).state?.token ?? null) : null;
+    return cachedToken;
+  } catch {
+    return null;
+  }
 }
 
 export class ApiError extends Error {
@@ -23,18 +39,7 @@ export class ApiError extends Error {
   }
 }
 
-function getToken(): string | null {
-  try {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw).state?.token ?? null;
-  } catch {
-    return null;
-  }
-}
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api/v1/c";
-
 /** 简易内存请求缓存：相同 URL 在 60 秒内命中缓存 */
 const cache = new Map<string, { data: unknown; expiresAt: number }>();
 const CACHE_TTL = 60_000;
@@ -116,7 +121,9 @@ async function request<T>(
     performance.mark(startMark);
   }
   const authToken = getToken();
-  const isUserEndpoint = path.includes("/me/");
+  // 章节正文与 /me/ 均按用户隔离缓存，避免 VIP 章节内容跨账号泄漏
+  const isUserEndpoint =
+    path.includes("/me/") || path.includes("/chapters/");
   const userSuffix = authToken && isUserEndpoint ? `:user:${authToken.slice(-8)}` : "";
   const cacheKey = `${options.method ?? "GET"}:${path}${userSuffix}`;
   if (!isUserEndpoint && (options.method === "GET" || options.method === undefined)) {
@@ -232,7 +239,9 @@ async function requestWithRefresh<T>(
   } catch (err) {
     if (err instanceof ApiError && err.code === 401 && !isRefreshing) {
       const store = useAuthStore.getState();
-      if (store.refreshToken && !isTokenExpired(store.expiresAt)) {
+      // 有 refresh token 即尝试刷新；access token 已过期是最常见的 401 场景，
+      // 不应以其过期时间作为是否刷新的判断条件
+      if (store.refreshToken) {
         isRefreshing = true;
         await refreshTokenOnce();
         return request<T>(path, options);

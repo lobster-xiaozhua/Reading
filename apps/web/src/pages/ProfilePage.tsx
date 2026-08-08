@@ -4,7 +4,7 @@
  *   书架 / 阅读历史 / 书单 / 打赏记录 / 设置
  * URL 同步：?tab=bookshelf|history|booklists|rewards|settings
  * ============================================================ */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Avatar,
@@ -80,14 +80,30 @@ export default function ProfilePage() {
   const user = useUserStore((s) => s.profile);
   const historyEntries = useHistoryStore((s) => s.entries);
 
-  const [editOpen, setEditOpen] = useState(false);
-
   /* ---------- 用户数据 ---------- */
   const userState = useAsyncState<UserProfile>(() => fetcher.getCurrentUser(), {
     initial: user ?? undefined,
     loadingDelay: 200,
   });
   const profile = userState.data ?? user;
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editNickname, setEditNickname] = useState("");
+
+  /* 打开编辑弹窗时同步当前昵称 */
+  useEffect(() => {
+    if (editOpen) setEditNickname(profile?.nickname ?? "");
+  }, [editOpen, profile?.nickname]);
+
+  const handleSaveProfile = async () => {
+    try {
+      await fetcher.updateProfile({ nickname: editNickname.trim() || undefined });
+      await userState.run();
+      setEditOpen(false);
+    } catch {
+      // 保存失败保持弹窗，由上层 toast 提示
+    }
+  };
 
   /* ---------- 书架 ---------- */
   const [shelfTab, setShelfTab] = useState<BookshelfTab>(
@@ -207,7 +223,7 @@ export default function ProfilePage() {
           <button
             type="button"
             className="profile-page__modal-btn profile-page__modal-btn--primary"
-            onClick={() => setEditOpen(false)}
+            onClick={handleSaveProfile}
           >
             保存
           </button>
@@ -218,7 +234,8 @@ export default function ProfilePage() {
             <label className="profile-page__edit-label">昵称</label>
             <input
               className="profile-page__edit-input"
-              defaultValue={profile?.nickname}
+              value={editNickname}
+              onChange={(e) => setEditNickname(e.target.value)}
               placeholder="输入昵称"
             />
           </div>

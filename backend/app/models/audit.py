@@ -37,6 +37,8 @@ class AuditHistory(Base, IdMixin):
     result: Mapped[str] = mapped_column(String(20), comment="approve/revise/reject")
     comment: Mapped[str] = mapped_column(String(500), default="")
     reject_reason: Mapped[str] = mapped_column(String(32), default="")
+    operator_ip: Mapped[str] = mapped_column(String(64), default="")
+    user_agent: Mapped[str] = mapped_column(String(255), default="")
     created_at: Mapped[int] = mapped_column(BigInteger, default=0)
 
 

@@ -191,41 +191,57 @@
   transition:
     border-color var(--dur-fast) var(--ease-standard),
     background var(--dur-fast) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard);
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-spring);
 }
 .vip-page__plan:hover:not(.is-expired):not(:disabled) {
   border-color: var(--color-accent-orange);
-  box-shadow: var(--sh-1);
+  box-shadow: var(--sh-2);
+  transform: translateY(-2px);
 }
 /* 选中态：accent-orange 2px 边框 + 底纹 + 右上角勾选 */
 .vip-page__plan.is-selected {
   border: 2px solid var(--color-accent-orange);
-  background: var(--color-accent-orange-bg);
+  background: linear-gradient(135deg, var(--color-accent-orange-bg) 0%, var(--color-bg-surface) 100%);
+  box-shadow: 0 4px 16px var(--color-brand-glow-20);
 }
-/* 不可用：虚线边框 + 弱化 */
-.vip-page__plan.is-expired {
-  border: 1px dashed var(--color-border-default);
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-.vip-page__plan:disabled {
-  cursor: not-allowed;
-}
-/* 推荐角标留出顶部空间 */
+/* 推荐卡：金色光环 + 放大 */
 .vip-page__plan.is-recommended {
   padding-top: var(--space-8);
+  border-color: var(--color-accent-orange);
+  box-shadow:
+    var(--sh-2),
+    0 0 0 1px var(--color-accent-orange),
+    0 8px 32px var(--color-brand-glow-25);
+  transform: scale(1.02);
 }
+.vip-page__plan.is-recommended:hover:not(:disabled) {
+  transform: scale(1.02) translateY(-2px);
+  box-shadow:
+    var(--sh-3),
+    0 0 0 1px var(--color-accent-orange),
+    0 12px 40px var(--color-brand-glow-30);
+}
+.vip-page__plan.is-recommended.is-selected {
+  box-shadow:
+    var(--sh-3),
+    0 0 0 2px var(--color-accent-orange),
+    0 16px 48px var(--color-brand-glow-35);
+}
+/* 推荐角标 */
 .vip-page__plan-badge {
   position: absolute;
   top: var(--space-2);
   left: var(--space-2);
   padding: var(--space-1) var(--space-2);
-  background: var(--color-accent-orange-bg);
-  color: var(--color-accent-orange);
+  background: var(--gradient-gold);
+  color: var(--color-text-inverse);
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-semibold);
   border-radius: var(--radius-sm);
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
 }
+/* 节省角标 */
 .vip-page__plan-save {
   position: absolute;
   top: var(--space-2);

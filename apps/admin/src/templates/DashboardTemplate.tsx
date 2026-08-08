@@ -11,6 +11,7 @@ import { ReloadOutlined } from "@ant-design/icons";
 import { BStatisticCard } from "@novel/b-end";
 import type { StatisticTrend } from "@novel/b-end";
 import { useAuthStore } from "@/stores/authStore";
+import "./DashboardTemplate.css";
 
 export type DashboardStatus =
   "loading" | "ready" | "empty" | "error" | "chart-error";
@@ -302,24 +303,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
                 key={action.key}
                 type="button"
                 onClick={action.onClick}
-                style={{
-                  border: "1px solid var(--color-border)",
-                  borderRadius: "var(--radius-md, 8px)",
-                  background: "var(--color-bg-surface)",
-                  padding: "var(--space-3) var(--space-5)",
-                  cursor: "pointer",
-                  color: "var(--color-text-primary)",
-                  fontSize: "var(--font-size-body, 14px)",
-                  transition: "all var(--dur-fast) var(--ease-out)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-brand)";
-                  e.currentTarget.style.color = "var(--color-brand)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-border)";
-                  e.currentTarget.style.color = "var(--color-text-primary)";
-                }}
+                className="b-dashboard__quick-btn"
               >
                 {action.label}
               </button>

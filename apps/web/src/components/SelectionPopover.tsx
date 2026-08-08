@@ -25,8 +25,6 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
   const [saving, setSaving] = useState(false);
 
   const handleSelection = useCallback(() => {
-    if (activeAction) return;
-
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed || !sel.toString().trim()) {
       setAnchor(null);
@@ -38,6 +36,12 @@ export function SelectionPopover({ bookId, chapterId }: SelectionPopoverProps) {
     if (text.length < 2 || text.length > 500) {
       setAnchor(null);
       return;
+    }
+
+    // 笔记面板打开时，用户选中新文本则切换为新选词（关闭笔记态）
+    if (activeAction === "note") {
+      setActiveAction(null);
+      setNoteText("");
     }
 
     const range = sel.getRangeAt(0);

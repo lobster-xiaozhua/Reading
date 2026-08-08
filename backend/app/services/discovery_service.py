@@ -4,7 +4,6 @@
 全部走 Cache-Aside 策略，缓存命中直接返回，未命中回查库并回填。
 """
 
-import asyncio
 import json
 
 import redis.asyncio as redis
@@ -70,13 +69,10 @@ class DiscoveryService:
         except Exception:
             logger.warning("预热 hot_books 失败", exc_info=True)
         try:
-            ranks = await asyncio.gather(
-                self.get_ranking("hot", 20),
-                self.get_ranking("follow", 20),
-                self.get_ranking("ticket", 20),
-                self.get_ranking("new", 20),
-            )
-            for rank_type, items in zip(("hot", "follow", "ticket", "new"), ranks, strict=False):
+            ranks = {}
+            for rank_type in ("hot", "follow", "ticket", "new"):
+                ranks[rank_type] = await self.get_ranking(rank_type, 20)
+            for rank_type, items in ranks.items():
                 results[f"ranking:{rank_type}"] = len(items)
         except Exception:
             logger.warning("预热 rankings 失败", exc_info=True)
@@ -113,15 +109,14 @@ class DiscoveryService:
                 logger.warning("发现页模块加载失败", exc_info=True)
                 return []
 
-        # 排行榜 4 路并发，其余模块并行
-        rank_coros = {
-            "hot": safe(self.get_ranking("hot", rank_limit)),
-            "follow": safe(self.get_ranking("follow", rank_limit)),
-            "ticket": safe(self.get_ranking("ticket", rank_limit)),
-            "new": safe(self.get_ranking("new", rank_limit)),
+        # 排行榜 4 路顺序执行（AsyncSession 不支持并发复用同一连接）
+        ranks = {
+            "hot": await safe(self.get_ranking("hot", rank_limit)),
+            "follow": await safe(self.get_ranking("follow", rank_limit)),
+            "ticket": await safe(self.get_ranking("ticket", rank_limit)),
+            "new": await safe(self.get_ranking("new", rank_limit)),
         }
-        ranks = await asyncio.gather(*rank_coros.values())
-        rankings = dict(zip(("hot", "follow", "ticket", "new"), ranks, strict=False))
+        rankings = ranks
 
         payload = DiscoverHome(
             banners=await safe(self.get_banners()),

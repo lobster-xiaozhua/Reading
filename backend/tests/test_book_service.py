@@ -8,7 +8,6 @@ import pytest
 from app.core.exceptions import BizError, NotFoundError
 from app.core.redis import CacheKeys
 from app.models.interaction import Comment as CommentModel
-from app.models.interaction import Review as ReviewModel
 from app.models.novel import Chapter, Novel
 from app.models.user import Reader
 from app.services.book_service import BookService, _chapter_to_content, _chapter_to_list_item
@@ -94,11 +93,38 @@ class TestGetBook:
             "follow_count": 5,
             "click_count": 50,
             "flags": "",
+            "tags_str": "玄幻,仙侠",
             "updated_at": 1000000,
         }
         await redis_client.set(cache_key, json.dumps(cached), ex=600)
         result = await svc.get_book(novel.id)
         assert result.title == "缓存标题"
+        assert result.tags == ["玄幻", "仙侠"]
+        assert result.last_updated == 1000000
+
+    async def test_get_book_cache_missing_fields_falls_back_to_db(
+        self, svc, db_session, redis_client
+    ):
+        """回归测试：旧缓存缺 tags_str/updated_at 字段时不应 500，应回源数据库。"""
+        novel = await _create_published_novel(db_session)
+        cache_key = CacheKeys.book(novel.id)
+        cached = {
+            "id": novel.id,
+            "title": "缓存标题",
+            "author_name": "缓存作者",
+            "category": "xuanhuan",
+            "status": "published",
+            "word_count": 100,
+            "is_completed": 0,
+            "rating": 4.0,
+            "rating_count": 10,
+            "follow_count": 5,
+            "click_count": 50,
+            "flags": "",
+        }
+        await redis_client.set(cache_key, json.dumps(cached), ex=600)
+        result = await svc.get_book(novel.id)
+        assert result.title == "测试小说"
 
     async def test_get_book_writes_cache(self, svc, db_session, redis_client):
         novel = await _create_published_novel(db_session)
@@ -165,7 +191,7 @@ class TestGetChapter:
         novel = await _create_published_novel(db_session)
         chapter = await _create_published_chapter(db_session, novel.id, title="缓存章节")
         await svc.get_chapter(novel.id, chapter.id)
-        cached = await redis_client.get(CacheKeys.chapter(chapter.id))
+        cached = await redis_client.get(CacheKeys.chapter(novel.id, chapter.id))
         assert cached is not None
         result = await svc.get_chapter(novel.id, chapter.id)
         assert result.title == "缓存章节"
@@ -175,7 +201,7 @@ class TestGetChapter:
         chapter = await _create_published_chapter(db_session, novel.id)
         await svc.get_chapter(novel.id, chapter.id)
         await redis_client.set(
-            CacheKeys.chapter(chapter.id), json.dumps({"novel_id": 999, "content": {}})
+            CacheKeys.chapter(novel.id, chapter.id), json.dumps({"novel_id": 999, "content": {}})
         )
         result = await svc.get_chapter(novel.id, chapter.id)
         assert result.title == "第一章"
@@ -231,9 +257,12 @@ class TestRatingDistribution:
 
     async def test_get_rating_distribution_with_data(self, svc, db_session):
         novel = await _create_published_novel(db_session)
-        for star in [5, 5, 4, 3]:
-            review = ReviewModel(novel_id=novel.id, reader_id=1, rating=star, content="ok")
-            db_session.add(review)
+        from app.models.interaction import NovelRating
+
+        for idx, star in enumerate([5, 5, 4, 3]):
+            db_session.add(
+                NovelRating(novel_id=novel.id, reader_id=idx + 1, rating=star, created_at=0)
+            )
         await db_session.flush()
         dist = await svc.get_rating_distribution(novel.id)
         assert dist.total == 4

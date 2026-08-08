@@ -297,6 +297,13 @@ class NoteUpdateBody(CamelModel):
     annotation: str | None = None
 
 
+class ProfileUpdateBody(CamelModel):
+    """更新读者资料请求体。"""
+
+    nickname: str | None = None
+    avatar: str | None = None
+
+
 class DiscoverHome(CamelModel):
     """发现页聚合数据。"""
 

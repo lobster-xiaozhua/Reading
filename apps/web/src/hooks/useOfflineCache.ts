@@ -6,7 +6,7 @@
  *   - 书架元数据持久化：离线可浏览书架列表
  * ============================================================ */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 const DB_NAME = "atlas-offline";
 const DB_VERSION = 1;
@@ -212,13 +212,24 @@ export function useOfflineCache(): OfflineCache {
     await tx(STORE_SHELF, "readwrite", (s) => s.clear());
   }, []);
 
-  return {
-    available,
-    getChapter,
-    putChapter,
-    getShelf,
-    putShelfItem,
-    removeShelfItem,
-    clearAll,
-  };
+  return useMemo(
+    () => ({
+      available,
+      getChapter,
+      putChapter,
+      getShelf,
+      putShelfItem,
+      removeShelfItem,
+      clearAll,
+    }),
+    [
+      available,
+      getChapter,
+      putChapter,
+      getShelf,
+      putShelfItem,
+      removeShelfItem,
+      clearAll,
+    ],
+  );
 }

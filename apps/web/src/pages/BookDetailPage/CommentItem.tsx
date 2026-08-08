@@ -6,6 +6,7 @@
 import { memo, useCallback, useState } from "react";
 import { NovelHeart, NovelHeartFilled } from "@novel/icons";
 import { LazyImage } from "@/components/LazyImage";
+import { fetcher } from "@/api/fetcher";
 import { formatRelativeTime } from "@/utils/time";
 import type { Comment } from "@/api/types";
 
@@ -21,13 +22,19 @@ export const CommentItem = memo(function CommentItem({
 
   const handleLike = useCallback(() => {
     if (isLiked) {
+      // 后端暂不支持取消点赞：取消为本地操作，刷新后恢复真实值
       setIsLiked(false);
       setLikes((n) => n - 1);
-    } else {
-      setIsLiked(true);
-      setLikes((n) => n + 1);
+      return;
     }
-  }, [isLiked]);
+    // 乐观更新 + 上报后端，失败回滚
+    setIsLiked(true);
+    setLikes((n) => n + 1);
+    fetcher.likeComment(c.id).catch(() => {
+      setIsLiked(false);
+      setLikes((n) => n - 1);
+    });
+  }, [isLiked, c.id]);
 
   return (
     <li className="book-detail__comment">
@@ -59,6 +66,8 @@ export const CommentItem = memo(function CommentItem({
           type="button"
           className={`book-detail__comment-like ${isLiked ? "is-liked" : ""}`}
           onClick={handleLike}
+          aria-label={isLiked ? "取消点赞" : "点赞"}
+          aria-pressed={isLiked}
         >
           {isLiked ? (
             <NovelHeartFilled size="sm" aria-hidden="true" />

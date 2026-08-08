@@ -91,11 +91,11 @@ class RecommendService:
     ) -> list[tuple[int, int]]:
         """聚合相似读者读过的候选作品，按共现频次降序，排除已读。
 
-        使用集合实现 O(1) 排除查找，避免 list 的 O(n) 扫描。
+        返回 (novel_id, 共现频次)，频次用于计算匹配度。
         """
         exclude_set = set(exclude_ids)
         stmt = (
-            select(ReadingHistory.novel_id)
+            select(ReadingHistory.novel_id, func.count(ReadingHistory.novel_id))
             .where(
                 ReadingHistory.reader_id.in_(similar_reader_ids),
             )
@@ -105,7 +105,7 @@ class RecommendService:
         )
         rows = (await self.session.execute(stmt)).all()
         # 集合过滤已读书籍
-        return [(r[0], 0) for r in rows if r[0] not in exclude_set]
+        return [(r[0], r[1]) for r in rows if r[0] not in exclude_set]
 
     async def _to_recommendations(
         self, candidate_ids: list[tuple[int, int]], limit: int

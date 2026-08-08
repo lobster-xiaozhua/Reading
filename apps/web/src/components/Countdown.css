@@ -8,7 +8,7 @@
   color: var(--color-accent-orange);
   font-family: var(--font-mono);
   font-size: var(--font-size-xs);
-  font-weight: 500;
+  font-weight: var(--font-weight-emphasis);
   line-height: 16px;
 }
 .novel-countdown__icon {
@@ -66,7 +66,7 @@
   justify-content: center;
   font-family: var(--font-mono);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   color: var(--color-accent-orange);
   line-height: 1.1;
   transition: color var(--dur-normal) var(--ease-standard);

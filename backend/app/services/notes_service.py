@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ParamError
 from app.models.notes import ReaderNote
+from app.models.novel import Chapter, Novel
 from app.schemas.c_end import NoteCreateBody, NoteItem, NoteUpdateBody
 
 logger = structlog.get_logger(__name__)
@@ -31,6 +32,19 @@ class NotesService:
         """
         if not body.text or not body.text.strip():
             raise ParamError("笔记内容不能为空")
+        # 校验作品与章节归属：章节必须属于该书且已发布
+        novel = await self.session.get(Novel, body.novel_id)
+        if not novel or novel.deleted or novel.status != "published":
+            raise ParamError("作品不存在或已下架")
+        if body.chapter_id:
+            chapter = await self.session.get(Chapter, body.chapter_id)
+            if (
+                not chapter
+                or chapter.novel_id != body.novel_id
+                or chapter.deleted
+                or chapter.status != "published"
+            ):
+                raise ParamError("章节不存在或不属于该作品")
         now = int(time.time() * 1000)
         note = ReaderNote(
             reader_id=reader_id,

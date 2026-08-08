@@ -84,7 +84,7 @@ export default function BookDetailPage() {
     comments: Comment[];
   }>(fetchBookData, {
     deps: [bookId],
-    loadingDelay: 200,
+    loadingDelay: 0,
   });
 
   const detail = bookState.data?.detail ?? null;
@@ -124,10 +124,10 @@ export default function BookDetailPage() {
 
   // 书籍不存在
   useEffect(() => {
-    if (bookState.loaded && !bookState.data) {
+    if (bookState.status === "error" && !book) {
       feedback.message("error", "书籍不存在或已下架");
     }
-  }, [bookState.loaded, bookState.data, feedback]);
+  }, [bookState.status, bookState.data, book, feedback]);
 
   /* ---------- 渲染 ---------- */
   if (bookState.loading && !book) {
@@ -138,12 +138,14 @@ export default function BookDetailPage() {
     );
   }
 
-  if (!book) {
+  if (bookState.status === "error" || !book) {
     return (
       <div className="book-detail container-page">
         <EmptyState
-          title="书籍不存在"
-          description="该书籍可能已下架或链接错误"
+          title={bookState.status === "error" ? "加载失败" : "书籍不存在"}
+          description={
+            bookState.error?.message || "该书籍可能已下架或链接错误"
+          }
           action={<Link to="/">返回首页</Link>}
         />
       </div>
@@ -222,6 +224,8 @@ export default function BookDetailPage() {
                 <CommentList
                   comments={comments}
                   loading={bookState.loading && comments.length === 0}
+                  bookId={bookId}
+                  onRefresh={() => void bookState.run()}
                 />
               ),
             },
@@ -245,18 +249,32 @@ export default function BookDetailPage() {
 function CommentList({
   comments,
   loading,
+  bookId,
+  onRefresh,
 }: {
   comments: Comment[];
   loading: boolean;
+  bookId: string;
+  onRefresh: () => void;
 }) {
   const [writeOpen, setWriteOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentRating, setCommentRating] = useState(0);
+  const feedback = useFeedback();
 
-  const handleSubmitComment = () => {
-    setCommentText("");
-    setCommentRating(0);
-    setWriteOpen(false);
+  const handleSubmitComment = async () => {
+    if (!commentText.trim() || commentRating === 0) return;
+    try {
+      await fetcher.createComment(bookId, commentText, commentRating);
+      setCommentText("");
+      setCommentRating(0);
+      setWriteOpen(false);
+      feedback.message("success", "评论发表成功");
+      // 重新拉取数据刷新评论列表，避免整页重载
+      onRefresh();
+    } catch {
+      feedback.message("error", "评论发表失败，请稍后重试");
+    }
   };
 
   if (loading) return <Skeleton rows={5} />;

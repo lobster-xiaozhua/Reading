@@ -56,51 +56,6 @@ run_step() {
   fi
 }
 
-# 并行执行函数
-run_parallel() {
-  local name="$1" log="$2"
-  shift 2
-  local pids=()
-  local starts=()
-  local names=()
-  
-  while [ $# -gt 0 ]; do
-    local cmd_name="$1"
-    local cmd_log="$2"
-    shift 2
-    local cmd_args=("$@")
-    # 找到命令的最后一个参数作为真实命令
-    local cmd="${cmd_args[-1]}"
-    
-    names+=("$cmd_name")
-    starts+=($(date +%s%N))
-    eval "\"$cmd\"" > "$cmd_log" 2>&1 &
-    pids+=($!)
-    # 移除已处理的参数
-    for i in "${!cmd_args[@]}"; do
-      if [ "$i" -lt $((${#cmd_args[@]} - 1)) ]; then
-        unset 'cmd_args[$i]'
-      fi
-    done
-  done
-  
-  # 等待所有进程完成
-  local failed=0
-  for i in "${!pids[@]}"; do
-    if wait "${pids[$i]}"; then
-      local elapsed=$(( ($(date +%s%N) - ${starts[$i]}) / 1000000 ))
-      ok "${names[$i]} (${elapsed}ms)"
-    else
-      local elapsed=$(( ($(date +%s%N) - ${starts[$i]}) / 1000000 ))
-      fail "${names[$i]} (${elapsed}ms)"
-      echo "    log: tail -50 $log"
-      ((failed++))
-    fi
-  done
-  
-  return $failed
-}
-
 summary() {
   local total_time=$(( $(date +%s) - TIMING_START ))
   echo ""
@@ -281,6 +236,22 @@ backend_tests() {
     python3 -m pytest backend/tests/ -q --tb=short $extra_opts
 }
 
+# ── 全局真实请求检查 ─────────────────────────────────────
+global_check() {
+  header "全局真实请求检查（端到端冒烟）"
+
+  local backend_up=false
+  curl -sf http://localhost:8000/health >/dev/null 2>&1 && backend_up=true
+
+  if [ "$backend_up" = false ]; then
+    skip "后端未运行，跳过全局检查（先启动后端: bash start.sh 或 cd backend && uvicorn app.main:app）"
+    return 0
+  fi
+
+  run_step "全端点真实请求检查 (api + pages)" "/tmp/validate-global.log" \
+    python3 scripts/global-check/global_check.py --report /tmp/validate-global-report.json || true
+}
+
 # ── 安全审计 ──────────────────────────────────────────────
 security_audit() {
   header "安全审计"
@@ -391,9 +362,12 @@ main() {
         security)
           security_audit
           ;;
+        global)
+          global_check
+          ;;
         *)
           echo "未知阶段: $stage"
-          echo "可用: backend, frontend, security"
+          echo "可用: backend, frontend, security, global"
           exit 1
           ;;
       esac
@@ -406,6 +380,7 @@ main() {
       frontend_tests
       backend_checks
       backend_tests
+      global_check
       security_audit
       ;;
     *)
