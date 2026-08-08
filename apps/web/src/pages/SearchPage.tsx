@@ -44,6 +44,16 @@ export default function SearchPage() {
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const suggestListRef = useRef<HTMLDivElement | null>(null);
+  /** 搜索周期代数：关键词切换后作废旧关键词的「加载更多」响应 */
+  const searchSeqRef = useRef(0);
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* 卸载时清理输入失焦延迟定时器 */
+  useEffect(() => {
+    return () => {
+      if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+    };
+  }, []);
 
   const history = useSearchStore((s) => s.history);
   const addHistory = useSearchStore((s) => s.addHistory);
@@ -99,6 +109,7 @@ export default function SearchPage() {
   /* 新关键词提交 → 重置并加载第一页 */
   useEffect(() => {
     if (!committedQuery.trim()) {
+      searchSeqRef.current++;
       setResults([]);
       setTotal(0);
       setPage(1);
@@ -106,13 +117,15 @@ export default function SearchPage() {
       setResultsError(false);
       return;
     }
+    searchSeqRef.current++; // 新关键词周期，作废旧关键词在飞请求
+    const seq = searchSeqRef.current;
     let alive = true;
     setResultsLoading(true);
     setResultsError(false);
     fetcher
       .searchBooks(committedQuery, 1, PAGE_SIZE)
       .then((r) => {
-        if (!alive) return;
+        if (!alive || seq !== searchSeqRef.current) return;
         setResults(r.items);
         setTotal(r.total);
         setPage(1);
@@ -131,11 +144,14 @@ export default function SearchPage() {
   /* 加载更多 → 追加下一页 */
   const handleLoadMore = useCallback(() => {
     if (loadMoreLoading || !hasMore) return;
+    const seq = searchSeqRef.current; // 记录发起时的关键词周期
     setLoadMoreLoading(true);
     setResultsError(false);
     fetcher
       .searchBooks(committedQuery, page + 1, PAGE_SIZE)
       .then((r) => {
+        // 关键词已切换：丢弃旧关键词结果，避免混入新结果
+        if (seq !== searchSeqRef.current) return;
         setResults((prev) => {
           const seen = new Set(prev.map((b) => b.id));
           const next = r.items.filter((b) => !seen.has(b.id));
@@ -172,6 +188,10 @@ export default function SearchPage() {
   };
 
   const handleFocus = () => {
+    if (blurTimerRef.current) {
+      clearTimeout(blurTimerRef.current);
+      blurTimerRef.current = null;
+    }
     if (input.trim() && suggestions.length > 0) setShowSuggestions(true);
   };
 
@@ -259,7 +279,13 @@ export default function SearchPage() {
               setActiveSuggestionIndex(-1);
             }}
             onFocus={handleFocus}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onBlur={() => {
+              if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+              blurTimerRef.current = setTimeout(
+                () => setShowSuggestions(false),
+                150,
+              );
+            }}
             onKeyDown={handleKeyDown}
             autoComplete="off"
           />

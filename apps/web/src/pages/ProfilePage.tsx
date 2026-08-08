@@ -121,26 +121,34 @@ export default function ProfilePage() {
     });
   }, [shelfState.data, historyEntries]);
 
-  /* ---------- 阅读历史 ---------- */
+  /* ---------- 阅读历史（懒加载：进入对应 tab 才请求） ---------- */
   const historyState = useAsyncState<ReadingHistoryItem[]>(
     () => fetcher.getReadingHistory(),
-    { initial: [] as ReadingHistoryItem[], loadingDelay: 200 },
+    { initial: [] as ReadingHistoryItem[], loadingDelay: 200, immediate: false },
   );
   const histories = historyState.data ?? [];
 
-  /* ---------- 书单 ---------- */
+  /* ---------- 书单（懒加载） ---------- */
   const bookListsState = useAsyncState<BookList[]>(
     () => fetcher.getBookLists(),
-    { initial: [] as BookList[], loadingDelay: 200 },
+    { initial: [] as BookList[], loadingDelay: 200, immediate: false },
   );
   const bookLists = bookListsState.data ?? [];
 
-  /* ---------- 打赏记录 ---------- */
+  /* ---------- 打赏记录（懒加载） ---------- */
   const rewardsState = useAsyncState<RewardRecord[]>(
     () => fetcher.getRewardRecords(),
-    { initial: [] as RewardRecord[], loadingDelay: 200 },
+    { initial: [] as RewardRecord[], loadingDelay: 200, immediate: false },
   );
   const rewards = rewardsState.data ?? [];
+
+  /* 非默认 tab 首次激活时触发对应数据加载 */
+  useEffect(() => {
+    if (tab === "history" && !historyState.loaded) historyState.run();
+    else if (tab === "booklists" && !bookListsState.loaded) bookListsState.run();
+    else if (tab === "rewards" && !rewardsState.loaded) rewardsState.run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
   /* ---------- 切换 Tab ---------- */
   const handleTabChange = (key: string) => {
