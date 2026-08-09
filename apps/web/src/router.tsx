@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 import { AppLayout } from "./layouts/AppLayout";
 import { ReaderLayout } from "./layouts/ReaderLayout";
 import { PageLoading } from "./components/PageLoading";
+import { RequireAuth } from "./components/RequireAuth";
 import { initRoutePrefetch } from "./utils/routePrefetchRegistry";
 
 // 路由级代码分割：首屏仅加载当前页 chunk
@@ -38,10 +39,22 @@ export const router: ReturnType<typeof createBrowserRouter> =
         { path: "book/:bookId", element: withSuspense(<BookDetailPage />) },
         { path: "category", element: withSuspense(<CategoryPage />) },
         { path: "search", element: withSuspense(<SearchPage />) },
-        { path: "profile", element: withSuspense(<ProfilePage />) },
-        { path: "stats", element: withSuspense(<ReadingStatsPage />) },
-        { path: "vip", element: withSuspense(<VipPage />) },
-        { path: "follow", element: withSuspense(<FollowPage />) },
+        {
+          path: "profile",
+          element: withSuspense(<RequireAuth><ProfilePage /></RequireAuth>),
+        },
+        {
+          path: "stats",
+          element: withSuspense(<RequireAuth><ReadingStatsPage /></RequireAuth>),
+        },
+        {
+          path: "vip",
+          element: withSuspense(<RequireAuth><VipPage /></RequireAuth>),
+        },
+        {
+          path: "follow",
+          element: withSuspense(<RequireAuth><FollowPage /></RequireAuth>),
+        },
       ],
     },
     // 阅读器独立全屏布局，不带 NavBar/Footer

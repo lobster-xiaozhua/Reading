@@ -157,6 +157,21 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+        {tab === "login" && (
+          <div className="login-demo" aria-label="演示账号">
+            <span className="login-demo-label">演示账号</span>
+            <button
+              type="button"
+              className="login-demo-btn"
+              onClick={() => {
+                setUsername("reader");
+                setPassword("reader123");
+              }}
+            >
+              一键填充 reader / reader123
+            </button>
+          </div>
+        )}
         <p className="login-hint">
           登录即表示同意《用户协议》与《隐私政策》
         </p>

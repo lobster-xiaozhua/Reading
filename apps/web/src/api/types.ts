@@ -273,6 +273,15 @@ export interface PaymentMethodItem {
   icon: string;
 }
 
+/** VIP 下单结果（v1 模拟支付） */
+export interface VipOrderResult {
+  orderId: string;
+  planName: string;
+  amount: number;
+  status: string;
+  vipExpireAt: number;
+}
+
 /** 追更项状态 */
 export type FollowStatus = "updated" | "none" | "done";
 

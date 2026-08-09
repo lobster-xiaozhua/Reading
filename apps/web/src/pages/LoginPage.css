@@ -398,6 +398,47 @@
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 500ms both;
 }
 
+/* ---------- 演示账号（一键填充） ---------- */
+.login-demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 600ms both;
+}
+
+.login-demo-label {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+.login-demo-btn {
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard);
+}
+
+.login-demo-btn:hover {
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+  background: var(--color-brand-soft);
+}
+
+.login-demo-btn:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
 /* ---------- 响应式：≥768px 显示品牌区 ---------- */
 @media (min-width: 768px) {
   .login-brand-side {

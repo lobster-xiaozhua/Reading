@@ -31,6 +31,7 @@ import type {
   Tag,
   Topic,
   UserProfile,
+  VipOrderResult,
   VipPlan,
 } from "./types";
 
@@ -358,6 +359,12 @@ export const fetcher = {
 
   async getPaymentMethods(): Promise<PaymentMethodItem[]> {
     return http.get<PaymentMethodItem[]>("/payment/methods");
+  },
+  async createVipOrder(planId: string, paymentMethod: string): Promise<VipOrderResult> {
+    return http.post<VipOrderResult>("/vip/orders", {
+      planId,
+      paymentMethod,
+    });
   },
 
   async getFollowList(): Promise<FollowItem[]> {

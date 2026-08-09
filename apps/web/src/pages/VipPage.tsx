@@ -5,7 +5,7 @@
  * ============================================================ */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Skeleton, useAsyncState, useFeedback } from "@novel/components";
+import { Modal, Skeleton, useAsyncState, useFeedback } from "@novel/components";
 import {
   StatusSuccess,
   StatusPending,
@@ -40,6 +40,11 @@ export default function VipPage() {
     null,
   );
 
+  /* 下单闭环状态 */
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [paying, setPaying] = useState(false);
+  const [paid, setPaid] = useState(false);
+
   /* ---------- 数据加载 ---------- */
   const plansState = useAsyncState<VipPlan[]>(() => fetcher.getVipPlans(), {
     initial: [] as VipPlan[],
@@ -60,9 +65,11 @@ export default function VipPage() {
   const selectedPlan = plans.find((p) => p.id === selectedPlanId) ?? null;
   const totalPrice = selectedPlan?.totalPrice ?? 0;
   const plansLoading = plansState.loading && plans.length === 0;
+  const selectedPayment =
+    payments.find((m) => m.id === selectedPaymentId) ?? null;
 
-  /* ---------- 提交 ---------- */
-  const handleSubmit = () => {
+  /* ---------- 提交：确认 → 模拟支付 → 成功 ---------- */
+  const openConfirm = () => {
     if (!selectedPlanId) {
       message("warning", "请选择套餐");
       return;
@@ -71,7 +78,28 @@ export default function VipPage() {
       message("warning", "请选择支付方式");
       return;
     }
-    message("info", "正在跳转支付...");
+    setPaid(false);
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmPay = async () => {
+    if (!selectedPlanId || !selectedPaymentId) return;
+    setPaying(true);
+    try {
+      await fetcher.createVipOrder(selectedPlanId, selectedPaymentId);
+      setPaid(true);
+      await userState.run();
+    } catch {
+      message("error", "支付失败，请稍后重试");
+      setConfirmOpen(false);
+    } finally {
+      setPaying(false);
+    }
+  };
+
+  const closeConfirm = () => {
+    if (paying) return;
+    setConfirmOpen(false);
   };
 
   const handleSelectPlan = (plan: VipPlan) => {
@@ -103,7 +131,7 @@ export default function VipPage() {
             type="button"
             className="vip-page__renew-btn"
             aria-label="续费 VIP"
-            onClick={handleSubmit}
+            onClick={openConfirm}
           >
             续费
           </button>
@@ -263,11 +291,101 @@ export default function VipPage() {
           type="button"
           className="vip-page__submit-btn"
           aria-label="立即开通 VIP"
-          onClick={handleSubmit}
+          onClick={openConfirm}
         >
           立即开通
         </button>
       </div>
+
+      {/* 5. 确认 / 支付中 / 成功 弹窗 */}
+      <Modal
+        open={confirmOpen}
+        onCancel={closeConfirm}
+        title={paid ? "开通成功" : "确认支付"}
+        width={420}
+        closable={!paying}
+        maskClosable={!paying}
+        footer={
+          paid ? (
+            <div className="vip-page__modal-footer">
+              <button
+                type="button"
+                className="vip-page__modal-btn vip-page__modal-btn--primary"
+                onClick={() => {
+                  setConfirmOpen(false);
+                  setSelectedPlanId(null);
+                  setSelectedPaymentId(null);
+                }}
+              >
+                好的，开始阅读
+              </button>
+            </div>
+          ) : (
+            <div className="vip-page__modal-footer">
+              <button
+                type="button"
+                className="vip-page__modal-btn"
+                disabled={paying}
+                onClick={closeConfirm}
+              >
+                取消
+              </button>
+              <button
+                type="button"
+                className="vip-page__modal-btn vip-page__modal-btn--primary"
+                disabled={paying}
+                onClick={handleConfirmPay}
+              >
+                {paying ? "支付中..." : `确认支付 ¥${totalPrice}`}
+              </button>
+            </div>
+          )
+        }
+      >
+        {paid ? (
+          <div className="vip-page__paid">
+            <span className="vip-page__paid-icon" aria-hidden>
+              <StatusSuccess size="xl" />
+            </span>
+            <p className="vip-page__paid-title">
+              {selectedPlan?.name} 开通成功
+            </p>
+            <p className="vip-page__paid-sub">
+              已顺延至{" "}
+              {user?.vipExpireAt ? formatDate(user.vipExpireAt) : "会员期"}
+              ，全站 VIP 章节现已可读
+            </p>
+          </div>
+        ) : (
+          <div className="vip-page__confirm">
+            <div className="vip-page__confirm-row">
+              <span className="vip-page__confirm-label">套餐</span>
+              <span className="vip-page__confirm-value">
+                {selectedPlan?.name}
+              </span>
+            </div>
+            <div className="vip-page__confirm-row">
+              <span className="vip-page__confirm-label">支付方式</span>
+              <span className="vip-page__confirm-value">
+                {selectedPayment?.name}
+              </span>
+            </div>
+            <div className="vip-page__confirm-row">
+              <span className="vip-page__confirm-label">支付金额</span>
+              <span className="vip-page__confirm-price">¥{totalPrice}</span>
+            </div>
+            {paying && (
+              <p className="vip-page__paying">
+                <span className="vip-page__paying-spinner" aria-hidden />
+                正在支付，请稍候...
+              </p>
+            )}
+            <p className="vip-page__confirm-note">
+              演示环境：支付为模拟流程，下单即开通会员。
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
