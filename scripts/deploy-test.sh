@@ -27,12 +27,14 @@ warn() { echo -e "  ${YELLOW}!${NC} $1"; }
 SKIP_MONITOR=false
 SKIP_TEST=false
 QUICK_MODE=false
+RUN_SELFCHECK=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --no-monitor) SKIP_MONITOR=true; shift ;;
     --no-test)    SKIP_TEST=true; shift ;;
     --quick)      QUICK_MODE=true; shift ;;
+    --selfcheck)  RUN_SELFCHECK=true; shift ;;
     *) echo "未知参数: $1"; exit 1 ;;
   esac
 done
@@ -152,7 +154,7 @@ run_tests() {
   echo "--- 运行测试 ---"
 
   info "后端测试..."
-  python3 -m pytest "$ROOT/backend/tests/" -q --tb=short --no-cov 2>&1 | tail -3
+  python3 "$ROOT/backend/scripts/test-platform/run.py" --full 2>&1 | tail -3
   ok "后端测试完成"
 
   info "前端测试..."
@@ -203,6 +205,19 @@ run_monitor() {
   fi
 }
 
+# ── 运行真实流量自检服务 ────────────────────────────────
+run_selfcheck() {
+  echo ""
+  echo "--- 真实流量自检服务 ---"
+
+  bash "$ROOT/selfcheck/run.sh" start --port 8090
+  if bash "$ROOT/selfcheck/run.sh" run --tag all --port 8090; then
+    ok "真实流量自检全部通过"
+  else
+    warn "自检存在失败项（详见 selfcheck/run.sh run 输出）"
+  fi
+}
+
 # ── 清理 ──────────────────────────────────────────────────
 cleanup() {
   echo ""
@@ -244,6 +259,9 @@ main() {
     if [ "$SKIP_MONITOR" = false ]; then
       run_global_check
       run_monitor
+    fi
+    if [ "$RUN_SELFCHECK" = true ]; then
+      run_selfcheck
     fi
   fi
 

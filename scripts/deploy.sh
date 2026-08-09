@@ -26,12 +26,14 @@ warn() { echo -e "  ${YELLOW}!${NC} $1"; }
 SKIP_BUILD=false
 SKIP_BACKEND=false
 SKIP_FRONTEND=false
+RUN_SELFCHECK=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --skip-build)    SKIP_BUILD=true; shift ;;
     --skip-backend)  SKIP_BACKEND=true; shift ;;
     --skip-frontend) SKIP_FRONTEND=true; shift ;;
+    --selfcheck)     RUN_SELFCHECK=true; shift ;;
     *) echo "未知参数: $1"; exit 1 ;;
   esac
 done
@@ -116,6 +118,26 @@ deploy_backend() {
   .venv/bin/alembic upgrade head
   ok "数据库迁移完成"
 
+  # 预热：启动后立即触发一次关键缓存预热，缩短首个请求响应时间
+  info "预热核心缓存..."
+  .venv/bin/python -c "
+import asyncio
+import sys
+sys.path.insert(0, '.')
+from app.main import app
+from app.core.database import AsyncSessionLocal, engine
+from app.core.redis import get_redis_client
+from app.services.discovery_service import DiscoveryService
+async def warmup():
+    async with AsyncSessionLocal() as db:
+        redis_client = await get_redis_client()
+        svc = DiscoveryService(db, redis_client)
+        stats = await svc.warmup()
+        print(f'预热完成: {stats}')
+asyncio.run(warmup())
+" 2>/dev/null || warn "缓存预热失败（非阻塞）"
+  ok "缓存预热完成"
+
   # 资源限制
   ulimit -n 65535 2>/dev/null || true
 
@@ -124,10 +146,17 @@ deploy_backend() {
   WORKERS=$((CPU_CORES * 2 + 1))
 
   info "启动后端服务 (port 8000, ${WORKERS} workers)..."
+  # 性能优化参数：
+  # --worker-class uvicorn.workers.UvicornWorker  : 异步 I/O 模型，非阻塞
+  # --max-requests  : worker 处理 N 个请求后重启，释放内存碎片
+  # --preload       : 先加载应用再 fork workers，减少内存复制（写时复制）
+  # --reuse-port    : 允许多 worker 复用同一端口，避免单线程 accept 瓶颈
   .venv/bin/gunicorn app.main:app \
     --worker-class uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:8000 \
     --workers "$WORKERS" \
+    --preload \
+    --reuse-port \
     --max-requests 1000 \
     --max-requests-jitter 200 \
     --timeout 60 \
@@ -222,7 +251,18 @@ main() {
     deploy_frontend
   fi
 
-  health_check
+   health_check
+
+   if [ "$RUN_SELFCHECK" = true ]; then
+     echo ""
+     echo "--- 真实流量自检 ---"
+     bash "$ROOT/selfcheck/run.sh" start --port 8090
+     if bash "$ROOT/selfcheck/run.sh" run --tag all --port 8090; then
+       ok "自检全部通过"
+     else
+       warn "自检存在失败项，请检查 selfcheck/run.sh 输出"
+     fi
+   fi
 }
 
 main

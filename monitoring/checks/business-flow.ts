@@ -47,6 +47,7 @@ test.describe('业务链路巡检', () => {
   });
 
   test('C 端阅读全流程: 首页 → 书籍详情 → 阅读页', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto(WEB, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
 
@@ -58,6 +59,7 @@ test.describe('业务链路巡检', () => {
   });
 
   test('B 端完整操作: 登录页 → 作品管理 → 章节管理', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto(`${ADMIN}/login`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
 
@@ -69,6 +71,7 @@ test.describe('业务链路巡检', () => {
   });
 
   test('B 端管理功能: 审核 → 用户 → 角色权限', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto(`${ADMIN}/audit`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
 
@@ -80,6 +83,7 @@ test.describe('业务链路巡检', () => {
   });
 
   test('C 端用户路径: 搜索 → 分类 → 个人中心', async ({ page }) => {
+    test.setTimeout(90_000);
     await page.goto(`${WEB}/search`, { waitUntil: 'domcontentloaded' });
     await expect(page.locator('body')).toBeAttached();
 

@@ -30,6 +30,12 @@ monitoring/reports/
 htmlcov/
 .pytest_cache/
 .ruff_cache/
+__pycache__/
+*.pyc
 global-check-report.json
 scripts/global-check/reports/
+selfcheck/reports/
+selfcheck/.pid
+selfcheck/server.log
 monitoring/results.json
+monitoring/screenshots/

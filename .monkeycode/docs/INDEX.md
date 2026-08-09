@@ -1,7 +1,7 @@
 # 文档索引
 
 > 小说阅读平台 — Atlas Novel Reader 项目文档
-> 最后更新: 2026-08-03
+> 最后更新: 2026-08-09
 
 ## 概览文档
 
@@ -11,6 +11,7 @@
 | [INTERFACES.md](./INTERFACES.md) | 接口文档：API 端点、统一响应格式、鉴权机制、WebSocket |
 | [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) | 开发者指南：环境搭建、构建、测试、部署、CI/CD |
 | [ROADMAP.md](./ROADMAP.md) | 发展方向与优化方向规划：P0 基础加固、P1 产品体验、P2 生态扩展 |
+| [V1-DELIVERY-PLAN.md](./V1-DELIVERY-PLAN.md) | V1 交付规划：范围、验收标准、P0 阻塞修复、任务清单与交付检查单 |
 
 ## 专有概念
 

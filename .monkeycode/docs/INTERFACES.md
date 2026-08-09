@@ -177,6 +177,8 @@
 | GET | `/workbench/kpi` | KPI 卡片数据 |
 | GET | `/workbench/overviews` | 概览数据 |
 | GET | `/workbench/word-trend` | 字数趋势 |
+| GET | `/workbench/dashboard` | 仪表盘聚合（KPI + 概览 + 趋势） |
+| GET | `/workbench/system-metrics` | 系统可观测性聚合（HTTP / Redis / DB 指标快照） |
 
 ### 作品管理 `/api/v1/b/novels`
 

@@ -14,7 +14,7 @@ pnpm monorepo，workspace 含 `packages/*` `tools/*` `apps/*`。
 | `packages/types/` | 共享 TS 类型 (`@novel/types`) | 先构建 |
 | `packages/components/` | C 端通用组件 (`@novel/components`) | 依赖 tokens/icons/types |
 | `packages/b-end/` | B 端通用组件 (`@novel/b-end`) | 依赖 tokens/types |
-| `monitoring/` | Playwright 智能巡检 (41 项检查) | `monitoring/playwright.config.ts` |
+| `monitoring/` | Playwright 智能巡检 (68 项检查) | `monitoring/playwright.config.ts` |
 
 ## 启动服务
 
@@ -60,6 +60,7 @@ bash scripts/deploy-test.sh              # 完整部署 + 测试 + 巡检
 bash scripts/deploy-test.sh --no-test    # 跳过测试
 bash scripts/deploy-test.sh --no-monitor # 跳过巡检
 bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试/巡检
+bash scripts/deploy-test.sh --selfcheck  # 部署后启动真实流量自检服务并跑一次全量
 ```
 ```
 
@@ -67,12 +68,15 @@ bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试
 
 - 依赖安装: `pip install -e ".[dev]"` (在 `backend/` 目录)
 - 代码检查: `ruff check app/` (配置见 `pyproject.toml`)
-- 测试: `python -m pytest tests/ -v --tb=short` (306 个测试, 84% 覆盖率门禁 70%)
+- 测试: `python3 scripts/test-platform/run.py --full` (630 个测试，单进程默认，冷启动优化后 ~33s)
+- 测试分层: `run.py --layer unit|service|api|security|benchmark`（详见 `backend/scripts/test-platform/run.py`）
+- 快速回归: `run.py --quick`（unit+service 且排除 slow/benchmark，~23s）
 - 后端 API 统一前缀: `/api/v1/c` (C 端), `/api/v1/b` (B 端)
 - 统一响应格式: `{ code: 0, message: "ok", data: ..., traceId: "..." }` (code=0 成功)
 - Schema 自动 snake_case → camelCase 序列化 (基于 `CamelModel` 基类)
 - Auth 降级: 无 token 时自动降级为 demo 管理员/读者 (开发友好)
 - 项目启动时自动 `create_all` 建表 (开发模式)
+- 启动时 `ensure_schema_compat` 为旧表补齐缺失列（SQLite 兼容迁移）
 - 种子数据: 启动时自动检测并写入 (DEBUG=true, 已存在则跳过)
 
 ## 前端注意
@@ -87,7 +91,7 @@ bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试
 ## 巡检
 
 ```bash
-pnpm run monitor              # 全量 41 项检查（Playwright）
+pnpm run monitor              # 全量 68 项检查（Playwright）
 pnpm run monitor:health       # 仅后端健康检查
 pnpm run monitor:api          # 仅 API 接口巡检
 pnpm run monitor:page         # 仅前端页面渲染巡检
@@ -98,6 +102,20 @@ pnpm run global-check         # 全局真实请求检查（含前端页面，自
 
 > 全局真实请求检查通过真实 HTTP 请求遍历后端 OpenAPI 全部端点 + 前端页面，
 > 覆盖所有 127 项；脚本位于 `scripts/global-check/`，支持 `--tag api|pages`。
+
+## 真实流量自检服务
+
+```bash
+bash selfcheck/run.sh start              # 常驻启动（端口 8090）
+bash selfcheck/run.sh status             # 存活 + 最近自检摘要
+bash selfcheck/run.sh run --tag all      # 触发全量真实 HTTP 自检（127+ 项）
+bash selfcheck/run.sh run --tag fast     # 快速关键链路自检
+bash selfcheck/run.sh stop               # 停止
+```
+
+> 自检服务复用 `scripts/global-check` 探测逻辑，提供 `/healthz` `/readyz`
+> `/selfcheck/run|status|latest|summary` 端点；启动时 `ensure_schema_compat`
+> 自动为旧库补齐缺失列，避免类 `audit_histories.operator_ip` 缺列导致的 500。
 
 ## 项目文档
 
