@@ -1,0 +1,26 @@
+/* 统一控制面板 · 系统可观测性区样式 */
+
+.smp-sub {
+  margin-top: var(--space-2);
+  font-size: var(--font-size-caption, 13px);
+  color: var(--color-text-secondary);
+}
+
+.smp-gauge-card .ant-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: var(--space-3);
+}
+
+.smp-gauge-label {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-caption, 13px);
+  color: var(--color-text-secondary);
+}
+
+.smp-stmt {
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: var(--font-size-caption, 13px);
+  word-break: break-all;
+}

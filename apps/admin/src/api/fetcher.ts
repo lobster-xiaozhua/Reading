@@ -29,6 +29,44 @@ interface SystemConfig {
   version: string;
 }
 
+interface HttpPathMetric {
+  path: string;
+  count: number;
+  errorCount: number;
+}
+
+interface RedisPatternMetric {
+  pattern: string;
+  hits: number;
+  misses: number;
+}
+
+interface SlowItem {
+  text: string;
+  durationMs: number;
+}
+
+interface RedisCommandMetric {
+  command: string;
+  calls: number;
+}
+
+export interface SystemMetricsSnapshot {
+  httpTotal: number;
+  httpErrorTotal: number;
+  httpAvgDurationMs: number;
+  httpTopPaths: HttpPathMetric[];
+  redisHits: number;
+  redisMisses: number;
+  redisHitRate: number;
+  redisPatterns: RedisPatternMetric[];
+  redisCommandCalls: RedisCommandMetric[];
+  redisSlowCommands: SlowItem[];
+  slowQueryCount: number;
+  slowQueryAvgMs: number;
+  slowQueryTop: SlowItem[];
+}
+
 /** 统一请求封装：GET 请求通过 React Query 缓存去重 */
 async function cachedGet<T>(url: string, params?: Record<string, unknown>): Promise<T> {
   const cacheKey = [url, params ?? {}];
@@ -73,6 +111,9 @@ export const fetcher = {
         cumulative: TrendPoint[];
       }>("/workbench/word-trend", { days });
       return data.daily;
+    },
+    async getSystemMetrics(): Promise<SystemMetricsSnapshot> {
+      return cachedGet<SystemMetricsSnapshot>("/workbench/system-metrics");
     },
   },
 

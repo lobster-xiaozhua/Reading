@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Skeleton } from "antd";
+import { Card, Col, Row, Skeleton, Tag } from "antd";
 import { DashboardTemplate } from "@/templates/DashboardTemplate";
 import type {
   DashboardStatus,
@@ -10,14 +10,26 @@ import type {
   QuickAction,
 } from "@/templates/DashboardTemplate";
 import { fetcher } from "@/api/fetcher";
+import type { SystemMetricsSnapshot } from "@/api/fetcher";
+import { SystemMetricsPanel } from "@/components/SystemMetricsPanel";
 import {
   fetchWorkbenchTrend,
+  fetchWordCountGrowth,
+  fetchReadingHeatmap,
+  fetchReadingFunnel,
+  fetchRankingTrend,
+  fetchCategoryDistribution,
   type TrendRange,
   type WorkbenchTrendItem,
 } from "@/api/chart-api";
 import "./WorkbenchPage.css";
 
 const BLineChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.BLineChart })));
+const WordCountGrowthChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.WordCountGrowthChart })));
+const ReadingHeatmap = lazy(() => import("@novel/b-end").then(m => ({ default: m.ReadingHeatmap })));
+const ReadingFunnel = lazy(() => import("@novel/b-end").then(m => ({ default: m.ReadingFunnel })));
+const RankingTrendChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.RankingTrendChart })));
+const CategoryDistributionChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.CategoryDistributionChart })));
 
 /** 生成 KPI 迷你趋势数据（基于当前值构造有波动的序列） */
 function genSparkline(base: number, seed = 1): number[] {
@@ -28,6 +40,10 @@ function genSparkline(base: number, seed = 1): number[] {
     points.push(Math.max(1, Math.round(v)));
   }
   return points;
+}
+
+function LazyChart({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<Skeleton active style={{ height: 260 }} />}>{children}</Suspense>;
 }
 
 export default function WorkbenchPage() {
@@ -43,6 +59,20 @@ export default function WorkbenchPage() {
   const [trendMetric, setTrendMetric] = useState<
     "newNovels" | "newReaders" | "monthlyTickets"
   >("newReaders");
+
+  /* 业务图表区 */
+  const [businessLoading, setBusinessLoading] = useState(true);
+  const [wordCountData, setWordCountData] = useState<Awaited<ReturnType<typeof fetchWordCountGrowth>>>([]);
+  const [readingHeatmapData, setReadingHeatmapData] = useState<Awaited<ReturnType<typeof fetchReadingHeatmap>>>([]);
+  const [funnelData, setFunnelData] = useState<Awaited<ReturnType<typeof fetchReadingFunnel>>>([]);
+  const [rankingData, setRankingData] = useState<Awaited<ReturnType<typeof fetchRankingTrend>>>([]);
+  const [categoryData, setCategoryData] = useState<Awaited<ReturnType<typeof fetchCategoryDistribution>>>([]);
+
+  /* 系统可观测性区 */
+  const [sysLoading, setSysLoading] = useState(true);
+  const [sysError, setSysError] = useState(false);
+  const [sysRetry, setSysRetry] = useState(0);
+  const [sysMetrics, setSysMetrics] = useState<SystemMetricsSnapshot | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -131,6 +161,55 @@ export default function WorkbenchPage() {
     };
   }, [t]);
 
+  /* 业务图表数据 */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setBusinessLoading(true);
+      try {
+        const [wc, rh, rf, rt, cd] = await Promise.all([
+          fetchWordCountGrowth(),
+          fetchReadingHeatmap(),
+          fetchReadingFunnel(),
+          fetchRankingTrend(),
+          fetchCategoryDistribution(),
+        ]);
+        if (cancelled) return;
+        setWordCountData(wc);
+        setReadingHeatmapData(rh);
+        setFunnelData(rf);
+        setRankingData(rt);
+        setCategoryData(cd);
+      } finally {
+        if (!cancelled) setBusinessLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /* 系统可观测性数据 */
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setSysLoading(true);
+      setSysError(false);
+      try {
+        const data = await fetcher.workbench.getSystemMetrics();
+        if (cancelled) return;
+        setSysMetrics(data);
+      } catch {
+        if (!cancelled) setSysError(true);
+      } finally {
+        if (!cancelled) setSysLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [sysRetry]);
+
   const loadTrend = useCallback(async (range: TrendRange) => {
     setChartLoading(true);
     try {
@@ -218,6 +297,56 @@ export default function WorkbenchPage() {
     </div>
   );
 
+  /* 业务图表区（统一控制面板） */
+  const businessCharts = (
+    <Card title={t("workbench:businessCharts")}>
+      {businessLoading ? (
+        <Skeleton active paragraph={{ rows: 6 }} />
+      ) : (
+        <Row gutter={[16, 16]}>
+          <Col span={24}>
+            <Card size="small" title={t("charts:business.wordCount")}>
+              <LazyChart><WordCountGrowthChart data={wordCountData} height={240} /></LazyChart>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card size="small" title={t("charts:business.funnel")}>
+              <LazyChart><ReadingFunnel data={funnelData} height={240} /></LazyChart>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card size="small" title={t("charts:business.ranking")}>
+              <LazyChart><RankingTrendChart data={rankingData} height={240} /></LazyChart>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card size="small" title={t("charts:business.category")}>
+              <LazyChart><CategoryDistributionChart data={categoryData} height={240} /></LazyChart>
+            </Card>
+          </Col>
+          <Col xs={24} lg={12}>
+            <Card
+              size="small"
+              title={t("charts:business.readingHeatmap")}
+              extra={<Tag color="processing">{t("charts:business.readingHeatmapTag")}</Tag>}
+            >
+              <LazyChart><ReadingHeatmap data={readingHeatmapData} height={240} /></LazyChart>
+            </Card>
+          </Col>
+        </Row>
+      )}
+    </Card>
+  );
+
+  const systemSection = (
+    <SystemMetricsPanel
+      data={sysMetrics}
+      loading={sysLoading}
+      hasError={sysError}
+      onRetry={() => setSysRetry((n) => n + 1)}
+    />
+  );
+
   return (
     <DashboardTemplate
       status={status}
@@ -228,6 +357,8 @@ export default function WorkbenchPage() {
         if (range === 7 || range === 30 || range === 90) setTrendRange(range);
       }}
       overviews={overviews}
+      businessCharts={businessCharts}
+      systemSection={systemSection}
       quickActions={quickActions}
     />
   );

@@ -69,6 +69,12 @@ export interface DashboardTemplateProps {
   /* ---------- 内容概览 ---------- */
   overviews?: OverviewSection[];
 
+  /* ---------- 统一控制面板扩展区 ---------- */
+  /** 业务图表区（渲染于趋势图之后、内容概览之前） */
+  businessCharts?: React.ReactNode;
+  /** 系统可观测性区（渲染于快捷操作之后、页面底部） */
+  systemSection?: React.ReactNode;
+
   /* ---------- 快捷操作 ---------- */
   quickActions?: QuickAction[];
 }
@@ -90,6 +96,8 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
     onRangeChange,
     overviews = [],
     quickActions = [],
+    businessCharts,
+    systemSection,
   } = props;
   const user = useAuthStore((s) => s.user);
 
@@ -250,6 +258,11 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
         )}
       </Card>
 
+      {/* 业务图表区（统一控制面板扩展） */}
+      {businessCharts && (
+        <div className="b-dashboard__business-charts">{businessCharts}</div>
+      )}
+
       {/* 内容概览 3 列 */}
       {overviews.length > 0 && (
         <div
@@ -310,6 +323,11 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
             ))}
           </div>
         </Card>
+      )}
+
+      {/* 系统可观测性区（统一控制面板扩展） */}
+      {systemSection && (
+        <div className="b-dashboard__system-section">{systemSection}</div>
       )}
     </div>
   );
