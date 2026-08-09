@@ -5,7 +5,6 @@
 登录时查询 admin.role_key → 获取真实角色权限，替代硬编码 super-admin。
 """
 
-import time
 from typing import TYPE_CHECKING
 
 import redis.asyncio as redis
@@ -24,6 +23,8 @@ from app.schemas.enums import ALL_PERMISSIONS
 
 if TYPE_CHECKING:
     from app.api.deps import AdminContext
+
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -94,7 +95,7 @@ class AuthService:
         await self.redis.set(CacheKeys.refresh_token(refresh_token), str(admin.id), ex=refresh_ttl)
 
         # 更新最后登录时间
-        admin.last_login_at = int(time.time() * 1000)
+        admin.last_login_at = _now_ms()
         await self.session.commit()
 
         return BLoginResponse(
@@ -229,14 +230,25 @@ class AuthService:
         return result.scalars().first()
 
     async def _ensure_demo_admin(self) -> None:
-        """确保 demo 管理员存在（开发/测试环境）。"""
-        admin = await self._find_admin(settings.demo_admin_username)
-        if not admin:
-            admin = Admin(
-                username=settings.demo_admin_username,
-                nickname="演示管理员",
-                password_hash=hash_password(settings.demo_admin_password),
-                enabled=1,
-            )
-            self.session.add(admin)
-            await self.session.commit()
+        """确保 demo 管理员存在（开发/测试环境）。
+
+        与 B 端登录页演示账号及 seed.DEMO_ADMINS 保持一致。
+        """
+        demo_admins = [
+            ("admin", "admin123", "演示管理员", "super-admin"),
+            ("content", "content123", "内容管理员", "content-admin"),
+            ("auditor", "auditor123", "审核员", "auditor"),
+            ("operation", "operation123", "运营管理员", "operation-admin"),
+        ]
+        for username, password, nickname, role_key in demo_admins:
+            admin = await self._find_admin(username)
+            if not admin:
+                admin = Admin(
+                    username=username,
+                    nickname=nickname,
+                    password_hash=hash_password(password),
+                    role_key=role_key,
+                    enabled=1,
+                )
+                self.session.add(admin)
+                await self.session.commit()

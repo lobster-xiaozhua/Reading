@@ -10,6 +10,8 @@ from app.core.redis import get_redis_client
 from app.main import app
 from app.models.base import Base
 
+pytestmark = pytest.mark.security
+
 
 def test_production_rejects_weak_jwt_secret():
     """生产环境使用默认弱密钥时配置校验必须失败。"""

@@ -1,6 +1,6 @@
 """RUM 前端性能 / 错误事件表（匿名埋点，可观测性消费）。"""
 
-from sqlalchemy import Float, String, Text
+from sqlalchemy import Float, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base, IdMixin, TimestampMixin
@@ -13,6 +13,8 @@ class RumEvent(Base, IdMixin, TimestampMixin):
     """
 
     __tablename__ = "rum_events"
+    # 埋点表数据量大，created_at 支撑按时间窗口统计与分页倒序查询
+    __table_args__ = (Index("idx_rum_events_created_at", "created_at"),)
 
     type: Mapped[str] = mapped_column(String(16), default="perf", comment="perf/error")
     name: Mapped[str] = mapped_column(String(64), default="", comment="指标/错误名")

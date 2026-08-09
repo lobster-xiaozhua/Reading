@@ -287,6 +287,47 @@ class DashboardResponse(CamelModel):
     trend: list[dict] = []
 
 
+# ── 统一控制面板：系统可观测性 ──────────────────────────
+class HttpPathMetric(CamelModel):
+    path: str
+    count: int
+    error_count: int = 0
+
+
+class RedisPatternMetric(CamelModel):
+    pattern: str
+    hits: int
+    misses: int
+
+
+class SlowItem(CamelModel):
+    text: str
+    duration_ms: float
+
+
+class RedisCommandMetric(CamelModel):
+    command: str
+    calls: int
+
+
+class SystemMetricsSnapshot(CamelModel):
+    """系统可观测性聚合快照（统一控制面板系统指标区）。"""
+
+    http_total: int = 0
+    http_error_total: int = 0
+    http_avg_duration_ms: float = 0.0
+    http_top_paths: list[HttpPathMetric] = []
+    redis_hits: int = 0
+    redis_misses: int = 0
+    redis_hit_rate: float = 0.0
+    redis_patterns: list[RedisPatternMetric] = []
+    redis_command_calls: list[RedisCommandMetric] = []
+    redis_slow_commands: list[SlowItem] = []
+    slow_query_count: int = 0
+    slow_query_avg_ms: float = 0.0
+    slow_query_top: list[SlowItem] = []
+
+
 # ── 用户管理 ────────────────────────────────────────────
 class UserListItem(CamelModel):
     id: str
@@ -316,18 +357,23 @@ __all__ = [
     "ChapterSubmitBody",
     "ChapterTransitionBody",
     "ChapterUpdateBody",
+    "HttpPathMetric",
     "NovelBatchOperateBody",
     "NovelListParams",
     "NovelListResponse",
     "NovelSubmitBody",
     "PermissionItem",
+    "RedisCommandMetric",
+    "RedisPatternMetric",
     "RoleDetail",
     "RoleItem",
     "SensitiveHit",
     "SensitiveWordItem",
     "SensitiveWordLib",
     "SensitiveWordLibMeta",
+    "SlowItem",
     "SystemConfig",
+    "SystemMetricsSnapshot",
     "UpdateRoleMetaBody",
     "UpdateRolePermissionsBody",
     "UserListItem",

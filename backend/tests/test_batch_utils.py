@@ -1,7 +1,11 @@
 """批量执行工具测试（成功、业务异常、通用异常）。"""
 
+import pytest
+
 from app.core.exceptions import BizError, ErrorCode
 from app.utils.batch import batch_execute
+
+pytestmark = pytest.mark.unit
 
 
 async def test_all_success():

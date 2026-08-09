@@ -13,13 +13,17 @@ workers = int(_workers) if _workers else multiprocessing.cpu_count() * 2 + 1
 
 bind = "0.0.0.0:8000"
 backlog = 2048
-timeout = 120
-keepalive = 65
+timeout = 60        # worker 处理超时（减少长尾请求占用）
+keepalive = 65      # HTTP keep-alive 连接保持时间
 worker_class = "uvicorn.workers.UvicornWorker"
 accesslog = "-"
 errorlog = "-"
-loglevel = "info"
-preload_app = True
+loglevel = os.getenv("LOG_LEVEL", "info")
+preload_app = True  # 先加载应用再 fork，利用写时复制减少内存占用
+
+# 每 worker 处理 N 个请求后重启，释放内存碎片
+max_requests = 2000
+max_requests_jitter = 300
 
 
 def post_fork(server, worker):

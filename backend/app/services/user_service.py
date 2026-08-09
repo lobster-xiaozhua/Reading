@@ -3,8 +3,6 @@
 提供读者列表查询（封禁/解封/等级调整等写操作预留）。
 """
 
-import time
-
 import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import Reader
 from app.schemas.b_end import UserListItem
 from app.schemas.common import PagedResult
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -80,6 +79,6 @@ class UserService:
         if not reader:
             return False
         reader.deleted = 1 if status == 0 else 0
-        reader.updated_at = int(time.time() * 1000)
+        reader.updated_at = _now_ms()
         await self.session.commit()
         return True

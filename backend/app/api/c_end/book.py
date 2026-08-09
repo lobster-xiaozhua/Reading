@@ -1,10 +1,8 @@
 """C 端书籍路由（§7.2）。
 
 对应前端 fetcher：getBook / getChapters / getChapter /
-getRelatedBooks / getComments / getRatingDistribution / getCategoryBooks。
+getRelatedBooks / getComments / getRatingDistribution / getCategoryBooks.
 """
-
-import time
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +16,7 @@ from app.schemas.common import PagedResult
 from app.schemas.enums import SortKey
 from app.services._converters import novel_to_c_summary
 from app.services.book_service import BookService
+from app.utils.time import now_ms as _now_ms
 
 router = APIRouter()
 
@@ -77,7 +76,7 @@ async def get_chapter(
 ):
     """获取章节正文，VIP 章节需校验读者会员状态。"""
     reader = await db.get(Reader, reader_id)
-    reader_vip = bool(reader and reader.is_vip and reader.vip_expire_at > int(time.time() * 1000))
+    reader_vip = bool(reader and reader.is_vip and reader.vip_expire_at > _now_ms())
     svc = BookService(db, redis)
     return ok(
         request,

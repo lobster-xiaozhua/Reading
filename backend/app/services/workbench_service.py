@@ -4,24 +4,39 @@
 KPI 走 Redis 计数器，趋势走按日聚合查询。
 """
 
-import time
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 import redis.asyncio as redis
 import structlog
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import CacheKeys
 from app.models.interaction import Comment, RewardRecord
 from app.models.novel import Chapter, Novel
 from app.models.user import Author, Reader
-from app.schemas.b_end import DashboardResponse, WorkbenchKpi
+from app.schemas.b_end import (
+    DashboardResponse,
+    HttpPathMetric,
+    RedisCommandMetric,
+    RedisPatternMetric,
+    SlowItem,
+    SystemMetricsSnapshot,
+    WorkbenchKpi,
+)
 from app.schemas.chart import TrendPoint, WordCountTrend
+from app.utils.query import count_rows, sum_column
+from app.utils.time import ts_to_day
 
 logger = structlog.get_logger(__name__)
 
 _TTL_KPI = 300  # 5 分钟
+
+
+def _today_start_ms() -> int:
+    """今日起始毫秒时间戳（每次计算，避免服务跨天运行后统计窗口过期）。"""
+    now = datetime.now()
+    return int(datetime(now.year, now.month, now.day).timestamp() * 1000)
 
 
 class WorkbenchService:
@@ -44,9 +59,8 @@ class WorkbenchService:
         total_authors = await self._count(Author, Author.deleted == 0)
         total_readers = await self._count(Reader, Reader.deleted == 0)
 
-        today_start = int(time.mktime(date.today().timetuple())) * 1000
         today_revenue = await self._sum(
-            RewardRecord, RewardRecord.amount, RewardRecord.created_at >= today_start
+            RewardRecord, RewardRecord.amount, RewardRecord.created_at >= _today_start_ms()
         )
 
         kpi = WorkbenchKpi(
@@ -67,16 +81,9 @@ class WorkbenchService:
 
     # ── 字数趋势 ─────────────────────────────────────────
     async def get_word_count_trend(self, days: int = 30) -> WordCountTrend:
-        """获取字数增长趋势（按日聚合）。
-
-        Args:
-            days: 统计天数。
-
-        Returns:
-            字数增长趋势（日增 + 累计）。
-        """
+        """获取字数增长趋势（按日聚合）。"""
         start_date = date.today() - timedelta(days=days)
-        start_ts = int(time.mktime(start_date.timetuple())) * 1000
+        start_ts = int(datetime.combine(start_date, datetime.min.time()).timestamp() * 1000)
         stmt = (
             select(Chapter.published_at, Chapter.word_count)
             .where(
@@ -91,10 +98,9 @@ class WorkbenchService:
         # 按日聚合（跨数据库兼容，避免 SQLite/MySQL 日期函数差异）
         daily_map: dict[str, int] = {}
         for ts, words in rows:
-            if not ts:
-                continue
-            day = date.fromtimestamp(ts / 1000).isoformat()
-            daily_map[day] = daily_map.get(day, 0) + int(words or 0)
+            day = ts_to_day(ts)
+            if day:
+                daily_map[day] = daily_map.get(day, 0) + int(words or 0)
 
         daily: list[TrendPoint] = []
         cumulative: list[TrendPoint] = []
@@ -109,13 +115,11 @@ class WorkbenchService:
     # ── 内容概览 ─────────────────────────────────────────
     async def get_overviews(self) -> list[dict]:
         """获取内容概览（作品/章节/待审核/今日打赏/今日评论统计）。"""
-        today_start = int(time.mktime(date.today().timetuple())) * 1000
-
         total_novels = await self._count(Novel, Novel.deleted == 0)
         total_chapters = await self._count(Chapter, Chapter.deleted == 0)
         pending_audit = await self._count(Novel, Novel.deleted == 0, Novel.status == "pending")
-        today_rewards = await self._count(RewardRecord, RewardRecord.created_at >= today_start)
-        today_comments = await self._count(Comment, Comment.created_at >= today_start)
+        today_rewards = await self._count(RewardRecord, RewardRecord.created_at >= _today_start_ms())
+        today_comments = await self._count(Comment, Comment.created_at >= _today_start_ms())
 
         return [
             {"key": "totalNovels", "label": "作品总数", "value": total_novels, "icon": "book"},
@@ -142,11 +146,64 @@ class WorkbenchService:
             trend=[t.model_dump() for t in trend.daily] if trend.daily else [],
         )
 
+    # ── 系统可观测性 ─────────────────────────────────────
+    async def get_system_metrics(self) -> SystemMetricsSnapshot:
+        """聚合进程内系统可观测性指标（统一控制面板系统指标区）。"""
+        from app.core import metrics as metric_store
+
+        counts, durations, errors = metric_store.get_metrics()
+        total = sum(counts.values())
+        error_total = sum(errors.values())
+        all_durations = [d for ds in durations.values() for d in ds]
+        avg_duration = sum(all_durations) / len(all_durations) if all_durations else 0.0
+        top_paths = [
+            HttpPathMetric(path=p, count=c, error_count=errors.get(p, 0))
+            for p, c in sorted(counts.items(), key=lambda kv: kv[1], reverse=True)[:10]
+        ]
+
+        redis = metric_store.get_redis_stats()
+        redis_hits, redis_misses = redis.get("hits", 0), redis.get("misses", 0)
+        total_redis = redis_hits + redis_misses
+        hit_rate = redis_hits / total_redis if total_redis else 0.0
+
+        patterns = [
+            RedisPatternMetric(pattern=p, hits=h, misses=m)
+            for p, (h, m) in metric_store.get_cache_pattern_stats().items()
+        ]
+        command_totals, slow_redis = metric_store.get_redis_command_stats()
+        command_calls = [
+            RedisCommandMetric(command=c, calls=n)
+            for c, n in sorted(command_totals.items(), key=lambda kv: kv[1], reverse=True)
+        ]
+        slow_commands = [
+            SlowItem(text=cmd, duration_ms=d) for cmd, d in slow_redis
+        ]
+
+        slow_count, slow_avg = metric_store.get_slow_query_stats()
+        slow_top = [
+            SlowItem(text=stmt, duration_ms=d)
+            for stmt, d in metric_store.get_slow_query_details()
+        ]
+
+        return SystemMetricsSnapshot(
+            http_total=total,
+            http_error_total=error_total,
+            http_avg_duration_ms=round(avg_duration, 1),
+            http_top_paths=top_paths,
+            redis_hits=redis_hits,
+            redis_misses=redis_misses,
+            redis_hit_rate=round(hit_rate, 3),
+            redis_patterns=patterns,
+            redis_command_calls=command_calls,
+            redis_slow_commands=slow_commands,
+            slow_query_count=slow_count or 0,
+            slow_query_avg_ms=round(slow_avg or 0.0, 1),
+            slow_query_top=slow_top,
+        )
+
     # ── 内部工具 ─────────────────────────────────────────
     async def _count(self, model, *filters) -> int:
-        stmt = select(func.count()).select_from(model).where(*filters)
-        return (await self.session.execute(stmt)).scalar_one()
+        return await count_rows(self.session, model, *filters)
 
     async def _sum(self, model, column, *filters) -> float:
-        stmt = select(func.coalesce(func.sum(column), 0)).where(*filters)
-        return float((await self.session.execute(stmt)).scalar_one())
+        return await sum_column(self.session, model, column, *filters)

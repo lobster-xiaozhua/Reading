@@ -4,6 +4,9 @@ import importlib
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
+
 MODULES = [
     "app.main",
     "app.core.config",

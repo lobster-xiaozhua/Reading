@@ -1,7 +1,6 @@
 """FastAPI 依赖注入：数据库、缓存、当前用户、权限校验。"""
 
 from dataclasses import dataclass, field
-from typing import cast
 
 import structlog
 from fastapi import Depends, Header, Request
@@ -15,11 +14,53 @@ from app.core.security import decode_token
 from app.schemas.common import Response
 from app.schemas.enums import ALL_PERMISSIONS
 
+# 预编译 Bearer 前缀，避免重复调用 startswith
+_BEARER_PREFIX = "Bearer "
+
+logger = structlog.get_logger("api.deps")
+
+
+def _extract_token(authorization: str) -> str | None:
+    """提取 Bearer token 字符串，无前缀时返回 None。"""
+    if not authorization or not authorization.startswith(_BEARER_PREFIX):
+        return None
+    return authorization[len(_BEARER_PREFIX):].strip()
+
+
+def _parse_access_token(authorization: str) -> tuple[str, dict] | None:
+    """解析 Bearer access token，返回 (token, payload)；未携带时返回 None。"""
+    token = _extract_token(authorization)
+    if token is None:
+        return None
+    try:
+        payload = decode_token(token)
+    except Exception as err:
+        logger.warning("Token decode failed", exc_info=True)
+        raise UnauthorizedError("Token 无效或已过期") from err
+    if payload.get("type") != "access":
+        raise UnauthorizedError("Token 类型错误")
+    return token, payload
+
+
+async def _verify_access_session(token: str, subject: str) -> None:
+    """校验 access token 会话有效性（含熔断记账），失败抛 UnauthorizedError。"""
+    cb = get_circuit_breaker()
+    redis_client = await get_redis_client()
+    token_key = f"auth:access:{token}"
+    try:
+        cached = await redis_client.get(token_key)
+        if not cached or cached != subject:
+            raise UnauthorizedError("会话已失效，请重新登录")
+    except Exception:
+        cb.record_failure()
+        raise UnauthorizedError("会话校验失败，请重新登录") from None
+    cb.record_success()
+
 
 def ok(request: Request, data=None) -> Response:
     """构造统一成功响应，自动注入 traceId。"""
     resp = Response.ok(data)
-    resp.traceId = getattr(request.state, "trace_id", None)
+    resp.traceId = getattr(getattr(request, "state", None), "trace_id", None)
     return resp
 
 
@@ -34,6 +75,19 @@ class AdminContext:
     permissions: list[str] = field(default_factory=list)
 
 
+def _demo_admin(request: Request, *, admin_id: int = 1, username: str = "") -> AdminContext:
+    """构造 DEBUG 演示管理员上下文。"""
+    ctx = AdminContext(
+        id=admin_id,
+        username=username or settings.demo_admin_username,
+        nickname="演示管理员",
+        roles=["super-admin"],
+        permissions=ALL_PERMISSIONS,
+    )
+    request.state.admin = ctx
+    return ctx
+
+
 async def get_current_admin(
     request: Request,
     authorization: str = Header(default="", description="Bearer token"),
@@ -45,59 +99,30 @@ async def get_current_admin(
     生产环境强制校验 token。
     熔断器 OPEN 时降级为 demo 模式（可用性优先于强一致性）。
     """
-    if not authorization or not authorization.startswith("Bearer "):
+    parsed = _parse_access_token(authorization)
+    if parsed is None:
         if settings.debug:
-            request.state.admin = AdminContext(
-                id=1,
-                username=settings.demo_admin_username,
-                nickname="演示管理员",
-                roles=["super-admin"],
-                permissions=ALL_PERMISSIONS,
-            )
-            return cast(AdminContext, request.state.admin)
+            return _demo_admin(request)
         raise UnauthorizedError("未登录或登录已过期")
+    token, payload = parsed
 
-    token = authorization.removeprefix("Bearer ").strip()
-    try:
-        payload = decode_token(token)
-    except Exception as err:
-        logger = structlog.get_logger("api.deps")
-        logger.warning("Token decode failed", exc_info=True)
-        raise UnauthorizedError("Token 无效或已过期") from err
-
-    if payload.get("type") != "access":
-        raise UnauthorizedError("Token 类型错误")
-
-    admin_id_str = payload.get("sub")
     cb = get_circuit_breaker()
     if cb.is_open:
-        # 熔断器 OPEN：Redis 不可用，降级为 demo 模式（可用性优先）
         if settings.debug:
-            request.state.admin = AdminContext(
-                id=int(admin_id_str) if admin_id_str else 1,
-                username=payload.get("username", settings.demo_admin_username),
-                roles=["super-admin"],
-                permissions=ALL_PERMISSIONS,
+            logger.warning("Redis 熔断，管理员鉴权降级为 demo 模式")
+            return _demo_admin(
+                request,
+                admin_id=int(payload["sub"]) if payload.get("sub") else 1,
+                username=payload.get("username", ""),
             )
-            logger.warning("Redis 熔断，鉴权降级为 demo 模式")
-            return cast(AdminContext, request.state.admin)
-        # 生产环境熔断时仍要求 Redis，拒绝请求
         raise RuntimeError("服务暂不可用，请稍后重试")
 
-    redis_client = await get_redis_client()
-    try:
-        cached = await redis_client.get(f"auth:access:{token}")
-        if not cached or cached != admin_id_str:
-            raise UnauthorizedError("会话已失效，请重新登录")
-        cb.record_success()
-    except Exception:
-        cb.record_failure()
-        raise UnauthorizedError("会话校验失败，请重新登录") from None
+    await _verify_access_session(token, payload.get("sub", ""))
 
     roles = payload.get("roles", [])
     perms = ALL_PERMISSIONS if "super-admin" in roles else payload.get("permissions", [])
     ctx = AdminContext(
-        id=int(admin_id_str),
+        id=int(payload["sub"]),
         username=payload.get("username", ""),
         nickname=payload.get("nickname", ""),
         roles=roles,
@@ -117,45 +142,26 @@ async def get_current_reader(
     生产环境强制校验 token。
     熔断器 OPEN 时降级为 demo 模式（可用性优先于强一致性）。
     """
-    if not authorization or not authorization.startswith("Bearer "):
+    parsed = _parse_access_token(authorization)
+    if parsed is None:
         if settings.debug:
             request.state.reader_id = settings.demo_reader_id
             return settings.demo_reader_id
         raise UnauthorizedError("未登录或登录已过期")
+    token, payload = parsed
 
-    token = authorization.removeprefix("Bearer ").strip()
-    try:
-        payload = decode_token(token)
-    except Exception as err:
-        logger = structlog.get_logger("api.deps")
-        logger.warning("Token decode failed", exc_info=True)
-        raise UnauthorizedError("Token 无效或已过期") from err
-
-    if payload.get("type") != "access":
-        raise UnauthorizedError("Token 类型错误")
-
-    reader_id_str = payload.get("sub")
     cb = get_circuit_breaker()
     if cb.is_open:
-        # 熔断器 OPEN：降级为 demo 读者（可用性优先）
         if settings.debug:
-            reader_id = int(reader_id_str) if reader_id_str else settings.demo_reader_id
+            reader_id = int(payload["sub"]) if payload.get("sub") else settings.demo_reader_id
             request.state.reader_id = reader_id
             logger.warning("Redis 熔断，读者鉴权降级为 demo 模式 reader_id=%s", reader_id)
             return reader_id
         raise RuntimeError("服务暂不可用，请稍后重试")
 
-    redis_client = await get_redis_client()
-    try:
-        cached = await redis_client.get(f"auth:access:{token}")
-        if not cached or cached != reader_id_str:
-            raise UnauthorizedError("会话已失效，请重新登录")
-        cb.record_success()
-    except Exception:
-        cb.record_failure()
-        raise UnauthorizedError("会话校验失败，请重新登录") from None
+    await _verify_access_session(token, payload.get("sub", ""))
 
-    reader_id = int(reader_id_str)
+    reader_id = int(payload["sub"])
     request.state.reader_id = reader_id
     return reader_id
 

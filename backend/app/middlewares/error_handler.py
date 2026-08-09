@@ -13,14 +13,21 @@ from fastapi.responses import Response as FastapiResponse
 from app.core.exceptions import BizError, ErrorCode
 from app.schemas.common import Response as ApiResponse
 
+# 预编译的 orjson options，避免每次调用时重复构造
+_ORJSON_OPTS = orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_OMIT_MICROSECONDS
+
 
 def _orjson_response(status_code: int, body: ApiResponse) -> FastapiResponse:
-    """使用 orjson 序列化错误响应（比标准 JSONResponse 快 3-5x）。"""
+    """使用 orjson 序列化错误响应（比标准 JSONResponse 快 3-5x）。
+
+    不使用 exclude_none：统一响应体契约要求 data/traceId 字段始终存在
+    （即使为 null），前端可统一按契约字段解析。
+    """
     return FastapiResponse(
         content=orjson.dumps(
-            body.model_dump(by_alias=True, exclude_none=True),
+            body.model_dump(by_alias=True),
             default=str,
-            option=orjson.OPT_SERIALIZE_NUMPY | orjson.OPT_OMIT_MICROSECONDS,
+            option=_ORJSON_OPTS,
         ),
         status_code=status_code,
         media_type="application/json",
@@ -44,13 +51,17 @@ def _sanitize_validation_errors(errors: list) -> list[dict]:
     return simplified
 
 
-async def _get_trace_id(request: Request) -> str | None:
+# 缓存 trace_id 属性访问结果，避免重复 getattr 调用
+def _get_trace_id(request: Request) -> str | None:
     """从请求状态获取 traceId（由 TraceMiddleware 注入）。"""
-    return getattr(request.state, "trace_id", None)
+    state = getattr(request, "state", None)
+    if state is None:
+        return None
+    return getattr(state, "trace_id", None)
 
 
 async def biz_exception_handler(request: Request, exc: BizError) -> FastapiResponse:
-    trace_id = await _get_trace_id(request)
+    trace_id = _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.warning(
         "BizError", code=exc.code, message=exc.message, path=request.url.path, trace_id=trace_id
@@ -63,7 +74,7 @@ async def biz_exception_handler(request: Request, exc: BizError) -> FastapiRespo
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> FastapiResponse:
-    trace_id = await _get_trace_id(request)
+    trace_id = _get_trace_id(request)
     body = ApiResponse.error(
         ErrorCode.PARAM_INVALID, "参数校验失败", _sanitize_validation_errors(exc.errors())
     )
@@ -73,7 +84,7 @@ async def validation_exception_handler(
 
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> FastapiResponse:
-    trace_id = await _get_trace_id(request)
+    trace_id = _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.warning(
         "HTTPException",
@@ -88,7 +99,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> Fastap
 
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> FastapiResponse:
-    trace_id = await _get_trace_id(request)
+    trace_id = _get_trace_id(request)
     logger = structlog.get_logger("api.error")
     logger.exception("Unhandled exception", path=request.url.path, trace_id=trace_id)
     body = ApiResponse.error(ErrorCode.INTERNAL_ERROR, "服务异常，请稍后重试")

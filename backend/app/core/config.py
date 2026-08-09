@@ -57,6 +57,12 @@ class Settings(BaseSettings):
     # ── 日志 ─────────────────────────────────────────────
     log_level: str = "INFO"
 
+    # ── 可观测性 ─────────────────────────────────────────
+    # 单条 SQL 超过该毫秒数记为慢查询（记录日志并计入 /metrics）
+    slow_query_threshold_ms: float = 100.0
+    # 单个 Redis 命令超过该毫秒数记为慢命令（计入 /metrics）
+    redis_slow_command_threshold_ms: float = 20.0
+
     # ── CORS ─────────────────────────────────────────────
     cors_origins: list[str] = Field(default_factory=lambda: ["*"])
 

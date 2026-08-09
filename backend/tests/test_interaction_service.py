@@ -123,6 +123,30 @@ class TestRating:
         with pytest.raises(ParamError):
             await svc.submit_rating(1, novel.id, 0)
 
+    async def test_submit_rating_evicts_caches(self, svc, db_session):
+        """评分后必须失效书籍详情/评分分布/排行缓存（否则读到旧评分）。"""
+        from app.core.redis import CacheKeys
+
+        novel = await _create_published_novel(db_session)
+        await svc.redis.set(CacheKeys.book(novel.id), "{}")
+        await svc.redis.set(CacheKeys.book_rating(novel.id), "{}")
+        await svc.redis.set(CacheKeys.rank("ticket"), "[]")
+        await svc.submit_rating(1, novel.id, 5)
+        assert await svc.redis.get(CacheKeys.book(novel.id)) is None
+        assert await svc.redis.get(CacheKeys.book_rating(novel.id)) is None
+        assert await svc.redis.get(CacheKeys.rank("ticket")) is None
+
+
+class TestReadingProgressCacheEviction:
+    async def test_reading_progress_evicts_heatmap(self, svc, db_session):
+        """阅读进度落库后必须失效热力图缓存（数据源为 ReadingStatsDaily）。"""
+        from app.core.redis import CacheKeys
+
+        novel = await _create_published_novel(db_session)
+        await svc.redis.set(CacheKeys.heatmap(1), "[]")
+        await svc.report_reading_progress(1, novel.id, chapter_id=None, percent=0.5)
+        assert await svc.redis.get(CacheKeys.heatmap(1)) is None
+
 
 class TestLikeSelf:
     async def test_like_own_comment_returns_true_without_increment(self, svc, db_session):

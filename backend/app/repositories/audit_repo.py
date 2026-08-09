@@ -1,12 +1,12 @@
 """审核仓储：审核记录 / 历史 / 敏感词库（§4.2.5）。"""
 
-import time
 from datetime import datetime
 
 from sqlalchemy import func, select
 
 from app.models.audit import AuditHistory, AuditRecord, SensitiveWord
 from app.repositories.base import BaseRepository, split_csv
+from app.utils.time import now_ms as _now_ms
 
 
 class AuditRepository(BaseRepository[AuditRecord]):
@@ -21,6 +21,15 @@ class AuditRepository(BaseRepository[AuditRecord]):
             stmt = stmt.where(AuditRecord.level.in_(split_csv(level)))
         stmt = stmt.order_by(AuditRecord.submitted_at.desc())
         return await self.paginate(stmt, page, page_size)
+
+    async def get_by_ids(self, ids: list[int]) -> list[AuditRecord]:
+        """批量获取审核记录（一次查询，避免循环内逐条 get）。"""
+        if not ids:
+            return []
+        result = await self.session.execute(
+            select(AuditRecord).where(AuditRecord.id.in_(ids))
+        )
+        return list(result.scalars().all())
 
     async def get_history(self, audit_record_id: int) -> list[AuditHistory]:
         """获取指定审核记录的操作历史。"""
@@ -53,7 +62,7 @@ class AuditRepository(BaseRepository[AuditRecord]):
             reject_reason=reject_reason,
             operator_ip=operator_ip,
             user_agent=user_agent[:255],
-            created_at=int(time.time() * 1000),
+            created_at=_now_ms(),
         )
         self.session.add(h)
         await self.session.flush()

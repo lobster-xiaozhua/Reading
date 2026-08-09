@@ -5,8 +5,6 @@ getRewardRecords / getReadingStatOverview / getHeatmap / getPreferences /
 getBadges / getVipPlans / getPaymentMethods / getFollowList。
 """
 
-import time
-
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -17,8 +15,9 @@ from app.core.database import get_db
 from app.core.redis import get_redis_client
 from app.models.novel import Novel
 from app.models.reading import ReadingHistory
-from app.schemas.c_end import ProfileUpdateBody
+from app.schemas.c_end import ProfileUpdateBody, VipOrderCreate
 from app.services.user_center_service import UserCenterService
+from app.utils.time import now_ms
 
 router = APIRouter()
 
@@ -155,7 +154,7 @@ async def read_all_follows(
         .limit(100)
     )
     rows = (await db.execute(stmt)).scalars().all()
-    now = int(time.time() * 1000)
+    now = now_ms()
     for novel_id in rows:
         db.add(
             ReadingHistory(
@@ -168,7 +167,6 @@ async def read_all_follows(
     try:
         await db.commit()
     except IntegrityError:
-        # 并发下唯一约束冲突：已存在记录视为已读，不报错
         await db.rollback()
         return ok(request, {"updatedCount": 0})
     return ok(request, {"updatedCount": len(rows)})
@@ -192,3 +190,16 @@ async def get_payment_methods(
 ):
     svc = UserCenterService(db, redis)
     return ok(request, await svc.get_payment_methods())
+
+
+@router.post("/vip/orders")
+async def create_vip_order(
+    request: Request,
+    body: VipOrderCreate,
+    reader_id: int = Depends(get_current_reader),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    """VIP 下单（v1 模拟支付：下单即成功，顺延会员到期时间）。"""
+    svc = UserCenterService(db, redis)
+    return ok(request, await svc.create_vip_order(reader_id, body))

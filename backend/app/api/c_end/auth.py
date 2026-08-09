@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_reader, ok
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.exceptions import BizError, ErrorCode
 from app.core.limiter import limiter
 from app.core.redis import get_redis_client
 from app.core.security import hash_password
@@ -44,8 +46,6 @@ async def register(
         await db.execute(select(Reader).where(Reader.username == body.username))
     ).scalar_one_or_none()
     if existing:
-        from app.core.exceptions import BizError, ErrorCode
-
         raise BizError(ErrorCode.PARAM_INVALID, "用户名已存在")
 
     reader = Reader(
@@ -57,10 +57,7 @@ async def register(
     try:
         await db.commit()
     except IntegrityError:
-        # 并发同名注册：唯一约束冲突，按重名处理
         await db.rollback()
-        from app.core.exceptions import BizError, ErrorCode
-
         raise BizError(ErrorCode.PARAM_INVALID, "用户名已存在") from None
     await db.refresh(reader)
 
@@ -104,7 +101,8 @@ async def logout(
     redis = Depends(get_redis_client),
 ):
     svc = CAuthService(db, redis)
-    access_token = request.headers.get("Authorization", "").removeprefix("Bearer ").strip()
+    auth_header = request.headers.get("Authorization", "")
+    access_token = auth_header[len("Bearer "):].strip() if auth_header.startswith("Bearer ") else ""
     return ok(request, await svc.logout(access_token, body.refresh_token))
 
 
@@ -114,12 +112,8 @@ async def get_me(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
 ):
-    from sqlalchemy import select
-
     reader = (await db.execute(select(Reader).where(Reader.id == reader_id))).scalar_one_or_none()
     if not reader:
-        from app.core.exceptions import BizError, ErrorCode
-
         raise BizError(ErrorCode.RESOURCE_NOT_FOUND, "用户不存在")
     return ok(
         request,

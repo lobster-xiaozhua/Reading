@@ -5,7 +5,7 @@
 """
 
 import contextlib
-import time
+import re
 
 import redis.asyncio as redis
 import structlog
@@ -28,6 +28,7 @@ from app.schemas.b_end import (
 from app.schemas.common import BatchOperateResult
 from app.utils.batch import batch_execute
 from app.utils.state_machine import ChapterStateMachine
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -186,7 +187,7 @@ class ChapterService:
         ChapterStateMachine.assert_transition(chapter.status, body.target)
         chapter.status = body.target
         if body.target == "published":
-            chapter.published_at = int(time.time() * 1000)
+            chapter.published_at = _now_ms()
         await self.session.commit()
         await self._evict_chapters_cache(chapter.novel_id)
         await self._evict_chapter_cache(chapter)
@@ -194,7 +195,7 @@ class ChapterService:
 
     # ── 批量操作 ─────────────────────────────────────────
     async def batch_operate(self, body: ChapterBatchOperateBody) -> BatchOperateResult:
-        """批量操作章节（提审/发布）。
+        """批量操作章节（提审/发布/下架/删除）。
 
         Args:
             body: 批量操作请求体。
@@ -202,9 +203,13 @@ class ChapterService:
         Returns:
             批量操作结果。
         """
+        chapters = await self.repo.get_by_ids(body.ids)
+        chapter_map = {c.id: c for c in chapters}
 
         async def _process_chapter(cid: int) -> None:
-            chapter = await self._get_chapter(cid)
+            chapter = chapter_map.get(cid)
+            if not chapter:
+                raise NotFoundError("章节不存在")
             if body.action == "offline":
                 ChapterStateMachine.assert_transition(chapter.status, "offline")
                 chapter.status = "offline"
@@ -220,7 +225,7 @@ class ChapterService:
                 ChapterStateMachine.assert_transition(chapter.status, target)
                 chapter.status = target
                 if target == "published":
-                    chapter.published_at = int(time.time() * 1000)
+                    chapter.published_at = _now_ms()
 
         success_count, failed = await batch_execute(
             body.ids, _process_chapter, logger_name="chapter_service.batch_operate"
@@ -252,6 +257,9 @@ class ChapterService:
             )
         chapter.deleted = 1
         await self.session.commit()
+        # 删除已发布章节后失效 C 端目录与正文缓存
+        await self._evict_chapters_cache(chapter.novel_id)
+        await self._evict_chapter_cache(chapter)
         return True
 
     # ── 内部工具 ─────────────────────────────────────────
@@ -302,9 +310,7 @@ def _count_words(content: str) -> tuple[int, int, int]:
     """
     if not content:
         return 0, 0, 0
-    import re
-
-    # 去除 HTML 标签
+    # 去除 HTML 标签（单次扫描）
     text = re.sub(r"<[^>]+>", "", content)
     # 含标点字数：非空白字符
     punct_count = len(re.sub(r"\s+", "", text))

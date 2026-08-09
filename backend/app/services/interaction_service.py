@@ -6,7 +6,6 @@
 
 import contextlib
 import json
-import time
 from datetime import date
 
 import redis.asyncio as redis
@@ -34,11 +33,12 @@ from app.schemas.c_end import (
     ReviewBookRef,
     Topic,
 )
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
 _TTL_PROGRESS = 90 * 24 * 3600  # 90 天
-_PROGRESS_FLUSH_INTERVAL = 5  # 阅读进度落库最小间隔（秒），避免高频写 DB
+_PROGRESS_FLUSH_INTERVAL = 5  # 阅读进度落库最小间隔（秒）
 _PROGRESS_FLUSH_KEY = "progress:flush"
 
 
@@ -77,10 +77,7 @@ class InteractionService:
 
     async def batch_remove_bookshelf(self, reader_id: int, novel_ids: list[int]) -> int:
         """批量移出书架，返回实际移除数量。"""
-        count = 0
-        for nid in novel_ids:
-            if await self.shelf_repo.remove(reader_id, nid):
-                count += 1
+        count = await self.shelf_repo.remove_many(reader_id, novel_ids)
         await self.session.commit()
         if count:
             await self._evict_user_caches(reader_id)
@@ -102,19 +99,7 @@ class InteractionService:
         chapter_index: int | None = None,
         percent: float = 0.0,
     ) -> bool:
-        """上报阅读进度（写入 Redis 实时进度 + 同步落库）。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 作品 ID。
-            chapter_id: 章节 ID。
-            chapter_index: 章节索引。
-            percent: 阅读百分比。
-
-        Returns:
-            操作是否成功。
-        """
-        # 写入 Redis 实时进度
+        """上报阅读进度（写入 Redis 实时进度 + 同步落库）。"""
         progress_key = CacheKeys.progress(reader_id)
         try:
             await self.redis.hset(
@@ -125,7 +110,7 @@ class InteractionService:
                         "chapterId": chapter_id,
                         "chapterIndex": chapter_index,
                         "percent": percent,
-                        "ts": int(time.time() * 1000),
+                        "ts": _now_ms(),
                     }
                 ),
             )
@@ -133,7 +118,6 @@ class InteractionService:
         except Exception:
             logger.debug("阅读进度写入 Redis 失败 reader=%s", reader_id, exc_info=True)
 
-        # 同步落库（Redis SETNX 分布式节流：5 秒内同一读者只落库一次）
         flush_key = f"{_PROGRESS_FLUSH_KEY}:{reader_id}"
         acquired = False
         try:
@@ -148,6 +132,9 @@ class InteractionService:
             await self.history_repo.upsert(reader_id, novel_id, chapter_id, chapter_index, percent)
             await self._upsert_daily_stat(reader_id, chapter_id)
             await self.session.commit()
+            # 阅读统计变更后失效热力图缓存（heatmap 数据源为 ReadingStatsDaily）
+            with contextlib.suppress(Exception):
+                await self.redis.delete(CacheKeys.heatmap(reader_id))
         return True
 
     async def _upsert_daily_stat(self, reader_id: int, chapter_id: int | None) -> None:
@@ -184,7 +171,7 @@ class InteractionService:
             content=content.strip(),
             likes=0,
             status=1,
-            created_at=int(time.time() * 1000),
+            created_at=_now_ms(),
         )
         self.session.add(comment)
         await self.session.flush()
@@ -224,7 +211,7 @@ class InteractionService:
             CommentLike(
                 comment_id=comment_id,
                 reader_id=reader_id,
-                created_at=int(time.time() * 1000),
+                created_at=_now_ms(),
             )
         )
         try:
@@ -258,7 +245,7 @@ class InteractionService:
             content=content.strip(),
             likes=0,
             status=1,
-            created_at=int(time.time() * 1000),
+            created_at=_now_ms(),
         )
         self.session.add(reply)
         await self.session.flush()
@@ -273,17 +260,7 @@ class InteractionService:
         type_: str,
         amount: int,
     ) -> str:
-        """创建打赏记录。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 作品 ID。
-            type_: 打赏类型。
-            amount: 打赏金额。
-
-        Returns:
-            打赏记录 ID。
-        """
+        """创建打赏记录。"""
         if amount <= 0:
             raise ParamError("打赏金额必须大于 0")
         novel = await self._get_novel(novel_id)
@@ -292,7 +269,7 @@ class InteractionService:
             novel_id=novel.id,
             type=type_,
             amount=amount,
-            created_at=int(time.time() * 1000),
+            created_at=_now_ms(),
         )
         self.session.add(record)
         await self.session.flush()
@@ -301,20 +278,11 @@ class InteractionService:
 
     # ── 评分 ──────────────────────────────────────────
     async def submit_rating(self, reader_id: int, novel_id: int, rating: int) -> bool:
-        """提交评分（1-5，幂等 upsert），并重算作品均分、失效评分分布缓存。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 作品 ID。
-            rating: 评分值。
-
-        Returns:
-            操作是否成功。
-        """
+        """提交评分（1-5，幂等 upsert），并重算作品均分、失效评分分布缓存。"""
         if not 1 <= rating <= 5:
             raise ParamError("评分范围 1-5")
         novel = await self._get_novel(novel_id)
-        now = int(time.time() * 1000)
+        now = _now_ms()
         existing = await self.session.execute(
             select(NovelRating).where(
                 NovelRating.novel_id == novel.id,
@@ -342,10 +310,17 @@ class InteractionService:
             return True
         await self.session.commit()
         await self._recalc_rating(novel.id)
-        # 失效评分分布缓存
-        with contextlib.suppress(Exception):
-            await self.redis.delete(CacheKeys.book_rating(novel.id))
+        await self._evict_rating_caches(novel.id)
         return True
+
+    async def _evict_rating_caches(self, novel_id: int) -> None:
+        """评分变更后失效评分分布、书籍详情与相关排行缓存。"""
+        with contextlib.suppress(Exception):
+            await self.redis.delete(
+                CacheKeys.book_rating(novel_id),
+                CacheKeys.book(novel_id),
+                CacheKeys.rank("ticket"),
+            )
 
     async def _recalc_rating(self, novel_id: int) -> None:
         """按 novel_ratings 表重算作品均分与评分人数。"""
@@ -364,14 +339,7 @@ class InteractionService:
 
     # ── 书评列表（全局） ───────────────────────────────────
     async def get_reviews(self, limit: int = 20) -> list[Review]:
-        """获取全局书评列表（按点赞数排序）。
-
-        Args:
-            limit: 数量限制。
-
-        Returns:
-            书评列表。
-        """
+        """获取全局书评列表（按点赞数排序）。"""
         stmt = (
             select(ReviewModel, Novel)
             .join(Novel, ReviewModel.novel_id == Novel.id)
@@ -395,14 +363,7 @@ class InteractionService:
 
     # ── 话题 ──────────────────────────────────────────
     async def get_topics(self, limit: int = 20) -> list[Topic]:
-        """获取话题列表（基于标签热度）。
-
-        Args:
-            limit: 数量限制。
-
-        Returns:
-            话题列表。
-        """
+        """获取话题列表（基于标签热度）。"""
         from app.models.novel import Tag
 
         stmt = select(Tag).order_by(Tag.ref_count.desc()).limit(limit)
@@ -411,14 +372,7 @@ class InteractionService:
 
     # ── 书单 ──────────────────────────────────────────
     async def get_book_lists(self, limit: int = 10) -> list[BookList]:
-        """获取推荐书单（基于高评分作品按分类聚合）。
-
-        Args:
-            limit: 书单数量限制。
-
-        Returns:
-            书单列表。
-        """
+        """获取推荐书单（基于高评分作品按分类聚合）。"""
         stmt = (
             select(Novel)
             .where(Novel.deleted == 0, Novel.status == "published")
@@ -428,7 +382,6 @@ class InteractionService:
         novels = list((await self.session.execute(stmt)).scalars().all())
         if not novels:
             return []
-        # 简单按分类分组成书单
         by_category: dict[str, list[Novel]] = {}
         for n in novels:
             by_category.setdefault(n.category, []).append(n)

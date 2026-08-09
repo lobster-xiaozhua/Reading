@@ -25,10 +25,13 @@ from app.utils.cache import cache_set
 
 logger = structlog.get_logger(__name__)
 
-_MAX_SIMILAR_READERS = 50  # 相似读者扫描上限
-_MAX_MY_HISTORY = 50  # 个人阅读历史上限
-_COLD_START_CATEGORIES = 4  # 类别偏好回退最多覆盖的类别数
-_TIME_DECAY_WINDOW_DAYS = 7  # 时间衰减窗口（7天内阅读权重×2）
+_MAX_SIMILAR_READERS = 50
+_MAX_MY_HISTORY = 50
+_COLD_START_CATEGORIES = 4
+_TIME_DECAY_WINDOW_DAYS = 7
+# 预计算常数：避免每次调用 time_decay_weight 重复计算
+_DAY_MS = 1000 * 60 * 60 * 24
+_DECAY_RATE = 0.05
 
 
 class RecommendService:
@@ -58,17 +61,13 @@ class RecommendService:
 
     # ── 协同过滤 ─────────────────────────────────────────
     async def _reading_novel_ids(self, reader_id: int) -> list[int]:
-        """当前读者读过的作品 ID 列表（去重，按最近阅读在前）。
-
-        使用集合去重，避免 dict.fromkeys 的隐式字典创建开销。
-        """
+        """当前读者读过的作品 ID 列表（去重，按最近阅读在前）。"""
         stmt = (
             select(ReadingHistory.novel_id)
             .where(ReadingHistory.reader_id == reader_id)
             .order_by(ReadingHistory.read_at.desc())
             .limit(_MAX_MY_HISTORY)
         )
-        # 集合去重：保持首次出现顺序（按 read_at 降序），O(n)
         seen: set[int] = set()
         return [n for n in (await self.session.execute(stmt)).scalars().all() if not (n in seen or seen.add(n))]
 
@@ -89,22 +88,16 @@ class RecommendService:
     async def _aggregate_candidates(
         self, similar_reader_ids: list[int], exclude_ids: list[int], limit: int
     ) -> list[tuple[int, int]]:
-        """聚合相似读者读过的候选作品，按共现频次降序，排除已读。
-
-        返回 (novel_id, 共现频次)，频次用于计算匹配度。
-        """
+        """聚合相似读者读过的候选作品，按共现频次降序，排除已读。"""
         exclude_set = set(exclude_ids)
         stmt = (
             select(ReadingHistory.novel_id, func.count(ReadingHistory.novel_id))
-            .where(
-                ReadingHistory.reader_id.in_(similar_reader_ids),
-            )
+            .where(ReadingHistory.reader_id.in_(similar_reader_ids))
             .group_by(ReadingHistory.novel_id)
             .order_by(func.count(ReadingHistory.novel_id).desc())
             .limit(limit)
         )
         rows = (await self.session.execute(stmt)).all()
-        # 集合过滤已读书籍
         return [(r[0], r[1]) for r in rows if r[0] not in exclude_set]
 
     async def _to_recommendations(
@@ -114,7 +107,7 @@ class RecommendService:
         ids = [cid for cid, _ in candidate_ids]
         if not ids:
             return []
-        novels = await self._by_ids(ids)
+        novels = await self.novel_repo.get_by_ids(ids)
         by_id = {n.id: n for n in novels}
         result: list[RecommendBook] = []
         for cid, cnt in candidate_ids:
@@ -140,33 +133,31 @@ class RecommendService:
 
         novels = await self.novel_repo.ranking("hot", limit * 2)
         result = [RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n)) for n in novels]
-        await cache_set(self.redis, CacheKeys.RECOMMEND_HOT, result, self._TTL_HOT_RECOMMEND)
+        # 序列化为 JSON dict 再缓存（避免 pydantic 对象被 orjson default=str 序列化为 repr）
+        await cache_set(
+            self.redis,
+            CacheKeys.RECOMMEND_HOT,
+            [r.model_dump(mode="json") for r in result],
+            self._TTL_HOT_RECOMMEND,
+        )
         return result[:limit]
 
     async def _category_fallback(self, exclude_ids: list[int], limit: int) -> list[RecommendBook]:
-        """无相似读者：优先推荐读者常读类别的热门书，不足时以全局热门补齐。
-
-        使用集合加速已读排除检查。
-        """
-        exclude = set(exclude_ids)  # O(1) 查找
+        """无相似读者：优先推荐读者常读类别的热门书，不足时以全局热门补齐。"""
+        exclude = set(exclude_ids)
         cats = await self._top_categories(exclude_ids)
         result: list[RecommendBook] = []
-        for cat in cats[:_COLD_START_CATEGORIES]:
-            novels = await self._by_category(cat, max(limit // 2, 2))
-            for n in novels:
-                if n.id not in exclude and n.status == "published" and not n.deleted:
-                    result.append(
-                        RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n))
-                    )
-                    exclude.add(n.id)
-                if len(result) >= limit:
-                    break
+        per_cat = max(limit // 2, 2)
+        novels = await self._by_categories(cats[:_COLD_START_CATEGORIES], per_cat)
+        for n in novels:
+            if n.id not in exclude:
+                result.append(RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n)))
+                exclude.add(n.id)
             if len(result) >= limit:
                 break
-        # 全局热门补齐
         if len(result) < limit:
             for n in await self.novel_repo.ranking("hot", limit):
-                if n.id not in exclude and n.status == "published" and not n.deleted:
+                if n.id not in exclude:
                     result.append(RecommendBook(book=novel_to_c_summary(n), match_score=_cold_score(n)))
                     exclude.add(n.id)
                 if len(result) >= limit:
@@ -183,18 +174,30 @@ class RecommendService:
         )
         return list((await self.session.execute(stmt)).scalars().all())
 
-    async def _by_ids(self, ids: list[int]) -> list[Novel]:
-        stmt = select(Novel).where(Novel.id.in_(ids))
-        return list((await self.session.execute(stmt)).scalars().all())
+    async def _by_categories(self, categories: list[str], per_cat: int) -> list[Novel]:
+        """批量按类别取热门作品（单条 SQL + 内存分组，避免循环内逐类别查询）。
 
-    async def _by_category(self, category: str, limit: int) -> list[Novel]:
+        每个类别最多返回 per_cat 条，按类别输入顺序合并。
+        """
+        if not categories:
+            return []
         stmt = (
             select(Novel)
-            .where(Novel.deleted == 0, Novel.status == "published", Novel.category == category)
-            .order_by(Novel.click_count.desc())
-            .limit(limit)
+            .where(
+                Novel.deleted == 0,
+                Novel.status == "published",
+                Novel.category.in_(categories),
+            )
+            .order_by(Novel.category, Novel.click_count.desc())
         )
-        return list((await self.session.execute(stmt)).scalars().all())
+        rows = list((await self.session.execute(stmt)).scalars().all())
+        grouped: dict[str, list[Novel]] = {}
+        for n in rows:
+            grouped.setdefault(n.category, []).append(n)
+        result: list[Novel] = []
+        for cat in categories:
+            result.extend(grouped.get(cat, [])[:per_cat])
+        return result
 
 
 def _cf_score(cnt: int, total: int) -> int:
@@ -213,18 +216,10 @@ def _cold_score(novel: Novel) -> int:
 
 
 def time_decay_weight(read_at_ms: int, now_ms: int | None = None) -> float:
-    """计算时间衰减权重。7 天内阅读权重 ×2，之后线性衰减至 0.5。
-
-    Args:
-        read_at_ms: 阅读时间戳（毫秒）。
-        now_ms: 当前时间戳（毫秒），默认使用 UTC 当前时间。
-
-    Returns:
-        权重值，范围 [0.5, 2.0]。
-    """
+    """计算时间衰减权重。7 天内阅读权重×2，之后线性衰减至 0.5。"""
     if now_ms is None:
         now_ms = int(datetime.now(UTC).timestamp() * 1000)
-    age_days = (now_ms - read_at_ms) / (1000 * 60 * 60 * 24)
+    age_days = (now_ms - read_at_ms) / _DAY_MS
     if age_days <= _TIME_DECAY_WINDOW_DAYS:
         return 2.0
-    return max(0.5, 2.0 - (age_days - _TIME_DECAY_WINDOW_DAYS) * 0.05)
+    return max(0.5, 2.0 - (age_days - _TIME_DECAY_WINDOW_DAYS) * _DECAY_RATE)

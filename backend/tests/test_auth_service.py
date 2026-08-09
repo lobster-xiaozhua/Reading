@@ -150,7 +150,14 @@ class TestEnsureDemoAdmin:
         await _create_admin(db_session)
         await svc._ensure_demo_admin()
         admins = (await db_session.execute(select(Admin))).scalars().all()
-        assert len(admins) == 1
+        # 已有 admin 保留不重复，并补齐其余 3 个演示账号
+        assert len(admins) == 4
+        assert {a.username for a in admins} == {
+            "admin",
+            "content",
+            "auditor",
+            "operation",
+        }
 
 
 class TestLogout:

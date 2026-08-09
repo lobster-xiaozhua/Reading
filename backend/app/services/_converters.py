@@ -1,4 +1,7 @@
-"""ORM → Schema 转换器，避免在各 service 中重复实现。"""
+"""ORM → Schema 转换器，避免在各 service 中重复实现。
+
+使用 orjson 优化序列化路径，减少 dict 中间层的内存分配。
+"""
 
 import contextlib
 

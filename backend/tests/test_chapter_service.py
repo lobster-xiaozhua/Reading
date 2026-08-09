@@ -17,7 +17,6 @@ from app.services.chapter_service import ChapterService, _count_words
 def svc(db_session):
     return ChapterService(db_session)
 
-
 async def _create_novel_and_chapters(session, count=3):
     """创建测试作品与章节。"""
     novel = Novel(title="测试", status="published", word_count=100)
@@ -253,3 +252,20 @@ class TestChapterServiceDelete:
     async def test_delete_not_found(self, svc):
         with pytest.raises(NotFoundError):
             await svc.delete_chapter(99999)
+
+
+class TestChapterCacheEviction:
+    async def test_delete_published_chapter_evicts_caches(self, db_session, redis_client):
+        """删除已发布章节后必须失效目录与正文缓存（否则读者 TTL 内读到旧内容）。"""
+        from app.core.redis import CacheKeys
+        from app.services.chapter_service import ChapterService
+
+        novel, chapters = await _create_novel_and_chapters(db_session, 1)
+        chapters[0].status = "published"
+        await db_session.commit()
+        svc = ChapterService(db_session, redis_client)
+        await redis_client.set(CacheKeys.chapters(novel.id), "[]")
+        await redis_client.set(CacheKeys.chapter(novel.id, chapters[0].id), "{}")
+        await svc.delete_chapter(chapters[0].id, title_match=chapters[0].title)
+        assert await redis_client.get(CacheKeys.chapters(novel.id)) is None
+        assert await redis_client.get(CacheKeys.chapter(novel.id, chapters[0].id)) is None

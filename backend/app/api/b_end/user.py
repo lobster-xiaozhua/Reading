@@ -1,6 +1,6 @@
 """B 端用户管理路由。
 
-对应前端 user.getList。
+对应前端 user.getList.
 """
 
 from fastapi import APIRouter, Depends, Query, Request
@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import ok, require_permission
 from app.core.database import get_db
+from app.core.exceptions import NotFoundError
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users")
@@ -37,7 +38,5 @@ async def set_user_status(
     svc = UserService(db)
     result = await svc.set_status(reader_id, status)
     if not result:
-        from app.core.exceptions import NotFoundError
-
         raise NotFoundError("用户不存在")
     return ok(request, True)

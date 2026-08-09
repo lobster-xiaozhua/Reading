@@ -20,6 +20,8 @@ class CamelModel(BaseModel):
         populate_by_name=True,
         from_attributes=True,
         extra="ignore",
+        # 禁止模型属性被当作字段（减少模型元数据处理开销）
+        validate_default=False,
     )
 
 

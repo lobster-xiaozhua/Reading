@@ -1,8 +1,7 @@
 """C 端读者鉴权服务（双 Token 机制）。
 
-access token 8h + refresh token 30d/90d。
+access token 8h + refresh token 30d/90d.
 """
-
 
 import contextlib
 
@@ -22,6 +21,29 @@ logger = structlog.get_logger(__name__)
 
 _LOGIN_FAIL_LIMIT = 5
 _LOGIN_LOCK_TTL = 15 * 60
+_access_ttl = settings.access_token_ttl
+_refresh_ttl = settings.refresh_token_ttl
+_refresh_ttl_long = settings.refresh_token_ttl_long
+
+
+def _make_reader_info(reader: Reader) -> dict:
+    """构建读者用户信息 dict，避免重复代码。"""
+    return {
+        "id": str(reader.id),
+        "username": reader.username,
+        "nickname": reader.nickname,
+        "avatar": reader.avatar or "",
+    }
+
+
+def _create_tokens(reader_id: int, extra: dict, remember: bool = False) -> tuple[str, str, int]:
+    """创建双 Token 并返回 (access_token, refresh_token, expires_at_ms)。"""
+    access_token, expires_at = create_token(
+        reader_id, "access", ttl=_access_ttl, extra=extra
+    )
+    ttl = _refresh_ttl_long if remember else _refresh_ttl
+    refresh_token, _ = create_token(reader_id, "refresh", ttl=ttl, extra=extra)
+    return access_token, refresh_token, expires_at
 
 
 class CAuthService:
@@ -34,8 +56,6 @@ class CAuthService:
     async def login(
         self, username: str, password: str, remember: bool = False, client_ip: str = ""
     ) -> CLoginResponse:
-        # 登录失败按 username 记录不同来源 IP 集合：
-        # 同 IP 多次失败不累计，跨 IP 失败达阈值才锁定，兼顾爆破防护与防误锁
         fail_key = CacheKeys.login_fail(username)
         ip = client_ip or "unknown"
         distinct = int(await self.redis.scard(fail_key) or 0)
@@ -51,22 +71,13 @@ class CAuthService:
         await self.redis.delete(fail_key)
 
         extra = {"username": reader.username, "nickname": reader.nickname}
-        access_ttl = settings.access_token_ttl
-        refresh_ttl = settings.refresh_token_ttl_long if remember else settings.refresh_token_ttl
-        access_token, expires_at = create_token(reader.id, "access", ttl=access_ttl, extra=extra)
-        refresh_token, _ = create_token(reader.id, "refresh", ttl=refresh_ttl, extra=extra)
-
-        await self.redis.set(CacheKeys.access_token(access_token), str(reader.id), ex=access_ttl)
-        await self.redis.set(CacheKeys.refresh_token(refresh_token), str(reader.id), ex=refresh_ttl)
+        access_token, refresh_token, expires_at = _create_tokens(reader.id, extra, remember)
+        await self.redis.set(CacheKeys.access_token(access_token), str(reader.id), ex=_access_ttl)
+        await self.redis.set(CacheKeys.refresh_token(refresh_token), str(reader.id), ex=_refresh_ttl_long if remember else _refresh_ttl)
 
         return CLoginResponse(
             token=access_token,
-            user=ReaderUserInfo(
-                id=str(reader.id),
-                username=reader.username,
-                nickname=reader.nickname,
-                avatar=reader.avatar or "",
-            ),
+            user=ReaderUserInfo(**_make_reader_info(reader)),
             expires_at=expires_at,
             refresh_token=refresh_token,
         )
@@ -92,21 +103,13 @@ class CAuthService:
         await self.redis.delete(CacheKeys.refresh_token(refresh_token))
 
         extra = {"username": reader.username, "nickname": reader.nickname}
-        access_ttl = settings.access_token_ttl
-        refresh_ttl = settings.refresh_token_ttl
-        access_token, expires_at = create_token(reader.id, "access", ttl=access_ttl, extra=extra)
-        new_refresh, _ = create_token(reader.id, "refresh", ttl=refresh_ttl, extra=extra)
-        await self.redis.set(CacheKeys.access_token(access_token), str(reader.id), ex=access_ttl)
-        await self.redis.set(CacheKeys.refresh_token(new_refresh), str(reader.id), ex=refresh_ttl)
+        access_token, new_refresh, expires_at = _create_tokens(reader.id, extra, remember=False)
+        await self.redis.set(CacheKeys.access_token(access_token), str(reader.id), ex=_access_ttl)
+        await self.redis.set(CacheKeys.refresh_token(new_refresh), str(reader.id), ex=_refresh_ttl)
 
         return CLoginResponse(
             token=access_token,
-            user=ReaderUserInfo(
-                id=str(reader.id),
-                username=reader.username,
-                nickname=reader.nickname,
-                avatar=reader.avatar or "",
-            ),
+            user=ReaderUserInfo(**_make_reader_info(reader)),
             expires_at=expires_at,
             refresh_token=new_refresh,
         )
@@ -127,12 +130,9 @@ class CAuthService:
 
     async def register(self, reader_id: int, username: str, nickname: str, avatar: str) -> CLoginResponse:
         extra = {"username": username, "nickname": nickname}
-        access_ttl = settings.access_token_ttl
-        refresh_ttl = settings.refresh_token_ttl
-        access_token, expires_at = create_token(reader_id, "access", ttl=access_ttl, extra=extra)
-        refresh_token, _ = create_token(reader_id, "refresh", ttl=refresh_ttl, extra=extra)
-        await self.redis.set(CacheKeys.access_token(access_token), str(reader_id), ex=access_ttl)
-        await self.redis.set(CacheKeys.refresh_token(refresh_token), str(reader_id), ex=refresh_ttl)
+        access_token, refresh_token, expires_at = _create_tokens(reader_id, extra, remember=False)
+        await self.redis.set(CacheKeys.access_token(access_token), str(reader_id), ex=_access_ttl)
+        await self.redis.set(CacheKeys.refresh_token(refresh_token), str(reader_id), ex=_refresh_ttl)
         return CLoginResponse(
             token=access_token,
             user=ReaderUserInfo(id=str(reader_id), username=username, nickname=nickname, avatar=avatar),

@@ -4,7 +4,6 @@
 词库版本号自增，扫描走 DFA Trie 树。
 """
 
-import time
 from datetime import date
 
 import redis.asyncio as redis
@@ -22,6 +21,7 @@ from app.schemas.b_end import (
     SensitiveWordLibMeta,
 )
 from app.utils.sensitive_trie import SensitiveTrie
+from app.utils.time import now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -58,7 +58,7 @@ class SensitiveService:
         version = await self.repo.current_version() or date.today().isoformat()
         meta = SensitiveWordLibMeta(
             version=version,
-            updated_at=int(time.time() * 1000),
+            updated_at=now_ms(),
             total_count=len(words),
             by_level=by_level,
         )
@@ -66,23 +66,14 @@ class SensitiveService:
 
     # ── 新增敏感词 ─────────────────────────────────────────
     async def add_word(self, body: AddSensitiveWordBody) -> SensitiveWordItem:
-        """新增敏感词，版本号自增并刷新 Trie 树。
-
-        Args:
-            body: 敏感词数据。
-
-        Returns:
-            新增的敏感词项。
-        """
+        """新增敏感词，版本号自增并刷新 Trie 树。"""
         version = date.today().isoformat()
         try:
             word = await self.repo.add(body.text, body.level, body.suggestion, version)
             await self.session.commit()
         except IntegrityError:
-            # 命中 (text, level) 唯一约束：按已存在处理
             await self.session.rollback()
             raise BizError(ErrorCode.PARAM_INVALID, "敏感词已存在") from None
-        # 版本号自增并刷新 Trie
         await self._refresh_trie()
         return SensitiveWordItem(
             id=str(word.id),
@@ -94,15 +85,7 @@ class SensitiveService:
 
     # ── 删除敏感词 ─────────────────────────────────────────
     async def remove_word(self, text: str, level: int | None = None) -> bool:
-        """删除敏感词，刷新 Trie 树。
-
-        Args:
-            text: 敏感词文本。
-            level: 可选，指定级别删除。
-
-        Returns:
-            是否删除了记录。
-        """
+        """删除敏感词，刷新 Trie 树。"""
         removed = await self.repo.remove(text, level)
         if removed:
             await self.session.commit()
@@ -111,14 +94,7 @@ class SensitiveService:
 
     # ── 扫描文本 ─────────────────────────────────────────
     async def scan(self, text: str) -> list[SensitiveHit]:
-        """扫描文本，返回敏感词命中列表。
-
-        Args:
-            text: 待扫描文本。
-
-        Returns:
-            敏感词命中列表。
-        """
+        """扫描文本，返回敏感词命中列表。"""
         trie = await self._get_trie()
         hits = trie.scan(text)
         return [SensitiveHit(text=h.word, level=h.level, suggestion=h.suggestion) for h in hits]

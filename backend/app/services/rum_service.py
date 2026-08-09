@@ -1,6 +1,6 @@
 """RUM 事件服务：落库、统计、查询（可观测性闭环）。"""
 
-import time
+import json
 
 import structlog
 from sqlalchemy import func, select
@@ -8,8 +8,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.rum import RumEvent
 from app.schemas.common import PagedResult
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
+
+# 预编译 json 序列化选项
+_JSON_DUMP_OPTS = {"ensure_ascii": False, "default": str}
 
 
 class RumService:
@@ -19,19 +23,15 @@ class RumService:
         self.session = session
 
     async def ingest(self, body: object) -> None:
-        """写入一条 RUM 事件；失败仅记录日志，不阻塞上报。
-
-        Args:
-            body: ``RumEventBody``（含 type/name/value/rating/message/meta）。
-        """
+        """写入一条 RUM 事件；失败仅记录日志，不阻塞上报。"""
         event = RumEvent(
             type=body.type,
             name=body.name,
             value=body.value,
             rating=body.rating,
             message=body.message,
-            meta=body.meta if body.meta is None else _json_dumps(body.meta),
-            created_at=int(time.time() * 1000),
+            meta=_json_dumps(body.meta) if body.meta is not None else None,
+            created_at=_now_ms(),
         )
         self.session.add(event)
         try:
@@ -41,12 +41,8 @@ class RumService:
             await self.session.rollback()
 
     async def get_stats(self, hours: int = 24) -> dict:
-        """统计最近 ``hours`` 小时的性能/错误事件数与指标均值。
-
-        Returns:
-            dict: 含 total、errorCount、perfCount、avgLcp（ms）、byType 分组。
-        """
-        since = int(time.time() * 1000) - hours * 3600 * 1000
+        """统计最近 hours 小时的性能/错误事件数与指标均值。"""
+        since = _now_ms() - hours * 3600 * 1000
 
         total = await self.session.scalar(
             select(func.count(RumEvent.id)).where(RumEvent.created_at >= since)
@@ -84,16 +80,7 @@ class RumService:
     async def list_events(
         self, type_: str | None = None, page: int = 1, page_size: int = 20
     ) -> PagedResult[dict]:
-        """分页查询 RUM 事件。
-
-        Args:
-            type_: 事件类型过滤（perf/error），None 为全部。
-            page: 页码。
-            page_size: 每页数量。
-
-        Returns:
-            分页的事件列表（字段转 camelCase 供前端展示）。
-        """
+        """分页查询 RUM 事件。"""
         stmt = select(RumEvent).order_by(RumEvent.created_at.desc())
         if type_:
             stmt = stmt.where(RumEvent.type == type_)
@@ -119,14 +106,10 @@ class RumService:
 
 
 def _json_dumps(meta: dict) -> str:
-    import json
-
-    return json.dumps(meta, ensure_ascii=False, default=str)
+    return json.dumps(meta, **_JSON_DUMP_OPTS)
 
 
 def _json_loads(raw: str) -> dict:
-    import json
-
     try:
         return json.loads(raw)
     except (ValueError, TypeError):

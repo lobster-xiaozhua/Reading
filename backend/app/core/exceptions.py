@@ -54,10 +54,6 @@ class BizError(Exception):
 
     HTTP 状态码默认 200（业务错误走 code 区分，§5.2 铁律），
     鉴权类异常可覆写为 401/403/429。
-
-    用法：
-        BizError(ErrorCode.PARAM_INVALID, "msg")   # 显式 code + 消息
-        BizError("msg")                             # 仅消息（沿用子类默认 code）
     """
 
     code: int = ErrorCode.INTERNAL_ERROR
@@ -65,7 +61,6 @@ class BizError(Exception):
     message: str = "服务异常"
 
     def __init__(self, code: int | str | None = None, message: str | None = None):
-        # 兼容 BizError("msg") 写法：第一个参数为字符串时视为消息
         if isinstance(code, str):
             message = code
             code = None

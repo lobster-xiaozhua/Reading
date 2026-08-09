@@ -57,7 +57,9 @@ class SearchService:
     _TTL_PINYIN_CANDIDATES = 600  # 拼音候选集缓存 10 分钟
 
     async def get_suggestions(self, keyword: str) -> list[SearchSuggestion]:
-        """获取搜索建议（书名/作者/标签匹配），3 路并发查询。
+        """获取搜索建议（书名/作者/标签匹配），3 路查询顺序执行。
+
+        AsyncSession 不支持并发复用同一连接，故书名/作者/标签查询按序执行。
 
         Args:
             keyword: 搜索关键词。
@@ -171,7 +173,10 @@ class SearchService:
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _pinyin_candidates(self) -> list[Novel]:
-        """取拼音兜底候选集（已发布作品，按点击量降序取 Top N），缓存 10 分钟。"""
+        """取拼音兜底候选集（已发布作品，按点击量降序取 Top N），缓存 10 分钟。
+
+        使用 orjson 替代 json 序列化，减少序列化耗时。
+        """
         cached = await self.redis.get(CacheKeys.PINYIN_CANDIDATES)
         if cached:
             return [Novel(**d) for d in json.loads(cached)]
@@ -183,10 +188,19 @@ class SearchService:
             .limit(_PINYIN_CANDIDATES)
         )
         novels = list((await self.session.execute(stmt)).scalars().all())
+        # 提取关键字段预构建 dicts，避免在 JSON 序列化时重复访问 ORM 属性
+        rows = [
+            {k: getattr(n, k) for k in ("id", "title", "author_name", "cover", "category",
+                                         "tags_str", "word_count", "is_completed", "rating",
+                                         "rating_count", "follow_count", "click_count",
+                                         "intro", "flags", "updated_at")}
+            for n in novels
+        ]
         with contextlib.suppress(Exception):
+            import orjson
             await self.redis.set(
                 CacheKeys.PINYIN_CANDIDATES,
-                json.dumps([{k: v for k, v in n.__dict__.items() if not k.startswith("_")} for n in novels]),
+                orjson.dumps(rows).decode("utf-8"),
                 ex=self._TTL_PINYIN_CANDIDATES,
             )
         return novels

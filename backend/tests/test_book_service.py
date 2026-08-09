@@ -294,3 +294,29 @@ class TestHelpers:
         assert len(content.paragraphs) == 3
         assert content.prev_id is None
         assert content.next_id is None
+
+
+class TestBookMissCache:
+    async def test_get_book_not_found_writes_miss_cache(self, svc, db_session):
+        """不存在的书首次查询写入空值缓存，避免后续反复回源（防穿透）。"""
+        with pytest.raises(NotFoundError):
+            await svc._get_published_novel(99999)
+        cached = await svc.redis.get(CacheKeys.book(99999))
+        assert cached is not None
+        assert json.loads(cached).get("_miss") is True
+
+    async def test_get_book_miss_cache_returns_not_found_without_db(self, svc, db_session):
+        """命中空值缓存直接抛 NotFound，不再访问数据库。"""
+        await svc.redis.set(CacheKeys.book(88888), json.dumps({"_miss": True}))
+        with pytest.raises(NotFoundError):
+            await svc._get_published_novel(88888)
+
+    async def test_get_book_after_miss_cache_evicted(self, svc, db_session):
+        """B 端失效缓存后，同 ID 书籍可正常读取（不再被空值缓存阻塞）。"""
+        await svc.redis.set(CacheKeys.book(77777), json.dumps({"_miss": True}))
+        await svc.redis.delete(CacheKeys.book(77777))
+        novel = await _create_published_novel(db_session)
+        novel.id = 77777
+        await db_session.commit()
+        result = await svc._get_published_novel(77777)
+        assert result.id == 77777

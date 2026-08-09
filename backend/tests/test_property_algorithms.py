@@ -11,6 +11,8 @@ from hypothesis import strategies as st
 from app.models.novel import Novel
 from app.services.recommend_service import _cf_score, _cold_score, time_decay_weight
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.slow
 @given(st.integers(min_value=0, max_value=1000), st.integers(min_value=0, max_value=1000))

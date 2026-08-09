@@ -1,11 +1,10 @@
 """互动仓储：评论 / 书评 / 打赏（§4.2.4）。"""
 
-import time
-
 from sqlalchemy import select
 
 from app.models.interaction import Comment, Review, RewardRecord
 from app.repositories.base import BaseRepository
+from app.utils.time import now_ms as _now_ms
 
 
 class CommentRepository(BaseRepository[Comment]):
@@ -65,7 +64,7 @@ class RewardRepository(BaseRepository[RewardRecord]):
             novel_id=novel_id,
             type=type_,
             amount=amount,
-            created_at=int(time.time() * 1000),
+            created_at=_now_ms(),
         )
         self.session.add(record)
         await self.session.flush()

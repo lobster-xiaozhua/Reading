@@ -36,9 +36,12 @@ SEED_MARKER = os.path.join(os.path.dirname(__file__), "..", ".seed-initialized")
 
 # ── 进程内请求指标（由 AccessLogMiddleware 写入，/metrics 端点消费） ──
 from app.core.metrics import (  # noqa: E402
-    request_counts,
-    request_durations,
-    request_errors,
+    get_cache_pattern_stats,
+    get_metrics,
+    get_redis_command_stats,
+    get_redis_stats,
+    get_slow_query_details,
+    get_slow_query_stats,
 )
 
 
@@ -102,6 +105,18 @@ async def lifespan(app: FastAPI):
                 logger.info("缓存预热完成", **stats)
         except Exception:
             logger.warning("缓存预热失败（非阻塞）", exc_info=True)
+
+        # 预热敏感词 Trie（首次扫描时自动加载，此处提前加载避免冷启动延迟）
+        try:
+            from app.services.sensitive_service import SensitiveService
+
+            async with AsyncSessionLocal() as db2:
+                redis_client2 = await get_redis_client()
+                sensitive_svc = SensitiveService(db2, redis_client2)
+                await sensitive_svc._refresh_trie()
+                logger.info("敏感词 Trie 预热完成")
+        except Exception:
+            logger.warning("敏感词 Trie 预热失败（非阻塞）", exc_info=True)
 
     yield
 
@@ -187,53 +202,112 @@ def create_app() -> FastAPI:
             except Exception as err:
                 raise UnauthorizedError("Token 无效或已过期") from err
         lines: list[str] = []
+        counts, durations, errors = get_metrics()
         lines.append("# HELP http_requests_total Total HTTP requests by path")
         lines.append("# TYPE http_requests_total counter")
-        for path, count in sorted(request_counts.items()):
+        for path, count in sorted(counts.items()):
             safe_path = path.replace("/", "_").strip("_") or "root"
             lines.append(f'http_requests_total{{path="{safe_path}"}} {count}')
 
         lines.append("")
         lines.append("# HELP http_request_duration_ms HTTP request duration in milliseconds")
         lines.append("# TYPE http_request_duration_ms histogram")
-        for path, durations in sorted(request_durations.items()):
-            if not durations:
+        for path, ds in sorted(durations.items()):
+            if not ds:
                 continue
             safe_path = path.replace("/", "_").strip("_") or "root"
             lines.append(
                 f'http_request_duration_ms{{path="{safe_path}"}} '
-                f'{{le="50"}} {sum(1 for d in durations if d <= 50)}'
+                f'{{le="50"}} {sum(1 for d in ds if d <= 50)}'
             )
             lines.append(
                 f'http_request_duration_ms{{path="{safe_path}"}} '
-                f'{{le="100"}} {sum(1 for d in durations if d <= 100)}'
+                f'{{le="100"}} {sum(1 for d in ds if d <= 100)}'
             )
             lines.append(
                 f'http_request_duration_ms{{path="{safe_path}"}} '
-                f'{{le="200"}} {sum(1 for d in durations if d <= 200)}'
+                f'{{le="200"}} {sum(1 for d in ds if d <= 200)}'
             )
             lines.append(
                 f'http_request_duration_ms{{path="{safe_path}"}} '
-                f'{{le="500"}} {sum(1 for d in durations if d <= 500)}'
+                f'{{le="500"}} {sum(1 for d in ds if d <= 500)}'
             )
             lines.append(
                 f'http_request_duration_ms{{path="{safe_path}"}} '
-                f'{{le="+Inf"}} {len(durations)}'
+                f'{{le="+Inf"}} {len(ds)}'
             )
             lines.append(
                 f"http_request_duration_ms_sum{{path=\"{safe_path}\"}} "
-                f"{sum(durations):.0f}"
+                f"{sum(ds):.0f}"
             )
             lines.append(
-                f"http_request_duration_ms_count{{path=\"{safe_path}\"}} {len(durations)}"
+                f"http_request_duration_ms_count{{path=\"{safe_path}\"}} {len(ds)}"
             )
 
         lines.append("")
         lines.append("# HELP http_request_errors_total Total HTTP 5xx errors by path")
         lines.append("# TYPE http_request_errors_total counter")
-        for path, count in sorted(request_errors.items()):
+        for path, count in sorted(errors.items()):
             safe_path = path.replace("/", "_").strip("_") or "root"
             lines.append(f'http_request_errors_total{{path="{safe_path}"}} {count}')
+
+        redis_stats = get_redis_stats()
+        total_redis = redis_stats["hits"] + redis_stats["misses"]
+        hit_rate = redis_stats["hits"] / total_redis if total_redis else 0.0
+        lines.append("")
+        lines.append("# HELP redis_cache_hits_total Redis cache hits (cache_get)")
+        lines.append("# TYPE redis_cache_hits_total counter")
+        lines.append(f"redis_cache_hits_total {redis_stats['hits']}")
+        lines.append("")
+        lines.append("# HELP redis_cache_misses_total Redis cache misses (cache_get)")
+        lines.append("# TYPE redis_cache_misses_total counter")
+        lines.append(f"redis_cache_misses_total {redis_stats['misses']}")
+        lines.append("")
+        lines.append("# HELP redis_cache_hit_rate Cache hit rate")
+        lines.append("# TYPE redis_cache_hit_rate gauge")
+        lines.append(f"redis_cache_hit_rate {hit_rate:.4f}")
+
+        lines.append("")
+        lines.append("# HELP redis_cache_pattern_hits_total Cache hits by key pattern")
+        lines.append("# TYPE redis_cache_pattern_hits_total counter")
+        lines.append("# HELP redis_cache_pattern_misses_total Cache misses by key pattern")
+        lines.append("# TYPE redis_cache_pattern_misses_total counter")
+        for pattern, (phits, pmisses) in sorted(
+            get_cache_pattern_stats().items(), key=lambda kv: -(kv[1][0] + kv[1][1])
+        ):
+            safe = pattern.replace('"', "_")
+            lines.append(f'redis_cache_pattern_hits_total{{pattern="{safe}"}} {phits}')
+            lines.append(f'redis_cache_pattern_misses_total{{pattern="{safe}"}} {pmisses}')
+
+        slow_count, slow_avg = get_slow_query_stats()
+        lines.append("")
+        lines.append("# HELP db_slow_queries_total Slow queries over threshold")
+        lines.append("# TYPE db_slow_queries_total counter")
+        lines.append(f"db_slow_queries_total {slow_count}")
+        lines.append("")
+        lines.append("# HELP db_slow_query_avg_ms Average slow query duration ms")
+        lines.append("# TYPE db_slow_query_avg_ms gauge")
+        lines.append(f"db_slow_query_avg_ms {round(slow_avg, 1) if slow_avg else 0}")
+        lines.append("")
+        lines.append("# HELP db_slow_query_top_ms Top slow query statements (normalized)")
+        lines.append("# TYPE db_slow_query_top_ms gauge")
+        for statement, s_duration in get_slow_query_details():
+            safe = statement.replace('"', "_")
+            lines.append(f'db_slow_query_top_ms{{statement="{safe}"}} {round(s_duration, 1)}')
+
+        redis_cmd_totals, slow_redis = get_redis_command_stats()
+        lines.append("")
+        lines.append("# HELP redis_command_calls_total Redis command calls")
+        lines.append("# TYPE redis_command_calls_total counter")
+        for command, count in sorted(redis_cmd_totals.items()):
+            lines.append(f'redis_command_calls_total{{command="{command}"}} {count}')
+        lines.append("")
+        lines.append("# HELP redis_slow_command_calls_total Slow Redis commands (top)")
+        lines.append("# TYPE redis_slow_command_calls_total gauge")
+        for command, r_duration in slow_redis:
+            lines.append(
+                f'redis_slow_command_calls_total{{command="{command}"}} {round(r_duration, 1)}'
+            )
 
         return PlainTextResponse("\n".join(lines) + "\n")
 

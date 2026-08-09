@@ -59,3 +59,15 @@ async def get_dashboard(
     """工作台仪表盘聚合接口：一次返回 KPI + 概览 + 趋势，减少网络往返。"""
     svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_dashboard(days))
+
+
+@router.get("/system-metrics")
+async def get_system_metrics(
+    request: Request,
+    _admin=Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    """统一控制面板系统可观测性聚合接口（HTTP / Redis / DB 指标快照）。"""
+    svc = WorkbenchService(db, redis)
+    return ok(request, await svc.get_system_metrics())

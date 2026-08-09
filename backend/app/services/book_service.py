@@ -4,6 +4,7 @@
 点击数异步累加至 Redis，详情走 Cache-Aside。
 """
 
+import contextlib
 import json
 
 import redis.asyncio as redis
@@ -30,11 +31,12 @@ from app.schemas.c_end import (
     RatingDistribution,
 )
 from app.services._converters import novel_to_c_summary
-from app.utils.cache import cache_set
+from app.utils.cache import cache_get, cache_set
 
 logger = structlog.get_logger(__name__)
 
 _TTL_BOOK = 3600  # 1 小时（热门书籍高频访问，减少回源）
+_TTL_BOOK_MISS = 60  # 书籍不存在时空值缓存（防穿透）
 _TTL_RATING = 600
 _TTL_CHAPTER = 600  # 章节正文缓存（B 端更新依赖 TTL 自然过期）
 _TTL_CHAPTERS = 600  # 章节列表缓存
@@ -51,32 +53,17 @@ class BookService:
 
     # ── 书籍详情 ─────────────────────────────────────────
     async def get_book(self, book_id: int) -> BookSummary:
-        """获取书籍详情，异步累加点击数。
-
-        Args:
-            book_id: 书籍 ID。
-
-        Returns:
-            书籍摘要。
-        """
+        """获取书籍详情，异步累加点击数。"""
         novel = await self._get_published_novel(book_id)
-        # 异步累加点击数（不阻塞响应）
         await self._incr_click(book_id)
         return novel_to_c_summary(novel)
 
     # ── 章节列表 ─────────────────────────────────────────
     async def get_chapters(self, book_id: int) -> list[ChapterListItem]:
-        """获取已发布章节列表。
-
-        Args:
-            book_id: 书籍 ID。
-
-        Returns:
-            章节列表项。
-        """
+        """获取已发布章节列表。"""
         novel = await self._get_published_novel(book_id)
         cache_key = CacheKeys.chapters(novel.id)
-        cached = await self.redis.get(cache_key)
+        cached = await cache_get(self.redis, cache_key)
         if cached:
             try:
                 return [ChapterListItem.model_validate(x) for x in json.loads(cached)]
@@ -84,28 +71,14 @@ class BookService:
                 logger.debug("章节列表缓存解析失败 book_id=%s", book_id, exc_info=True)
         chapters = await self.chapter_repo.list_by_novel(novel.id, status="published")
         items = [_chapter_to_list_item(c, novel.id) for c in chapters]
-        await cache_set(
-            self.redis, cache_key, [x.model_dump(mode="json") for x in items], _TTL_CHAPTERS
-        )
+        await cache_set(self.redis, cache_key, [x.model_dump(mode="json") for x in items], _TTL_CHAPTERS)
         return items
 
     # ── 章节正文 ─────────────────────────────────────────
     async def get_chapter(
         self, book_id: int, chapter_id: int, *, reader_vip: bool = False
     ) -> ChapterContent:
-        """获取章节正文（含前后章节导航），VIP 章节需会员权限。
-
-        阅读热路径走 Cache-Aside：缓存命中直接返回，未命中回查库并回填。
-        VIP 权限校验独立于缓存执行，避免绕过订阅。
-
-        Args:
-            book_id: 书籍 ID。
-            chapter_id: 章节 ID。
-            reader_vip: 读者是否为 VIP。
-
-        Returns:
-            章节正文内容。
-        """
+        """获取章节正文（含前后章节导航），VIP 章节需会员权限。"""
         novel = await self._get_published_novel(book_id)
         content = await self._get_cached_chapter(chapter_id, novel.id)
         if content is None:
@@ -121,7 +94,7 @@ class BookService:
     async def _get_cached_chapter(self, chapter_id: int, novel_id: int) -> ChapterContent | None:
         """读取章节缓存，键含 novel_id 从根上避免跨书误命中。"""
         try:
-            cached = await self.redis.get(CacheKeys.chapter(novel_id, chapter_id))
+            cached = await cache_get(self.redis, CacheKeys.chapter(novel_id, chapter_id))
             if not cached:
                 return None
             data = json.loads(cached)
@@ -151,17 +124,8 @@ class BookService:
 
     # ── 相关推荐 ─────────────────────────────────────────
     async def get_related_books(self, book_id: int, limit: int = 6) -> list[BookSummary]:
-        """获取同分类相关推荐书籍。
-
-        Args:
-            book_id: 源书籍 ID。
-            limit: 推荐数量。
-
-        Returns:
-            相关书籍列表。
-        """
+        """获取同分类相关推荐书籍。"""
         novel = await self._get_published_novel(book_id)
-        # 同分类高评分推荐
         stmt = (
             select(Novel)
             .where(
@@ -178,15 +142,7 @@ class BookService:
 
     # ── 评论列表 ─────────────────────────────────────────
     async def get_comments(self, book_id: int, limit: int = 20) -> list[Comment]:
-        """获取书籍评论列表（按点赞数排序）。
-
-        Args:
-            book_id: 书籍 ID。
-            limit: 数量限制。
-
-        Returns:
-            评论列表。
-        """
+        """获取书籍评论列表（按点赞数排序）。"""
         novel = await self._get_published_novel(book_id)
         comments = await self._list_comments_with_users(novel.id, limit)
         return comments
@@ -202,7 +158,7 @@ class BookService:
             评分分布数据。
         """
         novel = await self._get_published_novel(book_id)
-        cached = await self.redis.get(CacheKeys.book_rating(novel.id))
+        cached = await cache_get(self.redis, CacheKeys.book_rating(novel.id))
         if cached:
             return RatingDistribution.model_validate_json(cached)
 
@@ -215,9 +171,10 @@ class BookService:
         total = sum(r[1] for r in rows)
         avg = float(novel.rating)
 
+        count_by_star = {r[0]: r[1] for r in rows}
         buckets: list[RatingBucket] = []
         for star in range(5, 0, -1):
-            count = next((r[1] for r in rows if r[0] == star), 0)
+            count = count_by_star.get(star, 0)
             percent = round(count / total * 100, 1) if total else 0.0
             buckets.append(RatingBucket(star=star, count=count, percent=percent))
 
@@ -246,55 +203,40 @@ class BookService:
 
     # ── 内部工具 ─────────────────────────────────────────
     async def _get_published_novel(self, book_id: int) -> Novel:
-        cached = await self.redis.get(CacheKeys.book(book_id))
+        cached = await cache_get(self.redis, CacheKeys.book(book_id))
         if cached:
             try:
                 data = json.loads(cached)
-                # 缓存可能由旧版本写入而缺字段，缺失必要字段时回源数据库
-                required = {
-                    "id",
-                    "title",
-                    "author_name",
-                    "category",
-                    "status",
-                    "word_count",
-                    "flags",
-                    "tags_str",
-                    "updated_at",
-                }
+                if isinstance(data, dict) and data.get("_miss"):
+                    raise NotFoundError("作品不存在或已下架")
+                required = {"id", "title", "author_name", "category", "status", "word_count",
+                            "flags", "tags_str", "updated_at"}
                 if required.issubset(data):
                     return Novel(**data)
+            except NotFoundError:
+                raise
             except (ValueError, TypeError):
                 logger.debug("书籍缓存解析失败 book_id=%s，回源", book_id, exc_info=True)
 
         novel = await self.novel_repo.get_by_id(book_id)
         if not novel or novel.deleted or novel.status != "published":
+            # 空值缓存：短 TTL 防穿透（B 端状态/信息变更会失效该键）
+            with contextlib.suppress(Exception):
+                await cache_set(self.redis, CacheKeys.book(book_id), {"_miss": True}, _TTL_BOOK_MISS)
             raise NotFoundError("作品不存在或已下架")
 
-        await cache_set(
-            self.redis,
-            CacheKeys.book(book_id),
-            {
-                "id": novel.id,
-                "title": novel.title,
-                "author_id": novel.author_id,
-                "author_name": novel.author_name,
-                "cover": novel.cover,
-                "category": novel.category,
-                "intro": novel.intro,
-                "word_count": novel.word_count,
-                "status": novel.status,
-                "flags": novel.flags,
-                "rating": float(novel.rating),
-                "rating_count": novel.rating_count,
-                "follow_count": novel.follow_count,
-                "click_count": novel.click_count,
-                "is_completed": novel.is_completed,
-                "tags_str": novel.tags_str,
-                "updated_at": novel.updated_at,
-            },
-            _TTL_BOOK,
-        )
+        # 预构建缓存 dict，避免 ORM 属性访问延迟
+        cache_dict = {
+            "id": novel.id, "title": novel.title, "author_id": novel.author_id,
+            "author_name": novel.author_name, "cover": novel.cover,
+            "category": novel.category, "intro": novel.intro,
+            "word_count": novel.word_count, "status": novel.status,
+            "flags": novel.flags, "rating": float(novel.rating),
+            "rating_count": novel.rating_count, "follow_count": novel.follow_count,
+            "click_count": novel.click_count, "is_completed": novel.is_completed,
+            "tags_str": novel.tags_str, "updated_at": novel.updated_at,
+        }
+        await cache_set(self.redis, CacheKeys.book(book_id), cache_dict, _TTL_BOOK)
         return novel
 
     async def _incr_click(self, book_id: int) -> None:

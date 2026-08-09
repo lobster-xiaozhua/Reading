@@ -1,13 +1,11 @@
 """B 端作品管理路由（§8.3）。
 
 对应前端 fetchNovelList / fetchNovelDetail / submitNovel /
-batchOperate / submitForAudit / approveNovel / shelveNovel / reshelveNovel。
+batchOperate / submitForAudit / approveNovel / shelveNovel / reshelveNovel.
 """
 
-import time
-
 from fastapi import APIRouter, Depends, Query, Request
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_admin, ok, require_permission
@@ -25,6 +23,7 @@ from app.schemas.b_end import (
     NovelSubmitBody,
 )
 from app.services.novel_service import NovelService
+from app.utils.time import now_ms as _now_ms
 
 router = APIRouter(prefix="/novels")
 
@@ -161,7 +160,6 @@ async def get_novel_stats(
     _admin=Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
 ):
-
     novel = await db.get(NovelModel, novel_id)
     if not novel:
         return ok(
@@ -175,8 +173,6 @@ async def get_novel_stats(
             },
         )
 
-    from sqlalchemy import func
-
     total_readers = await db.scalar(
         select(func.count())
         .select_from(ReadingHistory)
@@ -188,7 +184,7 @@ async def get_novel_stats(
         .where(ReadingHistory.novel_id == novel_id, ReadingHistory.percent >= 100)
     )
     completion_rate = round(
-        (completed_readers / total_readers * 100) if total_readers and total_readers > 0 else 0, 2
+        (completed_readers / total_readers * 100) if total_readers else 0, 2
     )
 
     return ok(
@@ -250,12 +246,13 @@ async def get_novel_comments(
         .limit(10)
     )
     rows = (await db.execute(stmt)).scalars().all()
+    now_ms = _now_ms()
     items = [
         {
             "id": str(r.id),
             "user": f"读者{r.reader_id}",
             "content": r.content,
-            "time": f"{max(1, (int(time.time() * 1000) - r.created_at) // 3600000)} 小时前"
+            "time": f"{max(1, (now_ms - r.created_at) // 3600000)} 小时前"
             if r.created_at
             else "未知",
             "likes": r.likes,
@@ -263,3 +260,4 @@ async def get_novel_comments(
         for r in rows
     ]
     return ok(request, items)
+

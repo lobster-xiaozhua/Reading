@@ -5,7 +5,6 @@
 """
 
 import contextlib
-import time
 
 import redis.asyncio as redis
 import structlog
@@ -26,6 +25,7 @@ from app.schemas.common import BatchOperateResult
 from app.services._converters import novel_to_b_detail
 from app.utils.batch import batch_execute
 from app.utils.state_machine import NovelStateMachine
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -40,14 +40,7 @@ class NovelService:
 
     # ── 作品列表 ─────────────────────────────────────────
     async def list_novels(self, params: NovelListParams) -> NovelListResponse:
-        """分页查询作品列表。
-
-        Args:
-            params: 查询参数（搜索关键词、状态、分类、日期范围）。
-
-        Returns:
-            分页作品列表。
-        """
+        """分页查询作品列表。"""
         novels, total = await self.repo.list_for_b_end(
             search_key=params.search_key,
             status=params.status,
@@ -66,17 +59,9 @@ class NovelService:
 
     # ── 作品详情 ─────────────────────────────────────────
     async def get_detail(self, novel_id: int) -> BNovelDetail:
-        """获取作品详情（含章节数）。
-
-        Args:
-            novel_id: 作品 ID。
-
-        Returns:
-            作品详情。
-        """
+        """获取作品详情（含章节数）。"""
         novel = await self._get_novel(novel_id)
         detail = novel_to_b_detail(novel)
-        # 补全章节数
         from app.repositories.chapter_repo import ChapterRepository
 
         chapters = await ChapterRepository(self.session).list_by_novel(novel_id)
@@ -87,15 +72,7 @@ class NovelService:
     async def submit_novel(
         self, body: NovelSubmitBody, novel_id: int | None = None
     ) -> BNovelDetail:
-        """新建或编辑作品。
-
-        Args:
-            body: 作品提交数据。
-            novel_id: 编辑时传入作品 ID，新建时为 None。
-
-        Returns:
-            作品详情。
-        """
+        """新建或编辑作品。"""
         if novel_id:
             novel = await self._get_novel(novel_id)
         else:
@@ -114,7 +91,6 @@ class NovelService:
         await self.session.flush()
         await self.session.commit()
         if novel_id:
-            # 编辑基本信息后失效 C 端书籍/聚合缓存
             await self._evict_novel_caches(novel_id)
         return novel_to_b_detail(novel)
 
@@ -126,17 +102,7 @@ class NovelService:
         reason: str = "",
         comment: str = "",
     ) -> BatchOperateResponse:
-        """批量操作作品（提审/通过/下架/重新上架/删除）。
-
-        Args:
-            ids: 作品 ID 列表。
-            action: 操作类型（submit-audit/approve/shelve/reshelve/delete）。
-            reason: 操作原因。
-            comment: 操作备注。
-
-        Returns:
-            批量操作结果。
-        """
+        """批量操作作品（提审/通过/下架/重新上架/删除）。"""
         action_handlers = {
             "submit-audit": self._batch_submit_audit,
             "approve": self._batch_approve,
@@ -148,31 +114,27 @@ class NovelService:
         if not handler:
             raise BizError(ErrorCode.PARAM_INVALID, f"不支持的操作: {action}")
 
+        novels = await self.repo.get_by_ids(ids)
+        novel_map = {n.id: n for n in novels}
+
         async def _run(nid: int) -> None:
-            await handler(nid, reason=reason, comment=comment)
+            novel = novel_map.get(nid)
+            if not novel:
+                raise NotFoundError("作品不存在")
+            await handler(novel, reason=reason, comment=comment)
 
         _, failed = await batch_execute(ids, _run, logger_name="novel_service.batch_operate")
         await self.session.commit()
-        # 状态流转后失效对应作品的 C 端缓存
-        for nid in ids:
-            await self._evict_novel_caches(nid)
+        await self._evict_novel_caches_batch(ids)
         return BatchOperateResponse(success=len(failed) == 0, failed=failed or None)
 
     # ── 状态流转 ─────────────────────────────────────────
     async def transition(self, novel_id: int, target: str) -> BNovelDetail:
-        """执行作品状态流转。
-
-        Args:
-            novel_id: 作品 ID。
-            target: 目标状态。
-
-        Returns:
-            更新后的作品详情。
-        """
+        """执行作品状态流转。"""
         novel = await self._get_novel(novel_id)
         NovelStateMachine.assert_transition(novel.status, target)
         novel.status = target
-        now = int(time.time() * 1000)
+        now = _now_ms()
         if target == "published":
             novel.published_at = now
         elif target == "offline":
@@ -181,11 +143,10 @@ class NovelService:
         await self._evict_novel_caches(novel_id)
         return novel_to_b_detail(novel)
 
-    async def _evict_novel_caches(self, novel_id: int) -> None:
-        """状态/信息变更后失效 C 端书籍详情、章节列表与聚合/排行缓存。"""
-        if not self.redis:
-            return
-        keys = [
+    @staticmethod
+    def _novel_cache_keys(novel_id: int) -> list[str]:
+        """作品相关缓存键集合（C 端详情/章节 + 聚合/排行）。"""
+        return [
             CacheKeys.book(novel_id),
             CacheKeys.chapters(novel_id),
             CacheKeys.HOME,
@@ -197,42 +158,52 @@ class NovelService:
             CacheKeys.rank("ticket"),
             CacheKeys.rank("new"),
         ]
+
+    async def _evict_novel_caches(self, novel_id: int) -> None:
+        """状态/信息变更后失效 C 端书籍详情、章节列表与聚合/排行缓存。"""
+        if not self.redis:
+            return
+        with contextlib.suppress(Exception):
+            await self.redis.delete(*self._novel_cache_keys(novel_id))
+
+    async def _evict_novel_caches_batch(self, novel_ids: list[int]) -> None:
+        """批量失效多部作品相关缓存，合并为一次 redis delete。"""
+        if not self.redis or not novel_ids:
+            return
+        keys: list[str] = []
+        for nid in novel_ids:
+            keys.extend(self._novel_cache_keys(nid))
         with contextlib.suppress(Exception):
             await self.redis.delete(*keys)
 
     # ── 批量提审 ─────────────────────────────────────────
-    async def _batch_submit_audit(self, novel_id: int, **kwargs) -> None:
-        novel = await self._get_novel(novel_id)
+    async def _batch_submit_audit(self, novel: Novel, **kwargs) -> None:
         NovelStateMachine.assert_transition(novel.status, "pending")
         novel.status = "pending"
 
     # ── 批量通过 ─────────────────────────────────────────
-    async def _batch_approve(self, novel_id: int, **kwargs) -> None:
-        novel = await self._get_novel(novel_id)
+    async def _batch_approve(self, novel: Novel, **kwargs) -> None:
         NovelStateMachine.assert_transition(novel.status, "published")
         novel.status = "published"
-        novel.published_at = int(time.time() * 1000)
+        novel.published_at = _now_ms()
 
     # ── 批量下架 ─────────────────────────────────────────
     async def _batch_shelve(
-        self, novel_id: int, *, reason: str = "", comment: str = "", **kwargs
+        self, novel: Novel, *, reason: str = "", comment: str = "", **kwargs
     ) -> None:
-        novel = await self._get_novel(novel_id)
         NovelStateMachine.assert_transition(novel.status, "offline")
         novel.status = "offline"
-        novel.shelved_at = int(time.time() * 1000)
+        novel.shelved_at = _now_ms()
         novel.offline_reason = reason
         novel.offline_remark = comment
 
     # ── 批量重新上架 ───────────────────────────────────────
-    async def _batch_reshelve(self, novel_id: int, **kwargs) -> None:
-        novel = await self._get_novel(novel_id)
+    async def _batch_reshelve(self, novel: Novel, **kwargs) -> None:
         NovelStateMachine.assert_transition(novel.status, "published")
         novel.status = "published"
 
     # ── 批量删除 ─────────────────────────────────────────
-    async def _batch_delete(self, novel_id: int, **kwargs) -> None:
-        novel = await self._get_novel(novel_id)
+    async def _batch_delete(self, novel: Novel, **kwargs) -> None:
         novel.deleted = 1
 
     # ── 内部工具 ─────────────────────────────────────────
@@ -245,17 +216,7 @@ class NovelService:
     async def batch_result(
         self, ids: list[int], action: str, reason: str = "", comment: str = ""
     ) -> BatchOperateResult:
-        """返回通用批量操作结果（含 affected 计数）。
-
-        Args:
-            ids: 作品 ID 列表。
-            action: 操作类型。
-            reason: 操作原因。
-            comment: 操作备注。
-
-        Returns:
-            批量操作结果（含影响数量）。
-        """
+        """返回通用批量操作结果（含 affected 计数）。"""
         resp = await self.batch_operate(ids, action, reason, comment)
         affected = len(ids) - (len(resp.failed) if resp.failed else 0)
         return BatchOperateResult(success=resp.success, affected=affected, failed=resp.failed)

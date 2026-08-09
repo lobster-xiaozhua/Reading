@@ -1,6 +1,10 @@
 """敏感词 DFA Trie 扫描器单元测试（§8.7）。"""
 
+import pytest
+
 from app.utils.sensitive_trie import SensitiveTrie
+
+pytestmark = pytest.mark.unit
 
 
 class TestSensitiveTrie:

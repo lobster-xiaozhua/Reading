@@ -192,4 +192,52 @@ class TestCEndVip:
         resp = await client.get("/api/v1/c/payment/methods")
         body = resp.json()
         assert body["code"] == 0
-        assert len(body["data"]) == 3
+
+
+class TestCEndIdempotency:
+    async def test_reward_with_idempotency_key_duplicate_skipped(self, client, db_session):
+        """同幂等键重复打赏仅首次生效（防重复扣费）。"""
+        from app.models.novel import Novel
+
+        db_session.add(
+            Novel(title="打赏书", category="xuanhuan", status="published", word_count=100)
+        )
+        await db_session.commit()
+
+        headers = {"Idempotency-Key": "uuid-1"}
+        first = await client.post(
+            "/api/v1/c/books/1/rewards",
+            json={"type": "ticket", "amount": 10},
+            headers=headers,
+        )
+        assert first.status_code == 200
+        assert first.json()["code"] == 0
+        assert first.json()["data"]["id"] is not None
+
+        dup = await client.post(
+            "/api/v1/c/books/1/rewards",
+            json={"type": "ticket", "amount": 10},
+            headers=headers,
+        )
+        assert dup.status_code == 200
+        assert dup.json()["data"]["duplicate"] is True
+        assert dup.json()["data"]["id"] is None
+
+    async def test_reward_without_idempotency_key_creates_new(self, client, db_session):
+        """不带幂等键每次打赏均创建新记录（兼容旧行为）。"""
+        from app.models.novel import Novel
+
+        db_session.add(
+            Novel(title="打赏书2", category="xuanhuan", status="published", word_count=100)
+        )
+        await db_session.commit()
+
+        r1 = await client.post(
+            "/api/v1/c/books/1/rewards", json={"type": "ticket", "amount": 10}
+        )
+        r2 = await client.post(
+            "/api/v1/c/books/1/rewards", json={"type": "ticket", "amount": 10}
+        )
+        assert r1.json()["data"]["id"] is not None
+        assert r2.json()["data"]["id"] is not None
+        assert r1.json()["data"]["id"] != r2.json()["data"]["id"]

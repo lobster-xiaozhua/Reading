@@ -244,6 +244,19 @@ class PaymentMethodItem(CamelModel):
     icon: str = ""
 
 
+class VipOrderCreate(CamelModel):
+    plan_id: str
+    payment_method: str = ""
+
+
+class VipOrderResult(CamelModel):
+    order_id: str
+    plan_name: str
+    amount: float
+    status: str
+    vip_expire_at: int = 0
+
+
 class FollowItem(CamelModel):
     book_id: str
     cover: str = ""

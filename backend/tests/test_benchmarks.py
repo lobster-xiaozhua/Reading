@@ -113,3 +113,44 @@ def _dedup_new(items: list[int]) -> list[int]:
     """新的集合去重算法（O(n)）。"""
     seen: set[int] = set()
     return [x for x in items if not (x in seen or seen.add(x))]
+
+
+# ── 基准测试：敏感词 Trie 扫描 ──────────────────────────
+
+@pytest.mark.slow
+@pytest.mark.benchmark
+def test_sensitive_trie_scan_performance(benchmark):
+    """千级词库 + 含大量命中的长文本扫描耗时。"""
+    from app.utils.sensitive_trie import SensitiveTrie
+
+    trie = SensitiveTrie()
+    trie.load([f"敏感词{i}" for i in range(1000)])
+    text = "这是一段正常文本，" + "敏感词42" * 80 + "结尾，" + "敏感词999" * 40
+    result = benchmark(trie.scan, text)
+    assert result  # 至少命中词
+
+
+# ── 基准测试：书架批量加载（N+1 修复后批量查询路径） ──────
+
+@pytest.mark.slow
+@pytest.mark.benchmark
+async def test_bookshelf_load_performance(benchmark, db_session, redis_client):
+    """书架 100 条记录的批量加载耗时（单次 IN 查询聚合，无 N+1）。"""
+    from app.models.novel import Novel
+    from app.models.reading import Bookshelf
+    from app.services.user_center_service import UserCenterService
+
+    novels = [
+        Novel(title=f"书架书{i}", author_name="作者", category="xuanhuan",
+              status="published", word_count=1000)
+        for i in range(100)
+    ]
+    db_session.add_all(novels)
+    await db_session.flush()
+    for n in novels:
+        db_session.add(Bookshelf(reader_id=1, novel_id=n.id, added_at=0))
+    await db_session.commit()
+
+    svc = UserCenterService(db_session, redis_client)
+    result = await benchmark(svc._load_bookshelf, reader_id=1)
+    assert len(result) == 100

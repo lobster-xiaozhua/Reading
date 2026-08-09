@@ -9,6 +9,8 @@ from app.utils.state_machine import (
     RoyaltyStateMachine,
 )
 
+pytestmark = pytest.mark.unit
+
 
 class TestNovelStateMachine:
     def test_draft_to_pending(self):

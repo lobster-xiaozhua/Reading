@@ -25,26 +25,19 @@ from app.schemas.c_end import (
     TagItem,
 )
 from app.services._converters import novel_to_c_summary
-from app.utils.cache import cache_set
+from app.utils.cache import cache_get, cache_set, cache_single_flight
 
 logger = structlog.get_logger(__name__)
 
 # 缓存 TTL（秒）
-_TTL_BANNERS = 300  # 5 分钟
-
+_TTL_BANNERS = 300
 _TTL_HOT_BOOKS = 300
-
 _TTL_FREE_LIMITED = 300
-
 _TTL_EDITOR_PICKS = 300
-
-_TTL_RANKING = 600  # 10 分钟
-
-_TTL_CATEGORIES = 86400  # 24 小时（分类极少变更）
-
-_TTL_TAGS = 86400  # 24 小时（标签极少变更）
-
-_TTL_HOME = 300  # 聚合接口取各模块最小 TTL
+_TTL_RANKING = 600
+_TTL_CATEGORIES = 86400
+_TTL_TAGS = 86400
+_TTL_HOME = 300
 
 
 class DiscoveryService:
@@ -59,16 +52,20 @@ class DiscoveryService:
     async def warmup(self) -> dict[str, int]:
         """启动时预热核心缓存，返回各模块写入条数。"""
         results: dict[str, int] = {}
-        try:
-            banners = await self.get_banners()
-            results["banners"] = len(banners)
-        except Exception:
-            logger.warning("预热 banners 失败", exc_info=True)
-        try:
-            books = await self.get_hot_books(10)
-            results["hot_books"] = len(books)
-        except Exception:
-            logger.warning("预热 hot_books 失败", exc_info=True)
+
+        async def _warm(key: str, coro) -> int:
+            try:
+                count = len(await coro)
+                results[key] = count
+                return count
+            except Exception:
+                logger.warning("预热 %s 失败", key, exc_info=True)
+                return 0
+
+        await _warm("banners", self.get_banners())
+        await _warm("hot_books", self.get_hot_books(10))
+        await _warm("categories", self.get_categories())
+        await _warm("tags", self.get_tags())
         try:
             ranks = {}
             for rank_type in ("hot", "follow", "ticket", "new"):
@@ -77,16 +74,6 @@ class DiscoveryService:
                 results[f"ranking:{rank_type}"] = len(items)
         except Exception:
             logger.warning("预热 rankings 失败", exc_info=True)
-        try:
-            categories = await self.get_categories()
-            results["categories"] = len(categories)
-        except Exception:
-            logger.warning("预热 categories 失败", exc_info=True)
-        try:
-            tags = await self.get_tags()
-            results["tags"] = len(tags)
-        except Exception:
-            logger.warning("预热 tags 失败", exc_info=True)
         logger.info("缓存预热完成", **results)
         return results
 
@@ -96,42 +83,53 @@ class DiscoveryService:
 
         各模块复用既有 Cache-Aside 缓存方法；排行榜 4 路并发执行。
         """
-        cached = await self.redis.get(CacheKeys.HOME)
+        cached = await cache_get(self.redis, CacheKeys.HOME)
         if cached:
             try:
                 return DiscoverHome.model_validate_json(cached)
             except Exception:
                 logger.warning("聚合缓存解析失败，回源重建", exc_info=True)
 
-        async def safe(fn):
+        async def rebuild() -> DiscoverHome:
+            # 等待者可能在锁释放后进入：此时缓存可能已被写入，直接复用
+            cached = await cache_get(self.redis, CacheKeys.HOME)
+            if cached:
+                try:
+                    return DiscoverHome.model_validate_json(cached)
+                except Exception:
+                    logger.warning("聚合缓存二次解析失败，重建", exc_info=True)
+
+            async def safe(fn):
+                try:
+                    return await fn
+                except Exception:
+                    logger.warning("发现页模块加载失败", exc_info=True)
+                    return []
+
+            # 排行榜 4 路顺序执行（AsyncSession 不支持并发复用同一连接）
+            ranks = {
+                "hot": await safe(self.get_ranking("hot", rank_limit)),
+                "follow": await safe(self.get_ranking("follow", rank_limit)),
+                "ticket": await safe(self.get_ranking("ticket", rank_limit)),
+                "new": await safe(self.get_ranking("new", rank_limit)),
+            }
+
+            payload = DiscoverHome(
+                banners=await safe(self.get_banners()),
+                hotBooks=await safe(self.get_hot_books(10)),
+                freeBooks=await safe(self.get_free_limited_books(10)),
+                editorPicks=await safe(self.get_editor_picks(6)),
+                categories=await safe(self.get_categories()),
+                rankings=ranks,
+            )
             try:
-                return await fn
+                await self.redis.set(CacheKeys.HOME, payload.model_dump_json(), ex=_TTL_HOME)
             except Exception:
-                logger.warning("发现页模块加载失败", exc_info=True)
-                return []
+                logger.warning("聚合缓存写入失败 key=%s", CacheKeys.HOME, exc_info=True)
+            return payload
 
-        # 排行榜 4 路顺序执行（AsyncSession 不支持并发复用同一连接）
-        ranks = {
-            "hot": await safe(self.get_ranking("hot", rank_limit)),
-            "follow": await safe(self.get_ranking("follow", rank_limit)),
-            "ticket": await safe(self.get_ranking("ticket", rank_limit)),
-            "new": await safe(self.get_ranking("new", rank_limit)),
-        }
-        rankings = ranks
-
-        payload = DiscoverHome(
-            banners=await safe(self.get_banners()),
-            hotBooks=await safe(self.get_hot_books(10)),
-            freeBooks=await safe(self.get_free_limited_books(10)),
-            editorPicks=await safe(self.get_editor_picks(6)),
-            categories=await safe(self.get_categories()),
-            rankings=rankings,
-        )
-        try:
-            await self.redis.set(CacheKeys.HOME, payload.model_dump_json(), ex=_TTL_HOME)
-        except Exception:
-            logger.warning("聚合缓存写入失败 key=%s", CacheKeys.HOME, exc_info=True)
-        return payload
+        # 单飞重建：聚合成本高，避免缓存失效瞬间并发回源（防击穿）
+        return await cache_single_flight(self.redis, CacheKeys.HOME_LOCK, rebuild)
 
     # ── Banner ──────────────────────────────────────────
     async def get_banners(self) -> list[Banner]:
@@ -149,38 +147,15 @@ class DiscoveryService:
 
     # ── 热门 / 限免 / 编辑推荐 ────────────────────────────
     async def get_hot_books(self, limit: int = 6) -> list[BookSummary]:
-        """获取热门作品列表。
-
-        Args:
-            limit: 数量限制。
-
-        Returns:
-            热门作品列表。
-        """
         return await self._get_flag_books(CacheKeys.HOT_BOOKS, "hot", limit, _TTL_HOT_BOOKS)
 
     async def get_free_limited_books(self, limit: int = 6) -> list[BookSummary]:
-        """获取限免作品列表。
-
-        Args:
-            limit: 数量限制。
-
-        Returns:
-            限免作品列表。
-        """
         return await self._get_flag_books(
             CacheKeys.FREE_LIMITED, "free-limited", limit, _TTL_FREE_LIMITED
         )
 
     async def get_editor_picks(self, limit: int = 6) -> list[RecommendBook]:
-        """获取编辑推荐作品列表。
-
-        Args:
-            limit: 数量限制。
-
-        Returns:
-            编辑推荐列表（含匹配度评分）。
-        """
+        """获取编辑推荐作品列表。"""
         cached = await self.redis.get(CacheKeys.EDITOR_PICKS)
         if cached:
             return [RecommendBook.model_validate(r) for r in json.loads(cached)]
@@ -199,15 +174,7 @@ class DiscoveryService:
 
     # ── 排行榜 ──────────────────────────────────────────
     async def get_ranking(self, rank_type: str, limit: int = 100) -> list[RankItem]:
-        """获取排行榜数据。
-
-        Args:
-            rank_type: 排行榜类型（hot/follow/ticket/new）。
-            limit: 数量限制。
-
-        Returns:
-            排行榜列表。
-        """
+        """获取排行榜数据。"""
         key = CacheKeys.rank(rank_type)
         cached = await self.redis.get(key)
         if cached:
@@ -226,11 +193,7 @@ class DiscoveryService:
         return result
 
     async def _sync_click_counts(self) -> None:
-        """将 Redis 中的点击增量合并回 DB 并清零。
-
-        点击计数在响应路径只做 Redis INCR（低延迟），此处批量落库，
-        仅在 hot 排行榜缓存重建时触发，频率与缓存 TTL 绑定（10 分钟级）。
-        """
+        """将 Redis 中的点击增量合并回 DB 并清零。"""
         try:
             batch: list[str] = []
             async for key in self.redis.scan_iter(
@@ -246,29 +209,32 @@ class DiscoveryService:
             logger.debug("点击计数同步失败（非阻塞）", exc_info=True)
 
     async def _flush_click_counts(self, keys: list[str]) -> None:
-        """读取一组点击键并累加到 DB，随后删除键，防止重复累计。"""
+        """读取一组点击键并累加到 DB，随后批量删除键，防止重复累计。"""
         if not keys:
             return
         pipe = self.redis.pipeline()
         for k in keys:
             pipe.get(k)
         values = await pipe.execute()
+        to_delete: list[str] = []
         for k, v in zip(keys, values, strict=True):
             if not v:
-                await self.redis.delete(k)
+                to_delete.append(k)
                 continue
             try:
                 book_id = int(k.rsplit(":", 1)[-1])
             except ValueError:
-                await self.redis.delete(k)
+                to_delete.append(k)
                 continue
             await self.session.execute(
                 update(Novel)
                 .where(Novel.id == book_id)
                 .values(click_count=Novel.click_count + int(v))
             )
-            await self.redis.delete(k)
+            to_delete.append(k)
         await self.session.commit()
+        if to_delete:
+            await self.redis.delete(*to_delete)
 
     # ── 分类树 ──────────────────────────────────────────
     async def get_categories(self) -> list[CategoryNode]:

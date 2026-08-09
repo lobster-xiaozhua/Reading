@@ -1,6 +1,6 @@
 """章节仓储（§4.2.2）。"""
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import and_, func, or_, select
 
 from app.models.novel import Chapter
 from app.repositories.base import BaseRepository
@@ -17,6 +17,17 @@ class ChapterRepository(BaseRepository[Chapter]):
         stmt = stmt.order_by(Chapter.index)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def get_by_ids(self, ids: list[int], *, include_deleted: bool = False) -> list[Chapter]:
+        """根据 ID 批量获取章节，保持输入顺序。"""
+        if not ids:
+            return []
+        stmt = select(Chapter).where(Chapter.id.in_(ids))
+        if not include_deleted:
+            stmt = stmt.where(Chapter.deleted == 0)
+        result = await self.session.execute(stmt)
+        by_id = {c.id: c for c in result.scalars().all()}
+        return [by_id[i] for i in ids if i in by_id]
 
     async def list_by_novel_paged(
         self,
@@ -101,13 +112,10 @@ class ChapterRepository(BaseRepository[Chapter]):
         """批量获取多部作品的最新已发布章节，返回 {novel_id: chapter} 映射。"""
         if not novel_ids:
             return {}
-        from sqlalchemy import and_
-        from sqlalchemy import func as sa_func
-        from sqlalchemy import select as sa_select
         max_index = (
-            sa_select(
+            select(
                 Chapter.novel_id,
-                sa_func.max(Chapter.index).label("max_index"),
+                func.max(Chapter.index).label("max_index"),
             )
             .where(
                 Chapter.novel_id.in_(novel_ids),
@@ -118,7 +126,7 @@ class ChapterRepository(BaseRepository[Chapter]):
             .subquery()
         )
         stmt = (
-            sa_select(Chapter)
+            select(Chapter)
             .join(
                 max_index,
                 and_(
@@ -136,19 +144,25 @@ class ChapterRepository(BaseRepository[Chapter]):
         两步均在当前事务内 flush（未 commit），最终 commit 原子生效；
         第一步先移到负索引临时区，避免唯一约束中间态冲突。
         """
+        if not ordered_ids:
+            return
+        result = await self.session.execute(
+            select(Chapter).where(
+                Chapter.id.in_(ordered_ids), Chapter.novel_id == novel_id
+            )
+        )
+        chapters = {c.id: c for c in result.scalars().all()}
+
+        # 第一步：写入负索引临时区
         for temp_index, cid in enumerate(ordered_ids):
-            stmt = select(Chapter).where(Chapter.id == cid, Chapter.novel_id == novel_id)
-            result = await self.session.execute(stmt)
-            ch = result.scalars().first()
+            ch = chapters.get(cid)
             if ch:
                 ch.index = -(temp_index + 1)
         await self.session.flush()
 
         # 第二步：写入最终正序索引
         for new_index, cid in enumerate(ordered_ids):
-            stmt = select(Chapter).where(Chapter.id == cid, Chapter.novel_id == novel_id)
-            result = await self.session.execute(stmt)
-            ch = result.scalars().first()
+            ch = chapters.get(cid)
             if ch:
                 ch.index = new_index
         await self.session.flush()

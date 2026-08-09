@@ -1,13 +1,13 @@
 """阅读仓储：读者 / 书架 / 阅读历史 / 每日统计（§4.2.1/§4.2.3）。"""
 
-import time
 from datetime import date, timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 
 from app.models.reading import Bookshelf, ReadingHistory, ReadingStatsDaily
 from app.models.user import Reader
 from app.repositories.base import BaseRepository
+from app.utils.time import now_ms as _now_ms
 
 
 class ReaderRepository(BaseRepository[Reader]):
@@ -38,7 +38,7 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
 
     async def add(self, reader_id: int, novel_id: int) -> Bookshelf:
         """将作品加入读者书架。"""
-        shelf = Bookshelf(reader_id=reader_id, novel_id=novel_id, added_at=int(time.time() * 1000))
+        shelf = Bookshelf(reader_id=reader_id, novel_id=novel_id, added_at=_now_ms())
         self.session.add(shelf)
         await self.session.flush()
         return shelf
@@ -55,6 +55,17 @@ class BookshelfRepository(BaseRepository[Bookshelf]):
             await self.session.flush()
             return True
         return False
+
+    async def remove_many(self, reader_id: int, novel_ids: list[int]) -> int:
+        """批量移出书架，单条 DELETE 语句，返回实际移除数量。"""
+        if not novel_ids:
+            return 0
+        stmt = delete(Bookshelf).where(
+            Bookshelf.reader_id == reader_id,
+            Bookshelf.novel_id.in_(novel_ids),
+        )
+        result = await self.session.execute(stmt)
+        return result.rowcount or 0
 
 
 class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
@@ -74,7 +85,7 @@ class ReadingHistoryRepository(BaseRepository[ReadingHistory]):
         )
         result = await self.session.execute(stmt)
         h = result.scalars().first()
-        now = int(time.time() * 1000)
+        now = _now_ms()
         if h:
             h.chapter_id = chapter_id or h.chapter_id
             h.chapter_index = chapter_index if chapter_index is not None else h.chapter_index
@@ -169,9 +180,9 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
 
     async def get_current_streak(self, reader_id: int) -> int:
         """计算读者当前连续阅读天数（单条 SQL，避免全量加载日期）。"""
+        # 取最近一天（今天或昨天，取决于今天是否读过）
         from sqlalchemy import desc
 
-        # 取最近一天（今天或昨天，取决于今天是否读过）
         stmt = (
             select(ReadingStatsDaily.stat_date)
             .where(ReadingStatsDaily.reader_id == reader_id)
@@ -189,8 +200,7 @@ class ReadingStatsRepository(BaseRepository[ReadingStatsDaily]):
         if start != last:
             return 0
 
-        # 用窗口函数/set 计算连续频率：加载最近 N 天（上限 365）判断连续性
-        # 避免全表扫描：仅取最近 400 天
+        # 加载最近 400 天判断连续性
         cutoff = start - timedelta(days=400)
         stmt_dates = (
             select(ReadingStatsDaily.stat_date)

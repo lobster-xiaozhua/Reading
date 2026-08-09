@@ -1,7 +1,5 @@
 """C 端笔记服务（选词笔记 CRUD）。"""
 
-import time
-
 import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,6 +8,7 @@ from app.core.exceptions import NotFoundError, ParamError
 from app.models.notes import ReaderNote
 from app.models.novel import Chapter, Novel
 from app.schemas.c_end import NoteCreateBody, NoteItem, NoteUpdateBody
+from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
@@ -21,36 +20,17 @@ class NotesService:
         self.session = session
 
     async def create_note(self, reader_id: int, body: NoteCreateBody) -> str:
-        """创建选词笔记。
-
-        Args:
-            reader_id: 读者 ID。
-            body: 笔记创建数据。
-
-        Returns:
-            创建的笔记 ID。
-        """
-        if not body.text or not body.text.strip():
+        """创建选词笔记。"""
+        text = (body.text or "").strip()
+        if not text:
             raise ParamError("笔记内容不能为空")
-        # 校验作品与章节归属：章节必须属于该书且已发布
-        novel = await self.session.get(Novel, body.novel_id)
-        if not novel or novel.deleted or novel.status != "published":
-            raise ParamError("作品不存在或已下架")
-        if body.chapter_id:
-            chapter = await self.session.get(Chapter, body.chapter_id)
-            if (
-                not chapter
-                or chapter.novel_id != body.novel_id
-                or chapter.deleted
-                or chapter.status != "published"
-            ):
-                raise ParamError("章节不存在或不属于该作品")
-        now = int(time.time() * 1000)
+        await self._validate_target(body)
+        now = _now_ms()
         note = ReaderNote(
             reader_id=reader_id,
             novel_id=body.novel_id,
             chapter_id=body.chapter_id,
-            text=body.text.strip(),
+            text=text,
             paragraph_index=body.paragraph_index or 0,
             offset_start=body.offset_start or 0,
             offset_end=body.offset_end or 0,
@@ -63,19 +43,26 @@ class NotesService:
         await self.session.commit()
         return str(note.id)
 
+    async def _validate_target(self, body: NoteCreateBody) -> None:
+        """校验笔记关联的作品与章节存在且已发布。"""
+        novel = await self.session.get(Novel, body.novel_id)
+        if not novel or novel.deleted or novel.status != "published":
+            raise ParamError("作品不存在或已下架")
+        if not body.chapter_id:
+            return
+        chapter = await self.session.get(Chapter, body.chapter_id)
+        if (
+            not chapter
+            or chapter.novel_id != body.novel_id
+            or chapter.deleted
+            or chapter.status != "published"
+        ):
+            raise ParamError("章节不存在或不属于该作品")
+
     async def list_notes(
         self, reader_id: int, novel_id: int | None = None, limit: int = 50
     ) -> list[NoteItem]:
-        """查询读者笔记列表（可按作品过滤）。
-
-        Args:
-            reader_id: 读者 ID。
-            novel_id: 可选，按作品过滤。
-            limit: 数量限制。
-
-        Returns:
-            笔记列表。
-        """
+        """查询读者笔记列表（可按作品过滤）。"""
         stmt = (
             select(ReaderNote)
             .where(ReaderNote.reader_id == reader_id)
@@ -102,35 +89,18 @@ class NotesService:
         ]
 
     async def update_note(self, reader_id: int, note_id: int, body: NoteUpdateBody) -> bool:
-        """更新笔记内容（仅更新 annotation 字段）。
-
-        Args:
-            reader_id: 读者 ID。
-            note_id: 笔记 ID。
-            body: 更新数据。
-
-        Returns:
-            操作是否成功。
-        """
+        """更新笔记内容（仅更新 annotation 字段）。"""
         note = await self.session.get(ReaderNote, note_id)
         if not note or note.reader_id != reader_id:
             raise NotFoundError("笔记不存在")
         if body.annotation is not None:
             note.annotation = body.annotation
-        note.updated_at = int(time.time() * 1000)
+        note.updated_at = _now_ms()
         await self.session.commit()
         return True
 
     async def delete_note(self, reader_id: int, note_id: int) -> bool:
-        """删除笔记。
-
-        Args:
-            reader_id: 读者 ID。
-            note_id: 笔记 ID。
-
-        Returns:
-            操作是否成功。
-        """
+        """删除笔记。"""
         note = await self.session.get(ReaderNote, note_id)
         if not note or note.reader_id != reader_id:
             raise NotFoundError("笔记不存在")

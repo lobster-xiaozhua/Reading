@@ -4,10 +4,10 @@
 软删除统一 ``deleted``。
 """
 
-import time
-
 from sqlalchemy import BigInteger, Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+from app.utils.time import now_ms as _now_ms
 
 # SQLite 自动递增仅支持 INTEGER PRIMARY KEY；通过 variant 在 SQLite 下退化为 INTEGER。
 _bigint_pk = BigInteger().with_variant(Integer, "sqlite")
@@ -26,11 +26,11 @@ class IdMixin:
 class TimestampMixin:
     """创建/更新时间戳（毫秒）。"""
 
-    created_at: Mapped[int] = mapped_column(BigInteger, default=lambda: int(time.time() * 1000))
+    created_at: Mapped[int] = mapped_column(BigInteger, default=_now_ms)
     updated_at: Mapped[int] = mapped_column(
         BigInteger,
-        default=lambda: int(time.time() * 1000),
-        onupdate=lambda: int(time.time() * 1000),
+        default=_now_ms,
+        onupdate=_now_ms,
     )
 
 

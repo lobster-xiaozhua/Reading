@@ -15,7 +15,7 @@ from sqlalchemy import select
 from app.core.database import AsyncSessionLocal, engine
 from app.core.security import hash_password
 from app.models import Base
-from app.models.audit import SensitiveWord
+from app.models.audit import AuditRecord, SensitiveWord
 from app.models.novel import Banner, Category, Chapter, Novel, Tag
 from app.models.permission import Permission, Role, RolePermission
 from app.models.reading import Bookshelf, ReadingHistory
@@ -94,8 +94,16 @@ NOVELS: list[tuple[str, str, str, str, int]] = [
     ("斗破苍穹", "天蚕土豆", "xuanhuan", "buyout", 50),
     ("凡人修仙传", "忘语", "xianxia", "share", 60),
     ("遮天", "辰东", "xianxia", "guarantee-share", 50),
-    ("诡秘之主", "爱潜水的乌贼", "fantasy", "share", 70),
+    ("诡秘之主", "爱潜水的乌贼", "xuanhuan-qihuan", "share", 70),
     ("大奉打更人", "卖报小郎君", "xuanhuan", "buyout", 45),
+]
+
+# 演示管理员：(username, password, nickname, role_key) —— 与 B 端登录页演示账号一一对应
+DEMO_ADMINS: list[tuple[str, str, str, str]] = [
+    ("admin", "admin123", "演示管理员", "super-admin"),
+    ("content", "content123", "内容管理员", "content-admin"),
+    ("auditor", "auditor123", "审核员", "auditor"),
+    ("operation", "operation123", "运营管理员", "operation-admin"),
 ]
 
 
@@ -120,20 +128,22 @@ async def seed() -> None:
                 if p not in existing:
                     db.add(RolePermission(role_key=key, perm_key=p))
 
-        # ── 管理员账号 admin / admin123 ───────────
-        admin = (
-            await db.execute(select(Admin).where(Admin.username == "admin"))
-        ).scalars().first()
-        if not admin:
-            db.add(
-                Admin(
-                    username="admin",
-                    nickname="演示管理员",
-                    email="admin@novel.dev",
-                    password_hash=hash_password("admin123"),
-                    enabled=1,
+        # ── 演示管理员（B 端登录页 4 个账号）─────────
+        for username, password, nickname, role_key in DEMO_ADMINS:
+            admin = (
+                await db.execute(select(Admin).where(Admin.username == username))
+            ).scalars().first()
+            if not admin:
+                db.add(
+                    Admin(
+                        username=username,
+                        nickname=nickname,
+                        email=f"{username}@novel.dev",
+                        password_hash=hash_password(password),
+                        role_key=role_key,
+                        enabled=1,
+                    )
                 )
-            )
 
         # ── 读者账号 reader / reader123 ────────────
         reader = (
@@ -255,6 +265,50 @@ async def seed() -> None:
                     )).scalars().first()
                     if first_chapter:
                         db.add(ReadingHistory(reader_id=reader_id, novel_id=n.id, chapter_id=first_chapter.id, chapter_index=1, percent=random.uniform(10, 100), read_at=now - random.randint(0, 86400000)))
+
+        # ── 兼容修复：历史 seed 的 fantasy 悬空分类归一化 ──
+        from sqlalchemy import update
+
+        await db.execute(
+            update(Novel)
+            .where(Novel.category == "fantasy", Novel.deleted == 0)
+            .values(category="xuanhuan-qihuan")
+        )
+
+        # ── 审核队列（待审作品 + 待审章节）──────────
+        if not (await db.execute(select(AuditRecord).limit(1))).scalars().first():
+            now = int(time.time() * 1000)
+            novels = (await db.execute(select(Novel).where(Novel.deleted == 0))).scalars().all()
+            for n in novels:
+                if n.status in ("pending", "draft"):
+                    db.add(
+                        AuditRecord(
+                            target_type="novel",
+                            target_id=n.id,
+                            level="first",
+                            status="pending",
+                            submitted_at=now - 3600000,
+                            processed_at=0,
+                        )
+                    )
+            chapters = (
+                await db.execute(
+                    select(Chapter).where(
+                        Chapter.deleted == 0, Chapter.status.in_(("pending", "draft"))
+                    )
+                )
+            ).scalars().all()
+            for ch in chapters[:2]:
+                db.add(
+                    AuditRecord(
+                        target_type="chapter",
+                        target_id=ch.id,
+                        level="first",
+                        status="pending",
+                        submitted_at=now - 1800000,
+                        processed_at=0,
+                    )
+                )
 
         await db.commit()
         print("seed done")

@@ -13,6 +13,7 @@ import structlog
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import BizError
 from app.core.redis import CacheKeys
 from app.models.novel import Chapter, Novel
 from app.models.reading import Bookshelf, ReadingHistory, ReadingStatsDaily
@@ -38,12 +39,18 @@ from app.schemas.c_end import (
     RewardRecord,
     UserProfile,
     UserProfileStats,
+    VipOrderCreate,
+    VipOrderResult,
     VipPlan,
 )
 from app.services._converters import novel_to_c_summary
 from app.utils.cache import cache_set
+from app.utils.time import now_ms
 
 logger = structlog.get_logger(__name__)
+
+# 套餐标识 → 生效月数（模拟下单顺延时长）
+_PLAN_MONTHS: dict[str, int] = {"monthly": 1, "quarterly": 3, "yearly": 12}
 
 _TTL_HEATMAP = 3600
 
@@ -146,7 +153,7 @@ class UserCenterService:
             return []
 
         novel_ids = [s.novel_id for s in shelves]
-        novels = await self._get_novels_by_ids(novel_ids)
+        novels = await self.novel_repo.get_by_ids(novel_ids, published_only=True)
         novel_map = {n.id: n for n in novels}
         existing_ids = [nid for nid in novel_ids if nid in novel_map]
         history_map = await self.history_repo.get_by_reader_novels(reader_id, existing_ids)
@@ -183,14 +190,13 @@ class UserCenterService:
         if not histories:
             return []
         novel_ids = [h.novel_id for h in histories]
-        novels = await self._get_novels_by_ids(novel_ids)
+        novels = await self.novel_repo.get_by_ids(novel_ids, published_only=True)
         novel_map = {n.id: n for n in novels}
 
         chapter_ids = [h.chapter_id for h in histories if h.chapter_id]
         chapters = {}
         if chapter_ids:
-            from sqlalchemy import select as sa_select
-            stmt = sa_select(Chapter).where(Chapter.id.in_(chapter_ids))
+            stmt = select(Chapter).where(Chapter.id.in_(chapter_ids))
             rows = (await self.session.execute(stmt)).scalars().all()
             chapters = {c.id: c for c in rows}
 
@@ -215,15 +221,7 @@ class UserCenterService:
 
     # ── 打赏记录 ─────────────────────────────────────────
     async def get_reward_records(self, reader_id: int, limit: int = 20) -> list[RewardRecord]:
-        """获取打赏记录。
-
-        Args:
-            reader_id: 读者 ID。
-            limit: 数量限制。
-
-        Returns:
-            打赏记录列表。
-        """
+        """获取打赏记录。"""
         from app.models.interaction import RewardRecord as RewardModel
 
         stmt = (
@@ -295,7 +293,13 @@ class UserCenterService:
         result = [
             HeatmapCell(date=s.stat_date.isoformat(), duration=s.duration_minutes) for s in stats
         ]
-        await cache_set(self.redis, CacheKeys.heatmap(reader_id), result, _TTL_HEATMAP)
+        # 缓存序列化为 JSON dict（避免 pydantic 对象被 orjson default=str 序列化为 repr）
+        await cache_set(
+            self.redis,
+            CacheKeys.heatmap(reader_id),
+            [r.model_dump(mode="json") for r in result],
+            _TTL_HEATMAP,
+        )
         return result
 
     # ── 阅读偏好 ─────────────────────────────────────────
@@ -345,8 +349,6 @@ class UserCenterService:
     # ── VIP 套餐 ─────────────────────────────────────────
     async def get_vip_plans(self) -> list[VipPlan]:
         """获取 VIP 套餐列表（优先查 DB，无数据时返回默认值）。"""
-        from sqlalchemy import select
-
         stmt = (
             select(VipPlanModel)
             .where(VipPlanModel.enabled == 1)
@@ -372,6 +374,33 @@ class UserCenterService:
     async def get_payment_methods(self) -> list[PaymentMethodItem]:
         """获取支付方式列表。"""
         return _default_payment_methods()
+
+    # ── VIP 下单（模拟支付闭环）──────────────────────────
+    async def create_vip_order(
+        self, reader_id: int, body: VipOrderCreate
+    ) -> VipOrderResult:
+        """创建 VIP 订单（v1 模拟支付：下单即成功，顺延到期时间）。"""
+        plans = await self.get_vip_plans()
+        plan = next((p for p in plans if p.id == body.plan_id), None)
+        if not plan:
+            raise BizError("套餐不存在，请刷新后重试")
+        months = _PLAN_MONTHS.get(body.plan_id, 1)
+        reader = await self.session.get(Reader, reader_id)
+        if not reader:
+            raise BizError("用户不存在")
+        now = now_ms()
+        base = max(reader.vip_expire_at or 0, now)
+        new_expire = base + months * 30 * 86400000
+        reader.is_vip = 1
+        reader.vip_expire_at = new_expire
+        await self.session.commit()
+        return VipOrderResult(
+            order_id=f"vip{now}{reader_id}",
+            plan_name=plan.name,
+            amount=plan.total_price,
+            status="paid",
+            vip_expire_at=new_expire,
+        )
 
     # ── 追更列表 ─────────────────────────────────────────
     async def get_follow_list(self, reader_id: int) -> list[FollowItem]:
@@ -400,7 +429,7 @@ class UserCenterService:
         if not shelves:
             return []
         novel_ids = [s.novel_id for s in shelves]
-        novels = await self._get_novels_by_ids(novel_ids)
+        novels = await self.novel_repo.get_by_ids(novel_ids, published_only=True)
         novel_map = {n.id: n for n in novels}
 
         novel_ids = [s.novel_id for s in shelves if s.novel_id in novel_map]
@@ -437,14 +466,6 @@ class UserCenterService:
         return result
 
     # ── 内部工具 ─────────────────────────────────────────
-    async def _get_novels_by_ids(self, novel_ids: list[int]) -> list[Novel]:
-        if not novel_ids:
-            return []
-        stmt = select(Novel).where(
-            Novel.id.in_(novel_ids), Novel.deleted == 0, Novel.status == "published"
-        )
-        return list((await self.session.execute(stmt)).scalars().all())
-
     async def _count_shelf(self, reader_id: int) -> int:
         stmt = select(func.count()).where(Bookshelf.reader_id == reader_id)
         return (await self.session.execute(stmt)).scalar_one()

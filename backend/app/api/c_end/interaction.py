@@ -4,7 +4,7 @@
 点赞评论、打赏、评分。
 """
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Header, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,8 +14,13 @@ from app.core.database import get_db
 from app.core.limiter import limiter
 from app.core.redis import get_redis_client
 from app.services.interaction_service import InteractionService
+from app.utils.idempotency import idempotent_run
 
 router = APIRouter()
+
+# 幂等键 TTL：打赏/评论需覆盖提交-确认窗口
+_IDEM_TTL_REWARD = 300  # 5 分钟
+_IDEM_TTL_COMMENT = 60  # 1 分钟
 
 
 class AddCommentBody(BaseModel):
@@ -109,9 +114,18 @@ async def create_comment(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
     redis = Depends(get_redis_client),
+    idempotency_key: str = Header(default="", alias="Idempotency-Key"),
 ):
     svc = InteractionService(db, redis)
-    comment_id = await svc.create_comment(reader_id, book_id, body.content, body.rating)
+    key = f"comment:{reader_id}:{idempotency_key}" if idempotency_key else ""
+    is_first, comment_id = await idempotent_run(
+        redis,
+        key,
+        _IDEM_TTL_COMMENT,
+        lambda: svc.create_comment(reader_id, book_id, body.content, body.rating),
+    )
+    if not is_first:
+        return ok(request, {"id": None, "duplicate": True})
     return ok(request, {"id": comment_id})
 
 
@@ -135,9 +149,18 @@ async def reply_comment(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
     redis = Depends(get_redis_client),
+    idempotency_key: str = Header(default="", alias="Idempotency-Key"),
 ):
     svc = InteractionService(db, redis)
-    reply_id = await svc.reply_comment(reader_id, comment_id, body.content)
+    key = f"reply:{reader_id}:{idempotency_key}" if idempotency_key else ""
+    is_first, reply_id = await idempotent_run(
+        redis,
+        key,
+        _IDEM_TTL_COMMENT,
+        lambda: svc.reply_comment(reader_id, comment_id, body.content),
+    )
+    if not is_first:
+        return ok(request, {"id": None, "duplicate": True})
     return ok(request, {"id": reply_id})
 
 
@@ -150,9 +173,18 @@ async def create_reward(
     reader_id: int = Depends(get_current_reader),
     db: AsyncSession = Depends(get_db),
     redis = Depends(get_redis_client),
+    idempotency_key: str = Header(default="", alias="Idempotency-Key"),
 ):
     svc = InteractionService(db, redis)
-    record_id = await svc.create_reward(reader_id, book_id, body.type, body.amount)
+    key = f"reward:{reader_id}:{idempotency_key}" if idempotency_key else ""
+    is_first, record_id = await idempotent_run(
+        redis,
+        key,
+        _IDEM_TTL_REWARD,
+        lambda: svc.create_reward(reader_id, book_id, body.type, body.amount),
+    )
+    if not is_first:
+        return ok(request, {"id": None, "duplicate": True})
     return ok(request, {"id": record_id})
 
 

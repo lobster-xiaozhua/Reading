@@ -1,15 +1,52 @@
 """Redis 客户端与缓存键规范（§10.2）。"""
 
 import hashlib
+import inspect
 import threading
 import time
+from functools import wraps
 
 import redis.asyncio as redis
 import structlog
 
 from app.core.config import settings
+from app.core.metrics import record_redis_call, record_slow_redis
 
 logger = structlog.get_logger(__name__)
+
+# 返回复合对象（内含多次命令）的方法不逐命令包装
+_SKIP_TIMED_METHODS = {"pipeline", "transaction", "pubsub", "connection_pool"}
+
+
+class _TimedRedis:
+    """记录慢 Redis 命令到 metrics（仅包装顶层 async 命令）。
+
+    通过 __getattr__ 转发至底层客户端；pipeline/transaction 等复合
+    对象方法原样返回，避免破坏其内部命令收集。
+    """
+
+    __slots__ = ("_client",)
+
+    def __init__(self, client: redis.Redis) -> None:
+        self._client = client
+
+    def __getattr__(self, name: str):
+        attr = getattr(self._client, name)
+        if name in _SKIP_TIMED_METHODS or not inspect.iscoroutinefunction(attr):
+            return attr
+
+        @wraps(attr)
+        async def wrapper(*args, **kwargs):
+            record_redis_call(name)
+            start = time.perf_counter()
+            try:
+                return await attr(*args, **kwargs)
+            finally:
+                duration_ms = (time.perf_counter() - start) * 1000
+                if duration_ms > settings.redis_slow_command_threshold_ms:
+                    record_slow_redis(name, duration_ms)
+
+        return wrapper
 
 
 class CircuitBreaker:
@@ -63,6 +100,8 @@ class CacheKeys:
     # C 端
     BANNERS = "c:banners"
     HOME = "c:discovery:home"
+    # 发现页聚合重建单飞锁（防击穿）
+    HOME_LOCK = "c:discovery:home:lock"
     HOT_BOOKS = "c:books:hot"
     FREE_LIMITED = "c:books:free-limited"
     EDITOR_PICKS = "c:books:editor-picks"
@@ -165,7 +204,7 @@ async def get_redis() -> redis.Redis:
             max_connections=50,
         )
         await client.ping()
-        _redis_client = client
+        _redis_client = _TimedRedis(client)
         _redis_cb.record_success()
         return _redis_client
     except Exception as exc:
@@ -178,7 +217,7 @@ async def get_redis() -> redis.Redis:
         try:
             import fakeredis.aioredis as fakeredis_aio
 
-            _redis_client = fakeredis_aio.FakeRedis(decode_responses=True)
+            _redis_client = _TimedRedis(fakeredis_aio.FakeRedis(decode_responses=True))
         except ImportError:
             raise
 

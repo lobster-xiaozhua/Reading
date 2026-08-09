@@ -1,12 +1,11 @@
 """稿费仓储（§4.2.6）。"""
 
-import time
-
 from sqlalchemy import select
 
 from app.models.royalty import RoyaltyDetail
 from app.models.user import Author
 from app.repositories.base import BaseRepository, split_csv
+from app.utils.time import now_ms as _now_ms
 
 
 class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
@@ -28,7 +27,6 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         if status and status != "all":
             stmt = stmt.where(RoyaltyDetail.status.in_(split_csv(status)))
         if author_name:
-            # 作者名模糊搜索（作者表按笔名匹配）
             stmt = stmt.join(Author, RoyaltyDetail.author_id == Author.id).where(
                 Author.pen_name.like(f"%{author_name}%")
             )
@@ -44,7 +42,7 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         )
         result = await self.session.execute(stmt)
         items = list(result.scalars().all())
-        now = int(time.time() * 1000)
+        now = _now_ms()
         for r in items:
             r.status = "settled"
             r.settled_at = now
@@ -60,7 +58,7 @@ class RoyaltyRepository(BaseRepository[RoyaltyDetail]):
         )
         result = await self.session.execute(stmt)
         items = list(result.scalars().all())
-        now = int(time.time() * 1000)
+        now = _now_ms()
         for r in items:
             r.status = "withdrawn"
             r.withdrawn_at = now
