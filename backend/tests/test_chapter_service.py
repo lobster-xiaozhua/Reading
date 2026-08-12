@@ -10,7 +10,7 @@ from app.schemas.b_end import (
     ChapterTransitionBody,
     ChapterUpdateBody,
 )
-from app.services.chapter_service import ChapterService, _count_words
+from app.services.chapter_service import ChapterService, _count_words, _split_chapters
 
 
 @pytest.fixture
@@ -384,3 +384,75 @@ class TestChapterServiceImport:
         await redis_client.set(CacheKeys.chapters(novel.id), "[]")
         await svc.import_chapters(novel.id, [_FakeUpload("缓存章.txt", "正文内容".encode("utf-8"))])
         assert await redis_client.get(CacheKeys.chapters(novel.id)) is None
+
+
+class TestSplitChapters:
+    def test_split_detects_chapter_patterns(self):
+        content = (
+            "这是一些卷首语。\n\n"
+            "第一章 山巅之上\n"
+            "第一段正文内容。\n\n"
+            "第2章 风云再起\n"
+            "第二段正文内容。\n"
+        )
+        parts = _split_chapters(content, "卷.txt")
+        assert len(parts) == 2
+        assert parts[0]["title"] == "第一章 山巅之上"
+        assert parts[0]["content"] == "第一段正文内容。"
+        assert parts[1]["title"] == "第2章 风云再起"
+        assert parts[1]["content"] == "第二段正文内容。"
+
+    def test_split_no_match_uses_filename(self):
+        content = "没有章节标题的普通正文内容。"
+        parts = _split_chapters(content, "README.txt")
+        assert len(parts) == 1
+        assert parts[0]["title"] == "README"
+        assert parts[0]["content"] == content
+
+    def test_split_with_chinese_numerals(self):
+        content = "第1章 开篇\n正文一\n\n第二回 发展\n正文二\n\n第三节 高潮\n正文三\n"
+        parts = _split_chapters(content, "卷.txt")
+        assert len(parts) == 3
+        assert parts[0]["title"] == "第1章 开篇"
+        assert parts[1]["title"] == "第二回 发展"
+        assert parts[2]["title"] == "第三节 高潮"
+
+    def test_split_with_prologue(self):
+        content = "楔子\n古老的传说开始流传。\n\n第一章 开始\n正文内容。\n"
+        parts = _split_chapters(content, "卷.txt")
+        assert len(parts) == 2
+        assert parts[0]["title"] == "楔子"
+        assert parts[1]["title"] == "第一章 开始"
+
+    def test_split_removes_whitespace_in_body(self):
+        content = "序章  \n开篇正文。\n\n"
+        parts = _split_chapters(content, "卷.txt")
+        assert parts[0]["title"] == "序章"
+        assert parts[0]["content"] == "开篇正文。"
+
+
+class TestChapterServiceImportWithSplit:
+    async def test_import_with_split(self, svc, db_session):
+        novel = Novel(title="切分作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        content = "第一章 开篇\n这是第一章正文。\n\n第2章 发展中\n第二章正文内容。\n".encode("utf-8")
+        result = await svc.import_chapters(
+            novel.id, [_FakeUpload("整卷.txt", content)], split=True,
+        )
+        assert len(result["list"]) == 2
+        assert result["errors"] == []
+        assert result["list"][0]["title"] == "第一章 开篇"
+        assert result["list"][1]["title"] == "第2章 发展中"
+        assert result["list"][0]["sourceFile"] == "整卷.txt"
+
+    async def test_import_with_split_duplicate_titles(self, svc, db_session):
+        """跨文件切分后标题重复自动加 _1 后缀。"""
+        novel = Novel(title="重名切分", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        f1 = _FakeUpload("卷一.txt", "第一章 开篇\n正文一。\n".encode("utf-8"))
+        f2 = _FakeUpload("卷二.txt", "第一章 开篇\n正文二。\n".encode("utf-8"))
+        result = await svc.import_chapters(novel.id, [f1, f2], split=True)
+        titles = [item["title"] for item in result["list"]]
+        assert titles == ["第一章 开篇", "第一章 开篇_1"]

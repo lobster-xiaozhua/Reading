@@ -37,6 +37,15 @@ MAX_IMPORT_FILES = 200
 MAX_IMPORT_FILE_BYTES = 5 * 1024 * 1024
 MAX_TITLE_LENGTH = 100
 
+# 章节标题切分正则：匹配常见的"第X章"形式
+CHAPTER_SPLIT_RE = re.compile(
+    r"^(第[一二三四五六七八九十百千万零〇0-9]+[章节回卷部篇][^。！？\n]{0,40}$"
+    r"|楔子|序章|引子|番外(?:篇)?[^。！？\n]{0,20}$"
+    r"|(?:零|一|二|三|四|五|六|七|八|九|十|〇)[、.．][^。！？\n]{0,30}$"
+    r")",
+    re.MULTILINE,
+)
+
 
 class ChapterService:
     """B 端章节管理服务。"""
@@ -132,10 +141,12 @@ class ChapterService:
     # ── 批量导入章节 ────────────────────────────────────
     async def import_chapters(
         self, novel_id: int, files: list, is_vip: bool = False, audit_level: str = "first",
+        split: bool = False,
     ) -> dict:
         """批量从 .txt 文件导入章节。
 
-        每个文件成为一个章节，文件名（不含扩展名）作为标题。
+        每个文件可成为一个或多个章节。
+        当 split=True 时，按"第X章"等标题自动切分文件内容为多章。
         重复标题自动追加序号后缀；单个文件失败不阻塞其他文件。
         返回 list 项带 sourceFile，便于前端按来源文件匹配结果。
         """
@@ -181,33 +192,45 @@ class ChapterService:
                 errors.append({"filename": file.filename, "reason": "文件编码不支持，请使用 UTF-8 或 GBK 编码"})
                 continue
 
-            title = file.filename.rsplit(".", 1)[0].strip()[:MAX_TITLE_LENGTH] or "未命名章节"
-            original_title = title
-            suffix = 1
-            while title in used_titles:
-                title = f"{original_title}_{suffix}"
-                suffix += 1
-            used_titles.add(title)
-
-            wc, pure_wc, punct_wc = _count_words(content)
-            chapter = Chapter(
-                novel_id=novel_id,
-                index=next_index,
-                title=title,
-                content=content,
-                content_text=content,
-                word_count=wc,
-                pure_word_count=pure_wc,
-                punctuation_word_count=punct_wc,
-                is_vip=1 if is_vip else 0,
-                status="draft",
-                audit_level=audit_level,
+            parts = (
+                _split_chapters(content, file.filename)
+                if split
+                else [{
+                    "title": file.filename.rsplit(".", 1)[0].strip()[:MAX_TITLE_LENGTH]
+                    or "未命名章节",
+                    "content": content,
+                }]
             )
-            self.session.add(chapter)
-            await self.session.flush()
-            chapters.append(chapter)
-            source_files.append(file.filename)
-            next_index += 1
+
+            for part in parts:
+                title = part["title"] or "未命名章节"
+                original_title = title
+                suffix = 1
+                while title in used_titles:
+                    title = f"{original_title}_{suffix}"
+                    suffix += 1
+                used_titles.add(title)
+
+                body = part["content"]
+                wc, pure_wc, punct_wc = _count_words(body)
+                chapter = Chapter(
+                    novel_id=novel_id,
+                    index=next_index,
+                    title=title,
+                    content=body,
+                    content_text=body,
+                    word_count=wc,
+                    pure_word_count=pure_wc,
+                    punctuation_word_count=punct_wc,
+                    is_vip=1 if is_vip else 0,
+                    status="draft",
+                    audit_level=audit_level,
+                )
+                self.session.add(chapter)
+                await self.session.flush()
+                chapters.append(chapter)
+                source_files.append(file.filename)
+                next_index += 1
 
         await self.session.commit()
         # 导入新增章节后失效 C 端目录缓存
@@ -372,6 +395,28 @@ class ChapterService:
             return
         with contextlib.suppress(Exception):
             await self.redis.delete(CacheKeys.chapter(chapter.novel_id, chapter.id))
+
+
+def _split_chapters(content: str, filename: str) -> list[dict]:
+    """按章节标题将文件内容切分为多章。
+
+    返回 [{title, content}, ...]，每章 title 为匹配到的标题行，
+    正文为标题之后到下一个标题之间的内容。
+    未匹配到章节标题时整文件作为一章，用文件名作标题。
+    """
+    matches = list(CHAPTER_SPLIT_RE.finditer(content))
+    if not matches:
+        title = filename.rsplit(".", 1)[0].strip()[:MAX_TITLE_LENGTH] or "未命名章节"
+        return [{"title": title, "content": content}]
+
+    parts: list[dict] = []
+    for i, m in enumerate(matches):
+        title = m.group(1).strip()[:MAX_TITLE_LENGTH] or "未命名章节"
+        start = m.end()
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(content)
+        body = content[start:end].strip()
+        parts.append({"title": title, "content": body})
+    return parts
 
 
 def _to_import_item(ch: Chapter, source_file: str) -> dict:

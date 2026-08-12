@@ -718,6 +718,7 @@ export default {
   chapterImport: {
     title: "批量导入章节",
     tip: "文件名将作为章节标题，支持 UTF-8 / GBK 编码，重复标题自动追加序号",
+    splitTip: "按「第X章」等标题自动切分文件为多章，支持 UTF-8 / GBK 编码",
     dragTitle: "拖拽 .txt 文件到此处，或选择文件夹",
     dragDesc: "支持一次导入多个 .txt 章节文件，文件名将作为章节标题",
     selectDirectory: "选择文件夹",
@@ -726,6 +727,7 @@ export default {
     tooManyFiles: "单次最多导入 {count} 个文件",
     fileCount: "共 {total} 个文件，待导入 {pending} 个",
     vipChapter: "标记为 VIP 章节",
+    splitMode: "智能切分",
     clearAll: "清空列表",
     retryFailed: "重试失败（{count}）",
     startImport: "开始导入（{count}）",

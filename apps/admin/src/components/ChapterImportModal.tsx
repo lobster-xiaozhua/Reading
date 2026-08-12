@@ -130,6 +130,7 @@ export default function ChapterImportModal({
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isVip, setIsVip] = useState(false);
+  const [split, setSplit] = useState(false);
   const [done, setDone] = useState(false);
   const [previewItem, setPreviewItem] = useState<ImportFileItem | null>(null);
   const [previewContent, setPreviewContent] = useState<string>("");
@@ -321,6 +322,7 @@ export default function ChapterImportModal({
         novelId,
         targets.map((f) => f.file),
         isVip,
+        split,
       );
       const successByFile = new Map(
         res.list.map((x) => [x.sourceFile, x] as const),
@@ -437,7 +439,11 @@ export default function ChapterImportModal({
         className="ci-tip"
         type="info"
         showIcon
-        message={t("chapterImport:tip")}
+        message={
+          split
+            ? t("chapterImport:splitTip")
+            : t("chapterImport:tip")
+        }
       />
 
       <Upload.Dragger
@@ -479,6 +485,13 @@ export default function ChapterImportModal({
             disabled={importing}
           >
             {t("chapterImport:vipChapter")}
+          </Checkbox>
+          <Checkbox
+            checked={split}
+            onChange={(e) => setSplit(e.target.checked)}
+            disabled={importing}
+          >
+            {t("chapterImport:splitMode")}
           </Checkbox>
           {errorCount > 0 && !importing && (
             <Button

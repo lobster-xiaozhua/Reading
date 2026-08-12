@@ -239,11 +239,13 @@ export async function importChapters(
   novelId: string,
   files: File[],
   isVip: boolean = false,
+  split: boolean = false,
 ): Promise<ImportResult> {
   const formData = new FormData();
   formData.append("novel_id", novelId);
   formData.append("is_vip", String(isVip));
   formData.append("audit_level", "first");
+  formData.append("split", String(split));
   files.forEach((f) => formData.append("files", f));
   return http.postFormData<ImportResult>("/chapters/import", formData);
 }
