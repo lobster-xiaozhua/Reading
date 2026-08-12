@@ -346,6 +346,7 @@ export default {
     action: {
       preview: "预览正文",
       editTitle: "编辑标题",
+      editContent: "编辑正文",
       submitAudit: "提交审核",
       publish: "直接发布",
       offline: "下架",
@@ -401,6 +402,8 @@ export default {
       sortUpdated: "排序已更新",
       sortFailed: "排序保存失败，已回滚",
       titleUpdated: "章节标题已更新",
+      contentUpdated: "正文已更新",
+      contentUpdateFailed: "正文更新失败",
       statusUpdated: "状态已更新",
       statusUpdateFailed: "状态更新失败",
       titleMismatch: "标题不匹配，已取消删除",

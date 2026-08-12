@@ -272,6 +272,9 @@ export default function ChapterListPage() {
     null,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [draftContent, setDraftContent] = useState("");
+  const [contentSaving, setContentSaving] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [contentValue, setContentValue] = useState("");
@@ -687,7 +690,27 @@ export default function ChapterListPage() {
 
   const openPreview = (chapter: BChapterDetail) => {
     setPreviewChapter(chapter);
+    setEditMode(false);
+    setDraftContent(chapter.content ?? "");
     setDrawerOpen(true);
+  };
+
+  const handleSaveContent = async () => {
+    if (!previewChapter || contentSaving) return;
+    setContentSaving(true);
+    try {
+      await updateChapter(previewChapter.id, { content: draftContent });
+      message.success(t("chapter:message.contentUpdated"));
+      setEditMode(false);
+      setPreviewChapter((prev) =>
+        prev ? { ...prev, content: draftContent, updatedAt: Date.now() } : prev,
+      );
+      loadData();
+    } catch {
+      message.error(t("chapter:message.contentUpdateFailed"));
+    } finally {
+      setContentSaving(false);
+    }
   };
 
   const breadcrumb: BPageHeaderProps["breadcrumb"] = useMemo(
@@ -927,11 +950,38 @@ export default function ChapterListPage() {
       <Drawer
         title={previewChapter?.title}
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onClose={() => {
+          if (editMode) {
+            setEditMode(false);
+            setDraftContent(previewChapter?.content ?? "");
+            return;
+          }
+          setDrawerOpen(false);
+        }}
         width={520}
         extra={
           <Space>
-            <Button onClick={() => setDrawerOpen(false)}>
+            {canEdit && !editMode && previewChapter && (
+              <Button
+                icon={<FormOutlined />}
+                onClick={() => {
+                  setDraftContent(previewChapter?.content ?? "");
+                  setEditMode(true);
+                }}
+              >
+                {t("chapter:action.editContent")}
+              </Button>
+            )}
+            <Button
+              onClick={() => {
+                if (editMode) {
+                  setEditMode(false);
+                  setDraftContent(previewChapter?.content ?? "");
+                } else {
+                  setDrawerOpen(false);
+                }
+              }}
+            >
               {t("common:close")}
             </Button>
           </Space>
@@ -959,7 +1009,44 @@ export default function ChapterListPage() {
                 {new Date(previewChapter.updatedAt).toLocaleString("zh-CN")}
               </span>
             </div>
-            {previewChapter.content ? (
+
+            {editMode ? (
+              <div className="b-preview-edit">
+                <Input.TextArea
+                  className="b-preview-editor"
+                  value={draftContent}
+                  onChange={(e) => setDraftContent(e.target.value)}
+                  rows={18}
+                  maxLength={10000}
+                  placeholder={t("chapter:newChapter.contentPlaceholder")}
+                />
+                <div className="b-preview-edit-actions">
+                  <span className="b-preview-edit-count">
+                    {t("chapter:newChapter.contentWords")}:{" "}
+                    <strong>{draftContent.replace(/\s+/g, "").length}</strong>
+                  </span>
+                  <Space>
+                    <Button
+                      onClick={() => {
+                        setEditMode(false);
+                        setDraftContent(previewChapter?.content ?? "");
+                      }}
+                      disabled={contentSaving}
+                    >
+                      {t("common:cancel")}
+                    </Button>
+                    <Button
+                      type="primary"
+                      icon={<SaveOutlined />}
+                      loading={contentSaving}
+                      onClick={handleSaveContent}
+                    >
+                      {t("common:save")}
+                    </Button>
+                  </Space>
+                </div>
+              </div>
+            ) : previewChapter.content ? (
               <div className="b-preview-body">
                 {previewChapter.content}
               </div>

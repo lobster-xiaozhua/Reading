@@ -130,6 +130,45 @@
   gap: 4px;
 }
 
+/* ---------- 预览编辑模式 ---------- */
+.b-preview-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 12px);
+}
+
+.b-preview-editor {
+  border-radius: var(--radius-md, 8px);
+  font-size: 14px;
+  line-height: 1.7;
+  resize: vertical;
+  min-height: 400px;
+  background: var(--color-bg-surface, #fff);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.b-preview-editor:focus {
+  border-color: var(--color-brand, #1677ff);
+  box-shadow: 0 0 0 2px var(--color-brand-bg, #e6f4ff);
+}
+
+.b-preview-edit-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-1, 4px) 0;
+}
+
+.b-preview-edit-count {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #999);
+}
+
+.b-preview-edit-count strong {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--color-text-secondary, #666);
+}
+
 /* 减弱动效适配 */
 @media (prefers-reduced-motion: reduce) {
   .b-chapter-list-page,
