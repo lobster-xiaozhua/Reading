@@ -51,6 +51,7 @@ export default function PermissionPage() {
   const [currentRole, setCurrentRole] = useState<RoleMeta | null>(null);
   const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
   const [saving, setSaving] = useState(false);
+  const [metaSaving, setMetaSaving] = useState(false);
   const [editingMeta, setEditingMeta] = useState(false);
   const [metaDraft, setMetaDraft] = useState<{
     name: string;
@@ -147,22 +148,29 @@ export default function PermissionPage() {
   };
 
   const handleSaveMeta = async () => {
-    if (!currentRole) return;
-    const res = await updateRoleMeta(currentRole.key, {
-      name: metaDraft.name.trim(),
-      description: metaDraft.description.trim(),
-    });
-    if (res.success) {
-      message.success(t("permission:message.infoUpdated"));
-      setCurrentRole({
-        ...currentRole,
-        name: metaDraft.name,
-        description: metaDraft.description,
+    if (!currentRole || metaSaving) return;
+    setMetaSaving(true);
+    try {
+      const res = await updateRoleMeta(currentRole.key, {
+        name: metaDraft.name.trim(),
+        description: metaDraft.description.trim(),
       });
-      setEditingMeta(false);
-      loadData();
-    } else {
+      if (res.success) {
+        message.success(t("permission:message.infoUpdated"));
+        setCurrentRole({
+          ...currentRole,
+          name: metaDraft.name,
+          description: metaDraft.description,
+        });
+        setEditingMeta(false);
+        loadData();
+      } else {
+        message.error(t("permission:message.infoUpdateFailed"));
+      }
+    } catch {
       message.error(t("permission:message.infoUpdateFailed"));
+    } finally {
+      setMetaSaving(false);
     }
   };
 
@@ -175,6 +183,18 @@ export default function PermissionPage() {
     (k) => typeof k === "string" && !k.startsWith("module:"),
   ).length;
   const isReadonly = currentRole?.key === "super-admin";
+  // 未变更检测：权限选择与当前角色存储权限一致时禁用保存
+  const permissionChanged = useMemo(() => {
+    if (!currentRole) return false;
+    const current = [...currentRole.permissions].sort();
+    const selected = checkedKeys
+      .filter((k): k is string => typeof k === "string" && !k.startsWith("module:"))
+      .sort();
+    return (
+      current.length !== selected.length ||
+      current.some((p, i) => p !== selected[i])
+    );
+  }, [currentRole, checkedKeys]);
 
   return (
     <div className="b-permission-page">
@@ -192,21 +212,28 @@ export default function PermissionPage() {
       />
 
       {status === "error" ? (
-        <Result
-          status="error"
-          title={t("common:loading")}
-          subTitle={t("common:empty")}
-          extra={
-            <Button type="primary" onClick={loadData}>
-              {t("common:retry")}
-            </Button>
-          }
-        />
+        <div className="b-permission-page__state-block">
+          <Result
+            status="error"
+            title={t("common:loadError")}
+            subTitle={t("common:retryDesc")}
+            extra={
+              <Space>
+                <Button type="primary" onClick={loadData}>
+                  {t("common:retry")}
+                </Button>
+                <Button onClick={() => window.location.reload()}>
+                  {t("common:refresh")}
+                </Button>
+              </Space>
+            }
+          />
+        </div>
       ) : (
         <div className="pp-layout">
           <Card
+            className="is-focus-card pp-sidebar"
             title={t("permission:roleList")}
-            className="pp-sidebar"
             styles={{ body: { padding: 0 } }}
           >
             {status === "loading" ? (
@@ -300,6 +327,7 @@ export default function PermissionPage() {
               <>
                 <Card
                   title={t("permission:roleInfo")}
+                  className="is-focus-card"
                   extra={
                     <Authorized permission="permission.assign" fallback={null}>
                       {!isReadonly &&
@@ -322,6 +350,7 @@ export default function PermissionPage() {
                               size="small"
                               type="primary"
                               icon={<SaveOutlined />}
+                              loading={metaSaving}
                               onClick={handleSaveMeta}
                             >
                               {t("permission:save")}
@@ -404,6 +433,7 @@ export default function PermissionPage() {
                 </Card>
 
                 <Card
+                  className="is-focus-card"
                   title={
                     <Space>
                       <span>{t("permission:permissionAssign")}</span>
@@ -430,6 +460,7 @@ export default function PermissionPage() {
                           type="primary"
                           icon={<SaveOutlined />}
                           loading={saving}
+                          disabled={!permissionChanged || saving}
                           onClick={handleSavePermissions}
                         >
                           {t("permission:savePermission")}

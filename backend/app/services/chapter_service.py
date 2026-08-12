@@ -32,6 +32,11 @@ from app.utils.time import now_ms as _now_ms
 
 logger = structlog.get_logger(__name__)
 
+# 批量导入限制
+MAX_IMPORT_FILES = 200
+MAX_IMPORT_FILE_BYTES = 5 * 1024 * 1024
+MAX_TITLE_LENGTH = 100
+
 
 class ChapterService:
     """B 端章节管理服务。"""
@@ -103,9 +108,8 @@ class ChapterService:
             新建的章节详情。
         """
         novel_id = int(body.novel_id)
-        # 计算下一个 index
-        existing = await self.repo.list_by_novel(novel_id)
-        next_index = len(existing)
+        # 计算下一个 index（MAX+1，兼容 1-based 种子数据）
+        next_index = await self.repo.next_index(novel_id)
         word_count, pure_count, punct_count = _count_words(body.content)
         chapter = Chapter(
             novel_id=novel_id,
@@ -125,7 +129,93 @@ class ChapterService:
         await self.session.commit()
         return await self.get_detail(chapter.id)
 
-    # ── 编辑章节 ─────────────────────────────────────────
+    # ── 批量导入章节 ────────────────────────────────────
+    async def import_chapters(
+        self, novel_id: int, files: list, is_vip: bool = False, audit_level: str = "first",
+    ) -> dict:
+        """批量从 .txt 文件导入章节。
+
+        每个文件成为一个章节，文件名（不含扩展名）作为标题。
+        重复标题自动追加序号后缀；单个文件失败不阻塞其他文件。
+        返回 list 项带 sourceFile，便于前端按来源文件匹配结果。
+        """
+        if len(files) > MAX_IMPORT_FILES:
+            return {
+                "list": [],
+                "errors": [{
+                    "filename": "",
+                    "reason": f"单次最多导入 {MAX_IMPORT_FILES} 个文件",
+                }],
+            }
+
+        existing = await self.repo.list_by_novel(novel_id)
+        used_titles = {ch.title for ch in existing}
+        chapters: list[Chapter] = []
+        source_files: list[str] = []
+        errors: list[dict] = []
+        next_index = await self.repo.next_index(novel_id)
+
+        for file in files:
+            if not file or not getattr(file, "filename", None):
+                errors.append({"filename": getattr(file, "filename", "unknown"), "reason": "无效文件"})
+                continue
+            if not file.filename.lower().endswith(".txt"):
+                errors.append({"filename": file.filename, "reason": "仅支持 .txt 文件"})
+                continue
+            try:
+                raw = await file.read()
+            except Exception as exc:
+                errors.append({"filename": file.filename, "reason": f"文件读取失败: {exc}"})
+                continue
+            if len(raw) > MAX_IMPORT_FILE_BYTES:
+                errors.append({
+                    "filename": file.filename,
+                    "reason": f"文件超过 {MAX_IMPORT_FILE_BYTES // 1024 // 1024}MB 限制",
+                })
+                continue
+            if not raw.strip():
+                errors.append({"filename": file.filename, "reason": "文件内容为空"})
+                continue
+            content = _decode_text(raw)
+            if content is None:
+                errors.append({"filename": file.filename, "reason": "文件编码不支持，请使用 UTF-8 或 GBK 编码"})
+                continue
+
+            title = file.filename.rsplit(".", 1)[0].strip()[:MAX_TITLE_LENGTH] or "未命名章节"
+            original_title = title
+            suffix = 1
+            while title in used_titles:
+                title = f"{original_title}_{suffix}"
+                suffix += 1
+            used_titles.add(title)
+
+            wc, pure_wc, punct_wc = _count_words(content)
+            chapter = Chapter(
+                novel_id=novel_id,
+                index=next_index,
+                title=title,
+                content=content,
+                content_text=content,
+                word_count=wc,
+                pure_word_count=pure_wc,
+                punctuation_word_count=punct_wc,
+                is_vip=1 if is_vip else 0,
+                status="draft",
+                audit_level=audit_level,
+            )
+            self.session.add(chapter)
+            await self.session.flush()
+            chapters.append(chapter)
+            source_files.append(file.filename)
+            next_index += 1
+
+        await self.session.commit()
+        # 导入新增章节后失效 C 端目录缓存
+        await self._evict_chapters_cache(novel_id)
+        return {
+            "list": [_to_import_item(c, src) for c, src in zip(chapters, source_files, strict=True)],
+            "errors": errors,
+        }
     async def update_chapter(self, chapter_id: int, body: ChapterUpdateBody) -> BChapterDetail:
         """编辑章节（标题/内容/是否 VIP 可更新，字数自动重算）。
 
@@ -284,8 +374,34 @@ class ChapterService:
             await self.redis.delete(CacheKeys.chapter(chapter.novel_id, chapter.id))
 
 
-def _to_list_item(ch: Chapter) -> BChapterListItem:
-    return BChapterListItem(
+def _to_import_item(ch: Chapter, source_file: str) -> dict:
+    """批量导入结果项（含来源文件名，供前端按文件匹配）。"""
+    return {
+        "id": str(ch.id),
+        "novelId": str(ch.novel_id),
+        "index": ch.index,
+        "title": ch.title,
+        "wordCount": ch.word_count,
+        "sourceFile": source_file,
+    }
+
+
+def _decode_text(raw: bytes) -> str | None:
+    """按 UTF-8 → GB18030 依次解码，自动剥离 UTF-8 BOM。
+
+    GB18030 是 GBK/GB2312 的超集，覆盖常见中文 txt 编码。
+    """
+    if raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    for encoding in ("utf-8", "gb18030"):
+        try:
+            return raw.decode(encoding)
+        except (UnicodeDecodeError, LookupError):
+            continue
+    return None
+
+
+def _to_list_item(ch: Chapter) -> BChapterListItem:    return BChapterListItem(
         id=str(ch.id),
         novel_id=str(ch.novel_id),
         index=ch.index,

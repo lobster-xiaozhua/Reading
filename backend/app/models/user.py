@@ -27,6 +27,7 @@ class Reader(Base, IdMixin, TimestampMixin, SoftDeleteMixin):
     username: Mapped[str] = mapped_column(String(64), unique=True)
     nickname: Mapped[str] = mapped_column(String(64), default="")
     avatar: Mapped[str] = mapped_column(String(255), default="")
+    bio: Mapped[str] = mapped_column(String(255), default="")
     password_hash: Mapped[str] = mapped_column(String(128), default="")
     phone: Mapped[str] = mapped_column(String(20), default="")
     level: Mapped[int] = mapped_column(Integer, default=1)

@@ -6,7 +6,8 @@
  * ============================================================ */
 
 import { useMemo } from "react";
-import { Card, Skeleton, Result, Button, Empty, List } from "antd";
+import { useTranslation } from "react-i18next";
+import { Card, Skeleton, Result, Button, Empty, List, Collapse } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import { BStatisticCard } from "@novel/b-end";
 import type { StatisticTrend } from "@novel/b-end";
@@ -56,6 +57,8 @@ export interface DashboardTemplateProps {
   /* ---------- 欢迎条 ---------- */
   /** 待办计数（显示在欢迎条右侧） */
   todoCount?: number;
+  /** 待办点击回调（点击跳转待办队列） */
+  onTodoClick?: () => void;
 
   /* ---------- KPI ---------- */
   kpis?: KpiItem[];
@@ -63,6 +66,8 @@ export interface DashboardTemplateProps {
   /* ---------- 趋势图表 ---------- */
   /** 趋势图节点（图表由 P7 提供，模板留 slot） */
   chart?: React.ReactNode;
+  /** 当前选中时间范围（用于 range tab 的 active 态） */
+  trendRange?: 7 | 30 | 90;
   /** 趋势 Tab 切换回调 */
   onRangeChange?: (range: 7 | 30 | 90) => void;
 
@@ -91,14 +96,17 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
     status,
     onChartRetry,
     todoCount = 0,
+    onTodoClick,
     kpis = [],
     chart,
+    trendRange,
     onRangeChange,
     overviews = [],
     quickActions = [],
     businessCharts,
     systemSection,
   } = props;
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
 
   const today = useMemo(() => {
@@ -143,7 +151,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
                 color: "var(--color-text-primary)",
               }}
             >
-              你好，{user?.nickname ?? user?.username ?? "管理员"}
+              {t("dashboard:greeting", { name: user?.nickname ?? user?.username ?? "" })}
             </h2>
             <p
               style={{
@@ -156,12 +164,28 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
             </p>
           </div>
           {todoCount > 0 && (
-            <div style={{ textAlign: "right" }}>
+            <button
+              type="button"
+              onClick={onTodoClick}
+              className="b-dashboard__todo"
+              aria-label={t("dashboard:todoAria", { count: todoCount })}
+              style={{
+                textAlign: "right",
+                background: "transparent",
+                border: "none",
+                cursor: onTodoClick ? "pointer" : "default",
+                padding: "var(--space-2) var(--space-3)",
+                borderRadius: "var(--radius-md)",
+                color: "inherit",
+                fontFamily: "inherit",
+              }}
+            >
               <div
                 style={{
                   fontSize: 30,
                   fontWeight: 600,
                   color: "var(--color-brand)",
+                  lineHeight: 1.2,
                 }}
               >
                 {todoCount}
@@ -172,9 +196,9 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
                   fontSize: "var(--font-size-caption, 13px)",
                 }}
               >
-                待办事项
+                {t("dashboard:todo")}
               </div>
-            </div>
+            </button>
           )}
         </div>
       </div>
@@ -183,7 +207,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: "var(--space-4)",
         }}
       >
@@ -195,7 +219,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
           ))
         ) : isEmpty ? (
           <Card style={{ gridColumn: "span 4" }}>
-            <Empty description="暂无统计数据" />
+            <Empty description={t("dashboard:emptyStats")} />
           </Card>
         ) : (
           kpis.map((kpi) => (
@@ -215,27 +239,30 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
 
       {/* 趋势图表 */}
       <Card
-        title="数据趋势"
+        title={t("dashboard:chartTitle")}
+        className="is-focus-card"
         extra={
           onRangeChange && (
-            <div role="tablist" aria-label="时间范围">
-              {([7, 30, 90] as const).map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => onRangeChange(r)}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    cursor: "pointer",
-                    padding: "var(--space-1) var(--space-2)",
-                    color: "var(--color-brand)",
-                    fontSize: "var(--font-size-body, 14px)",
-                  }}
-                >
-                  {r} 天
-                </button>
-              ))}
+            <div
+              className="b-dashboard__range"
+              role="tablist"
+              aria-label={t("dashboard:rangeLabel")}
+            >
+              {([7, 30, 90] as const).map((r) => {
+                const active = trendRange === r;
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => onRangeChange(r)}
+                    className={`b-dashboard__range-pill${active ? " is-active" : ""}`}
+                  >
+                    {r} 天
+                  </button>
+                );
+              })}
             </div>
           )
         }
@@ -243,11 +270,11 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
         {isChartError ? (
           <Result
             status="warning"
-            title="图表加载失败"
-            subTitle="趋势数据加载出错，请重试。"
+            title={t("common:loadError")}
+            subTitle={t("dashboard:chartLoadError")}
             extra={
               <Button icon={<ReloadOutlined />} onClick={onChartRetry}>
-                重试
+                {t("common:retry")}
               </Button>
             }
           />
@@ -268,14 +295,14 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
             gap: "var(--space-4)",
           }}
         >
           {overviews.map((section) => (
             <Card key={section.key} title={section.title}>
               {section.items.length === 0 ? (
-                <Empty description="暂无数据" />
+                <Empty description={t("common:empty")} />
               ) : (
                 <List
                   size="small"
@@ -307,7 +334,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
 
       {/* 快捷操作 */}
       {quickActions.length > 0 && (
-        <Card title="快捷操作">
+        <Card title={t("dashboard:quickActions")}>
           <div
             style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-3)" }}
           >
@@ -325,9 +352,28 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
         </Card>
       )}
 
-      {/* 系统可观测性区（统一控制面板扩展） */}
+      {/* 系统可观测性区（统一控制面板扩展）默认折叠，避免抢首屏视觉重心 */}
       {systemSection && (
-        <div className="b-dashboard__system-section">{systemSection}</div>
+        <Collapse
+          ghost
+          bordered={false}
+          defaultActiveKey={[]}
+          items={[
+            {
+              key: "system",
+              label: (
+                <span className="b-dashboard__system-toggle">
+                  系统可观测性（指标仅供运维参考）
+                </span>
+              ),
+              children: (
+                <div className="b-dashboard__system-section">
+                  {systemSection}
+                </div>
+              ),
+            },
+          ]}
+        />
       )}
     </div>
   );

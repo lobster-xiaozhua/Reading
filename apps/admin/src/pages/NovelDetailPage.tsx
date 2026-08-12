@@ -101,7 +101,8 @@ export default function NovelDetailPage() {
       setComments(commentData);
       setStatus(data.status === "offline" ? "offline" : "ready");
     } catch {
-      setStatus("not-found");
+      // 非 404 的加载失败（fetchNovelDetail 已区分 404 返回 null）
+      setStatus("error");
     }
   }, [novelId]);
 
@@ -110,6 +111,7 @@ export default function NovelDetailPage() {
   }, [loadDetail]);
 
   const canEdit = hasPermission("novel.edit");
+  const canDelete = hasPermission("novel.delete");
 
   const handleWorkflowAction = () => {
     if (!novel) return;
@@ -222,20 +224,33 @@ export default function NovelDetailPage() {
           {t("novel:action.edit")}
         </Button>
       )}
-      {workflowBtn && (
-        <Button
-          icon={workflowBtn.icon}
-          danger={novel.status === "published"}
-          onClick={handleWorkflowAction}
-        >
-          {workflowBtn.text}
+      {canDelete && (
+        <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
+          {t("novel:action.delete")}
         </Button>
       )}
-      <Button danger icon={<DeleteOutlined />} onClick={handleDelete}>
-        {t("novel:action.delete")}
-      </Button>
     </Space>
   ) : undefined;
+
+  // 状态切换主操作：从 PageHeader extra 抽出到工作流条，避免被标题压住
+  const workflowBar =
+    novel && workflowBtn && canEdit ? (
+      <div className="nd-workflow-bar">
+        <div className="nd-workflow-bar__label">
+          {t("novelDetail:info.statusFlow")}
+        </div>
+        <div className="nd-workflow-bar__actions">
+          <Button
+            type="primary"
+            icon={workflowBtn.icon}
+            danger={novel.status === "published"}
+            onClick={handleWorkflowAction}
+          >
+            {workflowBtn.text}
+          </Button>
+        </div>
+      </div>
+    ) : null;
 
   const WORKFLOW_STEPS = [
     {
@@ -256,7 +271,9 @@ export default function NovelDetailPage() {
       ? 0
       : novel.status === "pending"
         ? 1
-        : 2
+        : novel.status === "offline"
+          ? 3
+          : 2
     : 0;
   const workflowStatus = novel?.status === "offline" ? "error" : "process";
 
@@ -423,7 +440,9 @@ export default function NovelDetailPage() {
             : undefined
         }
         onBack={() => navigate("/novel")}
+        onRetry={loadDetail}
         extra={headerExtra}
+        workflowBar={workflowBar}
         basicItems={basicItems}
         statsContent={statsContent}
         chapterTitle={t("novelDetail:chapterSection.title")}

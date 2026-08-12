@@ -4,7 +4,7 @@
  *   书架 / 阅读历史 / 书单 / 打赏记录 / 设置
  * URL 同步：?tab=bookshelf|history|booklists|rewards|settings
  * ============================================================ */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   Avatar,
@@ -89,15 +89,68 @@ export default function ProfilePage() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editNickname, setEditNickname] = useState("");
+  const [editBio, setEditBio] = useState("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
-  /* 打开编辑弹窗时同步当前昵称 */
+  /* 打开编辑弹窗时同步当前昵称/简介 */
   useEffect(() => {
-    if (editOpen) setEditNickname(profile?.nickname ?? "");
-  }, [editOpen, profile?.nickname]);
+    if (editOpen) {
+      setEditNickname(profile?.nickname ?? "");
+      setEditBio(profile?.bio ?? "");
+    }
+  }, [editOpen, profile?.nickname, profile?.bio]);
+
+  /* 头像上传：读为 base64 dataURL 后随资料保存 */
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      // 客户端压缩后再上传，防止大图 base64 造成超大 payload
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          const maxDim = 400;
+          if (w > maxDim || h > maxDim) {
+            const r = Math.min(maxDim / w, maxDim / h);
+            w = Math.round(w * r);
+            h = Math.round(h * r);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) { reject(new Error("Canvas 不可用")); return; }
+          ctx.drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", 0.8));
+        };
+        img.onerror = () => reject(new Error("图片加载失败"));
+        const reader = new FileReader();
+        reader.onload = (e2) => { img.src = String(e2.target?.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      await fetcher.updateProfile({ avatar: dataUrl });
+      await userState.run();
+    } catch {
+      // 上传失败保持弹窗，由上层 toast 提示
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     try {
-      await fetcher.updateProfile({ nickname: editNickname.trim() || undefined });
+      await fetcher.updateProfile({
+        nickname: editNickname.trim() || undefined,
+        bio: editBio.trim() || undefined,
+      });
       await userState.run();
       setEditOpen(false);
     } catch {
@@ -251,7 +304,8 @@ export default function ProfilePage() {
             <label className="profile-page__edit-label">简介</label>
             <textarea
               className="profile-page__edit-input profile-page__edit-textarea"
-              defaultValue={profile?.bio ?? ""}
+              value={editBio}
+              onChange={(e) => setEditBio(e.target.value)}
               placeholder="一句话介绍自己"
               rows={3}
             />
@@ -259,9 +313,26 @@ export default function ProfilePage() {
           <div className="profile-page__edit-field">
             <label className="profile-page__edit-label">头像</label>
             <div className="profile-page__edit-avatar-row">
-              <Avatar src={profile?.avatar} alt="" size="md" />
-              <button type="button" className="profile-page__edit-upload-btn">
-                更换头像
+              <Avatar
+                src={profile?.avatar}
+                alt={profile?.nickname}
+                size="md"
+              />
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="sr-only"
+                onChange={handleAvatarChange}
+                aria-label="选择头像图片"
+              />
+              <button
+                type="button"
+                className="profile-page__edit-upload-btn"
+                disabled={avatarUploading}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                {avatarUploading ? "上传中..." : "更换头像"}
               </button>
             </div>
           </div>
@@ -535,10 +606,10 @@ const THEME_LABEL: Record<ReaderTheme, string> = {
   day: "日间", night: "夜间", eye: "护眼", parchment: "羊皮纸",
 };
 const THEME_PREVIEW: Record<ReaderTheme, { bg: string; text: string }> = {
-  day: { bg: "var(--color-bg-surface)", text: "var(--color-text-primary)" },
+  day: { bg: "var(--read-bg-day)", text: "var(--read-text-day)" },
   night: { bg: "var(--read-bg-night)", text: "var(--read-text-night)" },
-  eye: { bg: "var(--read-bg-day)", text: "var(--read-text-day)" },
-  parchment: { bg: "var(--novel-read-bg)", text: "var(--novel-read-text)" },
+  eye: { bg: "var(--read-bg-sepia)", text: "var(--read-text-sepia)" },
+  parchment: { bg: "var(--read-bg-parchment)", text: "var(--read-text-parchment)" },
 };
 const PAGE_MODE_LABEL: Record<ReaderPageMode, string> = {
   scroll: "滚动", slide: "滑动", click: "点击",

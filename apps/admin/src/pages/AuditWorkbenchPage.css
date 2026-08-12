@@ -4,16 +4,6 @@
  * ============================================================ */
 
 /* 页面级动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
@@ -53,6 +43,14 @@
     border-color var(--dur-fast) var(--ease-standard);
   border-left: 3px solid transparent;
   animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+}
+
+.awb-item:hover:not(.awb-item--selected) {
+  background: var(--color-bg-hover, var(--color-bg-subtle));
+}
+.awb-item:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
 }
 
 .awb-item:nth-child(1) { animation-delay: 0ms; }

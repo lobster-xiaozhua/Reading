@@ -10,6 +10,7 @@ import {
   Modal,
   Tabs,
   useAsyncState,
+  useFeedback,
   type TabItem,
 } from "@novel/components";
 import { NavigationBack } from "@novel/icons";
@@ -31,6 +32,7 @@ import { formatRelativeTime } from "@/utils/time";
 
 export default function FollowPage() {
   const navigate = useNavigate();
+  const feedback = useFeedback();
   const [activeTab, setActiveTab] = useState<FollowTabKey>("all");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [items, setItems] = useState<FollowItem[]>([]);
@@ -93,8 +95,15 @@ export default function FollowPage() {
     },
   ];
 
-  const handleUnfollow = (bookId: string) => {
-    setItems((prev) => prev.filter((i) => i.bookId !== bookId));
+  const handleUnfollow = async (bookId: string) => {
+    try {
+      // 追更列表源于书架：取消追更 = 移出书架，需同步后端避免刷新后恢复
+      await fetcher.removeFromBookshelf(bookId);
+      setItems((prev) => prev.filter((i) => i.bookId !== bookId));
+      feedback.message("success", "已取消追更");
+    } catch {
+      feedback.message("error", "取消追更失败，请稍后重试");
+    }
   };
 
   const handleMarkAllRead = async () => {
@@ -245,7 +254,8 @@ function FollowListItem({
   });
 
   const updated = item.status === "updated";
-  const showUnreadDot = updated && item.unreadCount > 0;
+  // 红点与「未读」tab 计数一致：有未读即显示（不局限于"有更新"状态）
+  const showUnreadDot = item.unreadCount > 0;
 
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;

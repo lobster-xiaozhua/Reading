@@ -269,3 +269,118 @@ class TestChapterCacheEviction:
         await svc.delete_chapter(chapters[0].id, title_match=chapters[0].title)
         assert await redis_client.get(CacheKeys.chapters(novel.id)) is None
         assert await redis_client.get(CacheKeys.chapter(novel.id, chapters[0].id)) is None
+
+
+class _FakeUpload:
+    """最小 UploadFile 替身（仅用于 service 层测试）。"""
+
+    def __init__(self, filename: str, data: bytes):
+        self.filename = filename
+        self._data = data
+
+    async def read(self) -> bytes:
+        return self._data
+
+
+class TestChapterServiceImport:
+    async def test_import_multiple_files(self, svc, db_session):
+        novel = Novel(title="测试导入", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        files = [
+            _FakeUpload("第一章.txt", "这是第一章正文内容".encode("utf-8")),
+            _FakeUpload("第二章.txt", "这是第二章正文内容，稍长一些。".encode("utf-8")),
+        ]
+        result = await svc.import_chapters(novel.id, files)
+        assert len(result["list"]) == 2
+        assert len(result["errors"]) == 0
+        first, second = result["list"]
+        assert first["title"] == "第一章"
+        assert first["sourceFile"] == "第一章.txt"
+        assert first["index"] == 0
+        assert first["wordCount"] > 0
+        assert second["index"] == 1
+        assert second["novelId"] == str(novel.id)
+
+    async def test_import_gbk_encoding(self, svc, db_session):
+        """GBK 编码的中文 txt 应正常解码。"""
+        novel = Novel(title="GBK作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        content = "这是GBK编码的中文正文内容".encode("gbk")
+        result = await svc.import_chapters(novel.id, [_FakeUpload("gbk章.txt", content)])
+        assert len(result["list"]) == 1
+        assert result["errors"] == []
+        assert result["list"][0]["title"] == "gbk章"
+
+    async def test_import_utf8_bom(self, svc, db_session):
+        """带 UTF-8 BOM 的文件应剥离 BOM 后正常导入。"""
+        novel = Novel(title="BOM作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        content = b"\xef\xbb\xbf" + "带BOM的正文".encode("utf-8")
+        result = await svc.import_chapters(novel.id, [_FakeUpload("bom章.txt", content)])
+        assert len(result["list"]) == 1
+        assert result["errors"] == []
+
+    async def test_import_duplicate_titles(self, svc, db_session):
+        novel = Novel(title="重名作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        result = await svc.import_chapters(
+            novel.id,
+            [_FakeUpload("同名.txt", b"1"), _FakeUpload("同名.txt", b"2")],
+        )
+        titles = [item["title"] for item in result["list"]]
+        assert titles == ["同名", "同名_1"]
+
+    async def test_import_collects_per_file_errors(self, svc, db_session):
+        novel = Novel(title="混合作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        files = [
+            _FakeUpload("正常.txt", "正常正文".encode("utf-8")),
+            _FakeUpload("图片.png", b"not a txt"),
+            _FakeUpload("空的.txt", b""),
+            _FakeUpload("坏编码.txt", b"\xff\xfe\x00\x80"),
+        ]
+        result = await svc.import_chapters(novel.id, files)
+        assert len(result["list"]) == 1
+        reasons = {e["filename"]: e["reason"] for e in result["errors"]}
+        assert "图片.png" in reasons
+        assert "空的.txt" in reasons
+        assert "坏编码.txt" in reasons
+        assert "仅支持 .txt" in reasons["图片.png"]
+        assert "内容为空" in reasons["空的.txt"]
+        assert "编码" in reasons["坏编码.txt"]
+
+    async def test_import_oversize_file_rejected(self, svc, db_session):
+        novel = Novel(title="超大作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        big = _FakeUpload("超大.txt", b"a" * (5 * 1024 * 1024 + 1))
+        result = await svc.import_chapters(novel.id, [big])
+        assert result["list"] == []
+        assert "5MB" in result["errors"][0]["reason"]
+
+    async def test_import_too_many_files_rejected(self, svc, db_session):
+        novel = Novel(title="超量作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        files = [_FakeUpload(f"第{i}.txt", b"x") for i in range(201)]
+        result = await svc.import_chapters(novel.id, files)
+        assert result["list"] == []
+        assert "200" in result["errors"][0]["reason"]
+
+    async def test_import_evicts_chapters_cache(self, db_session, redis_client):
+        """批量导入后必须失效 C 端目录缓存。"""
+        from app.core.redis import CacheKeys
+        from app.services.chapter_service import ChapterService
+
+        novel = Novel(title="缓存作品", status="draft")
+        db_session.add(novel)
+        await db_session.flush()
+        svc = ChapterService(db_session, redis_client)
+        await redis_client.set(CacheKeys.chapters(novel.id), "[]")
+        await svc.import_chapters(novel.id, [_FakeUpload("缓存章.txt", "正文内容".encode("utf-8"))])
+        assert await redis_client.get(CacheKeys.chapters(novel.id)) is None

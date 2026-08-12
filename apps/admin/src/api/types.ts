@@ -24,6 +24,7 @@ export type Permission =
   | "chapter.delete"
   | "audit.list"
   | "audit.approve"
+  | "audit.revise"
   | "audit.reject"
   | "author.list"
   | "author.edit"

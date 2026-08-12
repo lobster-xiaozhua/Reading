@@ -8,7 +8,8 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useCallback } from "react";
-import { Result, Button } from "antd";
+import { useTranslation } from "react-i18next";
+import { Result, Button, Space } from "antd";
 import { ReloadOutlined, PlusOutlined } from "@ant-design/icons";
 import { useSearchParams } from "react-router-dom";
 import { BPageHeader } from "@novel/b-end";
@@ -79,6 +80,10 @@ export interface ListPageTemplateProps<T> {
 
   /** 是否使用紧凑型表格（默认 false） */
   compact?: boolean;
+  /** 表格密度（默认 small，与其他页面一致） */
+  size?: "small" | "middle" | "large";
+  /** 表格横向滚动配置（列宽较大时用于启用固定列） */
+  scroll?: BTableProps<T>["scroll"];
 
   /* ---------- PageHeader extra ---------- */
   /** 新建按钮回调（不传则不显示） */
@@ -119,6 +124,8 @@ export function ListPageTemplate<T extends object>(
     rowSelection,
     selectedCount = 0,
     compact = false,
+    size = "small",
+    scroll,
     batchActions,
     onClearSelection,
     onCreate,
@@ -126,6 +133,7 @@ export function ListPageTemplate<T extends object>(
   } = props;
 
   const hasPermission = useAuthStore((s) => s.hasPermission);
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // 筛选状态同步 URL：searchKey 变化时写 URL
@@ -165,21 +173,33 @@ export function ListPageTemplate<T extends object>(
     if (!onCreate || !canCreate) return undefined;
     return (
       <Button type="primary" icon={<PlusOutlined />} onClick={onCreate}>
-        新建
+        {t("common:create")}
       </Button>
     );
-  }, [onCreate, canCreate]);
+  }, [onCreate, canCreate, t]);
 
   // 无权限
   if (permission && !hasPermission(permission as any)) {
     return (
       <div>
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
-        <Result
-          status="403"
-          title="无访问权限"
-          subTitle="您没有访问该页面的权限，请联系管理员开通。"
-        />
+        <div className="b-list-page__state-block">
+          <Result
+            status="403"
+            title={t("common:noPermission")}
+            subTitle={<span>{t("common:noPermissionDesc")}</span>}
+            extra={
+              <Space>
+                <Button type="primary" onClick={onBack ?? (() => window.history.back())}>
+                  {t("common:backToPrev")}
+                </Button>
+                <Button onClick={() => window.location.reload()}>
+                  {t("common:refreshPage")}
+                </Button>
+              </Space>
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -189,16 +209,27 @@ export function ListPageTemplate<T extends object>(
     return (
       <div>
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
-        <Result
-          status="error"
-          title="加载失败"
-          subTitle="数据加载出错，请稍后重试。"
-          extra={
-            <Button type="primary" icon={<ReloadOutlined />} onClick={onRetry}>
-              重试
-            </Button>
-          }
-        />
+        <div className="b-list-page__state-block">
+          <Result
+            status="error"
+            title={t("common:loadError")}
+            subTitle={<span>{t("common:loadErrorDesc")}</span>}
+            extra={
+              <Space>
+                <Button
+                  type="primary"
+                  icon={<ReloadOutlined />}
+                  onClick={onRetry}
+                >
+                  {t("common:retry")}
+                </Button>
+                <Button onClick={() => window.open("/charts", "_self")}>
+                  {t("common:viewMonitor")}
+                </Button>
+              </Space>
+            }
+          />
+        </div>
       </div>
     );
   }
@@ -239,7 +270,7 @@ export function ListPageTemplate<T extends object>(
               pageSize: 20,
               showSizeChanger: true,
               pageSizeOptions: [10, 20, 50, 100],
-              showTotal: (t: number) => `共 ${t} 条`,
+              showTotal: (totalCount: number) => t("common:total", { count: totalCount }),
               onChange: handlePaginationChange,
             }
           }
@@ -248,18 +279,18 @@ export function ListPageTemplate<T extends object>(
             emptyText: isNoSearchResult ? (
               <Result
                 status="info"
-                title="未找到匹配结果"
-                subTitle="试试调整筛选条件或搜索关键词。"
-                extra={onReset && <Button onClick={onReset}>清除筛选</Button>}
+                title={t("common:noSearchResult")}
+                subTitle={t("common:noSearchResultDesc")}
+                extra={onReset && <Button onClick={onReset}>{t("common:clearFilter")}</Button>}
               />
             ) : isEmpty ? (
               <Result
                 status="info"
-                title="暂无数据"
+                title={t("common:empty")}
                 subTitle={
                   onCreate && canCreate
-                    ? "点击右上角「新建」创建第一条数据。"
-                    : "当前暂无数据。"
+                    ? t("common:emptyCreateDesc")
+                    : t("common:emptyDesc")
                 }
                 extra={
                   onCreate && canCreate ? (
@@ -268,7 +299,7 @@ export function ListPageTemplate<T extends object>(
                       icon={<PlusOutlined />}
                       onClick={onCreate}
                     >
-                      新建
+                      {t("common:create")}
                     </Button>
                   ) : undefined
                 }
@@ -281,13 +312,15 @@ export function ListPageTemplate<T extends object>(
         columns={columns as any}
         dataSource={dataSource as any}
         rowKey={rowKey}
+        size={size}
+        scroll={scroll}
         loading={loading ?? status === "loading"}
         pagination={
           pagination ?? {
             pageSize: 20,
             showSizeChanger: true,
             pageSizeOptions: [10, 20, 50, 100],
-            showTotal: (t: number) => `共 ${t} 条`,
+            showTotal: (totalCount: number) => t("common:total", { count: totalCount }),
             onChange: handlePaginationChange,
           }
         }
@@ -296,18 +329,18 @@ export function ListPageTemplate<T extends object>(
           emptyText: isNoSearchResult ? (
             <Result
               status="info"
-              title="未找到匹配结果"
-              subTitle="试试调整筛选条件或搜索关键词。"
-              extra={onReset && <Button onClick={onReset}>清除筛选</Button>}
+              title={t("common:noSearchResult")}
+              subTitle={t("common:noSearchResultDesc")}
+              extra={onReset && <Button onClick={onReset}>{t("common:clearFilter")}</Button>}
             />
           ) : isEmpty ? (
             <Result
               status="info"
-              title="暂无数据"
+              title={t("common:empty")}
               subTitle={
                 onCreate && canCreate
-                  ? "点击右上角「新建」创建第一条数据。"
-                  : "当前暂无数据。"
+                  ? t("common:emptyCreateDesc")
+                  : t("common:emptyDesc")
               }
               extra={
                 onCreate && canCreate ? (
@@ -316,7 +349,7 @@ export function ListPageTemplate<T extends object>(
                     icon={<PlusOutlined />}
                     onClick={onCreate}
                   >
-                    新建
+                    {t("common:create")}
                   </Button>
                 ) : undefined
               }

@@ -191,6 +191,57 @@
   border-radius: var(--radius-md);
 }
 
+/* 命令面板触发器（替代原静态搜索框） */
+.bend-header__palette {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 240px;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-page);
+  color: var(--color-text-tertiary);
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bend-header__palette:hover {
+  border-color: var(--color-brand-border);
+  background: var(--color-bg-surface);
+}
+
+.bend-header__palette:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+}
+
+.bend-header__palette-text {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bend-header__palette-kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-xs);
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
 .bend-header__icon-btn {
   width: 48px;
   height: 48px;
@@ -223,6 +274,22 @@
 
 .bend-header__icon-btn:active {
   transform: scale(0.95);
+}
+
+/* 通知下拉空态面板 */
+.bend-header__notify-panel {
+  min-width: 240px;
+  padding: var(--space-2);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--sh-3);
+  border: 1px solid var(--color-border-subtle);
+}
+.bend-header__notify-empty {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-small);
 }
 
 .bend-header__user {
@@ -327,10 +394,33 @@
   flex: 1;
   overflow-y: auto;
   outline: none;
+  position: relative;
+}
+
+/* 内容区顶部 2px 品牌色焦点锚：建立"我在 B 端工作流"的全局品牌锚 */
+.bend-layout__content::before {
+  content: "";
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--color-brand),
+    var(--color-accent) 50%,
+    var(--color-rose, var(--color-brand))
+  );
+  opacity: 0.85;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .bend-layout__inner {
   animation: bFadeIn 0.3s ease-out;
+  max-width: 1440px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 @keyframes bFadeIn {
@@ -344,12 +434,37 @@
   }
 }
 
-.bend-layout__inner {
-  max-width: 1440px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: var(--space-4);
+/* 全局 Card 焦点竖条：模块 title 前的品牌色细锚，强化"我在哪个模块"的视觉层级 */
+.bend-layout__inner :where(.ant-card) {
+  position: relative;
+}
+
+.bend-layout__inner :where(.ant-card) > .ant-card-head::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 16px;
+  bottom: 16px;
+  width: 3px;
+  border-radius: var(--radius-xs, 2px);
+  background: linear-gradient(
+    to bottom,
+    var(--color-brand),
+    var(--color-accent)
+  );
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+.bend-layout__inner :where(.ant-card:hover) > .ant-card-head::before,
+.bend-layout__inner :where(.ant-card.is-focus-card) > .ant-card-head::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bend-layout__inner :where(.ant-card) > .ant-card-head::before {
+    transition: none;
+  }
 }
 
 /* Sider 折叠动画对齐令牌 */

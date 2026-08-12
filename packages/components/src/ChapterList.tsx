@@ -289,9 +289,9 @@ const ChapterItem = memo(function ChapterItem({
   );
 });
 
-/** 字数简写：<1万 原值；≥1万 显示「X.X万」 */
+/** 字数简写：<1万 原值；≥1万 显示「X.X万字」 */
 function formatWordCount(n: number): string {
   if (n < 10000) return `${n}`;
   const wan = n / 10000;
-  return `${wan.toFixed(wan >= 100 ? 0 : 1)}字`;
+  return `${wan.toFixed(wan >= 100 ? 0 : 1)}万字`;
 }

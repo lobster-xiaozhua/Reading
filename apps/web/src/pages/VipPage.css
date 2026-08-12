@@ -228,14 +228,14 @@
     0 0 0 2px var(--color-accent-orange),
     0 16px 48px var(--color-brand-glow-35);
 }
-/* 推荐角标 */
+/* 推荐角标：金色渐变底改用深色文字保证对比度 */
 .vip-page__plan-badge {
   position: absolute;
   top: var(--space-2);
   left: var(--space-2);
   padding: var(--space-1) var(--space-2);
   background: var(--gradient-gold);
-  color: var(--color-text-inverse);
+  color: var(--color-text-primary);
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-semibold);
   border-radius: var(--radius-sm);
@@ -392,6 +392,15 @@
   box-shadow: var(--sh-2);
   z-index: var(--z-index-sticky);
 }
+/* 移动端底部 Tab 栏（48px + 安全区）让位，避免遮挡提交按钮 */
+@media (max-width: 768px) {
+  .vip-page__submit-bar {
+    bottom: calc(48px + env(safe-area-inset-bottom, 0px));
+  }
+  .vip-page__submit-spacer {
+    height: calc(var(--space-16) + 48px + env(safe-area-inset-bottom, 0px));
+  }
+}
 .vip-page__total {
   display: flex;
   flex-direction: column;
@@ -424,7 +433,7 @@
   border: none;
   border-radius: var(--radius-lg);
   background: var(--color-accent-orange);
-  color: var(--color-text-inverse);
+  color: var(--color-text-primary);
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
@@ -492,7 +501,7 @@
 
 .vip-page__confirm-label {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-small);
 }
 
 .vip-page__confirm-value {
@@ -502,7 +511,7 @@
 
 .vip-page__confirm-price {
   color: var(--color-accent);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-bold);
 }
 
@@ -518,14 +527,14 @@
   gap: var(--space-2);
   margin: var(--space-2) 0 0;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-small);
 }
 
 .vip-page__paying-spinner {
   width: 14px;
   height: 14px;
   border-radius: var(--radius-full);
-  border: 2px solid var(--color-accent-soft);
+  border: 2px solid var(--color-accent-orange-bg);
   border-top-color: var(--color-accent);
   animation: spinSlow 0.8s linear infinite;
 }
@@ -579,12 +588,12 @@
 
 .vip-page__paid-title {
   margin: 0 0 var(--space-2);
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-body-lg);
   font-weight: var(--font-weight-bold);
 }
 
 .vip-page__paid-sub {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-small);
 }

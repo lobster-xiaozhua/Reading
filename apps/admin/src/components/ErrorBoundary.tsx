@@ -5,7 +5,8 @@
  * ============================================================ */
 
 import { Component, type ErrorInfo, type ReactNode } from "react";
-import { Result, Button } from "antd";
+import { Button } from "antd";
+import { BrandResult } from "./BrandResult";
 
 interface Props {
   children: ReactNode;
@@ -39,7 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
   override render(): ReactNode {
     if (this.state.hasError) {
       return (
-        <Result
+        <BrandResult
           status="500"
           title="页面出错了"
           subTitle={this.state.error?.message || "发生未知错误，请稍后重试。"}

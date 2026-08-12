@@ -1,0 +1,291 @@
+/* ============================================================
+ * ChapterImportModal 样式
+ * 布局：提示条 → 拖拽区 → 工具栏 → 统计卡片 → 文件列表 → 结果区
+ * ============================================================ */
+
+/* ---------- Modal 标题（图标徽章） ---------- */
+.ci-modal-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 10px);
+}
+
+.ci-modal-title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md, 8px);
+  font-size: 15px;
+  color: var(--color-brand, #1677ff);
+  background: var(--color-brand-bg, #e6f4ff);
+}
+
+/* ---------- 提示条 ---------- */
+.ci-tip {
+  margin-bottom: var(--space-3, 16px);
+  border-radius: var(--radius-md, 8px);
+}
+
+.ci-tip .ant-alert-message {
+  font-size: 13px;
+  color: var(--color-text-secondary, #666);
+}
+
+/* ---------- 拖拽区 ---------- */
+.ci-dragger {
+  margin-bottom: var(--space-3, 16px);
+}
+
+.ci-dragger .ant-upload-drag {
+  padding: 28px 0;
+  border-radius: var(--radius-lg, 12px);
+  border: 1.5px dashed var(--color-border-strong, #d0d0da);
+  background: var(--color-bg-subtle, #f9f9fc);
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.ci-dragger .ant-upload-drag:hover,
+.ci-dragger .ant-upload-drag-hover {
+  border-color: var(--color-brand, #1677ff);
+  background: var(--color-brand-bg, #f0f7ff);
+}
+
+.ci-dragger .ant-upload-drag:hover .ci-dragger-icon {
+  transform: translateY(-2px) scale(1.06);
+}
+
+.ci-dragger-icon {
+  font-size: 42px;
+  color: var(--color-brand, #1677ff);
+  margin-bottom: 10px;
+  transition: transform 0.2s var(--ease-decelerate, ease-out);
+  display: inline-block;
+}
+
+.ci-dragger-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a2e);
+  margin-bottom: 4px;
+}
+
+.ci-dragger-desc {
+  font-size: 13px;
+  color: var(--color-text-tertiary, #999);
+  margin-bottom: 12px;
+}
+
+.ci-dir-btn {
+  margin-top: 8px;
+}
+
+/* ---------- 工具栏 ---------- */
+.ci-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2, 8px);
+  padding: 0 2px;
+}
+
+.ci-toolbar .ant-checkbox-wrapper {
+  font-size: 13px;
+}
+
+/* ---------- 统计卡片 ---------- */
+.ci-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2, 8px);
+  margin-bottom: var(--space-3, 12px);
+}
+
+.ci-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  background: var(--color-bg-subtle, #f9f9fc);
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-subtle, #e2e2e7);
+  transition: border-color 0.2s ease;
+}
+
+.ci-stat:hover {
+  border-color: var(--color-border-strong, #d0d0da);
+}
+
+.ci-stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  line-height: 1.2;
+}
+
+.ci-stat-success { color: var(--color-feedback-success, #52c41a); }
+.ci-stat-error { color: var(--color-feedback-error, #ff4d4f); }
+.ci-stat-pending { color: var(--color-brand, #1677ff); }
+.ci-stat-words { color: var(--color-text-secondary, #666); }
+
+.ci-stat-label {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #999);
+}
+
+/* ---------- 文件列表 ---------- */
+.ci-list {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border-default, #d3d3da);
+  border-radius: var(--radius-md, 8px);
+  padding: 4px 0;
+  background: var(--color-bg-surface, #fff);
+}
+
+.ci-list::-webkit-scrollbar { width: 6px; }
+.ci-list::-webkit-scrollbar-thumb {
+  background: var(--color-border-default, #d3d3da);
+  border-radius: 3px;
+}
+.ci-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong, #c8c8d4);
+}
+
+.ci-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 10px);
+  padding: 8px 12px;
+  animation: ci-item-in 0.25s var(--ease-decelerate, ease-out) both;
+  transition: background 0.15s ease;
+}
+
+.ci-item:hover {
+  background: var(--color-bg-subtle, #f5f5f9);
+}
+
+.ci-item + .ci-item {
+  border-top: 1px solid var(--color-border-subtle, #e2e2e7);
+}
+
+@keyframes ci-item-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ci-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md, 8px);
+  font-size: 16px;
+  color: var(--color-brand, #1677ff);
+  background: var(--color-brand-bg, #e6f4ff);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* 各状态下的图标徽章配色 */
+.ci-item-success .ci-item-icon {
+  color: var(--color-feedback-success, #52c41a);
+  background: var(--success-1, #f6ffed);
+}
+
+.ci-item-error .ci-item-icon {
+  color: var(--color-feedback-error, #ff4d4f);
+  background: var(--error-1, #fff1f0);
+}
+
+.ci-item-importing .ci-item-icon {
+  color: var(--color-info, #1890ff);
+  background: var(--info-1, #e6f7ff);
+}
+
+.ci-item-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.ci-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary, #1a1a2e);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ci-item-error .ci-item-name {
+  color: var(--color-feedback-error, #ff4d4f);
+}
+
+.ci-item-meta {
+  font-size: 12px;
+  color: var(--color-text-tertiary, #999);
+  display: flex;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.ci-item-dot {
+  color: var(--color-border-strong, #c8c8d4);
+}
+
+.ci-item-status {
+  flex-shrink: 0;
+}
+
+/* 移除按钮：hover 显现 */
+.ci-item-remove {
+  opacity: 0.35;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.ci-item:hover .ci-item-remove,
+.ci-item-remove:focus-visible {
+  opacity: 1;
+}
+
+.ci-item-remove:hover {
+  color: var(--color-feedback-error, #ff4d4f) !important;
+}
+
+/* ---------- 结果区 ---------- */
+.ci-result-alert {
+  margin-top: var(--space-3, 12px);
+  border-radius: var(--radius-md, 8px);
+}
+
+.ci-progress {
+  margin-top: var(--space-3, 12px);
+}
+
+.ci-progress-label {
+  font-size: 13px;
+  color: var(--color-text-secondary, #666);
+  margin-bottom: 4px;
+}
+
+.ci-error-list {
+  margin: 4px 0 0;
+  padding-left: 16px;
+  font-size: 13px;
+}
+
+.ci-error-list li {
+  margin-bottom: 2px;
+}
+
+/* ---------- 减弱动效适配 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .ci-item,
+  .ci-dragger-icon {
+    animation: none;
+    transition: none;
+  }
+}

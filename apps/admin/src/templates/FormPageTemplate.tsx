@@ -5,6 +5,7 @@
  * Source: 04 §5.4（表单页所有断点保持 720px 居中，不随屏幕拉伸）
  * ============================================================ */
 
+import { useTranslation } from "react-i18next";
 import { Form, Button, Space, Result, Skeleton, Affix } from "antd";
 import type { FormInstance } from "antd";
 import { CheckOutlined, SaveOutlined, CloseOutlined } from "@ant-design/icons";
@@ -59,6 +60,7 @@ export interface FormPageTemplateProps {
  * - 提交成功显示 Result
  */
 export function FormPageTemplate(props: FormPageTemplateProps) {
+  const { t } = useTranslation();
   const {
     title,
     breadcrumb,
@@ -69,12 +71,15 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
     onFinish,
     onCancel,
     onSuccessContinue,
-    submitText = "提交",
-    draftText = "保存草稿",
+    submitText,
+    draftText,
     showDraft = false,
     onDraft,
     children,
   } = props;
+
+  const resolvedSubmitText = submitText ?? t("formPage:submit");
+  const resolvedDraftText = draftText ?? t("formPage:saveDraft");
 
   // 提交成功态
   if (status === "success") {
@@ -90,14 +95,14 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
         >
           <Result
             status="success"
-            title="提交成功"
-            subTitle="表单已成功提交。"
+            title={t("formPage:submitSuccess")}
+            subTitle={t("formPage:submitSuccessDesc")}
             extra={
               <Space>
                 <Button type="primary" onClick={onSuccessContinue}>
-                  继续操作
+                  {t("formPage:continueAction")}
                 </Button>
-                {onBack && <Button onClick={onBack}>返回列表</Button>}
+                {onBack && <Button onClick={onBack}>{t("formPage:backToList")}</Button>}
               </Space>
             }
           />
@@ -150,7 +155,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                     "var(--space-5) calc(var(--space-5) * -1) calc(var(--space-5) * -1)",
                 }}
                 role="toolbar"
-                aria-label="表单操作"
+                aria-label={t("formPage:formActions")}
               >
                 {onCancel && (
                   <Button
@@ -158,7 +163,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                     onClick={onCancel}
                     disabled={isSubmitting}
                   >
-                    取消
+{t("formPage:cancel")}
                   </Button>
                 )}
                 {showDraft && onDraft && (
@@ -167,7 +172,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                     onClick={onDraft}
                     disabled={isSubmitting}
                   >
-                    {draftText}
+                    {resolvedDraftText}
                   </Button>
                 )}
                 <Button
@@ -177,7 +182,7 @@ export function FormPageTemplate(props: FormPageTemplateProps) {
                   loading={isSubmitting}
                   data-save-btn
                 >
-                  {submitText}
+                  {resolvedSubmitText}
                 </Button>
               </div>
             </Affix>

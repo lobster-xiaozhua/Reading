@@ -93,6 +93,7 @@ class UserCenterService:
             id=str(reader.id),
             nickname=reader.nickname or reader.username,
             avatar=reader.avatar,
+            bio=reader.bio or "",
             level=reader.level,
             is_vip=bool(reader.is_vip),
             vip_expire_at=reader.vip_expire_at or None,
@@ -101,9 +102,13 @@ class UserCenterService:
 
     # ── 书架 ──────────────────────────────────────────
     async def update_profile(
-        self, reader_id: int, nickname: str | None = None, avatar: str | None = None
+        self,
+        reader_id: int,
+        nickname: str | None = None,
+        avatar: str | None = None,
+        bio: str | None = None,
     ) -> UserProfile:
-        """更新读者资料（昵称/头像）。"""
+        """更新读者资料（昵称/头像/简介）。"""
         reader = await self.session.get(Reader, reader_id)
         if not reader:
             return UserProfile(id=str(reader_id), nickname="游客")
@@ -111,6 +116,8 @@ class UserCenterService:
             reader.nickname = nickname.strip()
         if avatar is not None:
             reader.avatar = avatar
+        if bio is not None:
+            reader.bio = bio.strip()
         await self.session.commit()
         return await self.get_profile(reader_id)
 

@@ -11,19 +11,13 @@ function resolveLabel(pathname: string, t: (key: string) => string): string {
   if (pathname === "/workbench" || pathname === "/") return t("menu:workbench");
   for (const item of menuConfig) {
     if (item.path === pathname) return t(item.labelKey);
-  }
-  for (const parent of menuConfig) {
-    if (!parent.children) continue;
-    for (const child of parent.children) {
-      if (child.path && pathname.startsWith(child.path))
-        return t(child.labelKey);
-    }
-  }
-  for (const parent of menuConfig) {
-    if (!parent.children) continue;
-    for (const child of parent.children) {
-      if (child.path && pathname.includes(child.path))
+    if (!item.children) continue;
+    for (const child of item.children) {
+      if (child.path === pathname) return t(child.labelKey);
+      // 详情类路由（/novel/:id 等）：命中前缀但非精确匹配，追加「详情」后缀
+      if (child.path && pathname.startsWith(child.path)) {
         return `${t(child.labelKey)}${t("layout:detail")}`;
+      }
     }
   }
   return t("layout:unnamed");

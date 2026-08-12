@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Layout, Menu } from "antd";
 import type { MenuProps } from "antd";
@@ -71,6 +71,9 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
   const location = useLocation();
   const hasPermission = useAuthStore((s) => s.hasPermission);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
+  // 用户是否手动操作过展开/收起：首次加载时跟随路由默认展开，
+  // 用户操作后完全尊重用户状态，避免路由变化覆盖手动折叠
+  const interactedRef = useRef(false);
 
   const items = useMemo(
     () => buildItems(menuConfig, hasPermission, t),
@@ -85,10 +88,11 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
   // 路由变化时重置 openKeys 为当前路径对应的父菜单
   const currentOpened = useMemo(() => {
     if (collapsed) return [];
-    return openKeys.length > 0 ? openKeys : opened;
+    return interactedRef.current ? openKeys : opened;
   }, [collapsed, openKeys, opened]);
 
   const handleOpenChange = useCallback((keys: string[]) => {
+    interactedRef.current = true;
     setOpenKeys(keys);
   }, []);
 

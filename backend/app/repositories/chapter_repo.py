@@ -18,6 +18,16 @@ class ChapterRepository(BaseRepository[Chapter]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
+    async def next_index(self, novel_id: int) -> int:
+        """计算作品下一个可用章节序号。
+
+        空表返回 0（0-based 新建），已有数据返回 MAX+1（兼容 1-based 种子数据，
+        且包含软删除行，避免 UNIQUE(novel_id, index) 冲突）。
+        """
+        stmt = select(func.max(Chapter.index)).where(Chapter.novel_id == novel_id)
+        result = await self.session.scalar(stmt)
+        return 0 if result is None else int(result) + 1
+
     async def get_by_ids(self, ids: list[int], *, include_deleted: bool = False) -> list[Chapter]:
         """根据 ID 批量获取章节，保持输入顺序。"""
         if not ids:

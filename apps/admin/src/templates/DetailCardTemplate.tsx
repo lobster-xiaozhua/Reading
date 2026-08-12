@@ -5,6 +5,7 @@
  * Source: 04 §5.3
  * ============================================================ */
 
+import { useTranslation } from "react-i18next";
 import {
   Card,
   Skeleton,
@@ -15,11 +16,16 @@ import {
   Timeline,
   Tag,
 } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, ReloadOutlined } from "@ant-design/icons";
 import { BPageHeader, BDescriptions, BTimeline } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
 
-export type DetailCardStatus = "loading" | "ready" | "not-found" | "offline";
+export type DetailCardStatus =
+  | "loading"
+  | "ready"
+  | "not-found"
+  | "offline"
+  | "error";
 
 /** 基本信息 Descriptions 条目 */
 export interface DescItem {
@@ -59,8 +65,14 @@ export interface DetailCardTemplateProps {
   offlineMessage?: string;
   /** 返回回调 */
   onBack?: BPageHeaderProps["onBack"];
+  /** 加载失败重试回调（error 状态显示） */
+  onRetry?: () => void;
   /** PageHeader 操作区 */
   extra?: React.ReactNode;
+
+  /* ---------- 工作流条（PageHeader 之后、可在基本信息 Card 之前） ---------- */
+  /** 工作流状态条：状态切换主操作，从 PageHeader extra 抽出，避免被标题压住 */
+  workflowBar?: React.ReactNode;
 
   /* ---------- 基本信息 Card（span=8） ---------- */
   basicTitle?: string;
@@ -93,44 +105,44 @@ function getAuditColor(result: AuditHistoryItem["result"]): string {
       return "red";
     case "revise":
       return "blue";
-  }
 }
-
-function getAuditLabel(result: AuditHistoryItem["result"]): string {
-  switch (result) {
-    case "approve":
-      return "通过";
-    case "reject":
-      return "驳回";
-    case "revise":
-      return "待修改";
-  }
 }
 
 /**
+
  * B 端卡片详情页模板
  * - 12 列栅格：基本信息 span=8 + 数据统计 span=4
  * - 章节卡 + 审核 Timeline + 评论卡纵向排列
  */
 export function DetailCardTemplate(props: DetailCardTemplateProps) {
+  const { t } = useTranslation();
   const {
     title,
     breadcrumb,
     status,
-    offlineMessage = "该内容已下架，以下数据仅供查看。",
+    offlineMessage,
     onBack,
+    onRetry,
     extra,
-    basicTitle = "基本信息",
+    workflowBar,
+    basicTitle,
     basicItems = [],
-    statsTitle = "数据统计",
+    statsTitle,
     statsContent,
-    chapterTitle = "章节列表",
+    chapterTitle,
     chapterContent,
-    auditTitle = "审核历史",
+    auditTitle,
     auditHistory = [],
-    commentTitle = "评论 Top10",
+    commentTitle,
     comments = [],
   } = props;
+
+  const resolvedOffline = offlineMessage ?? t("detailCard:offlineDefault");
+  const resolvedBasicTitle = basicTitle ?? t("detailCard:basicInfo");
+  const resolvedStatsTitle = statsTitle ?? t("detailCard:stats");
+  const resolvedChapterTitle = chapterTitle ?? t("detailCard:chapters");
+  const resolvedAuditTitle = auditTitle ?? t("detailCard:auditHistory");
+  const resolvedCommentTitle = commentTitle ?? t("detailCard:comments");
 
   // 404
   if (status === "not-found") {
@@ -139,16 +151,41 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
         <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
         <Result
           status="404"
-          title="未找到内容"
-          subTitle="该内容不存在或已被永久删除。"
+          title={t("detailCard:notFound")}
+          subTitle={t("detailCard:notFoundDesc")}
           extra={
             <Button
               type="primary"
               icon={<ArrowLeftOutlined />}
               onClick={onBack}
             >
-              返回列表
+              {t("detailCard:backToList")}
             </Button>
+          }
+        />
+      </div>
+    );
+  }
+
+  // 加载失败（网络异常/服务错误），区分于 404
+  if (status === "error") {
+    return (
+      <div>
+        <BPageHeader title={title} breadcrumb={breadcrumb} onBack={onBack} />
+        <Result
+          status="error"
+          title={t("detailCard:loadError")}
+          subTitle={t("detailCard:loadErrorDesc")}
+          extra={
+            onRetry ? (
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                onClick={onRetry}
+              >
+                重试
+              </Button>
+            ) : undefined
           }
         />
       </div>
@@ -164,13 +201,18 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
         extra={extra}
       />
 
+      {/* 工作流状态条：从 PageHeader extra 抽出，避免状态切换按钮被标题压住 */}
+      {workflowBar && (
+        <div className="b-detail-card__workflow-bar">{workflowBar}</div>
+      )}
+
       {/* 已下架 Alert */}
       {status === "offline" && (
         <Alert
           type="warning"
           showIcon
-          message="内容已下架"
-          description={offlineMessage}
+          message={t("detailCard:offlined")}
+          description={resolvedOffline}
           style={{ marginBottom: "var(--space-4)" }}
         />
       )}
@@ -189,7 +231,7 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
             }}
           >
             <div style={{ gridColumn: "span 8" }}>
-              <Card title={basicTitle}>
+              <Card title={resolvedBasicTitle}>
                 {basicItems.length > 0 ? (
                   <BDescriptions
                     bordered
@@ -202,26 +244,26 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
                     }))}
                   />
                 ) : (
-                  <Empty description="暂无基本信息" />
+                  <Empty description={t("detailCard:emptyBasic")} />
                 )}
               </Card>
             </div>
             <div style={{ gridColumn: "span 4" }}>
-              <Card title={statsTitle}>
+              <Card title={resolvedStatsTitle}>
                 {statsContent ?? <Empty description="暂无统计数据" />}
               </Card>
             </div>
           </div>
 
           {/* 章节列表 */}
-          <Card title={chapterTitle} style={{ marginBottom: "var(--space-4)" }}>
-            {chapterContent ?? <Empty description="暂无章节" />}
+          <Card title={resolvedChapterTitle} style={{ marginBottom: "var(--space-4)" }}>
+            {chapterContent ?? <Empty description={t("detailCard:emptyChapters")} />}
           </Card>
 
           {/* 审核历史 Timeline */}
-          <Card title={auditTitle} style={{ marginBottom: "var(--space-4)" }}>
+          <Card title={resolvedAuditTitle} style={{ marginBottom: "var(--space-4)" }}>
             {auditHistory.length === 0 ? (
-              <Empty description="暂无审核记录" />
+              <Empty description={t("detailCard:emptyAudit")} />
             ) : (
               <BTimeline
                 items={auditHistory.map((h) => ({
@@ -244,7 +286,11 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
                                 : "processing"
                           }
                         >
-                          {getAuditLabel(h.result)}
+                          {h.result === "approve"
+                              ? t("audit:resultLabel.approved")
+                              : h.result === "reject"
+                                ? t("audit:resultLabel.rejected")
+                                : t("audit:resultLabel.revise")}
                         </Tag>
                         <span
                           style={{
@@ -268,9 +314,9 @@ export function DetailCardTemplate(props: DetailCardTemplateProps) {
           </Card>
 
           {/* 评论 Top10 */}
-          <Card title={commentTitle}>
+          <Card title={resolvedCommentTitle}>
             {comments.length === 0 ? (
-              <Empty description="暂无评论" />
+              <Empty description={t("detailCard:emptyComments")} />
             ) : (
               <Timeline
                 items={comments.map((c) => ({

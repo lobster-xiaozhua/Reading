@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Card, Row, Col, Segmented, Skeleton, Space, Tag } from "antd";
+import { Card, Row, Col, Segmented, Skeleton, Space, Tag, Empty, Button } from "antd";
 import { BPageHeader } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
 import {
@@ -38,6 +38,9 @@ export default function ChartsShowcasePage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("basic");
   const [loading, setLoading] = useState(true);
+  const [basicError, setBasicError] = useState(false);
+  const [businessLoading, setBusinessLoading] = useState(false);
+  const [businessError, setBusinessError] = useState(false);
 
   const [lineData, setLineData] = useState<Array<Record<string, unknown>>>([]);
   const [columnData, setColumnData] = useState<Array<Record<string, unknown>>>(
@@ -54,52 +57,29 @@ export default function ChartsShowcasePage() {
   const [readingHeatmapData, setReadingHeatmapData] = useState<any[]>([]);
   const [funnelData, setFunnelData] = useState<any[]>([]);
   const [rankingData, setRankingData] = useState<any[]>([]);
-  const [categoryData, setCategoryData] = useState<any[]>([]);
+const [categoryData, setCategoryData] = useState<any[]>([]);
 
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      try {
-        const basic = await fetchBasicChartData();
-        if (cancelled) return;
-        setLineData(basic.lineData);
-        setColumnData(basic.columnData);
-        setPieData(basic.pieData);
-        setAreaData(basic.areaData);
-        setHeatmapData(basic.heatmapData);
-        setGaugeValue(basic.gaugeValue);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
+  const loadBasic = useCallback(async () => {
+    setLoading(true);
+    setBasicError(false);
+    try {
+      const basic = await fetchBasicChartData();
+      setLineData(basic.lineData);
+      setColumnData(basic.columnData);
+      setPieData(basic.pieData);
+      setAreaData(basic.areaData);
+      setHeatmapData(basic.heatmapData);
+      setGaugeValue(basic.gaugeValue);
+    } catch {
+      setBasicError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    if (tab !== "business") return;
-    let cancelled = false;
-    (async () => {
-      try {
-        const [wc, rh, rf, rt, cd] = await Promise.all([
-          fetchWordCountGrowth(),
-          fetchReadingHeatmap(),
-          fetchReadingFunnel(),
-          fetchRankingTrend(),
-          fetchCategoryDistribution(),
-        ]);
-        if (cancelled) return;
-        setWordCountData(wc);
-        setReadingHeatmapData(rh);
-        setFunnelData(rf);
-        setRankingData(rt);
-        setCategoryData(cd);
-      } finally {
-        /* no-op */
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [tab]);
+    loadBasic();
+  }, [loadBasic]);
 
   const breadcrumb: BPageHeaderProps["breadcrumb"] = [
     { title: t("charts:breadcrumb.charts") },
@@ -134,9 +114,17 @@ export default function ChartsShowcasePage() {
 
       {loading ? (
         <Skeleton active paragraph={{ rows: 12 }} />
+      ) : basicError ? (
+        <Empty
+          description={t("charts:message.loadFailed")}
+        >
+          <Button type="primary" onClick={() => void loadBasic()}>
+            {t("common:retry")}
+          </Button>
+        </Empty>
       ) : tab === "basic" ? (
         <Row gutter={[16, 16]}>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.line")} size="small">
               <LazyChart><BLineChart
                 data={lineData}
@@ -147,7 +135,7 @@ export default function ChartsShowcasePage() {
               /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.column")} size="small">
               <LazyChart><BColumnChart
                 data={columnData}
@@ -158,7 +146,7 @@ export default function ChartsShowcasePage() {
               /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.pie")} size="small">
               <LazyChart><BPieChart
                 data={pieData}
@@ -169,7 +157,7 @@ export default function ChartsShowcasePage() {
               /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.area")} size="small">
               <LazyChart><BAreaChart
                 data={areaData}
@@ -181,7 +169,7 @@ export default function ChartsShowcasePage() {
               /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.heatmap")} size="small">
               <LazyChart><BHeatmap
                 data={heatmapData}
@@ -191,15 +179,45 @@ export default function ChartsShowcasePage() {
               /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card title={t("charts:basic.gauge")} size="small">
               <LazyChart><BGauge value={gaugeValue} title={t("charts:basic.gaugeTitle")} /></LazyChart>
             </Card>
           </Col>
         </Row>
-      ) : (
+      ) : tab === "business" && businessLoading ? (
+        <Skeleton active paragraph={{ rows: 12 }} />
+      ) : tab === "business" && businessError ? (
+        <Empty
+          description={t("charts:message.loadFailed")}
+        >
+          <Button
+            type="primary"
+            onClick={() => {
+              setBusinessLoading(true);
+              setBusinessError(false);
+              Promise.all([
+                fetchWordCountGrowth(),
+                fetchReadingHeatmap(),
+                fetchReadingFunnel(),
+                fetchRankingTrend(),
+                fetchCategoryDistribution(),
+              ]).then(([wc, rh, rf, rt, cd]) => {
+                setWordCountData(wc);
+                setReadingHeatmapData(rh);
+                setFunnelData(rf);
+                setRankingData(rt);
+                setCategoryData(cd);
+              }).catch(() => setBusinessError(true))
+              .finally(() => setBusinessLoading(false));
+            }}
+          >
+            {t("common:retry")}
+          </Button>
+        </Empty>
+      ) : tab === "business" ? (
         <Row gutter={[16, 16]}>
-          <Col span={24}>
+          <Col xs={24} sm={24} lg={24}>
             <Card
               title={t("charts:business.wordCount")}
               size="small"
@@ -210,7 +228,7 @@ export default function ChartsShowcasePage() {
               <LazyChart><WordCountGrowthChart data={wordCountData} /></LazyChart>
             </Card>
           </Col>
-          <Col span={24}>
+          <Col xs={24} sm={24} lg={24}>
             <Card
               title={t("charts:business.readingHeatmap")}
               size="small"
@@ -223,7 +241,7 @@ export default function ChartsShowcasePage() {
               <LazyChart><ReadingHeatmap data={readingHeatmapData} /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card
               title={t("charts:business.funnel")}
               size="small"
@@ -232,7 +250,7 @@ export default function ChartsShowcasePage() {
               <LazyChart><ReadingFunnel data={funnelData} /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card
               title={t("charts:business.ranking")}
               size="small"
@@ -243,7 +261,7 @@ export default function ChartsShowcasePage() {
               <LazyChart><RankingTrendChart data={rankingData} /></LazyChart>
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xs={24} sm={12} lg={12}>
             <Card
               title={t("charts:business.category")}
               size="small"
@@ -253,7 +271,7 @@ export default function ChartsShowcasePage() {
             </Card>
           </Col>
         </Row>
-      )}
+      ) : null}
     </div>
   );
 }

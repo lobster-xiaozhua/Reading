@@ -175,8 +175,12 @@
   border-radius: var(--radius-sm);
   font-size: var(--font-size-overline);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-inverse);
+  color: var(--color-text-primary);
   z-index: 1;
+}
+/* VIP 与限免角标同时存在时纵向错开，避免互相覆盖 */
+.book-detail__flag--vip + .book-detail__flag--free {
+  top: calc(var(--space-2) + 24px);
 }
 .book-detail__flag--vip {
   background: var(--color-accent-orange);
@@ -467,10 +471,11 @@
   gap: var(--space-1);
 }
 .book-detail__star-btn {
-  padding: 0;
+  padding: var(--space-2);
   border: none;
   background: transparent;
   font-size: 24px;
+  line-height: 1;
   color: var(--color-border-default);
   cursor: pointer;
   transition:

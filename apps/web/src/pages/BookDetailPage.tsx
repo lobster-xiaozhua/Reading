@@ -260,10 +260,12 @@ function CommentList({
   const [writeOpen, setWriteOpen] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentRating, setCommentRating] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
   const feedback = useFeedback();
 
   const handleSubmitComment = async () => {
     if (!commentText.trim() || commentRating === 0) return;
+    setSubmitting(true);
     try {
       await fetcher.createComment(bookId, commentText, commentRating);
       setCommentText("");
@@ -274,6 +276,8 @@ function CommentList({
       onRefresh();
     } catch {
       feedback.message("error", "评论发表失败，请稍后重试");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -329,10 +333,10 @@ function CommentList({
               <button
                 type="button"
                 className="book-detail__write-comment-submit"
-                disabled={!commentText.trim() || commentRating === 0}
+                disabled={!commentText.trim() || commentRating === 0 || submitting}
                 onClick={handleSubmitComment}
               >
-                发表评论
+                {submitting ? "提交中..." : "发表评论"}
               </button>
             </div>
           </div>

@@ -42,7 +42,10 @@ async def update_profile(
     redis = Depends(get_redis_client),
 ):
     svc = UserCenterService(db, redis)
-    return ok(request, await svc.update_profile(reader_id, body.nickname, body.avatar))
+    return ok(
+        request,
+        await svc.update_profile(reader_id, body.nickname, body.avatar, body.bio),
+    )
 
 
 @router.get("/me/bookshelf")

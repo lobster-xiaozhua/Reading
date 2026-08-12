@@ -39,6 +39,8 @@ export interface CNovelSummary extends NovelBase {
 /** B 端书籍详情 = NovelBase + B 端状态 + 运营侧字段 */
 export interface BNovelDetail extends NovelBase {
   status: BNovelStatus;
+  /** 是否完结（0 连载中 1 完结） */
+  isCompleted: boolean;
   authorId: string;
   /** 上架时间戳（未上架为 null） */
   publishedAt: number | null;

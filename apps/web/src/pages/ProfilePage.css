@@ -104,7 +104,7 @@
 .profile-page__vip-badge {
   padding: 2px var(--space-2);
   background: var(--color-rank-gold-gradient);
-  color: var(--color-text-inverse);
+  color: var(--color-text-primary);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-semibold);
@@ -270,7 +270,7 @@
   height: 100%;
   background: var(--color-brand);
   border-radius: var(--radius-full);
-  transition: width var(--dur-base) var(--ease-standard);
+  transition: width var(--dur-normal) var(--ease-standard);
 }
 .profile-page__timeline-resume {
   align-self: center;
@@ -677,7 +677,7 @@
   border-color: var(--color-brand);
 }
 .profile-page__theme-item:hover:not(.is-active) {
-  border-color: var(--color-border-hover);
+  border-color: var(--color-brand-border);
 }
 .profile-page__theme-swatch {
   width: 40px;

@@ -260,6 +260,35 @@ export const http = {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
   },
+  /** multipart/form-data POST（不设 JSON Content-Type） */
+  postFormData<T>(path: string, formData: FormData): Promise<T> {
+    const token = getAccessToken();
+    const url = `${BASE_URL}${path}`;
+    return fetchWithRetry(
+      url,
+      {
+        method: "POST",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      },
+      0,
+      30_000,
+    ).then(async (res) => {
+      let body: ApiResponse<T> | null = null;
+      try {
+        body = (await res.json()) as ApiResponse<T>;
+      } catch {
+        throw new ApiError(res.status, `服务响应异常（HTTP ${res.status}）`, res.status);
+      }
+      if (body.code !== 0) {
+        if (body.code === 401) handleUnauthorized();
+        throw new ApiError(body.code, body.message || "导入失败", res.status, body.traceId);
+      }
+      return body.data as T;
+    });
+  },
   put<T>(path: string, body?: unknown): Promise<T> {
     return request<T>(path, {
       method: "PUT",

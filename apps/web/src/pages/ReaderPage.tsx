@@ -247,6 +247,19 @@ export default function ReaderPage() {
     [bookId, navigate],
   );
 
+  /* 进度条拖拽 seek：按 1-based 章节序号跳转 */
+  const handleSeek = useCallback(
+    (chapterNumber: number) => {
+      const target = chapters[chapterNumber - 1];
+      if (!target) return;
+      setCatalogOpen(false);
+      navigate(`/read/${bookId}/${target.id}`, { replace: true });
+      cacheRef.current.goto(target.id);
+      setChapterPercent(0);
+    },
+    [bookId, chapters, navigate],
+  );
+
   /* ---------- 目录章节项 ---------- */
   const catalogChapters: Chapter[] = useMemo(
     () =>
@@ -256,9 +269,9 @@ export default function ReaderPage() {
         wordCount: c.wordCount,
         isVip: c.isVip,
         updateTime: c.publishedAt,
-        read: c.index < cacheRef.current.currentIndex + 1,
+        read: c.index < cache.currentIndex + 1,
       })),
-    [chapters],
+    [chapters, cache.currentIndex],
   );
 
   /* ---------- 加载中 ---------- */
@@ -307,6 +320,10 @@ export default function ReaderPage() {
           onSettingsChange={updateAll}
           onPrev={cache.prevId ? handlePrev : undefined}
           onNext={cache.nextId ? handleNext : undefined}
+          onSeek={handleSeek}
+          onCatalog={() => setCatalogOpen(true)}
+          onBack={handleBack}
+          onProgress={setChapterPercent}
           isBookmarked={isBookmarked}
           onBookmark={handleBookmark}
           nextChapterTitle={nextChapterInfo?.title}

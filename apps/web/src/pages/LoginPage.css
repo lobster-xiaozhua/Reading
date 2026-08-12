@@ -290,21 +290,6 @@
     background var(--dur-fast) var(--ease-standard);
 }
 
-.login-input {
-  width: 100%;
-  padding: var(--space-3) var(--space-3);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-small);
-  outline: none;
-  box-sizing: border-box;
-  background: var(--color-bg-page);
-  transition:
-    border-color var(--dur-fast) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard),
-    background var(--dur-fast) var(--ease-standard);
-}
-
 .login-input:focus {
   border-color: var(--color-brand);
   background: var(--color-bg-surface);
@@ -326,6 +311,7 @@
 
 .login-submit {
   width: 100%;
+  min-width: 96px;
   padding: var(--space-3);
   border: none;
   border-radius: var(--radius-md);
@@ -334,26 +320,6 @@
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   letter-spacing: var(--letter-spacing-wide);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  transition:
-    background var(--dur-fast) var(--ease-standard),
-    transform var(--dur-instant) var(--ease-standard),
-    box-shadow var(--dur-fast) var(--ease-standard);
-}
-
-.login-submit {
-  width: 100%;
-  padding: var(--space-3);
-  border: none;
-  border-radius: var(--radius-md);
-  background: linear-gradient(to right, var(--color-brand), var(--color-accent));
-  color: var(--color-text-inverse);
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-emphasis);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -431,7 +397,7 @@
 .login-demo-btn:hover {
   border-color: var(--color-brand);
   color: var(--color-brand);
-  background: var(--color-brand-soft);
+  background: var(--color-brand-bg);
 }
 
 .login-demo-btn:focus-visible {

@@ -1,0 +1,178 @@
+/* ============================================================
+ * CommandPalette · 全局命令面板样式
+ * ============================================================ */
+
+.cmd-palette {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+}
+
+.cmd-palette__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-mask, rgba(10, 11, 18, 0.45));
+  animation: cmdFadeIn var(--dur-fast, 160ms) var(--ease-out, ease-out);
+}
+
+.cmd-palette__panel {
+  position: relative;
+  width: min(600px, calc(100vw - 48px));
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--sh-4);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: cmdSlideDown var(--dur-fast, 200ms) var(--ease-decelerate, ease-out);
+}
+
+.cmd-palette__input-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.cmd-palette__prefix {
+  color: var(--color-text-tertiary);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.cmd-palette__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-body, 14px);
+  color: var(--color-text-primary);
+}
+
+.cmd-palette__input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.cmd-palette__kbd {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  border: 1px solid var(--color-border-default);
+  border-bottom-width: 2px;
+  border-radius: var(--radius-xs, 4px);
+  padding: 1px 6px;
+  flex-shrink: 0;
+}
+
+.cmd-palette__body {
+  max-height: min(52vh, 460px);
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.cmd-palette__group-label {
+  font-size: var(--font-size-xs, 12px);
+  font-weight: var(--font-weight-label, 600);
+  letter-spacing: var(--letter-spacing-caption, 0.04em);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  padding: var(--space-2) var(--space-3);
+}
+
+.cmd-palette__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm, 6px);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background var(--dur-fast, 150ms) var(--ease-standard, ease);
+}
+
+.cmd-palette__item:hover {
+  background: var(--color-bg-subtle);
+}
+
+.cmd-palette__item.is-active {
+  background: var(--color-brand-bg);
+}
+
+.cmd-palette__item-icon {
+  width: 20px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.cmd-palette__item.is-active .cmd-palette__item-icon {
+  color: var(--color-brand);
+}
+
+.cmd-palette__item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cmd-palette__item-label {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-body, 14px);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmd-palette__item-hint {
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs, 12px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmd-palette__item-arrow {
+  color: var(--color-brand);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.cmd-palette__footer {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-5);
+  border-top: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-xs, 12px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmd-palette__backdrop,
+  .cmd-palette__panel {
+    animation: none;
+  }
+}
+
+@keyframes cmdFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes cmdSlideDown {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

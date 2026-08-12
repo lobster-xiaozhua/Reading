@@ -113,6 +113,13 @@
   padding-left: var(--space-2);
 }
 
+/* 占位文本（法律文档页尚未提供，暂以纯文本呈现避免死链） */
+.novel-footer__legal {
+  font-size: var(--font-size-small);
+  color: var(--color-text-tertiary);
+  padding: var(--space-1) 0;
+}
+
 /* ---------- 底部元信息 ---------- */
 .novel-footer__meta {
   padding-top: var(--space-6);

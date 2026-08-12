@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, Row, Col, Checkbox, Button, Space, App } from "antd";
+import { Card, Row, Col, Checkbox, Button, Space, App, Collapse } from "antd";
 import { BPageHeader, BRoyaltyDetail, SettlementFlow } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
 import type { RoyaltyDetailRow } from "@novel/b-end";
@@ -155,17 +155,27 @@ export default function RoyaltyPage() {
     <div className="royalty-page">
       <BPageHeader title={t("royalty:title")} breadcrumb={breadcrumb} />
 
-      <Card
-        title={t("royalty:settlementFlow")}
-        size="small"
+      <Collapse
+        ghost
+        bordered={false}
+        defaultActiveKey={[]}
         style={{ marginBottom: "var(--space-4)" }}
-      >
-        <SettlementFlow />
-      </Card>
+        items={[
+          {
+            key: "flow",
+            label: (
+              <span className="royalty-flow-toggle">
+                {t("royalty:settlementFlow")}
+              </span>
+            ),
+            children: <SettlementFlow />,
+          },
+        ]}
+      />
 
       <Row gutter={[16, 16]} style={{ marginBottom: "var(--space-4)" }}>
         {statCards.map((c) => (
-          <Col span={6} key={c.title}>
+          <Col xs={24} sm={12} lg={6} key={c.title}>
             <Card size="small">
               <div
                 style={{
@@ -202,6 +212,7 @@ export default function RoyaltyPage() {
       </Row>
 
       <Card
+        className="is-focus-card"
         title={t("royalty:detail")}
         size="small"
         extra={

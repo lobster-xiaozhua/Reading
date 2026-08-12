@@ -52,11 +52,11 @@ export const BBatchActionBar = forwardRef<HTMLDivElement, BBatchActionBarProps>(
     if (!visible || selectedCount === 0) return null;
 
     const handleAction = (action: BatchAction) => {
-      if (action.danger && action.confirmTitle) {
+      if (action.confirmTitle) {
         Modal.confirm({
           title: action.confirmTitle,
           content: action.confirmContent,
-          okType: "danger",
+          okType: action.danger ? "danger" : "primary",
           okText: "确认",
           cancelText: "取消",
           onOk: action.onClick,

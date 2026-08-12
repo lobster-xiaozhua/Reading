@@ -6,6 +6,8 @@ import { SiderMenu } from "./SiderMenu";
 import { HeaderBar } from "./HeaderBar";
 import { MultiTabs } from "./MultiTabs";
 import { AnimatedOutlet } from "./AnimatedOutlet";
+import { CommandPalette } from "@/components/CommandPalette";
+import { useCmdStore } from "@/stores/cmdStore";
 import "./bend-layout.css";
 
 const { Content } = Layout;
@@ -13,13 +15,16 @@ const { Content } = Layout;
 export function BEndLayout() {
   const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
+  const openPalette = useCmdStore((s) => s.openPalette);
 
   useHotkeys("/", (e) => {
     e.preventDefault();
-    const input = document.querySelector<HTMLInputElement>(
-      "[data-search-input]",
-    );
-    input?.focus();
+    openPalette();
+  });
+
+  useHotkeys("ctrl+k", (e) => {
+    e.preventDefault();
+    openPalette();
   });
 
   useHotkeys("ctrl+s", (e) => {
@@ -41,6 +46,7 @@ export function BEndLayout() {
       <a href="#main-content" className="skip-link">
         {t("layout:skipToContent")}
       </a>
+      <CommandPalette />
       <Layout className="bend-layout">
         <SiderMenu collapsed={collapsed} />
         <Layout className="bend-layout__main">

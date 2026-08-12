@@ -228,7 +228,8 @@
 }
 .search-page__tag-item {
   display: inline-flex;
-  align-items: center;
+  align-items: stretch;
+  min-height: 44px;
   background: var(--color-bg-subtle);
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -251,6 +252,10 @@
   transform: scale(0.97);
 }
 .search-page__tag-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
   padding: 0 var(--space-2);
   border: none;
   border-left: 1px solid var(--color-border-subtle);

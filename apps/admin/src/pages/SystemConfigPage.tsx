@@ -50,6 +50,9 @@ export default function SystemConfigPage() {
   const [newText, setNewText] = useState("");
   const [newLevel, setNewLevel] = useState<1 | 2 | 3>(3);
   const [newSuggestion, setNewSuggestion] = useState("");
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [addingWord, setAddingWord] = useState(false);
+  const [addError, setAddError] = useState("");
 
   useEffect(() => {
     setLoading(true);
@@ -69,31 +72,48 @@ export default function SystemConfigPage() {
   }, []);
 
   const handleSaveConfig = async () => {
+    if (savingConfig) return;
+    setSavingConfig(true);
     try {
       await http.put("/system/config", { siteName, icp });
       msg.success(t("system:message.saved"));
     } catch {
       msg.error(t("system:message.saveFailed"));
+    } finally {
+      setSavingConfig(false);
     }
   };
 
   const handleAddWord = async () => {
-    if (!newText.trim()) return;
-    const result = await addSensitiveWord({
-      text: newText.trim(),
-      level: newLevel,
-      suggestion: newSuggestion,
-    });
-    if (result.success) {
-      msg.success(t("system:message.added"));
-      setAddModalOpen(false);
-      setNewText("");
-      setNewSuggestion("");
-      const lib = await fetchSensitiveWordLib();
-      setWords(lib.words);
-      setMeta(lib.meta as SensitiveWordLibMeta | null);
-    } else {
+    if (addingWord) return;
+    const text = newText.trim();
+    if (!text) {
+      setAddError(t("system:addModal.required"));
+      return;
+    }
+    setAddError("");
+    setAddingWord(true);
+    try {
+      const result = await addSensitiveWord({
+        text,
+        level: newLevel,
+        suggestion: newSuggestion,
+      });
+      if (result.success) {
+        msg.success(t("system:message.added"));
+        setAddModalOpen(false);
+        setNewText("");
+        setNewSuggestion("");
+        const lib = await fetchSensitiveWordLib();
+        setWords(lib.words);
+        setMeta(lib.meta as SensitiveWordLibMeta | null);
+      } else {
+        msg.error(t("system:message.addFailed"));
+      }
+    } catch {
       msg.error(t("system:message.addFailed"));
+    } finally {
+      setAddingWord(false);
     }
   };
 
@@ -160,9 +180,10 @@ export default function SystemConfigPage() {
       <BPageHeader title={t("system:title")} />
       <Space direction="vertical" style={{ width: "100%" }} size="large">
         <Card
+          className="is-focus-card"
           title={t("system:siteConfig")}
           extra={
-            <Button type="primary" onClick={handleSaveConfig}>
+            <Button type="primary" loading={savingConfig} onClick={handleSaveConfig}>
               {t("system:save")}
             </Button>
           }
@@ -187,6 +208,7 @@ export default function SystemConfigPage() {
         </Card>
 
         <Card
+          className="is-focus-card"
           title={t("system:sensitiveWord")}
           extra={
             <Space>
@@ -227,18 +249,31 @@ export default function SystemConfigPage() {
         title={t("system:addModal.title")}
         open={addModalOpen}
         onOk={handleAddWord}
-        onCancel={() => setAddModalOpen(false)}
+        onCancel={() => {
+          setAddModalOpen(false);
+          setAddError("");
+        }}
         okText={t("system:addModal.add")}
         cancelText={t("system:addModal.cancel")}
+        okButtonProps={{ loading: addingWord }}
       >
         <Space direction="vertical" style={{ width: "100%" }}>
           <div>
             <Text>{t("system:addModal.word")}</Text>
             <Input
               value={newText}
-              onChange={(e) => setNewText(e.target.value)}
+              onChange={(e) => {
+                setNewText(e.target.value);
+                if (addError) setAddError("");
+              }}
               placeholder={t("system:addModal.wordPlaceholder")}
+              status={addError ? "error" : undefined}
             />
+            {addError && (
+              <Text type="danger" style={{ fontSize: 12 }}>
+                {addError}
+              </Text>
+            )}
           </div>
           <div>
             <Text>{t("system:addModal.level")}</Text>

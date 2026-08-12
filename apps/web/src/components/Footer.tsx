@@ -47,9 +47,9 @@ export function Footer() {
           </nav>
           <nav className="novel-footer__col" aria-label="法律信息">
             <div className="novel-footer__col-title">法律</div>
-            <a href="#privacy" target="_self">隐私政策</a>
-            <a href="#terms" target="_self">用户协议</a>
-            <a href="#copyright" target="_self">版权声明</a>
+            <span className="novel-footer__legal">隐私政策</span>
+            <span className="novel-footer__legal">用户协议</span>
+            <span className="novel-footer__legal">版权声明</span>
           </nav>
         </div>
 

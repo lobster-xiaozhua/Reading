@@ -3,16 +3,6 @@
  * ============================================================ */
 
 /* 页面级动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* 页面容器动画 */
 .user-list-page {

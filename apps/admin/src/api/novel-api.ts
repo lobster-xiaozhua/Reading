@@ -4,7 +4,7 @@
  * 数据模型对齐 @novel/types BNovelDetail
  * ============================================================ */
 
-import { http, requestSafe } from "./http";
+import { http, requestSafe, ApiError } from "./http";
 import type { BNovelDetail, BNovelStatus, OfflineReason } from "@novel/types";
 
 /** 列表查询参数 */
@@ -73,6 +73,7 @@ function mapNovel(raw: BackendNovel): BNovelDetail {
     intro: (raw.intro as string) ?? "",
     lastUpdated: Number(raw.lastUpdated ?? raw.updatedAt ?? 0),
     status: (raw.status as BNovelStatus) ?? "draft",
+    isCompleted: Boolean(raw.isCompleted ?? raw.is_completed ?? false),
     authorId: String(raw.authorId ?? ""),
     publishedAt: Number(raw.publishedAt ?? 0) || null,
     shelvedAt: Number(raw.shelvedAt ?? 0) || null,
@@ -113,8 +114,10 @@ export async function fetchNovelDetail(
   try {
     const data = await http.get<BackendNovel>(`/novels/${id}`);
     return mapNovel(data);
-  } catch {
-    return null;
+  } catch (err) {
+    // 404 视为作品不存在（返回 null 由调用方走空态）；网络/服务异常重新抛出
+    if (err instanceof ApiError && err.status === 404) return null;
+    throw err;
   }
 }
 
@@ -127,17 +130,24 @@ export interface NovelFormValues {
   tags: string[];
   intro: string;
   cover?: string;
-  status: BNovelStatus;
-  isOnShelf: boolean;
+  /** 是否完结（连载中 / 已完结） */
+  isCompleted: boolean;
   price: number;
   vipChapters: string[];
+}
+
+/** 上传封面图片，返回可访问的 URL */
+export async function uploadCoverImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const data = await http.postFormData<{ url: string }>("/uploads/image", formData);
+  return data.url;
 }
 
 /** 提交作品（新建/编辑） */
 export async function submitNovel(
   values: NovelFormValues,
-): Promise<{ success: boolean; id: string }> {
-  const body = {
+): Promise<{ success: boolean; id: string }> {  const body = {
     title: values.title,
     authorId: values.author,
     category: values.category,
@@ -146,7 +156,7 @@ export async function submitNovel(
     flags: [],
     price: values.price ?? 0,
     authorRemark: "",
-    isCompleted: values.status === "published" ? true : values.isOnShelf,
+    isCompleted: values.isCompleted,
   };
   const result = await requestSafe(
     values.id

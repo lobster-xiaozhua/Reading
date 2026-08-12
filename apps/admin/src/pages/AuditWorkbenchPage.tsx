@@ -4,7 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useHotkeys } from "react-hotkeys-hook";
 import {
   Card,
+  Col,
   List,
+  Row,
   Tag,
   Input,
   Checkbox,
@@ -69,6 +71,7 @@ export default function AuditWorkbenchPage() {
   const hitRefs = useRef<Map<string, HTMLSpanElement>>(new Map());
 
   const canApprove = hasPermission("audit.approve");
+  const canRevise = hasPermission("audit.revise");
   const canReject = hasPermission("audit.reject");
 
   const loadData = useCallback(async () => {
@@ -151,8 +154,6 @@ export default function AuditWorkbenchPage() {
         : result === "revise"
           ? t("audit:resultLabel.revise")
           : t("audit:resultLabel.rejected");
-    message.success(t("audit:message.completed", { action: actionText }));
-    await new Promise((r) => setTimeout(r, 300));
     try {
       const res = await submitAudit({
         ids: [currentItem.id],
@@ -162,10 +163,14 @@ export default function AuditWorkbenchPage() {
       });
       setComment("");
       setRejectReason(undefined);
+      message.success(t("audit:message.completed", { action: actionText }));
       if (res.nextId) {
         setSelectedId(res.nextId);
       }
       loadData();
+    } catch {
+      setFadingOutId(null);
+      message.error(t("audit:message.submitFailed"));
     } finally {
       setSubmitting(false);
       setFadingOutId(null);
@@ -200,6 +205,15 @@ export default function AuditWorkbenchPage() {
     return (
       <List.Item
         onClick={() => setSelectedId(item.id)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setSelectedId(item.id);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-selected={isSelected}
         className={`awb-item${isSelected ? " awb-item--selected" : ""}${fadingOutId === item.id ? " awb-item--fade-out" : ""}`}
       >
         <div className="awb-item__inner">
@@ -313,6 +327,7 @@ export default function AuditWorkbenchPage() {
             ) : (
               <>
                 <Card
+                  className="is-focus-card"
                   title={
                     <Space>
                       <span>{currentItem.chapterTitle}</span>
@@ -421,107 +436,118 @@ export default function AuditWorkbenchPage() {
                   )}
                 </Card>
 
-                {history.length > 0 && (
-                  <Card title={t("audit:history")}>
-                    <Timeline
-                      items={history.map((h) => ({
-                        color:
-                          h.result === "approve"
-                            ? "green"
-                            : h.result === "reject"
-                              ? "red"
-                              : "blue",
-                        children: (
-                          <div>
-                            <div className="awb-history-row">
-                              <Tag
-                                color={
-                                  h.result === "approve"
-                                    ? "success"
-                                    : h.result === "reject"
-                                      ? "error"
-                                      : "processing"
-                                }
-                              >
-                                {h.result === "approve"
-                                  ? t("audit:resultLabel.approved")
-                                  : h.result === "reject"
-                                    ? t("audit:resultLabel.rejected")
-                                    : t("audit:resultLabel.revise")}
-                              </Tag>
-                              <span className="awb-history-meta">
-                                {h.operator} · {h.time}
-                              </span>
-                            </div>
-                            {h.comment && (
-                              <p className="awb-history-comment">{h.comment}</p>
-                            )}
-                          </div>
-                        ),
-                      }))}
-                    />
-                  </Card>
-                )}
+                <Row gutter={[16, 16]}>
+                  {history.length > 0 && (
+                    <Col xs={24} lg={12}>
+                      <Card className="is-focus-card" title={t("audit:history")}>
+                        <Timeline
+                          items={history.map((h) => ({
+                            color:
+                              h.result === "approve"
+                                ? "green"
+                                : h.result === "reject"
+                                  ? "red"
+                                  : "blue",
+                            children: (
+                              <div>
+                                <div className="awb-history-row">
+                                  <Tag
+                                    color={
+                                      h.result === "approve"
+                                        ? "success"
+                                        : h.result === "reject"
+                                          ? "error"
+                                          : "processing"
+                                    }
+                                  >
+                                    {h.result === "approve"
+                                      ? t("audit:resultLabel.approved")
+                                      : h.result === "reject"
+                                        ? t("audit:resultLabel.rejected")
+                                        : t("audit:resultLabel.revise")}
+                                  </Tag>
+                                  <span className="awb-history-meta">
+                                    {h.operator} · {h.time}
+                                  </span>
+                                </div>
+                                {h.comment && (
+                                  <p className="awb-history-comment">{h.comment}</p>
+                                )}
+                              </div>
+                            ),
+                          }))}
+                        />
+                      </Card>
+                    </Col>
+                  )}
 
-                <Card title={t("audit:operation.title")}>
-                  <div className="awb-operation-panel">
-                    <div className="awb-operation-row">
-                      <label className="awb-operation-label">
-                        {t("audit:operation.rejectReasonLabel")}
-                      </label>
-                      <Radio.Group
-                        value={rejectReason}
-                        onChange={(e) => setRejectReason(e.target.value)}
-                        className="filter-checkbox-group is-vertical"
-                      >
-                        {REJECT_REASON_OPTIONS.map((o) => (
-                          <Radio key={o.value} value={o.value}>
-                            {o.label}
-                          </Radio>
-                        ))}
-                      </Radio.Group>
-                    </div>
-                    <TextArea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      placeholder={t("audit:operation.commentPlaceholder")}
-                      rows={3}
-                      maxLength={500}
-                      showCount
-                    />
-                    <Space>
-                      <Button
-                        type="primary"
-                        loading={submitting}
-                        onClick={() => handleSubmit("approve")}
-                        disabled={!canApprove}
-                        title="Ctrl+Enter"
-                      >
-                        {t("audit:operation.approve")}
-                      </Button>
-                      <Button
-                        loading={submitting}
-                        onClick={() => handleSubmit("revise")}
-                        disabled={!canApprove}
-                      >
-                        {t("audit:operation.revise")}
-                      </Button>
-                      <Button
-                        danger
-                        loading={submitting}
-                        onClick={() => handleSubmit("reject")}
-                        disabled={
-                          !canReject ||
-                          !rejectReason ||
-                          comment.trim().length < 10
-                        }
-                        title="Ctrl+Delete"
-                      >
-                        {t("audit:operation.reject")}
-                      </Button>
-                    </Space>
-                  </div>
-                </Card>
+                  <Col xs={24} lg={history.length > 0 ? 12 : 24}>
+                    <Card
+                      className="is-focus-card"
+                      title={t("audit:operation.title")}
+                    >
+                      <div className="awb-operation-panel">
+                        <div className="awb-operation-row">
+                          <label className="awb-operation-label">
+                            {t("audit:operation.rejectReasonLabel")}
+                          </label>
+                          <Radio.Group
+                            value={rejectReason}
+                            onChange={(e) =>
+                              setRejectReason(e.target.value)
+                            }
+                            className="filter-checkbox-group is-vertical"
+                          >
+                            {REJECT_REASON_OPTIONS.map((o) => (
+                              <Radio key={o.value} value={o.value}>
+                                {o.label}
+                              </Radio>
+                            ))}
+                          </Radio.Group>
+                        </div>
+                        <TextArea
+                          value={comment}
+                          onChange={(e) => setComment(e.target.value)}
+                          placeholder={t("audit:operation.commentPlaceholder")}
+                          rows={3}
+                          maxLength={500}
+                          showCount
+                        />
+                        <Space>
+                          <Button
+                            type="primary"
+                            loading={submitting}
+                            onClick={() => handleSubmit("approve")}
+                            disabled={!canApprove}
+                            title="Ctrl+Enter"
+                          >
+                            {t("audit:operation.approve")}
+                          </Button>
+                          <Button
+                            loading={submitting}
+                            onClick={() => handleSubmit("revise")}
+                            disabled={!canRevise}
+                          >
+                            {t("audit:operation.revise")}
+                          </Button>
+                          <Button
+                            danger
+                            loading={submitting}
+                            onClick={() => handleSubmit("reject")}
+                            disabled={
+                              !canReject ||
+                              !rejectReason ||
+                              comment.trim().length < 10
+                            }
+                            title="Ctrl+Delete"
+                          >
+                            {t("audit:operation.reject")}
+                          </Button>
+                        </Space>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
               </>
             )}
           </div>

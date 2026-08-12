@@ -6,7 +6,6 @@ import {
   Input,
   Checkbox,
   Radio,
-  Switch,
   InputNumber,
   Tree,
   Upload,
@@ -15,12 +14,12 @@ import {
 } from "antd";
 import type { UploadFile, TreeDataNode } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import type { BNovelStatus } from "@novel/types";
 import { FormPageTemplate } from "@/templates/FormPageTemplate";
 import type { FormPageStatus } from "@/templates/FormPageTemplate";
 import {
   fetchNovelDetail,
   submitNovel,
+  uploadCoverImage,
   NOVEL_CATEGORIES,
 } from "@/api/novel-api";
 import type { NovelFormValues } from "@/api/novel-api";
@@ -28,6 +27,33 @@ import { http } from "@/api/http";
 import "./NovelFormPage.css";
 
 const { TextArea } = Input;
+
+/** 客户端图片压缩：缩放至最大尺寸 600px，JPEG quality 0.8，保持宽高比 */
+function compressImage(file: File, maxDim = 600): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("Canvas 不可用")); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = () => reject(new Error("图片加载失败"));
+    const reader = new FileReader();
+    reader.onload = (e) => { img.src = e.target?.result as string; };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 const CATEGORY_OPTIONS = NOVEL_CATEGORIES.filter((c) => c.value !== "all").map(
   (c) => ({
@@ -125,11 +151,16 @@ export default function NovelFormPage() {
           category: data.category,
           tags: data.tags,
           intro: data.intro,
-          status: data.status,
-          isOnShelf: data.status === "published",
+          isCompleted: data.isCompleted,
           price: 0,
           vipChapters: [],
+          cover: data.cover || undefined,
         });
+        if (data.cover) {
+          setFileList([
+            { uid: "-cover", name: "封面", status: "done", url: data.cover },
+          ]);
+        }
         setStatus("editing");
       } catch {
         setStatus("editing");
@@ -153,18 +184,27 @@ export default function NovelFormPage() {
     }
   };
 
+  const [savingDraft, setSavingDraft] = useState(false);
+
   const handleDraft = async () => {
+    if (savingDraft) return;
     const values = form.getFieldsValue();
     const draftValues: NovelFormValues = {
       ...values,
-      status: "draft" as BNovelStatus,
       id: novelId,
     };
-    await submitNovel(draftValues);
-    message.success(t("novelForm:message.saved"));
+    setSavingDraft(true);
+    try {
+      await submitNovel(draftValues);
+      message.success(t("novelForm:message.saved"));
+    } catch {
+      message.error(t("novelForm:message.submitFailed"));
+    } finally {
+      setSavingDraft(false);
+    }
   };
 
-  const beforeUpload = (file: File) => {
+  const beforeUpload = async (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
       message.error(t("novelForm:message.imageOnly"));
@@ -175,16 +215,23 @@ export default function NovelFormPage() {
       message.error(t("novelForm:message.imageTooLarge"));
       return Upload.LIST_IGNORE;
     }
-    return new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        form.setFieldValue("cover", dataUrl);
-        resolve(dataUrl);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    try {
+      // 客户端压缩后再上传真实文件，避免大图 base64 超大 payload
+      const dataUrl = await compressImage(file);
+      const blob = await (await fetch(dataUrl)).blob();
+      const coverFile = new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {
+        type: "image/jpeg",
+      });
+      const url = await uploadCoverImage(coverFile);
+      form.setFieldValue("cover", url);
+      setFileList([
+        { uid: "-cover", name: file.name, status: "done", url },
+      ]);
+      return Upload.LIST_IGNORE;
+    } catch {
+      message.error(t("novelForm:message.uploadFailed"));
+      return Upload.LIST_IGNORE;
+    }
   };
 
   return (
@@ -325,23 +372,14 @@ export default function NovelFormPage() {
         style={{ marginBottom: "var(--space-4)" }}
       >
         <Form.Item
-          name="status"
+          name="isCompleted"
           label={t("novelForm:field.serialStatus")}
-          initialValue="draft"
-        >
-          <Radio.Group>
-            <Radio value="draft">{t("novel:status.draft")}</Radio>
-            <Radio value="pending">{t("novel:status.pending")}</Radio>
-          </Radio.Group>
-        </Form.Item>
-
-        <Form.Item
-          name="isOnShelf"
-          label={t("novelForm:field.shelve")}
-          valuePropName="checked"
           initialValue={false}
         >
-          <Switch />
+          <Radio.Group>
+            <Radio value={false}>{t("novelForm:field.ongoing")}</Radio>
+            <Radio value={true}>{t("novelForm:field.completed")}</Radio>
+          </Radio.Group>
         </Form.Item>
 
         <Form.Item

@@ -3,8 +3,6 @@ import { useTranslation } from "react-i18next";
 import {
   Layout,
   Breadcrumb,
-  Input,
-  Badge,
   Dropdown,
   Avatar,
   theme,
@@ -20,6 +18,7 @@ import {
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { useCmdStore } from "@/stores/cmdStore";
 import { menuConfig, type MenuItem } from "./menu-config";
 
 const Header = Layout.Header;
@@ -50,6 +49,7 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const openPalette = useCmdStore((s) => s.openPalette);
   const { token } = theme.useToken();
 
   const breadcrumbItems = useMemo(() => {
@@ -67,11 +67,13 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
       key: "profile",
       icon: <UserOutlined />,
       label: t("layout:profile"),
+      disabled: true,
     },
     {
       key: "settings",
       icon: <SettingOutlined />,
       label: t("layout:accountSettings"),
+      disabled: true,
     },
     { type: "divider" as const },
     {
@@ -106,15 +108,27 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
       <Breadcrumb items={breadcrumbItems} className="bend-header__breadcrumb" />
 
       <div className="bend-header__right">
-        <Input
-          prefix={<SearchOutlined />}
-          placeholder={t("layout:searchPlaceholder")}
-          className="bend-header__search"
-          style={{ width: 240 }}
-          allowClear
+        <button
+          type="button"
+          className="bend-header__palette"
+          onClick={openPalette}
           aria-label={t("layout:globalSearch")}
-        />
-        <Badge count={5} size="small" offset={[-2, 4]}>
+        >
+          <SearchOutlined />
+          <span className="bend-header__palette-text">
+            {t("layout:searchPlaceholder")}
+          </span>
+          <kbd className="bend-header__palette-kbd">Ctrl K</kbd>
+        </button>
+        <Dropdown
+          placement="bottomRight"
+          trigger={["click"]}
+          dropdownRender={() => (
+            <div className="bend-header__notify-panel">
+              <div className="bend-header__notify-empty">{t("layout:notificationsEmpty")}</div>
+            </div>
+          )}
+        >
           <button
             type="button"
             className="bend-header__icon-btn"
@@ -122,7 +136,7 @@ export function HeaderBar({ collapsed, onToggle }: HeaderBarProps) {
           >
             <BellOutlined />
           </button>
-        </Badge>
+        </Dropdown>
         <Dropdown
           menu={{ items: userMenuItems, onClick: handleUserMenu }}
           placement="bottomRight"

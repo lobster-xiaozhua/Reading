@@ -290,6 +290,7 @@ export const fetcher = {
   async updateProfile(payload: {
     nickname?: string;
     avatar?: string;
+    bio?: string;
   }): Promise<UserProfile> {
     return http.put<UserProfile>("/me/profile", payload);
   },

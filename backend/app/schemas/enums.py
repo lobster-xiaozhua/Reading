@@ -179,6 +179,7 @@ class Permission(str, Enum):
     CHAPTER_DELETE = "chapter.delete"
     AUDIT_LIST = "audit.list"
     AUDIT_APPROVE = "audit.approve"
+    AUDIT_REVISE = "audit.revise"
     AUDIT_REJECT = "audit.reject"
     AUTHOR_LIST = "author.list"
     AUTHOR_EDIT = "author.edit"
@@ -206,6 +207,7 @@ BUILTIN_ROLE_PERMISSIONS: dict[str, list[str]] = {
         "chapter.delete",
         "audit.list",
         "audit.approve",
+        "audit.revise",
         "audit.reject",
         "author.list",
     ],

@@ -6,10 +6,11 @@
  * ============================================================ */
 
 import type { ReactNode } from "react";
-import { Result, Button } from "antd";
+import { Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import type { Permission } from "@/api/types";
 import { usePermission } from "@/hooks/usePermission";
+import { BrandResult } from "@/components/BrandResult";
 
 export interface RequirePermissionProps {
   /** 所需权限点（任一持有即可访问） */
@@ -36,7 +37,7 @@ export function RequirePermission({
 
   if (!ok) {
     return (
-      <Result
+      <BrandResult
         status="403"
         title="403"
         subTitle="抱歉，您没有访问该页面的权限。"

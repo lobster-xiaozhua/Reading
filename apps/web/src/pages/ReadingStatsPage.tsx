@@ -187,11 +187,7 @@ function HeatmapSection({
 
   const DAY_LABELS = ["一", "二", "三", "四", "五", "六", "日"];
 
-  const handleEnter = (
-    e: ReactMouseEvent<HTMLDivElement>,
-    cell: HeatmapCell,
-  ) => {
-    const el = e.currentTarget;
+  const showTip = (el: HTMLElement, cell: HeatmapCell) => {
     const rect = el.getBoundingClientRect();
     let x = rect.left + rect.width / 2;
     let y = rect.top;
@@ -203,7 +199,21 @@ function HeatmapSection({
     if (y - tipH - 8 < 0) y = rect.bottom + tipH + 8;
     setTip({ date: cell.date, duration: cell.duration, x, y });
   };
+  const handleEnter = (
+    e: ReactMouseEvent<HTMLDivElement>,
+    cell: HeatmapCell,
+  ) => {
+    showTip(e.currentTarget, cell);
+  };
   const handleLeave = () => setTip(null);
+  /* 触摸设备：点击切换 tooltip（桌面 hover 已展示，点按可锁定/关闭） */
+  const handleCellClick = (el: HTMLElement, cell: HeatmapCell) => {
+    if (tip && tip.date === cell.date) {
+      setTip(null);
+    } else {
+      showTip(el, cell);
+    }
+  };
 
   return (
     <section className="reading-stats-page__section" aria-label="阅读热力图">
@@ -257,6 +267,13 @@ function HeatmapSection({
                           aria-label={`${cell.date} · 阅读 ${cell.duration} 分钟`}
                           onMouseEnter={(e) => handleEnter(e, cell)}
                           onMouseLeave={handleLeave}
+                          onClick={(e) => handleCellClick(e.currentTarget, cell)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              handleCellClick(e.currentTarget, cell);
+                            }
+                          }}
                         />
                       );
                     })}

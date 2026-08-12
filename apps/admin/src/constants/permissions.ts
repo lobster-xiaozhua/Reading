@@ -96,7 +96,13 @@ export const PERMISSION_LIST: PermissionMeta[] = [
     key: "audit.approve",
     label: "审核通过",
     module: "audit",
-    description: "通过/待修改",
+    description: "审核通过，作品上架",
+  },
+  {
+    key: "audit.revise",
+    label: "审核打回修改",
+    module: "audit",
+    description: "打回作者修改（介于通过与驳回之间）",
   },
   {
     key: "audit.reject",

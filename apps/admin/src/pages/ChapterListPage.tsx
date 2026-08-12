@@ -39,6 +39,7 @@ import {
   SaveOutlined,
   CloseOutlined,
   FormOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import {
   DndContext,
@@ -59,6 +60,8 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import type { BChapterDetail, BChapterStatus } from "@novel/types";
 import { BPageHeader } from "@novel/b-end";
 import type { BPageHeaderProps } from "@novel/b-end";
+import { BFilterBar } from "@novel/b-end";
+import type { FilterField } from "@novel/b-end";
 import { BTable } from "@novel/b-end";
 import { BBatchActionBar } from "@novel/b-end";
 import type { BatchAction } from "@novel/b-end";
@@ -75,6 +78,7 @@ import {
   CHAPTER_STATUS_OPTIONS,
   CHAPTER_STATUS_TAG,
 } from "@/api/chapter-api";
+import ChapterImportModal from "@/components/ChapterImportModal";
 import "./ChapterListPage.css";
 
 interface RowContextValue {
@@ -251,6 +255,7 @@ export default function ChapterListPage() {
   const hasPermission = useAuthStore((s) => s.hasPermission);
 
   const [novelTitle, setNovelTitle] = useState<string>("");
+  const [novelCompleted, setNovelCompleted] = useState<boolean | null>(null);
   const [status, setStatus] = useState<PageStatus>("loading");
   const [searchKey, setSearchKey] = useState("");
   const [filterStatus, setFilterStatus] = useState<BChapterStatus | "all">(
@@ -268,6 +273,7 @@ export default function ChapterListPage() {
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
   const [createForm] = Form.useForm<{
     title: string;
     content: string;
@@ -300,7 +306,10 @@ export default function ChapterListPage() {
           sortBy,
         }),
       ]);
-      if (novel) setNovelTitle(novel.title);
+      if (novel) {
+        setNovelTitle(novel.title);
+        setNovelCompleted(novel.isCompleted);
+      }
       setDataSource(res.list);
       setTotal(res.total);
       setTotalWords(res.totalWords);
@@ -495,6 +504,11 @@ export default function ChapterListPage() {
       createForm.resetFields();
       loadData();
     }
+  };
+
+  const handleImportDone = (importedCount: number) => {
+    message.success(t("chapter:message.importComplete", { count: importedCount }));
+    loadData();
   };
 
   const columns: TableColumnsType<BChapterDetail> = [
@@ -723,7 +737,13 @@ export default function ChapterListPage() {
       </span>
       <span>
         {t("chapter:stats.serialStatus")}
-        <Tag color="success">{t("chapter:stats.ongoing")}</Tag>
+        {novelCompleted == null ? (
+          <Tag>{t("common:loading")}</Tag>
+        ) : novelCompleted ? (
+          <Tag color="default">{t("chapter:stats.completed")}</Tag>
+        ) : (
+          <Tag color="success">{t("chapter:stats.ongoing")}</Tag>
+        )}
       </span>
     </Space>
   );
@@ -740,6 +760,14 @@ export default function ChapterListPage() {
           <Space>
             {canCreate && (
               <Button
+                icon={<UploadOutlined />}
+                onClick={() => setImportModalOpen(true)}
+              >
+                {t("chapter:action.import")}
+              </Button>
+            )}
+            {canCreate && (
+              <Button
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setCreateModalOpen(true)}
@@ -753,56 +781,54 @@ export default function ChapterListPage() {
 
       <div style={{ marginBottom: "var(--space-3)" }}>{stats}</div>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "var(--space-3)",
-          gap: "var(--space-3)",
+      <BFilterBar
+        searchKey={searchKey}
+        onSearch={(v) => {
+          setSearchKey(v);
+          setPage(1);
         }}
-      >
-        <Space>
-          <Input.Search
-            placeholder={t("chapter:searchPlaceholder")}
-            value={searchKey}
-            onChange={(e) => setSearchKey(e.target.value)}
-            onSearch={(v) => {
-              setSearchKey(v);
-              setPage(1);
-            }}
-            allowClear
-            style={{ width: 240 }}
+        searchPlaceholder={t("chapter:searchPlaceholder")}
+        filters={
+          [
+            {
+              name: "status",
+              label: t("chapter:filter.status"),
+              control: (
+                <select
+                  value={filterStatus}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value as BChapterStatus | "all");
+                    setPage(1);
+                  }}
+                  style={{
+                    height: 32,
+                    borderRadius: "var(--radius-md, 8px)",
+                    border: "1px solid var(--color-border)",
+                    padding: "0 var(--space-2)",
+                    background: "var(--color-bg-surface)",
+                  }}
+                >
+                  {CHAPTER_STATUS_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              ),
+            },
+          ] satisfies FilterField[]
+        }
+        extra={
+          <Segmented
+            value={sortBy}
+            onChange={(v) => setSortBy(v as "index" | "updatedAt")}
+            options={[
+              { label: t("chapter:sort.byIndex"), value: "index" },
+              { label: t("chapter:sort.byUpdatedAt"), value: "updatedAt" },
+            ]}
           />
-          <select
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value as BChapterStatus | "all");
-              setPage(1);
-            }}
-            style={{
-              height: 32,
-              borderRadius: "var(--radius-md, 8px)",
-              border: "1px solid var(--color-border)",
-              padding: "0 var(--space-2)",
-            }}
-          >
-            {CHAPTER_STATUS_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-        </Space>
-        <Segmented
-          value={sortBy}
-          onChange={(v) => setSortBy(v as "index" | "updatedAt")}
-          options={[
-            { label: t("chapter:sort.byIndex"), value: "index" },
-            { label: t("chapter:sort.byUpdatedAt"), value: "updatedAt" },
-          ]}
-        />
-      </div>
+        }
+      />
 
       {status === "loading" ? (
         <Skeleton active paragraph={{ rows: 8 }} />
@@ -946,6 +972,13 @@ export default function ChapterListPage() {
           </div>
         )}
       </Drawer>
+
+      <ChapterImportModal
+        open={importModalOpen}
+        novelId={novelId!}
+        onCancel={() => setImportModalOpen(false)}
+        onDone={handleImportDone}
+      />
 
       <Modal
         title={t("chapter:newChapter.title")}

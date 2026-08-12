@@ -8,7 +8,6 @@ import {
   Tag,
   Input,
   App,
-  Modal,
   Checkbox,
 } from "antd";
 import type { TableColumnsType } from "antd";
@@ -21,8 +20,6 @@ import { useAuthStore } from "@/stores/authStore";
 import { http } from "@/api/http";
 import { BPageHeader } from "@novel/b-end";
 import "./UserListPage.css";
-
-const { confirm } = Modal;
 
 interface UserItem {
   id: string;
@@ -45,7 +42,7 @@ interface PagedResult {
 export default function UserListPage() {
   const { t } = useTranslation();
   const hasPermission = useAuthStore((s) => s.hasPermission);
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<UserItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -81,7 +78,7 @@ export default function UserListPage() {
   }, [loadData]);
 
   const handleBan = useCallback((record: UserItem) => {
-    confirm({
+    modal.confirm({
       title: t("user:confirm.title"),
       icon: <ExclamationCircleOutlined />,
       content:
@@ -100,7 +97,7 @@ export default function UserListPage() {
         }
       },
     });
-  }, [t, message, loadData]);
+  }, [t, message, modal, loadData]);
 
   const columns: TableColumnsType<UserItem> = useMemo(() => [
     { title: t("user:table.id"), dataIndex: "id", width: 60, ellipsis: true },

@@ -279,8 +279,10 @@
   letter-spacing: var(--letter-spacing-tight);
 }
 /* Top 1-3 升级为奖牌色 */
+/* 金/银/铜浅色渐变上使用深色文字保证可读性（白字对比度不足） */
 .discover-page__hot-item:nth-child(1) .discover-page__hot-rank {
   background: var(--color-rank-gold-gradient);
+  color: var(--color-text-primary);
   box-shadow:
     var(--sh-2),
     0 0 0 3px var(--color-bg-page),
@@ -288,6 +290,7 @@
 }
 .discover-page__hot-item:nth-child(2) .discover-page__hot-rank {
   background: var(--color-rank-silver-gradient);
+  color: var(--color-text-primary);
   box-shadow:
     var(--sh-2),
     0 0 0 3px var(--color-bg-page),
@@ -295,6 +298,7 @@
 }
 .discover-page__hot-item:nth-child(3) .discover-page__hot-rank {
   background: var(--color-rank-bronze-gradient);
+  color: var(--color-text-primary);
   box-shadow:
     var(--sh-2),
     0 0 0 3px var(--color-bg-page),
@@ -324,7 +328,7 @@
   box-shadow: var(--sh-3);
   border-color: var(--color-accent-orange);
 }
-/* 顶部限免角标 */
+/* 顶部限免角标：浅橙渐变底改用深色文字保证对比度 */
 .discover-page__free-tag {
   position: absolute;
   top: -8px;
@@ -335,7 +339,7 @@
   padding: 4px var(--space-3);
   border-radius: var(--radius-md);
   background: var(--gradient-warm);
-  color: var(--color-text-inverse);
+  color: var(--color-accent-orange-active);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-widest);
@@ -376,7 +380,7 @@
   padding: var(--space-1) var(--space-4);
   border-radius: var(--radius-full);
   background: var(--color-accent-orange);
-  color: var(--color-text-inverse);
+  color: var(--color-text-primary);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--letter-spacing-wider);
@@ -619,9 +623,6 @@
   .discover-page__category-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  .discover-page__hot-scroll > * {
-    width: 160px;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -639,9 +640,6 @@
   .discover-page__category-grid {
     grid-template-columns: repeat(6, 1fr);
   }
-  .discover-page__hot-scroll > * {
-    width: 180px;
-  }
 }
 
 /* ============================================
@@ -652,8 +650,8 @@
   .discover-page__section,
   .discover-page__pick-card,
   .discover-page__pick-cover,
-  .discover-page__hot-scroll > *,
-  .discover-page__free-scroll > *,
+  .discover-page__hot-grid > *,
+  .discover-page__free-grid > *,
   .discover-page__category-item,
   .discover-page__rank-item,
   .discover-page__rank-num,

@@ -642,7 +642,7 @@ function BookshelfToolbar({
 
 function DefaultDiscoverAction() {
   return (
-    <a className="novel-bookshelf__discover-btn" href="/discover">
+    <a className="novel-bookshelf__discover-btn" href="/">
       去发现好书
     </a>
   );

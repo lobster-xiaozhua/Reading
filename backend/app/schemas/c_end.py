@@ -114,6 +114,7 @@ class UserProfile(CamelModel):
     id: str
     nickname: str
     avatar: str = ""
+    bio: str = ""
     level: int = 1
     is_vip: bool = False
     vip_expire_at: int | None = None
@@ -315,6 +316,7 @@ class ProfileUpdateBody(CamelModel):
 
     nickname: str | None = None
     avatar: str | None = None
+    bio: str | None = None
 
 
 class DiscoverHome(CamelModel):

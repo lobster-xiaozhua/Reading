@@ -3,13 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   BookCard,
   EmptyState,
-  Skeleton,
   useAsyncState,
 } from "@novel/components";
 import { Carousel } from "@/components/Carousel";
 import { LazyImage } from "@/components/LazyImage";
 import { SectionTitle } from "@/components/SectionTitle";
-import { RingCountdown } from "@/components/RingCountdown";
 import { ErrorState } from "@/components/ErrorState";
 import { DiscoverModule } from "@/components/DiscoverModule";
 import { fetcher } from "@/api/fetcher";
@@ -160,7 +158,8 @@ export default function DiscoverPage() {
                     >
                       <span
                         className="discover-page__hot-rank"
-                        aria-hidden
+                        role="img"
+                        aria-label={`排名第 ${idx + 1}`}
                       >
                         {idx + 1}
                       </span>
@@ -189,46 +188,26 @@ export default function DiscoverPage() {
                 <EmptyState title="暂无限免书籍" />
               ) : (
                 <div className="discover-page__free-grid">
-                  {home.freeBooks.filter(Boolean).slice(0, 4).map((b) => {
-                    const hasDeadline = Boolean(b.freeDeadline);
-                    const expired =
-                      hasDeadline && (b.freeDeadline ?? 0) < Date.now();
-                    return (
-                      <div
-                        key={b.id}
-                        className="discover-page__free-item"
-                      >
-                        <div className="discover-page__free-tag" aria-hidden>
-                          限免
-                        </div>
-                        <BookCard
-                          book={toBook(b)}
-                          variant="grid"
-                          size="md"
-                          showIntro
-                          onClick={() => handleBookClick(b.id)}
-                        />
-                        <div className="discover-page__free-meta">
-                          {hasDeadline && !expired ? (
-                            <div className="discover-page__free-countdown">
-                              <RingCountdown
-                                start={(b.freeDeadline ?? 0) - 7 * 86400000}
-                                deadline={b.freeDeadline ?? 0}
-                                size={64}
-                              />
-                              <span className="discover-page__free-countdown-label">
-                                剩余免费
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="discover-page__free-badge">
-                              {expired ? "已结束" : "限免中"}
-                            </span>
-                          )}
-                        </div>
+                  {home.freeBooks.filter(Boolean).slice(0, 4).map((b) => (
+                    <div
+                      key={b.id}
+                      className="discover-page__free-item"
+                    >
+                      <div className="discover-page__free-tag" aria-hidden>
+                        限免
                       </div>
-                    );
-                  })}
+                      <BookCard
+                        book={toBook(b)}
+                        variant="grid"
+                        size="md"
+                        showIntro
+                        onClick={() => handleBookClick(b.id)}
+                      />
+                      <div className="discover-page__free-meta">
+                        <span className="discover-page__free-badge">限免中</span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </DiscoverModule>
@@ -240,11 +219,11 @@ export default function DiscoverPage() {
               subtitle="CATEGORY"
               moreTo="/category"
             />
-            {pageLoading ? (
-              <Skeleton rows={3} />
-            ) : home.categories.length === 0 ? null : (
-              <CategoryGrid categories={home.categories} />
-            )}
+            <DiscoverModule loading={pageLoading} skeletonRows={3}>
+              {home.categories.length > 0 ? (
+                <CategoryGrid categories={home.categories} />
+              ) : null}
+            </DiscoverModule>
           </section>
 
           <section className="discover-page__section container-page">

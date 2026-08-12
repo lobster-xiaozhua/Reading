@@ -13,6 +13,7 @@ from app.api.b_end import (
     rum,
     sensitive,
     system,
+    upload,
     user,
     workbench,
 )
@@ -28,6 +29,7 @@ router.include_router(royalty.router, tags=["稿费管理"])
 router.include_router(sensitive.router, tags=["敏感词"])
 router.include_router(chart.router, tags=["图表数据"])
 router.include_router(system.router, tags=["系统设置"])
+router.include_router(upload.router, tags=["文件上传"])
 router.include_router(user.router, tags=["用户管理"])
 router.include_router(rum.router, tags=["可观测性"])
 

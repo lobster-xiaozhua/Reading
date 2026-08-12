@@ -47,9 +47,16 @@ export default function LoginPage() {
       await login(values);
       message.success(t("login:message.success"));
       const redirect = searchParams.get("redirect");
-      navigate(redirect ? decodeURIComponent(redirect) : "/workbench", {
-        replace: true,
-      });
+      let target = "/workbench";
+      if (redirect) {
+        try {
+          target = decodeURIComponent(redirect);
+        } catch {
+          // 畸形 URI（如尾部单独的 %）解码失败时回退到工作台，避免登录后崩溃
+          target = "/workbench";
+        }
+      }
+      navigate(target, { replace: true });
     } catch (err: unknown) {
       const e = err as { message?: string; status?: number };
       if (e?.status === 401 || e?.status === 403) {
@@ -192,7 +199,15 @@ export default function LoginPage() {
                   <Tag
                     color="blue"
                     className="login-card__demo-fill"
+                    tabIndex={0}
+                    role="button"
                     onClick={() => fillDemoAccount(acc.username, acc.password)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        fillDemoAccount(acc.username, acc.password);
+                      }
+                    }}
                   >
                     {t("login:fill")}
                   </Tag>

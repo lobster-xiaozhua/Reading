@@ -34,6 +34,33 @@ body {
 }
 
 /* ============================================================
+ * 状态块 · State Block（loading/empty/error/no-permission）
+ * 列表/详情页加载失败或空态的统一容器，提供"占满可视高度"的
+ * 视觉重心，避免在长表格页面里 Result 显得太小。
+ * ============================================================ */
+.b-list-page__state-block,
+.b-detail-card__state-block,
+.b-audit-workbench-page__state-block,
+.b-permission-page__state-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  padding: var(--space-8) var(--space-4);
+  background: var(--color-bg-surface);
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-md, 8px);
+  margin-top: var(--space-4);
+}
+
+.b-list-page__state-block .ant-result,
+.b-detail-card__state-block .ant-result,
+.b-audit-workbench-page__state-block .ant-result,
+.b-permission-page__state-block .ant-result {
+  padding: 0;
+}
+
+/* ============================================================
  * 排版基础 · Typography Foundation（B 端 PC 优先）
  * ============================================================ */
 h1, h2, h3, h4, h5, h6 {
@@ -407,5 +434,41 @@ input[type='number'] {
 @media (prefers-reduced-motion: reduce) {
   .compact-table .ant-table-tbody > tr {
     transition: none;
+  }
+}
+
+/* ============================================================
+ * 通用动画 keyframes（统一收敛，避免各页面重复定义）
+ * ============================================================ */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp-lg {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }

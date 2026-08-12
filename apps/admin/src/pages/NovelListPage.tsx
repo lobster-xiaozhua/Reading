@@ -180,6 +180,10 @@ export default function NovelListPage() {
     {
       key: "publish",
       label: t("novel:list.batchOnline"),
+      confirmTitle: t("novel:list.batchOnlineConfirmTitle"),
+      confirmContent: t("novel:list.batchOnlineConfirmContent", {
+        count: selectedRowKeys.length,
+      }),
       onClick: () => handleBatch("publish"),
     },
     {
@@ -447,6 +451,8 @@ export default function NovelListPage() {
         columns={columns as any}
         dataSource={dataSource}
         rowKey="id"
+        size="small"
+        scroll={{ x: 1200 }}
         loading={status === "loading"}
         pagination={{
           current: page,

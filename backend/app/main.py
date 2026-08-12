@@ -314,6 +314,14 @@ def create_app() -> FastAPI:
     # 业务路由（C/B 端物理隔离，§2.3）
     _register_routers(app)
 
+    # 静态资源（上传的封面图等）：挂载 backend/uploads 目录
+    from app.services.upload_service import UPLOAD_ROOT
+
+    UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
+    from fastapi.staticfiles import StaticFiles
+
+    app.mount("/uploads", StaticFiles(directory=UPLOAD_ROOT), name="uploads")
+
     return app
 
 

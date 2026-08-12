@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Card, Col, Row, Skeleton, Tag } from "antd";
+import { Card, Col, Row, Skeleton, Tag, Button, Empty } from "antd";
 import { DashboardTemplate } from "@/templates/DashboardTemplate";
 import type {
   DashboardStatus,
@@ -31,17 +31,6 @@ const ReadingFunnel = lazy(() => import("@novel/b-end").then(m => ({ default: m.
 const RankingTrendChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.RankingTrendChart })));
 const CategoryDistributionChart = lazy(() => import("@novel/b-end").then(m => ({ default: m.CategoryDistributionChart })));
 
-/** 生成 KPI 迷你趋势数据（基于当前值构造有波动的序列） */
-function genSparkline(base: number, seed = 1): number[] {
-  const points: number[] = [];
-  let v = base * 0.6;
-  for (let i = 0; i < 12; i++) {
-    v = v + (Math.sin(i * 1.3 + seed) * 2 + (i % 3 === 0 ? 1.5 : -0.5));
-    points.push(Math.max(1, Math.round(v)));
-  }
-  return points;
-}
-
 function LazyChart({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<Skeleton active style={{ height: 260 }} />}>{children}</Suspense>;
 }
@@ -54,6 +43,7 @@ export default function WorkbenchPage() {
   const [overviews, setOverviews] = useState<OverviewSection[]>([]);
   const [todoCount, setTodoCount] = useState(0);
   const [chartLoading, setChartLoading] = useState(true);
+  const [chartError, setChartError] = useState(false);
   const [trendRange, setTrendRange] = useState<TrendRange>(30);
   const [trendData, setTrendData] = useState<WorkbenchTrendItem[]>([]);
   const [trendMetric, setTrendMetric] = useState<
@@ -62,6 +52,8 @@ export default function WorkbenchPage() {
 
   /* 业务图表区 */
   const [businessLoading, setBusinessLoading] = useState(true);
+  const [businessError, setBusinessError] = useState(false);
+  const [businessRetry, setBusinessRetry] = useState(0);
   const [wordCountData, setWordCountData] = useState<Awaited<ReturnType<typeof fetchWordCountGrowth>>>([]);
   const [readingHeatmapData, setReadingHeatmapData] = useState<Awaited<ReturnType<typeof fetchReadingHeatmap>>>([]);
   const [funnelData, setFunnelData] = useState<Awaited<ReturnType<typeof fetchReadingFunnel>>>([]);
@@ -89,7 +81,6 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: `${kpi.publishedNovels} ${t("workbench:published")}`,
             trendLabel: "",
-            sparkline: genSparkline(kpi.totalNovels, 3),
           },
           {
             key: "pendingAudit",
@@ -99,7 +90,6 @@ export default function WorkbenchPage() {
             trend: kpi.pendingAudit > 0 ? "down" : "up",
             trendText: "",
             trendLabel: t("workbench:needHandle"),
-            sparkline: genSparkline(kpi.pendingAudit, 7),
           },
           {
             key: "totalAuthors",
@@ -109,7 +99,6 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: "",
             trendLabel: "",
-            sparkline: genSparkline(kpi.totalAuthors, 5),
           },
           {
             key: "totalReaders",
@@ -119,7 +108,6 @@ export default function WorkbenchPage() {
             trend: "up",
             trendText: "",
             trendLabel: "",
-            sparkline: genSparkline(kpi.totalReaders, 1),
           },
         ]);
         setTodoCount(kpi.pendingAudit);
@@ -166,6 +154,7 @@ export default function WorkbenchPage() {
     let cancelled = false;
     (async () => {
       setBusinessLoading(true);
+      setBusinessError(false);
       try {
         const [wc, rh, rf, rt, cd] = await Promise.all([
           fetchWordCountGrowth(),
@@ -180,6 +169,8 @@ export default function WorkbenchPage() {
         setFunnelData(rf);
         setRankingData(rt);
         setCategoryData(cd);
+      } catch {
+        if (!cancelled) setBusinessError(true);
       } finally {
         if (!cancelled) setBusinessLoading(false);
       }
@@ -187,7 +178,7 @@ export default function WorkbenchPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [businessRetry]);
 
   /* 系统可观测性数据 */
   useEffect(() => {
@@ -212,9 +203,12 @@ export default function WorkbenchPage() {
 
   const loadTrend = useCallback(async (range: TrendRange) => {
     setChartLoading(true);
+    setChartError(false);
     try {
       const data = await fetchWorkbenchTrend(range);
       setTrendData(data);
+    } catch {
+      setChartError(true);
     } finally {
       setChartLoading(false);
     }
@@ -280,6 +274,13 @@ export default function WorkbenchPage() {
           paragraph={{ rows: 6 }}
           style={{ padding: "var(--space-4)" }}
         />
+      ) : chartError ? (
+        <div className="wp-chart-error">
+          <span>{t("workbench:chartLoadFailed")}</span>
+          <Button size="small" onClick={() => void loadTrend(trendRange)}>
+            {t("common:retry")}
+          </Button>
+        </div>
       ) : (
         <Suspense fallback={<Skeleton active paragraph={{ rows: 6 }} style={{ padding: "var(--space-4)" }} />}>
           <div className="wp-chart-fade-in">
@@ -302,6 +303,17 @@ export default function WorkbenchPage() {
     <Card title={t("workbench:businessCharts")}>
       {businessLoading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
+      ) : businessError ? (
+        <Empty
+          description={t("workbench:businessLoadFailed")}
+        >
+          <Button
+            type="primary"
+            onClick={() => setBusinessRetry((n) => n + 1)}
+          >
+            {t("common:retry")}
+          </Button>
+        </Empty>
       ) : (
         <Row gutter={[16, 16]}>
           <Col span={24}>
@@ -351,8 +363,10 @@ export default function WorkbenchPage() {
     <DashboardTemplate
       status={status}
       todoCount={todoCount}
+      onTodoClick={() => navigate("/audit")}
       kpis={kpis}
       chart={chart}
+      trendRange={trendRange}
       onRangeChange={(range: number) => {
         if (range === 7 || range === 30 || range === 90) setTrendRange(range);
       }}

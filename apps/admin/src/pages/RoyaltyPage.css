@@ -3,16 +3,6 @@
  * ============================================================ */
 
 /* 页面级动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* 页面容器动画 */
 .royalty-page {
@@ -29,21 +19,16 @@
 .royalty-page .ant-row .ant-col:nth-child(3) { animation-delay: 200ms; }
 .royalty-page .ant-row .ant-col:nth-child(4) { animation-delay: 300ms; }
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 /* 减弱动效适配 */
 @media (prefers-reduced-motion: reduce) {
   .royalty-page,
   .royalty-page .ant-row .ant-col {
     animation: none;
   }
+}
+
+.royalty-flow-toggle {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-caption, 13px);
+  letter-spacing: var(--letter-spacing-caption);
 }
