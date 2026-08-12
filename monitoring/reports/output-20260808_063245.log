@@ -1,0 +1,1675 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/workspace/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config=/workspace/monitoring/playwright.config.ts",
+      "--project=api-b-end",
+      "--project=api-c-end",
+      "--project=api-global",
+      "--reporter=json",
+      "--output=/workspace/monitoring/reports/report-20260808_063245"
+    ],
+    "configFile": "/workspace/monitoring/playwright.config.ts",
+    "rootDir": "/workspace/monitoring/checks",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 4
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "backend",
+        "name": "backend",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/health*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "api-b-end",
+        "name": "api-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "api-c-end",
+        "name": "api-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "api-global",
+        "name": "api-global",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.global*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "pages-b-end",
+        "name": "pages-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "pages-c-end",
+        "name": "pages-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "business-flow",
+        "name": "business-flow",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/business-flow*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_063245",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 4
+        },
+        "id": "performance",
+        "name": "performance",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/performance*.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "api.b-end.ts",
+      "file": "api.b-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "B 端 API 巡检",
+          "file": "api.b-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "作品列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 333,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:11.964Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-42ee0a80c48b85746898",
+              "file": "api.b-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "作品分类接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 484,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.504Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-4e8f852aca7ee7552beb",
+              "file": "api.b-end.ts",
+              "line": 16,
+              "column": 7
+            },
+            {
+              "title": "工作台 KPI 接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 386,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.681Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-fef55ed37091cfc8a590",
+              "file": "api.b-end.ts",
+              "line": 23,
+              "column": 7
+            },
+            {
+              "title": "工作台趋势接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 121,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.365Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-d8efdfca51365f53b083",
+              "file": "api.b-end.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "审核队列接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 90,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.435Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-3957edab43a5143654bb",
+              "file": "api.b-end.ts",
+              "line": 35,
+              "column": 7
+            },
+            {
+              "title": "用户列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 419,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.588Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-3b738dfbd9055cb9fb6f",
+              "file": "api.b-end.ts",
+              "line": 40,
+              "column": 7
+            },
+            {
+              "title": "角色列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 391,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:12.608Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-dde2a36e97a21775bdde",
+              "file": "api.b-end.ts",
+              "line": 47,
+              "column": 7
+            },
+            {
+              "title": "系统配置接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 86,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:13.076Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-bfa6a1bae794f28033bf",
+              "file": "api.b-end.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "稿费列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 86,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:13.088Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-81adc74f019d734b6c01",
+              "file": "api.b-end.ts",
+              "line": 57,
+              "column": 7
+            },
+            {
+              "title": "敏感词库接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 131,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:13.114Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-76191b232121bbe60dff",
+              "file": "api.b-end.ts",
+              "line": 64,
+              "column": 7
+            },
+            {
+              "title": "图表数据接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-b-end",
+                  "projectName": "api-b-end",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 87,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:13.128Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eab4f2a7e56022124af8-ae40f6bcb6ef5f08618c",
+              "file": "api.b-end.ts",
+              "line": 69,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "api.c-end.ts",
+      "file": "api.c-end.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "C 端 API 巡检",
+          "file": "api.c-end.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "书籍列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 237,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.197Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-8abc08dda4043bc482ec",
+              "file": "api.c-end.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "分类页书籍接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 149,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.559Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-c6afd2c98e8b1c80491c",
+              "file": "api.c-end.ts",
+              "line": 15,
+              "column": 7
+            },
+            {
+              "title": "书籍详情接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 186,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.467Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-fedbcddd7b4869983a0a",
+              "file": "api.c-end.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "书籍章节列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 168,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.421Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-414393959b096ea46e88",
+              "file": "api.c-end.ts",
+              "line": 27,
+              "column": 7
+            },
+            {
+              "title": "书籍章节内容接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 87,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.605Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-fc52fbfd6de38d94eb74",
+              "file": "api.c-end.ts",
+              "line": 32,
+              "column": 7
+            },
+            {
+              "title": "书籍评论接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 51,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.723Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-5090ab581d4e1b2330d6",
+              "file": "api.c-end.ts",
+              "line": 37,
+              "column": 7
+            },
+            {
+              "title": "书籍评分分布接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 105,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.748Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-99f83de0cf74758bc7fe",
+              "file": "api.c-end.ts",
+              "line": 44,
+              "column": 7
+            },
+            {
+              "title": "相关推荐接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 36,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.805Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-29387ec41ed4b8fdcf9e",
+              "file": "api.c-end.ts",
+              "line": 49,
+              "column": 7
+            },
+            {
+              "title": "发现页接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 615,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.804Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-987e7a83a8e65caa9ad4",
+              "file": "api.c-end.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "发现页聚合接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 578,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.852Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-0c608a8313442ce484b3",
+              "file": "api.c-end.ts",
+              "line": 61,
+              "column": 7
+            },
+            {
+              "title": "热搜接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 551,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.898Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-64d56b7c1a2098d520d6",
+              "file": "api.c-end.ts",
+              "line": 76,
+              "column": 7
+            },
+            {
+              "title": "搜索接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-c-end",
+                  "projectName": "api-c-end",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 555,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:14.895Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "8716c518b6fb6856040a-1faf733c2d8c774383b7",
+              "file": "api.c-end.ts",
+              "line": 81,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "api.global.ts",
+      "file": "api.global.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "C 端 API 补充巡检",
+          "file": "api.global.ts",
+          "line": 13,
+          "column": 6,
+          "specs": [
+            {
+              "title": "搜索建议接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 148,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.672Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-fed8912781f5c1be3c45",
+              "file": "api.global.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "搜索热搜接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 92,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.373Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-e661b5dbf290a05ad4a0",
+              "file": "api.global.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "分类树接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 101,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.864Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-0811523ce877a2385c9a",
+              "file": "api.global.ts",
+              "line": 28,
+              "column": 7
+            },
+            {
+              "title": "标签列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 165,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.954Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-925d79faa47a15619826",
+              "file": "api.global.ts",
+              "line": 33,
+              "column": 7
+            },
+            {
+              "title": "排行榜各类型接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 103,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.561Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-03e5933cc20748b60b5f",
+              "file": "api.global.ts",
+              "line": 38,
+              "column": 7
+            },
+            {
+              "title": "热门/限免/编辑推荐接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 47,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.735Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-f75958d753e7100ff1e3",
+              "file": "api.global.ts",
+              "line": 49,
+              "column": 7
+            },
+            {
+              "title": "推荐/话题/书单/精选书评接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 78,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.812Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-90e3c81d561b60e8dd6f",
+              "file": "api.global.ts",
+              "line": 56,
+              "column": 7
+            },
+            {
+              "title": "VIP 套餐与支付方式接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 38,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.931Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-28b7ac85c4e040491c56",
+              "file": "api.global.ts",
+              "line": 65,
+              "column": 7
+            },
+            {
+              "title": "读者统计接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 146,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:16.929Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-58fca7011e47d69e8f32",
+              "file": "api.global.ts",
+              "line": 74,
+              "column": 7
+            },
+            {
+              "title": "RUM 上报接口（写操作，验证响应包裹）",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 43,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.023Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-2387308043b9b2dacb82",
+              "file": "api.global.ts",
+              "line": 81,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "B 端 API 补充巡检",
+          "file": "api.global.ts",
+          "line": 92,
+          "column": 6,
+          "specs": [
+            {
+              "title": "RUM 统计与事件接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 86,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.103Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-2bf42eafd30d375a7680",
+              "file": "api.global.ts",
+              "line": 93,
+              "column": 7
+            },
+            {
+              "title": "工作台概览与字数趋势接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 122,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.107Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-5322d590b6d23917e52f",
+              "file": "api.global.ts",
+              "line": 102,
+              "column": 7
+            },
+            {
+              "title": "图表各类型接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 190,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.156Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-f810934dc6b9ad574d3e",
+              "file": "api.global.ts",
+              "line": 111,
+              "column": 7
+            },
+            {
+              "title": "作品详情接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 49,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.223Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-dc038738455232334c52",
+              "file": "api.global.ts",
+              "line": 127,
+              "column": 7
+            },
+            {
+              "title": "作品统计与章节列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 3,
+                      "status": "passed",
+                      "duration": 194,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.238Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-19944d3f26cbdc21f4f5",
+              "file": "api.global.ts",
+              "line": 132,
+              "column": 7
+            },
+            {
+              "title": "角色详情与权限点接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 74,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.274Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-5bdb7cd5522921e10cab",
+              "file": "api.global.ts",
+              "line": 139,
+              "column": 7
+            },
+            {
+              "title": "敏感词库接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 49,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.318Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-4ba6bcbe6ff48107672b",
+              "file": "api.global.ts",
+              "line": 148,
+              "column": 7
+            },
+            {
+              "title": "读者列表接口",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 26,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.370Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-ece2f662d8e6141aba26",
+              "file": "api.global.ts",
+              "line": 153,
+              "column": 7
+            },
+            {
+              "title": "B 端鉴权流程：登录 → me → refresh",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "api-global",
+                  "projectName": "api-global",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 345,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:33:17.387Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4549dc843bc8a22b325-29d9fd16307444a60421",
+              "file": "api.global.ts",
+              "line": 160,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-08T06:33:11.071Z",
+    "duration": 6702.341,
+    "expected": 42,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

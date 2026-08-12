@@ -424,10 +424,13 @@ export default {
       contentMin: "正文至少 100 字",
       contentPlaceholder: "请输入章节正文（至少 100 字）",
       vipChapter: "VIP 章节",
+      contentChars: "字符数",
+      contentWords: "字数",
     },
     preview: {
       wordCount: "字数：",
       saved: "已保存：",
+      empty: "暂无正文内容",
     },
   },
   audit: {

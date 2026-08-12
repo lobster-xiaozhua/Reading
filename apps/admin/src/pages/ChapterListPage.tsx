@@ -274,6 +274,7 @@ export default function ChapterListPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [contentValue, setContentValue] = useState("");
   const [createForm] = Form.useForm<{
     title: string;
     content: string;
@@ -927,7 +928,7 @@ export default function ChapterListPage() {
         title={previewChapter?.title}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        width={480}
+        width={520}
         extra={
           <Space>
             <Button onClick={() => setDrawerOpen(false)}>
@@ -936,40 +937,40 @@ export default function ChapterListPage() {
           </Space>
         }
       >
-        {previewChapter && (
+        {previewChapter ? (
           <div>
-            <Space
-              size="large"
-              style={{
-                marginBottom: "var(--space-4)",
-                color: "var(--color-text-secondary)",
-              }}
-            >
-              <span>
+            <div className="b-preview-meta">
+              <span className="b-preview-meta-item">
                 {t("chapter:preview.wordCount")}
-                <strong style={{ fontFamily: "var(--font-mono)" }}>
-                  {previewChapter.wordCount.toLocaleString()}
-                </strong>
+                <strong>{previewChapter.wordCount.toLocaleString()}</strong>
               </span>
-              <span>
+              <span className="b-preview-meta-item">
+                <Tag color={CHAPTER_STATUS_TAG[previewChapter.status].color}>
+                  {CHAPTER_STATUS_TAG[previewChapter.status].text}
+                </Tag>
+              </span>
+              {previewChapter.isVip && (
+                <span className="b-preview-meta-item">
+                  <Tag color="gold" style={{ margin: 0 }}>VIP</Tag>
+                </span>
+              )}
+              <span className="b-preview-meta-item">
                 {t("chapter:preview.saved")}
                 {new Date(previewChapter.updatedAt).toLocaleString("zh-CN")}
               </span>
-            </Space>
-            <div
-              style={{
-                background: "var(--color-bg-subtle)",
-                borderRadius: "var(--radius-md, 8px)",
-                padding: "var(--space-4)",
-                lineHeight: 1.8,
-                fontSize: "var(--font-size-body, 14px)",
-                whiteSpace: "pre-wrap",
-                minHeight: 400,
-              }}
-            >
-              {previewChapter.content}
             </div>
+            {previewChapter.content ? (
+              <div className="b-preview-body">
+                {previewChapter.content}
+              </div>
+            ) : (
+              <div className="b-preview-empty">
+                {t("chapter:preview.empty")}
+              </div>
+            )}
           </div>
+        ) : (
+          <div className="b-preview-empty">{t("common:loading")}</div>
         )}
       </Drawer>
 
@@ -983,17 +984,25 @@ export default function ChapterListPage() {
       <Modal
         title={t("chapter:newChapter.title")}
         open={createModalOpen}
-        onCancel={() => setCreateModalOpen(false)}
+        onCancel={() => {
+          setCreateModalOpen(false);
+          setContentValue("");
+        }}
         onOk={handleCreateSubmit}
         okText={t("chapter:newChapter.create")}
         cancelText={t("chapter:newChapter.cancel")}
-        width={640}
+        width={680}
         destroyOnClose
+        className="b-create-modal"
       >
         <Form
           form={createForm}
           layout="vertical"
           initialValues={{ isVip: false }}
+          onValuesChange={(changed) => {
+            if ("content" in changed) setContentValue(changed.content);
+          }}
+          className="b-create-form"
         >
           <Form.Item
             name="title"
@@ -1024,16 +1033,34 @@ export default function ChapterListPage() {
             ]}
           >
             <Input.TextArea
-              rows={10}
+              className="b-create-editor"
+              rows={14}
               placeholder={t("chapter:newChapter.contentPlaceholder")}
-              showCount
               maxLength={10000}
             />
           </Form.Item>
+          <div className="b-create-count">
+            <span>
+              {t("chapter:newChapter.contentChars")}
+              <strong>{(contentValue ?? "").length}</strong>
+            </span>
+            <span>
+              {t("chapter:newChapter.contentWords")}
+              <strong>{(contentValue ?? "").replace(/\s+/g, "").length}</strong>
+            </span>
+            <span className="b-create-count-req">
+              {(contentValue ?? "").replace(/\s+/g, "").length < 100 && (
+                <span style={{ color: "var(--color-feedback-error, #ff4d4f)" }}>
+                  {t("chapter:newChapter.contentMin")}
+                </span>
+              )}
+            </span>
+          </div>
           <Form.Item
             name="isVip"
             label={t("chapter:newChapter.vipChapter")}
             valuePropName="checked"
+            style={{ marginBottom: 0 }}
           >
             <Switch />
           </Form.Item>

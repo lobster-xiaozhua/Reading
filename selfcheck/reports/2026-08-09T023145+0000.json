@@ -1,0 +1,85 @@
+{
+  "timestamp": "2026-08-09T02:31:45+0000",
+  "tag": "fast",
+  "targets": {
+    "backend": "http://localhost:8000",
+    "web": "http://localhost:5173",
+    "admin": "http://localhost:5174"
+  },
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "warned": 0,
+    "skipped": 0,
+    "passRate": 100.0
+  },
+  "elapsed_ms": 231,
+  "results": [
+    {
+      "name": "后端健康",
+      "method": "GET",
+      "url": "http://localhost:8000/health",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 73,
+      "detail": "",
+      "tags": [
+        "fast"
+      ]
+    },
+    {
+      "name": "C 端首页",
+      "method": "GET",
+      "url": "http://localhost:5173/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 39,
+      "detail": "",
+      "tags": [
+        "fast"
+      ]
+    },
+    {
+      "name": "B 端首页",
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 46,
+      "detail": "",
+      "tags": [
+        "fast"
+      ]
+    },
+    {
+      "name": "C 端书单",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books?page=1&page_size=5",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 38,
+      "detail": "",
+      "tags": [
+        "fast"
+      ]
+    },
+    {
+      "name": "B 端作品列表",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels?page=1&page_size=5",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 33,
+      "detail": "",
+      "tags": [
+        "fast"
+      ]
+    }
+  ]
+}

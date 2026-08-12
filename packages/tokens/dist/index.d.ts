@@ -1,0 +1,267 @@
+export declare const tokens: {
+    readonly color: {
+        readonly brand: {
+            readonly brand1: "#F0F9FF";
+            readonly brand2: "#E6F7FF";
+            readonly brand3: "#BAE7FF";
+            readonly brand4: "#91D5FF";
+            readonly brand5: "#69C0FF";
+            readonly brand6: "#40A9FF";
+            readonly brand7: "#1890FF";
+            readonly brand8: "#096DD9";
+            readonly brand9: "#0050B3";
+            readonly brand10: "#003A8C";
+        };
+        readonly accent: {
+            readonly accent1: "#EEF2FF";
+            readonly accent2: "#DCE3FF";
+            readonly accent3: "#B9C7FF";
+            readonly accent4: "#8FA5FF";
+            readonly accent5: "#6A82FF";
+            readonly accent6: "#4566FF";
+            readonly accent7: "#245BFF";
+            readonly accent8: "#1A47D9";
+            readonly accent9: "#1238A8";
+            readonly accent10: "#0B2470";
+        };
+        readonly orange: {
+            readonly orange1: "#FFF4E6";
+            readonly orange2: "#FFD9B3";
+            readonly orange3: "#E37318";
+            readonly orange4: "#F08528";
+            readonly orange5: "#C9640F";
+        };
+        readonly success: {
+            readonly success1: "#F6FFED";
+            readonly success2: "#B7EB8F";
+            readonly success3: "#52C41A";
+            readonly success4: "#389E0D";
+            readonly success5: "#237804";
+        };
+        readonly warning: {
+            readonly warning1: "#FFFBE6";
+            readonly warning2: "#FFE58F";
+            readonly warning3: "#FAAD14";
+            readonly warning4: "#D48806";
+            readonly warning5: "#AD6800";
+        };
+        readonly error: {
+            readonly error1: "#FFF1F0";
+            readonly error2: "#FFA39E";
+            readonly error3: "#F5222D";
+            readonly error4: "#CF1322";
+            readonly error5: "#A8071A";
+        };
+        readonly info: {
+            readonly info1: "#E6F7FF";
+            readonly info2: "#91D5FF";
+            readonly info3: "#1890FF";
+            readonly info4: "#096DD9";
+            readonly info5: "#0050B3";
+        };
+        readonly gray: {
+            readonly gray1: "#F7F7F8";
+            readonly gray2: "#EDEDF0";
+            readonly gray3: "#E2E2E7";
+            readonly gray4: "#D3D3DA";
+            readonly gray5: "#B8B8C1";
+            readonly gray6: "#9999A5";
+            readonly gray7: "#7A7A86";
+            readonly gray8: "#5E5E6A";
+            readonly gray9: "#45454F";
+            readonly gray10: "#2F2F37";
+            readonly gray11: "#1F1F25";
+            readonly gray12: "#15151B";
+            readonly gray13: "#0E0E13";
+            readonly gray14: "#0A0B12";
+        };
+        readonly read: {
+            readonly bgDay: "#FFFFFF";
+            readonly bgNight: "#1A1A1A";
+            readonly bgSepia: "#F5EDDC";
+            readonly bgParchment: "#F4ECD8";
+            readonly textDay: "#2A2B33";
+            readonly textNight: "#E0E0E0";
+            readonly textSepia: "#5B4636";
+            readonly textParchment: "#5B4636";
+            readonly textSecondaryDay: "#5E5E6A";
+            readonly textSecondaryNight: "#888888";
+            readonly textSecondarySepia: "#8C7355";
+            readonly textSecondaryParchment: "#8C7355";
+        };
+        readonly chart: {
+            readonly chart1: "#1890FF";
+            readonly chart2: "#52C41A";
+            readonly chart3: "#FAAD14";
+            readonly chart4: "#F5222D";
+            readonly chart5: "#722ED1";
+            readonly chart6: "#13C2C2";
+        };
+        readonly semantic: {
+            readonly textPrimary: "var(--color-text-primary)";
+            readonly textSecondary: "var(--color-text-secondary)";
+            readonly textTertiary: "var(--color-text-tertiary)";
+            readonly textDisabled: "var(--color-text-disabled)";
+            readonly textInverse: "var(--color-text-inverse)";
+            readonly textLink: "var(--color-text-link)";
+            readonly textLinkHover: "var(--color-text-link-hover)";
+            readonly bgPage: "var(--color-bg-page)";
+            readonly bgSurface: "var(--color-bg-surface)";
+            readonly bgSubtle: "var(--color-bg-subtle)";
+            readonly bgElevated: "var(--color-bg-elevated)";
+            readonly bgMask: "var(--color-bg-mask)";
+            readonly borderDefault: "var(--color-border-default)";
+            readonly borderSubtle: "var(--color-border-subtle)";
+            readonly borderFocus: "var(--color-border-focus)";
+            readonly borderStrong: "var(--color-border-strong)";
+            readonly brand: "var(--color-brand)";
+            readonly brandHover: "var(--color-brand-hover)";
+            readonly brandActive: "var(--color-brand-active)";
+            readonly brandBg: "var(--color-brand-bg)";
+            readonly brandBorder: "var(--color-brand-border)";
+            readonly accent: "var(--color-accent)";
+            readonly accentHover: "var(--color-accent-hover)";
+            readonly accentActive: "var(--color-accent-active)";
+            readonly accentOrange: "var(--color-accent-orange)";
+            readonly accentOrangeHover: "var(--color-accent-orange-hover)";
+            readonly accentOrangeActive: "var(--color-accent-orange-active)";
+            readonly accentOrangeBg: "var(--color-accent-orange-bg)";
+            readonly rose: "var(--color-rose)";
+            readonly roseLight: "var(--color-rose-light)";
+            readonly roseGradient: "var(--color-rose-gradient)";
+            readonly roseBg: "var(--color-rose-bg)";
+            readonly feedbackSuccess: "var(--color-feedback-success)";
+            readonly feedbackSuccessBg: "var(--color-feedback-success-bg)";
+            readonly feedbackWarning: "var(--color-feedback-warning)";
+            readonly feedbackWarningBg: "var(--color-feedback-warning-bg)";
+            readonly feedbackError: "var(--color-feedback-error)";
+            readonly feedbackErrorBg: "var(--color-feedback-error-bg)";
+            readonly feedbackInfo: "var(--color-feedback-info)";
+            readonly feedbackInfoBg: "var(--color-feedback-info-bg)";
+            readonly chart1: "var(--color-chart-1)";
+            readonly chart2: "var(--color-chart-2)";
+            readonly chart3: "var(--color-chart-3)";
+            readonly chart4: "var(--color-chart-4)";
+            readonly chart5: "var(--color-chart-5)";
+            readonly chart6: "var(--color-chart-6)";
+        };
+    };
+    readonly font: {
+        readonly sans: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif";
+        readonly serif: "'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif";
+        readonly mono: "'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace";
+        readonly size: {
+            readonly display: "64px";
+            readonly h1: "40px";
+            readonly h2: "28px";
+            readonly h3: "20px";
+            readonly body: "16px";
+            readonly caption: "13px";
+            readonly overline: "11px";
+        };
+        readonly weight: {
+            readonly regular: "400";
+            readonly medium: "500";
+            readonly semibold: "600";
+            readonly bold: "700";
+        };
+        readonly lineHeight: {
+            readonly tight: "1.15";
+            readonly normal: "1.5";
+            readonly relaxed: "1.7";
+        };
+    };
+    readonly novel: {
+        readonly fontFamily: "var(--font-serif)";
+        readonly fontSize: "18px";
+        readonly lineHeight: "1.8";
+        readonly paragraphSpacing: "1em";
+        readonly textColor: "var(--gray-11)";
+        readonly measure: "42ch";
+        readonly readBg: "var(--read-bg-day)";
+        readonly readText: "var(--read-text-day)";
+        readonly readTextSecondary: "var(--read-text-secondary-day)";
+    };
+    readonly reader: {
+        readonly tapZone: "80px";
+        readonly tapCenter: "40%";
+        readonly toolbarHeight: "56px";
+        readonly progressHeight: "3px";
+        readonly chapterGap: "var(--space-12)";
+        readonly paragraphIndent: "2em";
+        readonly lineSpacingExtra: "0.05em";
+        readonly fontFamily: "var(--font-serif)";
+        readonly fontFamilySerif: "'Noto Serif SC', serif";
+        readonly fontFamilySong: "'SimSun', 'Noto Serif SC', serif";
+        readonly fontFamilyHei: "'SimHei', 'Noto Sans SC', sans-serif";
+        readonly fontFamilyKai: "'KaiTi', 'Noto Serif SC', serif";
+        readonly lineHeightCompact: "1.5";
+        readonly lineHeightStandard: "1.8";
+        readonly lineHeightLoose: "2.1";
+    };
+    readonly space: {
+        readonly space1: "4px";
+        readonly space2: "8px";
+        readonly space3: "12px";
+        readonly space4: "16px";
+        readonly space5: "20px";
+        readonly space6: "24px";
+        readonly space8: "32px";
+        readonly space10: "40px";
+        readonly space12: "48px";
+        readonly space16: "64px";
+        readonly space20: "80px";
+        readonly space24: "96px";
+        readonly space32: "128px";
+    };
+    readonly radius: {
+        readonly none: "0";
+        readonly xs: "2px";
+        readonly sm: "4px";
+        readonly md: "8px";
+        readonly lg: "12px";
+        readonly xl: "16px";
+        readonly xxl: "24px";
+        readonly full: "9999px";
+    };
+    readonly shadow: {
+        readonly sh1: "0 1px 2px 0 rgba(0, 0, 0, 0.04)";
+        readonly sh2: "0 2px 8px 0 rgba(0, 0, 0, 0.08)";
+        readonly sh3: "0 4px 12px 0 rgba(0, 0, 0, 0.10)";
+        readonly sh4: "0 8px 24px 0 rgba(0, 0, 0, 0.12)";
+        readonly sh5: "0 16px 48px 0 rgba(0, 0, 0, 0.16)";
+    };
+    readonly motion: {
+        readonly ease: {
+            readonly standard: "cubic-bezier(0.4, 0, 0.2, 1)";
+            readonly emphasized: "cubic-bezier(0.2, 0, 0, 1)";
+            readonly decelerate: "cubic-bezier(0, 0, 0.2, 1)";
+            readonly accelerate: "cubic-bezier(0.4, 0, 1, 1)";
+        };
+        readonly duration: {
+            readonly instant: "90ms";
+            readonly fast: "150ms";
+            readonly normal: "240ms";
+            readonly slow: "360ms";
+            readonly deliberate: "540ms";
+        };
+    };
+    readonly zIndex: {
+        readonly base: "0";
+        readonly dropdown: "1000";
+        readonly sticky: "1100";
+        readonly drawer: "1200";
+        readonly modal: "1300";
+        readonly toast: "1400";
+    };
+    readonly iconSize: {
+        readonly xs: "12px";
+        readonly sm: "14px";
+        readonly md: "16px";
+        readonly lg: "20px";
+        readonly xl: "24px";
+        readonly xxl: "32px";
+    };
+};
+export type Tokens = typeof tokens;
+//# sourceMappingURL=index.d.ts.map

@@ -1,0 +1,198 @@
+{
+  "timestamp": "2026-08-08T05:59:06+0000",
+  "backend": "http://localhost:8000",
+  "web": "http://localhost:5173",
+  "admin": "http://localhost:5174",
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "warned": 0,
+    "skipped": 0,
+    "passRate": 100.0
+  },
+  "results": [
+    {
+      "name": "C端页面 /",
+      "method": "GET",
+      "url": "http://localhost:5173/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /book/1",
+      "method": "GET",
+      "url": "http://localhost:5173/book/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /read/1/1",
+      "method": "GET",
+      "url": "http://localhost:5173/read/1/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /search",
+      "method": "GET",
+      "url": "http://localhost:5173/search",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /category",
+      "method": "GET",
+      "url": "http://localhost:5173/category",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /login",
+      "method": "GET",
+      "url": "http://localhost:5173/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /profile",
+      "method": "GET",
+      "url": "http://localhost:5173/profile",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /",
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /login",
+      "method": "GET",
+      "url": "http://localhost:5174/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /workbench",
+      "method": "GET",
+      "url": "http://localhost:5174/workbench",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /novel",
+      "method": "GET",
+      "url": "http://localhost:5174/novel",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /audit",
+      "method": "GET",
+      "url": "http://localhost:5174/audit",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /user",
+      "method": "GET",
+      "url": "http://localhost:5174/user",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /system",
+      "method": "GET",
+      "url": "http://localhost:5174/system",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    }
+  ]
+}

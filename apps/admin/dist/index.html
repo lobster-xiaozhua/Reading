@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1890FF" />
+    <meta name="description" content="Atlas 小说运营管理后台" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Atlas 运营管理后台</title>
+    <!-- P0-1 关键 CSS 内联：避免白屏 -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #f7f8fa;
+        color: #1f2329;
+        font-family:
+          "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui,
+          sans-serif;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .app-shell-skeleton {
+        display: flex;
+        min-height: 100vh;
+      }
+      .app-shell-skeleton__sider {
+        width: 240px;
+        background: #ffffff;
+        border-right: 1px solid #e5e6eb;
+      }
+      .app-shell-skeleton__main {
+        flex: 1;
+        padding: 24px;
+      }
+      .app-shell-skeleton__line {
+        height: 16px;
+        background: #f2f3f5;
+        border-radius: 4px;
+        margin-bottom: 12px;
+      }
+      .app-shell-skeleton__line--w60 {
+        width: 60%;
+      }
+      .app-shell-skeleton__line--w40 {
+        width: 40%;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-Z0DtxI6G.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-vendor-BmsTfc0J.js">
+    <link rel="modulepreload" crossorigin href="/assets/util-vendor-C5IInpL6.js">
+    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-D4y1SOpl.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-BkiownPv.css">
+  </head>
+  <body>
+    <div id="root">
+      <!-- P0-1 首屏骨架：在 React 水合前展示，避免白屏 -->
+      <div class="app-shell-skeleton">
+        <div class="app-shell-skeleton__sider"></div>
+        <div class="app-shell-skeleton__main">
+          <div class="app-shell-skeleton__line"></div>
+          <div
+            class="app-shell-skeleton__line app-shell-skeleton__line--w60"
+          ></div>
+          <div
+            class="app-shell-skeleton__line app-shell-skeleton__line--w40"
+          ></div>
+          <div class="app-shell-skeleton__line"></div>
+          <div
+            class="app-shell-skeleton__line app-shell-skeleton__line--w60"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

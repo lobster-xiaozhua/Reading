@@ -1,0 +1,305 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/workspace/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config=/workspace/monitoring/playwright.config.ts",
+      "--project=backend",
+      "--reporter=json",
+      "--output=/workspace/monitoring/reports/report-20260808_064044"
+    ],
+    "configFile": "/workspace/monitoring/playwright.config.ts",
+    "rootDir": "/workspace/monitoring/checks",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "backend",
+        "name": "backend",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/health*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "api-b-end",
+        "name": "api-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "api-c-end",
+        "name": "api-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "api-global",
+        "name": "api-global",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/api.global*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "pages-b-end",
+        "name": "pages-b-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.b-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "pages-c-end",
+        "name": "pages-c-end",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/pages.c-end*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "business-flow",
+        "name": "business-flow",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/business-flow*.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/workspace/monitoring/reports/report-20260808_064044",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "performance",
+        "name": "performance",
+        "testDir": "/workspace/monitoring/checks",
+        "testIgnore": [],
+        "testMatch": [
+          "**/performance*.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 4,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "health.ts",
+      "file": "health.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "后端健康巡检",
+          "file": "health.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "/health 端点正常",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 238,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:40:52.461Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-419fe9591d03d9c3f6cf",
+              "file": "health.ts",
+              "line": 6,
+              "column": 7
+            },
+            {
+              "title": "C 端 API 根路径可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 268,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:40:52.434Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-5016253b2af0ee532a05",
+              "file": "health.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "B 端 API 根路径可访问",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "backend",
+                  "projectName": "backend",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 142,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-08-08T06:40:52.558Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c130867be58725f7a303-2f5e504a87d2971bdb01",
+              "file": "health.ts",
+              "line": 21,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-08-08T06:40:51.493Z",
+    "duration": 1323.402,
+    "expected": 3,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

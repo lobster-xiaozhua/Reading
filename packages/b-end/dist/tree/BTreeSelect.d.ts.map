@@ -1,0 +1,1 @@
+{"version":3,"file":"BTreeSelect.d.ts","sourceRoot":"","sources":["../../src/tree/BTreeSelect.tsx"],"names":[],"mappings":"AAQA,OAAO,EAAc,KAAK,YAAY,EAAE,MAAM,OAAO,CAAC;AACtD,OAAO,EAAE,UAAU,EAAE,KAAK,eAAe,EAAE,MAAM,MAAM,CAAC;AAExD,MAAM,MAAM,gBAAgB,GAAG,eAAe,CAAC;AAC/C,MAAM,MAAM,cAAc,GAAG,YAAY,CAAC,OAAO,UAAU,CAAC,CAAC;AAE7D,eAAO,MAAM,WAAW,4HAIvB,CAAC"}

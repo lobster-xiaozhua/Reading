@@ -1,0 +1,113 @@
+/* ============================================================
+ * Atlas Design System · L1 Primitive Tokens
+ * 不可变原子值，全局唯一真值。组件禁止直接引用本层。
+ * Source: 01-前端底层设计.md §13.1
+ * Version: V1.0.0 · 2026.07
+ * ============================================================ */
+
+:root {
+  /* ---------- L1 Primitive · 品牌（Ant Design blue 基准） ---------- */
+  --brand-1: #F0F9FF;
+  --brand-2: #E6F7FF;
+  --brand-3: #BAE7FF;
+  --brand-4: #91D5FF;
+  --brand-5: #69C0FF;
+  --brand-6: #40A9FF;
+  --brand-7: #1890FF;
+  --brand-8: #096DD9;
+  --brand-9: #0050B3;
+  --brand-10: #003A8C;
+
+  /* ---------- L1 Primitive · 强调（C 端 accent，钴蓝） ---------- */
+  --accent-1: #EEF2FF;
+  --accent-2: #DCE3FF;
+  --accent-3: #B9C7FF;
+  --accent-4: #8FA5FF;
+  --accent-5: #6A82FF;
+  --accent-6: #4566FF;
+  --accent-7: #245BFF;
+  --accent-8: #1A47D9;
+  --accent-9: #1238A8;
+  --accent-10: #0B2470;
+
+  /* ---------- L1 Primitive · 暖橙（C 端营销扩展色，03 §3.2.1） ---------- */
+  --orange-1: #FFF4E6;
+  --orange-2: #FFD9B3;
+  --orange-3: #E37318;
+  --orange-4: #F08528;
+  --orange-5: #C9640F;
+
+  /* ---------- L1 Primitive · 功能色 ---------- */
+  --success-1: #F6FFED;
+  --success-2: #B7EB8F;
+  --success-3: #52C41A;
+  --success-4: #389E0D;
+  --success-5: #237804;
+
+  --warning-1: #FFFBE6;
+  --warning-2: #FFE58F;
+  --warning-3: #FAAD14;
+  --warning-4: #D48806;
+  --warning-5: #AD6800;
+
+  --error-1: #FFF1F0;
+  --error-2: #FFA39E;
+  --error-3: #F5222D;
+  --error-4: #CF1322;
+  --error-5: #A8071A;
+
+  --info-1: #E6F7FF;
+  --info-2: #91D5FF;
+  --info-3: #1890FF;
+  --info-4: #096DD9;
+  --info-5: #0050B3;
+
+  /* ---------- L1 Primitive · 中性色 14 级 ---------- */
+  --gray-1: #F7F7F8;
+  --gray-2: #EDEDF0;
+  --gray-3: #E2E2E7;
+  --gray-4: #D3D3DA;
+  --gray-5: #B8B8C1;
+  --gray-6: #707080;
+  --gray-7: #7A7A86;
+  --gray-8: #5E5E6A;
+  --gray-9: #45454F;
+  --gray-10: #2F2F37;
+  --gray-11: #1F1F25;
+  --gray-12: #15151B;
+  --gray-13: #0E0E13;
+  --gray-14: #0A0B12;
+
+  /* ---------- L1 Primitive · 阅读主题色（独立于通用 gray） ---------- */
+  --read-bg-day: #FFFFFF;
+  --read-bg-night: #1A1A1A;
+  --read-bg-sepia: #F5EDDC;
+  --read-bg-parchment: #F4ECD8;
+
+  --read-text-day: #2A2B33;
+  --read-text-night: #E0E0E0;
+  --read-text-sepia: #5B4636;
+  --read-text-parchment: #5B4636;
+
+  --read-text-secondary-day: #5E5E6A;
+  --read-text-secondary-night: #888888;
+  --read-text-secondary-sepia: #8C7355;
+  --read-text-secondary-parchment: #8C7355;
+
+  /* ---------- L1 Primitive · 图表色板（独立于 UI 语义色，02 §4.1 / 04 §7.1） ---------- */
+  --chart-1: #1890FF;  /* 主序列，对齐 brand-7 */
+  --chart-2: #52C41A;  /* 对齐 success-3 */
+  --chart-3: #FAAD14;  /* 对齐 warning-3 */
+  --chart-4: #F5222D;  /* 对齐 error-3 */
+  --chart-5: #722ED1;  /* 紫色序列 */
+  --chart-6: #13C2C2;  /* 青色序列 */
+
+  /* ---------- L1 Primitive · 渐变色 ---------- */
+  --gradient-brand-subtle: linear-gradient(135deg, #E6F7FF 0%, #F0F9FF 100%);
+  --gradient-brand-strong: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  --gradient-warm: linear-gradient(135deg, #FFF4E6 0%, #FFE4B5 100%);
+  --gradient-rose: linear-gradient(135deg, #FF6B6B 0%, #F5222D 100%);
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F7F7F8 100%);
+  --gradient-surface-dark: linear-gradient(180deg, #15151B 0%, #0E0E13 100%);
+}

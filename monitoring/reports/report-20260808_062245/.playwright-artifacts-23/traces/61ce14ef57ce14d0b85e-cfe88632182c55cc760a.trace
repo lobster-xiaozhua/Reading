@@ -1,0 +1,39 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","playwrightVersion":"1.62.1","options":{},"platform":"linux","wallTime":1786170246623,"monotonicTime":77406.638,"sdkLanguage":"javascript","contextId":"request-context@519e086bd3e60548f2c51658ac6b1da1","title":"business-flow.ts:32 › 业务链路巡检 › 完整链路: B 端作品列表 → 工作台 → 系统配置"}
+{"type":"before","callId":"call@5","startTime":77415.073,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/b/novels","params":[{"name":"page","value":"1"},{"name":"page_size","value":"5"}],"method":"GET","timeout":10000},"stepId":"pw:api@31"}
+{"type":"log","callId":"call@5","time":77427.199,"message":"→ GET http://localhost:8000/api/v1/b/novels?page=1&page_size=5"}
+{"type":"log","callId":"call@5","time":77427.25,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@5","time":77427.266,"message":"  accept: */*"}
+{"type":"log","callId":"call@5","time":77427.279,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@5","time":77452.832,"message":"← 200 OK"}
+{"type":"log","callId":"call@5","time":77452.869,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@5","time":77452.88,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@5","time":77452.893,"message":"  content-length: 921"}
+{"type":"log","callId":"call@5","time":77452.912,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@5","time":77452.928,"message":"  vary: Accept-Encoding"}
+{"type":"log","callId":"call@5","time":77452.941,"message":"  content-encoding: gzip"}
+{"type":"log","callId":"call@5","time":77452.947,"message":"  x-trace-id: 3d6d5e66fa84"}
+{"type":"after","callId":"call@5","endTime":77516.076,"result":{"response":{"url":"http://localhost:8000/api/v1/b/novels?page=1&page_size=5","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"921"},{"name":"content-type","value":"application/json"},{"name":"vary","value":"Accept-Encoding"},{"name":"content-encoding","value":"gzip"},{"name":"x-trace-id","value":"3d6d5e66fa84"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246634,"domainLookupStart":0,"domainLookupEnd":15.620999999999185,"connectStart":15.620999999999185,"secureConnectionStart":-1,"connectEnd":16.8179999999993,"requestStart":16.8179999999993,"responseStart":30.80000000000291},"responseEndTiming":95.62299999999232,"fetchUid":"7af93e3c403e82a619c3e54ee2f38bc2"}}}
+{"type":"before","callId":"call@8","startTime":77525.162,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/b/workbench/kpi","method":"GET","timeout":10000},"stepId":"pw:api@34"}
+{"type":"log","callId":"call@8","time":77525.859,"message":"→ GET http://localhost:8000/api/v1/b/workbench/kpi"}
+{"type":"log","callId":"call@8","time":77525.874,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@8","time":77525.88,"message":"  accept: */*"}
+{"type":"log","callId":"call@8","time":77525.885,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@8","time":77533.513,"message":"← 200 OK"}
+{"type":"log","callId":"call@8","time":77533.525,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@8","time":77533.531,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@8","time":77533.535,"message":"  content-length: 165"}
+{"type":"log","callId":"call@8","time":77533.541,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@8","time":77533.546,"message":"  x-trace-id: 90288e6a9fc0"}
+{"type":"after","callId":"call@8","endTime":77533.723,"result":{"response":{"url":"http://localhost:8000/api/v1/b/workbench/kpi","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"165"},{"name":"content-type","value":"application/json"},{"name":"x-trace-id","value":"90288e6a9fc0"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246742,"domainLookupStart":-1,"domainLookupEnd":-1,"connectStart":-1,"secureConnectionStart":-1,"connectEnd":-1,"requestStart":0.47100000000500586,"responseStart":7.414000000004307},"responseEndTiming":7.7409999999945285,"fetchUid":"7c1532ad944c7a13cc1fd90529bd0801"}}}
+{"type":"before","callId":"call@10","startTime":77536.498,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/b/system/config","method":"GET","timeout":10000},"stepId":"pw:api@36"}
+{"type":"log","callId":"call@10","time":77537.459,"message":"→ GET http://localhost:8000/api/v1/b/system/config"}
+{"type":"log","callId":"call@10","time":77537.474,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@10","time":77537.48,"message":"  accept: */*"}
+{"type":"log","callId":"call@10","time":77537.485,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@10","time":77622.94,"message":"← 200 OK"}
+{"type":"log","callId":"call@10","time":77622.957,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@10","time":77622.963,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@10","time":77622.969,"message":"  content-length: 138"}
+{"type":"log","callId":"call@10","time":77623.005,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@10","time":77623.011,"message":"  x-trace-id: 365f0513e0b0"}
+{"type":"after","callId":"call@10","endTime":77623.175,"result":{"response":{"url":"http://localhost:8000/api/v1/b/system/config","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"138"},{"name":"content-type","value":"application/json"},{"name":"x-trace-id","value":"365f0513e0b0"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246753,"domainLookupStart":-1,"domainLookupEnd":-1,"connectStart":-1,"secureConnectionStart":-1,"connectEnd":-1,"requestStart":0.3580000000074506,"responseStart":83.55000000000291},"responseEndTiming":84.09100000000035,"fetchUid":"d98697bc0b2f0718def2d16d850ea831"}}}

@@ -1,0 +1,51 @@
+{"version":8,"type":"context-options","origin":"library","browserName":"","playwrightVersion":"1.62.1","options":{},"platform":"linux","wallTime":1786170246587,"monotonicTime":77371.096,"sdkLanguage":"javascript","contextId":"request-context@a8dcfe3b73465a9a9db7555a93037345","title":"business-flow.ts:8 › 业务链路巡检 › 完整链路: 健康检查 → C 端书籍列表 → 书籍详情 → 章节"}
+{"type":"before","callId":"call@5","startTime":77379.61,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/health","method":"GET","timeout":10000},"stepId":"pw:api@31"}
+{"type":"log","callId":"call@5","time":77409.389,"message":"→ GET http://localhost:8000/health"}
+{"type":"log","callId":"call@5","time":77409.432,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@5","time":77409.444,"message":"  accept: */*"}
+{"type":"log","callId":"call@5","time":77409.453,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@5","time":77422.26,"message":"← 200 OK"}
+{"type":"log","callId":"call@5","time":77422.284,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@5","time":77422.293,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@5","time":77422.301,"message":"  content-length: 33"}
+{"type":"log","callId":"call@5","time":77422.312,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@5","time":77422.371,"message":"  x-trace-id: be705f501c82"}
+{"type":"after","callId":"call@5","endTime":77422.551,"result":{"response":{"url":"http://localhost:8000/health","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"33"},{"name":"content-type","value":"application/json"},{"name":"x-trace-id","value":"be705f501c82"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246614,"domainLookupStart":0,"domainLookupEnd":12.900999999998021,"connectStart":12.900999999998021,"secureConnectionStart":-1,"connectEnd":15.105999999999767,"requestStart":15.105999999999767,"responseStart":22.360000000000582},"responseEndTiming":23.41599999999744,"fetchUid":"d9bd0616b7a0797663633e7c39e7f928"}}}
+{"type":"before","callId":"call@8","startTime":77431.176,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/c/books","params":[{"name":"page","value":"1"},{"name":"page_size","value":"5"},{"name":"sort","value":"hot"}],"method":"GET","timeout":10000},"stepId":"pw:api@34"}
+{"type":"log","callId":"call@8","time":77431.91,"message":"→ GET http://localhost:8000/api/v1/c/books?page=1&page_size=5&sort=hot"}
+{"type":"log","callId":"call@8","time":77431.925,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@8","time":77431.932,"message":"  accept: */*"}
+{"type":"log","callId":"call@8","time":77431.936,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@8","time":77446.627,"message":"← 200 OK"}
+{"type":"log","callId":"call@8","time":77446.65,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@8","time":77446.658,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@8","time":77446.663,"message":"  content-length: 563"}
+{"type":"log","callId":"call@8","time":77446.669,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@8","time":77446.674,"message":"  vary: Accept-Encoding"}
+{"type":"log","callId":"call@8","time":77446.679,"message":"  content-encoding: gzip"}
+{"type":"log","callId":"call@8","time":77446.685,"message":"  x-trace-id: 23e4a6f6d93f"}
+{"type":"after","callId":"call@8","endTime":77517.257,"result":{"response":{"url":"http://localhost:8000/api/v1/c/books?page=1&page_size=5&sort=hot","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"563"},{"name":"content-type","value":"application/json"},{"name":"vary","value":"Accept-Encoding"},{"name":"content-encoding","value":"gzip"},{"name":"x-trace-id","value":"23e4a6f6d93f"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246648,"domainLookupStart":-1,"domainLookupEnd":-1,"connectStart":-1,"secureConnectionStart":-1,"connectEnd":-1,"requestStart":0.3880000000062864,"responseStart":13.044999999998254},"responseEndTiming":84.8700000000099,"fetchUid":"4ebe0ff1596e07a1c9614d3c8fdb925c"}}}
+{"type":"before","callId":"call@11","startTime":77521.756,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/c/books/3","method":"GET","timeout":10000},"stepId":"pw:api@37"}
+{"type":"log","callId":"call@11","time":77522.361,"message":"→ GET http://localhost:8000/api/v1/c/books/3"}
+{"type":"log","callId":"call@11","time":77522.379,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@11","time":77522.384,"message":"  accept: */*"}
+{"type":"log","callId":"call@11","time":77522.389,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@11","time":77535.797,"message":"← 200 OK"}
+{"type":"log","callId":"call@11","time":77535.82,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@11","time":77535.827,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@11","time":77535.832,"message":"  content-length: 394"}
+{"type":"log","callId":"call@11","time":77535.837,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@11","time":77535.929,"message":"  x-trace-id: 2bdee7c1d0cc"}
+{"type":"after","callId":"call@11","endTime":77537.991,"result":{"response":{"url":"http://localhost:8000/api/v1/c/books/3","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"394"},{"name":"content-type","value":"application/json"},{"name":"x-trace-id","value":"2bdee7c1d0cc"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246738,"domainLookupStart":-1,"domainLookupEnd":-1,"connectStart":-1,"secureConnectionStart":-1,"connectEnd":-1,"requestStart":0.3810000000084983,"responseStart":13.171000000002095},"responseEndTiming":14.23300000000745,"fetchUid":"4d5b6df6654510a18d912c52f3204450"}}}
+{"type":"before","callId":"call@13","startTime":77539.771,"class":"APIRequestContext","method":"fetch","params":{"url":"http://localhost:8000/api/v1/c/books/3/chapters","method":"GET","timeout":10000},"stepId":"pw:api@39"}
+{"type":"log","callId":"call@13","time":77540.184,"message":"→ GET http://localhost:8000/api/v1/c/books/3/chapters"}
+{"type":"log","callId":"call@13","time":77540.197,"message":"  user-agent: Playwright/1.62.1 (x64; debian 12) node/22.22"}
+{"type":"log","callId":"call@13","time":77540.203,"message":"  accept: */*"}
+{"type":"log","callId":"call@13","time":77540.207,"message":"  accept-encoding: gzip,deflate,br"}
+{"type":"log","callId":"call@13","time":77624.031,"message":"← 200 OK"}
+{"type":"log","callId":"call@13","time":77624.062,"message":"  date: Sat, 08 Aug 2026 06:24:06 GMT"}
+{"type":"log","callId":"call@13","time":77624.069,"message":"  server: uvicorn"}
+{"type":"log","callId":"call@13","time":77624.074,"message":"  content-length: 681"}
+{"type":"log","callId":"call@13","time":77624.079,"message":"  content-type: application/json"}
+{"type":"log","callId":"call@13","time":77624.083,"message":"  x-trace-id: d4d2e2ced7e7"}
+{"type":"after","callId":"call@13","endTime":77625.148,"result":{"response":{"url":"http://localhost:8000/api/v1/c/books/3/chapters","status":200,"statusText":"OK","headers":[{"name":"date","value":"Sat, 08 Aug 2026 06:24:06 GMT"},{"name":"server","value":"uvicorn"},{"name":"content-length","value":"681"},{"name":"content-type","value":"application/json"},{"name":"x-trace-id","value":"d4d2e2ced7e7"}],"serverAddr":{"ipAddress":"127.0.0.1","port":8000},"timing":{"startTime":1786170246756,"domainLookupStart":-1,"domainLookupEnd":-1,"connectStart":-1,"secureConnectionStart":-1,"connectEnd":-1,"requestStart":0.27800000000570435,"responseStart":83.87300000000687},"responseEndTiming":84.62099999999919,"fetchUid":"855ccff905260adc7b168e94b5da4107"}}}

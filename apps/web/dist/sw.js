@@ -1,0 +1,171 @@
+/* ============================================================
+ * Service Worker · P7-6
+ * 离线阅读：Cache-first 已读章节 + App Shell 回退
+ *   - 预缓存 App Shell（HTML/JS/CSS 入口）
+ *   - 章节正文 API（fetcher.getChapter）：Cache-first，命中直返，未命中请求并回写
+ *   - 静态资源（同源 /assets/）：stale-while-revalidate
+ *   - 图片：cache-first，超时回退网络
+ *   - 静态数据 API（分类/标签/首页）：stale-while-revalidate（网络优先）
+ *   - 不缓存 POST/DELETE 及非 GET 请求
+ *   - 50MB 上限由 IndexedDB（章节正文）+ Cache Storage（静态）共同遵守
+ * ============================================================ */
+
+const CACHE_VERSION = 'atlas-v3';
+const SHELL_CACHE = `${CACHE_VERSION}-shell`;
+const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+const CHAPTER_CACHE = `${CACHE_VERSION}-chapter`;
+const API_CACHE = `${CACHE_VERSION}-api`;
+
+// App Shell 预缓存清单（构建产物入口）
+const SHELL_ASSETS = [
+  '/',
+  '/index.html',
+];
+
+// 静态数据 API：可安全 SWR 缓存（数据更新靠 TTL 自然刷新）
+const SWR_API_PATHS = [
+  '/api/v1/c/categories',
+  '/api/v1/c/tags',
+  '/api/v1/c/banners',
+  '/api/v1/c/search/hot',
+  '/api/v1/c/discovery/home',
+  '/api/v1/c/books/hot',
+  '/api/v1/c/books/free-limited',
+  '/api/v1/c/books/editor-picks',
+];
+
+self.addEventListener('install', (event) => {
+  // 不自动 skipWaiting：由前端决定何时接管（首次安装静默、更新时提示后接管）
+  event.waitUntil(
+    caches.open(SHELL_CACHE).then((cache) => cache.addAll(SHELL_ASSETS)),
+  );
+});
+
+// 收到前端 SKIP_WAITING 消息后接管页面
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys
+          .filter((k) => !k.startsWith(CACHE_VERSION))
+          .map((k) => caches.delete(k)),
+      ),
+    ).then(() => self.clients.claim()),
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+
+  // 同源且为章节正文 API（约定路径 /api/v1/c/books/*/chapters/*）
+  if (url.origin === self.location.origin && /\/api\/v1\/c\/books\/.*\/chapters\//.test(url.pathname)) {
+    event.respondWith(chapterCacheFirst(req));
+    return;
+  }
+
+  // 同源静态数据 API：stale-while-revalidate（网络优先，离线回退缓存）
+  if (url.origin === self.location.origin && url.pathname.startsWith('/api/')) {
+    const swrPath = SWR_API_PATHS.includes(url.pathname.replace(/\/$/, ''));
+    if (swrPath) {
+      event.respondWith(apiStaleWhileRevalidate(req));
+      return;
+    }
+    // 其他 API（含用户数据）：network-only，不缓存安全数据
+    event.respondWith(networkOnly(req));
+    return;
+  }
+
+  // 同源静态资源：stale-while-revalidate
+  if (url.origin === self.location.origin) {
+    event.respondWith(staleWhileRevalidate(req));
+    return;
+  }
+
+  // 跨源图片：cache-first
+  if (req.destination === 'image') {
+    event.respondWith(cacheFirst(req, RUNTIME_CACHE));
+    return;
+  }
+});
+
+/* ---------- 章节正文：Cache-first ---------- */
+async function chapterCacheFirst(req) {
+  const cache = await caches.open(CHAPTER_CACHE);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  try {
+    const res = await fetch(req);
+    // 仅缓存业务成功响应（body.code === 0）。
+    // VIP 未解锁等错误虽然 HTTP 200，但 body.code 非 0，缓存会导致开通会员后仍读到旧错误。
+    if (res && res.ok) {
+      try {
+        const probe = res.clone();
+        const body = await probe.json();
+        if (body && body.code === 0) {
+          cache.put(req, res.clone());
+        }
+      } catch {
+        // 非 JSON 或解析失败，不缓存
+      }
+    }
+    return res;
+  } catch {
+    return new Response('离线且无缓存', { status: 503, statusText: 'Offline' });
+  }
+}
+
+/* ---------- 静态数据 API：Stale-while-revalidate（网络优先） ---------- */
+async function apiStaleWhileRevalidate(req) {
+  const cache = await caches.open(API_CACHE);
+  const cached = await cache.match(req);
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  } catch {
+    return cached || new Response('离线且无缓存', { status: 503, statusText: 'Offline' });
+  }
+}
+
+/* ---------- 其他 API：Network-only ---------- */
+async function networkOnly(req) {
+  try {
+    return await fetch(req);
+  } catch {
+    return new Response('网络不可用', { status: 503, statusText: 'Offline' });
+  }
+}
+
+/* ---------- 静态资源：Stale-while-revalidate ---------- */
+async function staleWhileRevalidate(req) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cached = await cache.match(req);
+  const fetchPromise = fetch(req).then((res) => {
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  }).catch(() => cached);
+  return cached || fetchPromise;
+}
+
+/* ---------- 通用 Cache-first ---------- */
+async function cacheFirst(req, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(req);
+  if (cached) return cached;
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  } catch {
+    return new Response('', { status: 503, statusText: 'Offline' });
+  }
+}

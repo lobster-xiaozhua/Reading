@@ -1,0 +1,1 @@
+{"version":3,"file":"word-count.d.ts","sourceRoot":"","sources":["../../src/data-model/word-count.ts"],"names":[],"mappings":"AAiBA;;;;;;GAMG;AACH,wBAAgB,cAAc,CAAC,IAAI,EAAE,MAAM,GAAG,MAAM,CA4CnD;AAED;;;;GAIG;AACH,wBAAgB,oBAAoB,CAAC,IAAI,EAAE,MAAM,GAAG,MAAM,CAUzD;AAED,cAAc;AACd,wBAAgB,UAAU,CAAC,IAAI,EAAE,MAAM,GAAG;IACxC,IAAI,EAAE,MAAM,CAAC;IACb,eAAe,EAAE,MAAM,CAAC;CACzB,CAKA"}

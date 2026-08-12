@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-08-08T15:05:16+0000",
+  "tag": "health",
+  "targets": {
+    "backend": "http://localhost:8000",
+    "web": "http://localhost:5173",
+    "admin": "http://localhost:5174"
+  },
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "warned": 0,
+    "skipped": 0,
+    "passRate": 100.0
+  },
+  "elapsed_ms": 1716,
+  "results": [
+    {
+      "name": "后端健康",
+      "method": "GET",
+      "url": "http://localhost:8000/health",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 214,
+      "detail": "",
+      "tags": [
+        "health"
+      ]
+    },
+    {
+      "name": "后端 OpenAPI",
+      "method": "GET",
+      "url": "http://localhost:8000/openapi.json",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 112,
+      "detail": "",
+      "tags": [
+        "health"
+      ]
+    },
+    {
+      "name": "C 端首页",
+      "method": "GET",
+      "url": "http://localhost:5173/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 1274,
+      "detail": "",
+      "tags": [
+        "health"
+      ]
+    },
+    {
+      "name": "B 端首页",
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 114,
+      "detail": "",
+      "tags": [
+        "health"
+      ]
+    }
+  ]
+}

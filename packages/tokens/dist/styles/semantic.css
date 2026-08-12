@@ -1,0 +1,497 @@
+/* ============================================================
+ * Atlas Design System · L2 Semantic Tokens
+ * 按用途命名，引用 L1 Primitive，随主题切换。
+ * 组件层推荐引用本层（var(--color-*)）。
+ * Source: 01-前端底层设计.md §13.1
+ * ============================================================ */
+
+:root {
+  color-scheme: light dark;
+
+  /* ---------- L2 Semantic · 文本 ---------- */
+  --color-text-primary: var(--gray-14);
+  --color-text-secondary: var(--gray-8);
+  --color-text-tertiary: var(--gray-6);
+  --color-text-disabled: var(--gray-5);
+  --color-text-inverse: var(--gray-1);
+  --color-text-link: var(--brand-7);
+  --color-text-link-hover: var(--brand-6);
+
+  /* ---------- L2 Semantic · 背景 ---------- */
+  --color-bg-page: var(--gray-1);
+  --color-bg-surface: #FFFFFF;
+  --color-bg-subtle: var(--gray-2);
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-mask: rgba(10, 11, 18, 0.45);
+
+  /* ---------- L2 Semantic · 边框 ---------- */
+  --color-border-default: var(--gray-4);
+  --color-border-subtle: var(--gray-3);
+  --color-border-focus: var(--brand-7);
+  --color-border-strong: var(--gray-6);
+
+  /* ---------- L2 Semantic · 品牌 ---------- */
+  --color-brand: var(--brand-7);
+  --color-brand-hover: var(--brand-8);
+  --color-brand-active: var(--brand-9);
+  --color-brand-bg: var(--brand-2);
+  --color-brand-border: var(--brand-3);
+
+  /* ---------- L2 Semantic · 表面层级（新增 raised / overlay / tooltip） ---------- */
+  --color-bg-raised: #FFFFFF;
+  --color-bg-overlay: #FFFFFF;
+  --color-bg-tooltip: var(--gray-14);
+
+  /* ---------- L2 Semantic · 渐变（引用 L1 Gradient） ---------- */
+  --gradient-brand-subtle: linear-gradient(135deg, #E6F7FF 0%, #F0F9FF 100%);
+  --gradient-brand-strong: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  --gradient-warm: linear-gradient(135deg, #FFF4E6 0%, #FFE4B5 100%);
+  --gradient-rose: linear-gradient(135deg, #FF6B6B 0%, #F5222D 100%);
+  --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F7F7F8 100%);
+
+  /* ---------- L2 Semantic · 品牌发光（光晕/按钮辉光等视觉装饰，随主题切换） ---------- */
+  --color-brand-glow-0: rgba(24, 144, 255, 0);
+  --color-brand-glow-20: rgba(24, 144, 255, 0.2);
+  --color-brand-glow-25: rgba(24, 144, 255, 0.25);
+  --color-brand-glow-30: rgba(24, 144, 255, 0.3);
+  --color-brand-glow-35: rgba(24, 144, 255, 0.35);
+  --color-brand-glow-40: rgba(24, 144, 255, 0.4);
+
+  /* ---------- L2 Semantic · 强调（C 端 accent） ---------- */
+  --color-accent: var(--accent-7);
+  --color-accent-hover: var(--accent-8);
+  --color-accent-active: var(--accent-9);
+
+  /* ---------- L2 Semantic · 强调暖橙（C 端营销色，03 §3.2.1） ---------- */
+  --color-accent-orange: var(--orange-3);
+  --color-accent-orange-hover: var(--orange-4);
+  --color-accent-orange-active: var(--orange-5);
+  --color-accent-orange-bg: var(--orange-1);
+
+  /* ---------- L2 Semantic · 玫红（C 端互动色，03 §3.2.2） ---------- */
+  --color-rose: var(--error-3);
+  --color-rose-light: #FF6B6B;
+  --color-rose-gradient: linear-gradient(135deg, var(--error-3) 0%, #FF6B6B 100%);
+  --color-rose-bg: var(--error-1);
+
+  /* ---------- L2 Semantic · 排行榜 Top3 奖牌色（03 §6.3 排行榜） ---------- */
+  --color-rank-gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+  --color-rank-silver-gradient: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+  --color-rank-bronze-gradient: linear-gradient(135deg, #CD7F32, #A06030);
+
+  /* ---------- L2 Semantic · 排行榜 Top3 奖牌阴影（03 §6.3） ---------- */
+  --color-rank-gold-shadow: rgba(255, 215, 0, 0.3);
+  --color-rank-silver-shadow: rgba(192, 192, 192, 0.3);
+  --color-rank-bronze-shadow: rgba(205, 127, 50, 0.3);
+
+  /* ---------- L2 Semantic · 遮罩 / 覆盖层（轮播图、卡片悬浮控件） ---------- */
+  --color-overlay-gradient: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.72) 100%);
+  --color-overlay-medium: rgba(0, 0, 0, 0.4);
+  --color-overlay-strong: rgba(0, 0, 0, 0.6);
+  --color-overlay-dot: rgba(255, 255, 255, 0.5);
+
+  /* ---------- L2 Semantic · 装饰光泽 / 阴影（按钮涟漪、卡片光泽、轻阴影） ---------- */
+  --color-overlay-white-10: rgba(255, 255, 255, 0.1);
+  --color-overlay-white-12: rgba(255, 255, 255, 0.12);
+  --color-overlay-white-15: rgba(255, 255, 255, 0.15);
+  --color-overlay-white-20: rgba(255, 255, 255, 0.2);
+  --color-overlay-white-25: rgba(255, 255, 255, 0.25);
+  --color-overlay-white-30: rgba(255, 255, 255, 0.3);
+  --color-shadow-soft-10: rgba(0, 0, 0, 0.1);
+  --color-shadow-soft-15: rgba(0, 0, 0, 0.15);
+
+  /* ---------- L2 Semantic · 反馈 ---------- */
+  --color-feedback-success: var(--success-3);
+  --color-feedback-success-bg: var(--success-1);
+  --color-feedback-warning: var(--warning-3);
+  --color-feedback-warning-bg: var(--warning-1);
+  --color-feedback-error: var(--error-3);
+  --color-feedback-error-bg: var(--error-1);
+  --color-feedback-info: var(--info-3);
+  --color-feedback-info-bg: var(--info-1);
+
+  /* ---------- 字体 ---------- */
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  --font-size-display: 64px;
+  --font-size-h1: 40px;
+  --font-size-h2: 28px;
+  --font-size-h3: 20px;
+  --font-size-body: 16px;
+  --font-size-small: 14px;
+  --font-size-caption: 13px;
+  --font-size-xs: 12px;
+  --font-size-overline: 11px;
+  --font-size-tiny: 10px;
+  --font-size-button: 14px;
+  --font-size-body-lg: 17px;
+  --font-size-h4: 18px;
+
+  /* ---------- 字号语义化（用途命名） ---------- */
+  --font-size-prose: var(--font-size-body);
+  --font-size-prose-lg: var(--font-size-body-lg);
+  --font-size-eyebrow: var(--font-size-overline);
+  --font-size-label: var(--font-size-caption);
+
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+
+  /* ---------- 字重语义化（按层级用途） ---------- */
+  --font-weight-heading: var(--font-weight-bold);
+  --font-weight-subheading: var(--font-weight-semibold);
+  --font-weight-body: var(--font-weight-regular);
+  --font-weight-emphasis: var(--font-weight-medium);
+  --font-weight-caption: var(--font-weight-medium);
+
+  /* ---------- 行高（5 级，按内容类型） ---------- */
+  --line-height-tighter: 1.1;   /* display / hero title */
+  --line-height-tight: 1.2;     /* heading 1-2 */
+  --line-height-snug: 1.35;     /* heading 3-4 / UI title */
+  --line-height-normal: 1.5;    /* body / input */
+  --line-height-relaxed: 1.7;   /* prose / long-form */
+  --line-height-loose: 1.85;    /* 阅读类正文 */
+
+  /* ---------- 行高语义化 ---------- */
+  --line-height-display: var(--line-height-tighter);
+  --line-height-heading: var(--line-height-tight);
+  --line-height-subheading: var(--line-height-snug);
+  --line-height-ui: var(--line-height-snug);
+  --line-height-prose: var(--line-height-relaxed);
+
+  /* ---------- 字间距（6 级） ---------- */
+  --letter-spacing-tighter: -0.04em;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ---------- 字间距语义化 ---------- */
+  --letter-spacing-heading: var(--letter-spacing-tight);
+  --letter-spacing-display: var(--letter-spacing-tighter);
+  --letter-spacing-body: var(--letter-spacing-normal);
+  --letter-spacing-caption: var(--letter-spacing-wide);
+  --letter-spacing-eyebrow: var(--letter-spacing-wider);
+  --letter-spacing-uppercase: var(--letter-spacing-widest);
+
+  /* ---------- 小说正文 ---------- */
+  --novel-font-family: var(--font-serif);
+  --novel-font-size: 18px;
+  --novel-line-height: 1.8;
+  --novel-paragraph-spacing: 1em;
+  --novel-text-color: var(--gray-11);
+  --novel-measure: 42ch;
+
+  /* ---------- 阅读主题（L2 Semantic，切换时仅改这一层） ---------- */
+  --novel-read-bg: var(--read-bg-day);
+  --novel-read-text: var(--read-text-day);
+  --novel-read-text-secondary: var(--read-text-secondary-day);
+
+  /* ---------- 阅读器交互区 ---------- */
+  --reader-tap-zone: 80px;
+  --reader-tap-center: 40%;
+  --reader-toolbar-height: 56px;
+  --reader-progress-height: 3px;
+  --reader-chapter-gap: var(--space-12);
+  --reader-paragraph-indent: 2em;
+  --reader-line-spacing-extra: 0.05em;
+
+  /* ---------- 阅读器字体族（L2，由 ReaderSettings 切换；03 §4.6） ---------- */
+  --reader-font-family: var(--font-serif);
+  --reader-font-family-serif: 'Noto Serif SC', serif;
+  --reader-font-family-song: 'SimSun', 'Noto Serif SC', serif;
+  --reader-font-family-hei: 'SimHei', 'Noto Sans SC', sans-serif;
+  --reader-font-family-kai: 'KaiTi', 'Noto Serif SC', serif;
+
+  /* ---------- 阅读器行距分档（03 §6.13 ReaderSettings） ---------- */
+  --reader-line-height-compact: 1.5;
+  --reader-line-height-standard: 1.8;
+  --reader-line-height-loose: 2.1;
+
+  /* ---------- 间距（13 档，4px 基准） ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* ---------- 圆角（8 档） ---------- */
+  --radius-none: 0;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ---------- 阴影（5 级） ---------- */
+  --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.08);
+  --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.10);
+  --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.12);
+  --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.16);
+
+  /* ---------- 阴影增强（发光、内阴影、按压） ---------- */
+  --sh-glow-brand: 0 0 12px rgba(24, 144, 255, 0.3);
+  --sh-glow-rose: 0 0 12px rgba(245, 34, 45, 0.2);
+  --sh-inner: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  --sh-pressed: inset 0 1px 4px rgba(0, 0, 0, 0.12);
+
+  /* ---------- 动效 ---------- */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --dur-instant: 90ms;
+  --dur-fast: 150ms;
+  --dur-normal: 240ms;
+  --dur-slow: 360ms;
+  --dur-deliberate: 540ms;
+
+  /* ---------- 过渡简写（组合 duration + easing） ---------- */
+  --transition-fade: opacity var(--dur-fast) var(--ease-standard);
+  --transition-slide: transform var(--dur-normal) var(--ease-decelerate);
+  --transition-spring: transform var(--dur-normal) var(--ease-spring);
+  --transition-expand: grid-template-rows var(--dur-normal) var(--ease-standard);
+
+  /* ---------- 层级 z-index（6 级） ---------- */
+  --z-index-base: 0;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1100;
+  --z-index-drawer: 1200;
+  --z-index-modal: 1300;
+  --z-index-toast: 1400;
+
+  /* ---------- 主题切换过渡 ---------- */
+  --theme-transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+  /* ---------- 图标尺寸 ---------- */
+  --icon-size-xs: 12px;
+  --icon-size-sm: 14px;
+  --icon-size-md: 16px;
+  --icon-size-lg: 20px;
+  --icon-size-xl: 24px;
+  --icon-size-2xl: 32px;
+
+  /* ---------- L2 Semantic · 图表色板（02 §4.1 / 04 §7.1） ---------- */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);  /* 暗色提亮为 #8AA2B8（见下方 dark 块，P9-D3） */
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+}
+
+/* ============================================================
+ * Dark Theme · 仅覆盖 L2 语义层与阴影
+ * 触发：[data-theme='dark']
+ * ============================================================ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-text-primary: var(--gray-1);
+  --color-text-secondary: var(--gray-5);
+  --color-text-tertiary: var(--gray-6);
+  --color-text-disabled: var(--gray-7);
+  --color-text-inverse: var(--gray-14);
+  --color-text-link: var(--brand-6);
+  --color-text-link-hover: var(--brand-5);
+
+  --color-bg-page: var(--gray-14);
+  --color-bg-surface: var(--gray-12);
+  --color-bg-subtle: var(--gray-11);
+  --color-bg-elevated: var(--gray-12);
+  --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+  --color-border-default: var(--gray-10);
+  --color-border-subtle: var(--gray-11);
+  --color-border-focus: var(--brand-6);
+  --color-border-strong: var(--gray-8);
+
+  --color-brand: var(--brand-6);
+  --color-brand-hover: var(--brand-7);
+  --color-brand-active: var(--brand-8);
+  --color-brand-bg: rgba(24, 144, 255, 0.16);
+  --color-brand-border: rgba(24, 144, 255, 0.32);
+
+  /* 品牌发光暗色重定义：跟随暗色主品牌色 #40A9FF（brand-6） */
+  --color-brand-glow-0: rgba(64, 169, 255, 0);
+  --color-brand-glow-20: rgba(64, 169, 255, 0.2);
+  --color-brand-glow-25: rgba(64, 169, 255, 0.25);
+  --color-brand-glow-30: rgba(64, 169, 255, 0.3);
+  --color-brand-glow-35: rgba(64, 169, 255, 0.35);
+  --color-brand-glow-40: rgba(64, 169, 255, 0.4);
+
+  --color-accent: var(--accent-6);
+  --color-accent-hover: var(--accent-7);
+  --color-accent-active: var(--accent-8);
+
+  /* 暖橙暗色提亮（03 §3.2.1：保证对比度） */
+  --color-accent-orange: var(--orange-4);
+  --color-accent-orange-hover: var(--orange-3);
+  --color-accent-orange-active: var(--orange-5);
+  --color-accent-orange-bg: rgba(240, 133, 40, 0.16);
+
+  /* 玫红暗色微调 */
+  --color-rose-bg: rgba(245, 34, 45, 0.16);
+
+  --color-bg-raised: var(--gray-11);
+  --color-bg-overlay: var(--gray-11);
+  --color-bg-tooltip: var(--gray-2);
+
+  --gradient-surface: var(--gradient-surface-dark);
+
+  --color-feedback-success: var(--success-2);
+  --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
+  --color-feedback-warning: var(--warning-2);
+  --color-feedback-warning-bg: rgba(250, 173, 20, 0.16);
+  --color-feedback-error: var(--error-2);
+  --color-feedback-error-bg: rgba(245, 34, 45, 0.16);
+  --color-feedback-info: var(--info-2);
+  --color-feedback-info-bg: rgba(24, 144, 255, 0.16);
+
+  --novel-text-color: var(--gray-3);
+
+  /* 阅读主题：系统暗色时默认指向夜间主题 */
+  --novel-read-bg: var(--read-bg-night);
+  --novel-read-text: var(--read-text-night);
+  --novel-read-text-secondary: var(--read-text-secondary-night);
+
+  /* 图表色板暗色覆盖：chart-3 提亮保证对比度（P9-D3 / 04 §7.1） */
+  --color-chart-3: #8AA2B8;
+
+  --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+  --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.44);
+  --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.48);
+  --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.52);
+  --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.56);
+}
+
+/* ============================================================
+ * 系统暗色模式自动触发（匹配用户 OS 偏好）
+ * ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --color-text-primary: var(--gray-1);
+    --color-text-secondary: var(--gray-5);
+    --color-text-tertiary: var(--gray-6);
+    --color-text-disabled: var(--gray-7);
+    --color-text-inverse: var(--gray-14);
+    --color-text-link: var(--brand-6);
+    --color-text-link-hover: var(--brand-5);
+
+    --color-bg-page: var(--gray-14);
+    --color-bg-surface: var(--gray-12);
+    --color-bg-subtle: var(--gray-11);
+    --color-bg-elevated: var(--gray-12);
+    --color-bg-mask: rgba(0, 0, 0, 0.65);
+
+    --color-border-default: var(--gray-10);
+    --color-border-subtle: var(--gray-11);
+    --color-border-focus: var(--brand-6);
+    --color-border-strong: var(--gray-8);
+
+    --color-brand: var(--brand-6);
+    --color-brand-hover: var(--brand-7);
+    --color-brand-active: var(--brand-8);
+    --color-brand-bg: rgba(24, 144, 255, 0.16);
+    --color-brand-border: rgba(24, 144, 255, 0.32);
+
+    --color-brand-glow-0: rgba(64, 169, 255, 0);
+    --color-brand-glow-20: rgba(64, 169, 255, 0.2);
+    --color-brand-glow-25: rgba(64, 169, 255, 0.25);
+    --color-brand-glow-30: rgba(64, 169, 255, 0.3);
+    --color-brand-glow-35: rgba(64, 169, 255, 0.35);
+    --color-brand-glow-40: rgba(64, 169, 255, 0.4);
+
+    --color-accent: var(--accent-6);
+    --color-accent-hover: var(--accent-7);
+    --color-accent-active: var(--accent-8);
+
+    --color-accent-orange: var(--orange-4);
+    --color-accent-orange-hover: var(--orange-3);
+    --color-accent-orange-active: var(--orange-5);
+    --color-accent-orange-bg: rgba(240, 133, 40, 0.16);
+
+--color-rose-bg: rgba(245, 34, 45, 0.16);
+
+  --color-bg-raised: var(--gray-11);
+  --color-bg-overlay: var(--gray-11);
+  --color-bg-tooltip: var(--gray-2);
+
+  --gradient-surface: var(--gradient-surface-dark);
+
+    --color-feedback-success: var(--success-2);
+    --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
+    --color-feedback-warning: var(--warning-2);
+    --color-feedback-warning-bg: rgba(250, 173, 20, 0.16);
+    --color-feedback-error: var(--error-2);
+    --color-feedback-error-bg: rgba(245, 34, 45, 0.16);
+    --color-feedback-info: var(--info-2);
+    --color-feedback-info-bg: rgba(24, 144, 255, 0.16);
+
+    --novel-text-color: var(--gray-3);
+
+    --novel-read-bg: var(--read-bg-night);
+    --novel-read-text: var(--read-text-night);
+    --novel-read-text-secondary: var(--read-text-secondary-night);
+
+    --color-chart-3: #8AA2B8;
+
+    --sh-1: 0 1px 2px 0 rgba(0, 0, 0, 0.40);
+    --sh-2: 0 2px 8px 0 rgba(0, 0, 0, 0.44);
+    --sh-3: 0 4px 12px 0 rgba(0, 0, 0, 0.48);
+    --sh-4: 0 8px 24px 0 rgba(0, 0, 0, 0.52);
+    --sh-5: 0 16px 48px 0 rgba(0, 0, 0, 0.56);
+  }
+}
+
+/* ---------- 高对比偏好（无障碍，03 §10） ---------- */
+@media (prefers-contrast: more) {
+  :root {
+    --color-border-default: var(--gray-7);
+    --color-border-subtle: var(--gray-6);
+  }
+  [data-theme='dark'] {
+    --color-border-default: var(--gray-5);
+    --color-border-subtle: var(--gray-6);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --color-border-default: var(--gray-5);
+      --color-border-subtle: var(--gray-6);
+    }
+  }
+}
+
+/* ---------- 减弱动效（无障碍，01 §10.3） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms;
+    --dur-fast: 0ms;
+    --dur-normal: 0ms;
+    --dur-slow: 0ms;
+    --dur-deliberate: 0ms;
+  }
+}

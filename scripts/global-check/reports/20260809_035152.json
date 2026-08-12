@@ -1,0 +1,1693 @@
+{
+  "timestamp": "2026-08-09T03:51:55+0000",
+  "backend": "http://localhost:8000",
+  "web": "http://localhost:5173",
+  "admin": "http://localhost:5174",
+  "summary": {
+    "total": 129,
+    "passed": 128,
+    "failed": 1,
+    "warned": 0,
+    "skipped": 0,
+    "passRate": 99.2
+  },
+  "results": [
+    {
+      "name": "GET /api/v1/b/audits/queue",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/audits/queue",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 12,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/audits/submit",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/audits/submit",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 5,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/audits/{item_id}/content",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/audits/1/content",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/audits/{item_id}/history",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/audits/1/history",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/auth/login",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/auth/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 10004,
+      "durationMs": 8,
+      "detail": "HTTP 200 code=10004（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/auth/logout",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/auth/logout",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/auth/me",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/auth/me",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/auth/refresh",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/auth/refresh",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 10002,
+      "durationMs": 3,
+      "detail": "HTTP 200 code=10002（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/chapters",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/chapters",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/chapters/batch-operate",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/chapters/batch-operate",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/chapters/{chapter_id}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/chapters/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PATCH /api/v1/b/chapters/{chapter_id}",
+      "method": "PATCH",
+      "url": "http://localhost:8000/api/v1/b/chapters/1",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "DELETE /api/v1/b/chapters/{chapter_id}",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/v1/b/chapters/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 30002,
+      "durationMs": 3,
+      "detail": "HTTP 200 code=30002（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/chapters/{chapter_id}/transition",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/chapters/1/transition",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/basic",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/basic",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/category-distribution",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/category-distribution",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/dashboard",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/dashboard",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 14,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/ranking-trend",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/ranking-trend",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/reading-funnel",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/reading-funnel",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/reading-heatmap",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/reading-heatmap",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/word-count-growth",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/word-count-growth",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/charts/workbench-trend",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/charts/workbench-trend",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/approve",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/approve",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/batch-operate",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/batch-operate",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/reshelve",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/reshelve",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/shelve",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/shelve",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/submit-audit",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/submit-audit",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels/{novel_id}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PUT /api/v1/b/novels/{novel_id}",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/v1/b/novels/1",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels/{novel_id}/audit-history",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels/1/audit-history",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels/{novel_id}/chapters",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels/1/chapters",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/novels/{novel_id}/chapters/reorder",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/novels/1/chapters/reorder",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels/{novel_id}/comments",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels/1/comments",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/novels/{novel_id}/stats",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/novels/1/stats",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/permissions",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/permissions",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/roles",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/roles",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/roles/{role_key}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/roles/super-admin",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PATCH /api/v1/b/roles/{role_key}",
+      "method": "PATCH",
+      "url": "http://localhost:8000/api/v1/b/roles/super-admin",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PUT /api/v1/b/roles/{role_key}/permissions",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/v1/b/roles/super-admin/permissions",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/royalties",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/royalties",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/royalties/batch-settle",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/royalties/batch-settle",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/royalties/mark-withdrawn",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/royalties/mark-withdrawn",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/rum/events",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/rum/events",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/rum/stats",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/rum/stats",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/sensitive-words",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/sensitive-words",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/sensitive-words",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/sensitive-words",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "DELETE /api/v1/b/sensitive-words",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/v1/b/sensitive-words",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/sensitive-words/check",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/sensitive-words/check",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/system/config",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/system/config",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PUT /api/v1/b/system/config",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/v1/b/system/config",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/users",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/users",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/b/users/{reader_id}/status",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/b/users/1/status",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 2,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/workbench/dashboard",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/workbench/dashboard",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 9,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/workbench/kpi",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/workbench/kpi",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/workbench/overviews",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/workbench/overviews",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/b/workbench/word-trend",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/b/workbench/word-trend",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/auth/login",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/auth/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 10004,
+      "durationMs": 371,
+      "detail": "HTTP 200 code=10004（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/auth/logout",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/auth/logout",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 23,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/auth/me",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/auth/me",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 10,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/auth/refresh",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/auth/refresh",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 10002,
+      "durationMs": 6,
+      "detail": "HTTP 200 code=10002（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/auth/register",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/auth/register",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 90001,
+      "durationMs": 9,
+      "detail": "HTTP 200 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/banners",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/banners",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 8,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/book-lists",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/book-lists",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 10,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 10,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/editor-picks",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/editor-picks",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 8,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/free-limited",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/free-limited",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/hot",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/hot",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 8,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/chapters",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/chapters",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/chapters/{chapter_id}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/chapters/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 9,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/comments",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/comments",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 8,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/books/{book_id}/comments",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/books/1/comments",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 7,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/detail",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/detail",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 7,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/books/{book_id}/rating",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/books/1/rating",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 5,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/rating-distribution",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/rating-distribution",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/books/{book_id}/related",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/books/1/related",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/books/{book_id}/rewards",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/books/1/rewards",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/categories",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/categories",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/comments/{comment_id}/like",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/comments/1/like",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/comments/{comment_id}/reply",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/comments/1/reply",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/discovery/home",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/discovery/home",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 18,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 9,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/badges",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/badges",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/bookshelf",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/bookshelf",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 9,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/me/bookshelf/batch-remove",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/me/bookshelf/batch-remove",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 5,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/me/bookshelf/{novel_id}",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/me/bookshelf/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 7,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "DELETE /api/v1/c/me/bookshelf/{novel_id}",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/v1/c/me/bookshelf/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 7,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/follows",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/follows",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 8,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/me/follows/read-all",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/me/follows/read-all",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 5,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/notes",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/notes",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/me/notes",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/me/notes",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 9,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PUT /api/v1/c/me/notes/{note_id}",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/v1/c/me/notes/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 90002,
+      "durationMs": 5,
+      "detail": "HTTP 200 code=90002（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "DELETE /api/v1/c/me/notes/{note_id}",
+      "method": "DELETE",
+      "url": "http://localhost:8000/api/v1/c/me/notes/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 90002,
+      "durationMs": 5,
+      "detail": "HTTP 200 code=90002（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "PUT /api/v1/c/me/profile",
+      "method": "PUT",
+      "url": "http://localhost:8000/api/v1/c/me/profile",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 3,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/reading-history",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/reading-history",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 7,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/me/reading-progress",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/me/reading-progress",
+      "status": "pass",
+      "httpCode": 422,
+      "bodyCode": 90001,
+      "durationMs": 4,
+      "detail": "HTTP 422 code=90001（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/rewards",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/rewards",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/stats/heatmap",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/stats/heatmap",
+      "status": "fail",
+      "httpCode": 500,
+      "bodyCode": 99999,
+      "durationMs": 23,
+      "detail": "服务异常 HTTP 500 code=99999: 服务异常，请稍后重试",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/stats/overview",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/stats/overview",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/me/stats/preferences",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/me/stats/preferences",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/payment/methods",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/payment/methods",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/rankings/{rank_type}",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/rankings/hot",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/recommendations",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/recommendations",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/reviews",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/reviews",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "POST /api/v1/c/rum",
+      "method": "POST",
+      "url": "http://localhost:8000/api/v1/c/rum",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "HTTP 200 code=0（写操作仅验证响应包裹，不断言业务结果）",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/search/books",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/search/books",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/search/hot",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/search/hot",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/search/suggestions",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/search/suggestions",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/tags",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/tags",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/topics",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/topics",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /api/v1/c/vip/plans",
+      "method": "GET",
+      "url": "http://localhost:8000/api/v1/c/vip/plans",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": 0,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /health",
+      "method": "GET",
+      "url": "http://localhost:8000/health",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 1,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "GET /metrics",
+      "method": "GET",
+      "url": "http://localhost:8000/metrics",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "api"
+      ]
+    },
+    {
+      "name": "C端页面 /",
+      "method": "GET",
+      "url": "http://localhost:5173/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 6,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /book/1",
+      "method": "GET",
+      "url": "http://localhost:5173/book/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 10,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /read/1/1",
+      "method": "GET",
+      "url": "http://localhost:5173/read/1/1",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /search",
+      "method": "GET",
+      "url": "http://localhost:5173/search",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 5,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /category",
+      "method": "GET",
+      "url": "http://localhost:5173/category",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /login",
+      "method": "GET",
+      "url": "http://localhost:5173/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "C端页面 /profile",
+      "method": "GET",
+      "url": "http://localhost:5173/profile",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /",
+      "method": "GET",
+      "url": "http://localhost:5174/",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 7,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /login",
+      "method": "GET",
+      "url": "http://localhost:5174/login",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /workbench",
+      "method": "GET",
+      "url": "http://localhost:5174/workbench",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 4,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /novel",
+      "method": "GET",
+      "url": "http://localhost:5174/novel",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 3,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /audit",
+      "method": "GET",
+      "url": "http://localhost:5174/audit",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 7,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /user",
+      "method": "GET",
+      "url": "http://localhost:5174/user",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    },
+    {
+      "name": "B端页面 /system",
+      "method": "GET",
+      "url": "http://localhost:5174/system",
+      "status": "pass",
+      "httpCode": 200,
+      "bodyCode": null,
+      "durationMs": 2,
+      "detail": "",
+      "tags": [
+        "page"
+      ]
+    }
+  ]
+}
