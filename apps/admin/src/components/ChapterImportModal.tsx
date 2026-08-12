@@ -11,6 +11,8 @@ import {
   Alert,
   Typography,
   Checkbox,
+  Drawer,
+  Tooltip,
 } from "antd";
 import {
   InboxOutlined,
@@ -21,7 +23,25 @@ import {
   LoadingOutlined,
   DeleteOutlined,
   ClearOutlined,
+  EyeOutlined,
+  HolderOutlined,
 } from "@ant-design/icons";
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { importChapters } from "@/api/chapter-api";
 import "./ChapterImportModal.css";
 
@@ -62,6 +82,43 @@ function estimateWords(text: string): number {
   return t.length;
 }
 
+interface SortableItemProps {
+  item: ImportFileItem;
+  importing: boolean;
+  children: React.ReactNode;
+}
+
+function SortableItem({ item, importing, children }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.uid });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform && { ...transform, scaleY: 1 }),
+    transition,
+    opacity: isDragging ? 0.5 : undefined,
+    cursor: isDragging ? "grabbing" : undefined,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`ci-item ci-item-${item.status}${isDragging ? " ci-item-dragging" : ""}`}
+      {...attributes}
+      {...(importing ? {} : listeners)}
+    >
+      <span className="ci-item-drag-handle" {...(importing ? {} : listeners)}>
+        <HolderOutlined style={{ fontSize: 14, color: "var(--color-text-tertiary)" }} />
+      </span>
+      {children}
+    </div>
+  );
+}
+
 export default function ChapterImportModal({
   open,
   novelId,
@@ -74,7 +131,40 @@ export default function ChapterImportModal({
   const [progress, setProgress] = useState(0);
   const [isVip, setIsVip] = useState(false);
   const [done, setDone] = useState(false);
+  const [previewItem, setPreviewItem] = useState<ImportFileItem | null>(null);
+  const [previewContent, setPreviewContent] = useState<string>("");
+  const [previewLoading, setPreviewLoading] = useState(false);
   const dirInputRef = useRef<HTMLInputElement | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+  );
+
+  const handleReorderEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    if (importing) return;
+    setFileList((prev) => {
+      const oldIndex = prev.findIndex((f) => f.uid === active.id);
+      const newIndex = prev.findIndex((f) => f.uid === over.id);
+      if (oldIndex < 0 || newIndex < 0) return prev;
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
+
+  const openPreview = async (item: ImportFileItem) => {
+    setPreviewItem(item);
+    setPreviewContent("");
+    setPreviewLoading(true);
+    try {
+      const text = await item.file.slice(0, MAX_PREVIEW_BYTES).text();
+      setPreviewContent(text);
+    } catch {
+      setPreviewContent(t("chapterImport:previewFailed"));
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
 
   const pendingCount = useMemo(
     () => fileList.filter((f) => f.status === "pending").length,
@@ -439,36 +529,61 @@ export default function ChapterImportModal({
 
       {fileList.length > 0 && (
         <div className="ci-list">
-          {fileList.map((f) => (
-            <div
-              className={`ci-item ci-item-${f.status}`}
-              key={f.uid}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            modifiers={[restrictToVerticalAxis]}
+            onDragEnd={handleReorderEnd}
+          >
+            <SortableContext
+              items={fileList.map((f) => f.uid)}
+              strategy={verticalListSortingStrategy}
             >
-              <span className="ci-item-icon">
-                <FileTextOutlined />
-              </span>
-              <div className="ci-item-main">
-                <div className="ci-item-name" title={f.name}>
-                  {f.name}
-                </div>
-                <div className="ci-item-meta">
-                  <span>{(f.wordCount ?? 0).toLocaleString()} {t("chapterImport:words")}</span>
-                  <span className="ci-item-dot">·</span>
-                  <span>{formatSize(f.size ?? 0)}</span>
-                </div>
-              </div>
-              <div className="ci-item-status">{statusTag(f)}</div>
-              <Button
-                className="ci-item-remove"
-                type="text"
-                size="small"
-                icon={<DeleteOutlined />}
-                onClick={() => handleRemove(f.uid)}
-                disabled={importing}
-                aria-label={t("chapterImport:remove")}
-              />
-            </div>
-          ))}
+              {fileList.map((f) => (
+                <SortableItem key={f.uid} item={f} importing={importing}>
+                  <span className="ci-item-icon">
+                    <FileTextOutlined />
+                  </span>
+                  <div className="ci-item-main">
+                    <div className="ci-item-name" title={f.name}>
+                      <Tooltip title={t("chapterImport:previewTooltip")}>
+                        <span
+                          className="ci-item-name-link"
+                          onClick={() => !importing && openPreview(f)}
+                        >
+                          {f.name}
+                        </span>
+                      </Tooltip>
+                    </div>
+                    <div className="ci-item-meta">
+                      <span>{(f.wordCount ?? 0).toLocaleString()} {t("chapterImport:words")}</span>
+                      <span className="ci-item-dot">·</span>
+                      <span>{formatSize(f.size ?? 0)}</span>
+                    </div>
+                  </div>
+                  <div className="ci-item-status">{statusTag(f)}</div>
+                  <Button
+                    className="ci-item-preview"
+                    type="text"
+                    size="small"
+                    icon={<EyeOutlined />}
+                    onClick={() => openPreview(f)}
+                    disabled={importing}
+                    aria-label={t("chapterImport:preview")}
+                  />
+                  <Button
+                    className="ci-item-remove"
+                    type="text"
+                    size="small"
+                    icon={<DeleteOutlined />}
+                    onClick={() => handleRemove(f.uid)}
+                    disabled={importing}
+                    aria-label={t("chapterImport:remove")}
+                  />
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
         </div>
       )}
 
@@ -509,6 +624,37 @@ export default function ChapterImportModal({
           message={t("chapterImport:doneMessage", { count: successCount })}
         />
       )}
+
+      <Drawer
+        title={previewItem?.name}
+        open={!!previewItem}
+        onClose={() => setPreviewItem(null)}
+        width={480}
+        extra={
+          <Button size="small" onClick={() => setPreviewItem(null)}>
+            {t("chapterImport:cancel")}
+          </Button>
+        }
+      >
+        {previewLoading ? (
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <LoadingOutlined spin style={{ fontSize: 24 }} />
+          </div>
+        ) : (
+          <div className="ci-preview-content">
+            <div className="ci-preview-meta">
+              <span>{(previewItem?.wordCount ?? 0).toLocaleString()} {t("chapterImport:words")}</span>
+              <span className="ci-item-dot">·</span>
+              <span>{previewItem ? formatSize(previewItem.size) : ""}</span>
+            </div>
+            <div className="ci-preview-body">
+              {previewContent
+                ? previewContent
+                : t("chapterImport:previewFailed")}
+            </div>
+          </div>
+        )}
+      </Drawer>
     </Modal>
   );
 }

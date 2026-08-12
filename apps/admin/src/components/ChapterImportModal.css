@@ -161,14 +161,22 @@
   padding: 8px 12px;
   animation: ci-item-in 0.25s var(--ease-decelerate, ease-out) both;
   transition: background 0.15s ease;
+  touch-action: manipulation;
 }
 
 .ci-item:hover {
   background: var(--color-bg-subtle, #f5f5f9);
 }
 
+.ci-item-dragging {
+  background: var(--color-bg-subtle, #f5f5f9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+  position: relative;
+}
+
 .ci-item + .ci-item {
-  border-top: 1px solid var(--color-border-subtle, #e2e2e7);
+  border-top: 1px solid var(--color-bg-elevated, transparent);
 }
 
 @keyframes ci-item-in {
@@ -279,6 +287,86 @@
 
 .ci-error-list li {
   margin-bottom: 2px;
+}
+
+/* 拖拽手柄 */
+.ci-item-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 34px;
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: manipulation;
+  opacity: 0.25;
+  transition: opacity 0.15s ease;
+}
+
+.ci-item:hover .ci-item-drag-handle {
+  opacity: 0.6;
+}
+
+.ci-item-dragging .ci-item-drag-handle {
+  cursor: grabbing;
+}
+
+/* 文件名预览链接 */
+.ci-item-name-link {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.ci-item-name-link:hover {
+  color: var(--color-brand, #1677ff);
+}
+
+/* 预览按钮 */
+.ci-item-preview {
+  opacity: 0.35;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.ci-item:hover .ci-item-preview,
+.ci-item-preview:focus-visible {
+  opacity: 1;
+}
+
+.ci-item-preview:hover {
+  color: var(--color-brand, #1677ff) !important;
+}
+
+/* 预览 Drawer 正文 */
+.ci-preview-content {
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-text-primary, #1a1a2e);
+}
+
+.ci-preview-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-tertiary, #999);
+  margin-bottom: var(--space-4, 16px);
+  padding-bottom: var(--space-3, 12px);
+  border-bottom: 1px solid var(--color-border-subtle, #e2e2e7);
+}
+
+.ci-preview-body {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 200px;
+  max-height: 480px;
+  overflow-y: auto;
+  background: var(--color-bg-subtle, #f9f9fc);
+  border-radius: var(--radius-md, 8px);
+  padding: var(--space-4, 16px);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-secondary, #666);
 }
 
 /* ---------- 减弱动效适配 ---------- */
