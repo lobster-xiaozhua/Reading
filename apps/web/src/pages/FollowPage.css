@@ -263,6 +263,11 @@
   line-height: 1;
   border-radius: var(--radius-full);
   box-shadow: var(--sh-1);
+  animation: followDotPulse 2s var(--ease-smooth) infinite;
+}
+@keyframes followDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 var(--color-brand-glow-30); }
+  50% { box-shadow: 0 0 0 5px var(--color-brand-glow-0); }
 }
 
 /* ---------- 信息区 ---------- */
@@ -454,6 +459,9 @@
   .follow-page__skeleton-cover,
   .follow-page__skeleton-line,
   .follow-page__item {
+    animation: none;
+  }
+  .follow-page__dot {
     animation: none;
   }
 }

@@ -103,13 +103,24 @@
   padding: var(--space-6);
   background: linear-gradient(
     135deg,
-    var(--color-accent-orange-bg),
-    var(--color-bg-surface)
+    var(--color-accent-orange-bg) 0%,
+    var(--color-bg-surface) 100%
   );
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   box-shadow: var(--sh-1);
   overflow: hidden;
+}
+/* 权益卡顶部光泽条 */
+.vip-page__benefit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-orange), var(--color-accent), var(--color-accent-orange));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .vip-page__benefit-title {
   display: flex;
@@ -437,13 +448,40 @@
   font-size: var(--font-size-body);
   font-weight: var(--font-weight-semibold);
   cursor: pointer;
-  transition: background var(--dur-fast) var(--ease-standard);
+  transition: background var(--dur-fast) var(--ease-standard), transform var(--dur-instant) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-standard);
+  box-shadow: 0 2px 8px var(--color-shadow-orange-soft);
+  position: relative;
+  overflow: hidden;
+}
+/* 光泽扫过 */
+.vip-page__submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s var(--ease-decelerate);
+  pointer-events: none;
+}
+.vip-page__submit-btn:hover::before {
+  left: 120%;
 }
 .vip-page__submit-btn:hover {
   background: var(--color-accent-orange-hover);
+  box-shadow: 0 4px 16px var(--color-shadow-orange-strong);
+  transform: translateY(-1px);
 }
 .vip-page__submit-btn:active {
   background: var(--color-accent-orange-active);
+  transform: scale(0.97) translateY(0);
 }
 
 /* ---------- 响应式 ---------- */
