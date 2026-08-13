@@ -68,7 +68,7 @@ interface ChapterImportModalProps {
   open: boolean;
   novelId: string;
   onCancel: () => void;
-  onDone: (importedCount: number) => void;
+  onDone: (importedCount: number, newIds: string[]) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -317,6 +317,7 @@ export default function ChapterImportModal({
     }, 400);
 
     let imported = 0;
+    let newIds: string[] = [];
     try {
       const res = await importChapters(
         novelId,
@@ -329,6 +330,7 @@ export default function ChapterImportModal({
       );
       const errorByFile = new Map(res.errors.map((e) => [e.filename, e.reason] as const));
       imported = successByFile.size;
+      newIds = res.list.map((x) => x.id);
       setFileList((prev) =>
         prev.map((p) => {
           const ok = successByFile.get(p.name);
@@ -358,7 +360,7 @@ export default function ChapterImportModal({
     setProgress(100);
     setImporting(false);
     setDone(true);
-    if (imported > 0) onDone(imported);
+    if (imported > 0) onDone(imported, newIds);
   };
 
   const statusTag = (f: ImportFileItem) => {

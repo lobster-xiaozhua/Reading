@@ -1,0 +1,848 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: business-flow.diag-highlight.ts >> diag highlight
+- Location: checks/business-flow.diag-highlight.ts:3:5
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+```
+Error: page.waitForTimeout: Test timeout of 30000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - link "跳到主内容" [ref=e5] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e6]:
+    - complementary "主导航" [ref=e7]:
+      - generic [ref=e8]:
+        - generic [ref=e9]: Atlas 运营后台
+        - menu [ref=e16]:
+          - menuitem "dashboard 工作台" [ref=e17] [cursor=pointer]:
+            - img "dashboard" [ref=e18]
+            - generic [ref=e21]: 工作台
+          - menuitem "book 内容管理" [ref=e22] [cursor=pointer]:
+            - img "book" [ref=e23]
+            - generic [ref=e26]: 内容管理
+          - menuitem "team 用户管理" [ref=e27] [cursor=pointer]:
+            - img "team" [ref=e28]
+            - generic [ref=e31]: 用户管理
+          - menuitem "setting 系统设置" [ref=e32] [cursor=pointer]:
+            - img "setting" [ref=e33]
+            - generic [ref=e36]: 系统设置
+          - menuitem "dollar 稿费管理" [ref=e37] [cursor=pointer]:
+            - img "dollar" [ref=e38]
+            - generic [ref=e41]: 稿费管理
+    - generic [ref=e42]:
+      - banner [ref=e43]:
+        - button "折叠侧边栏" [expanded] [ref=e44] [cursor=pointer]:
+          - img "menu-fold" [ref=e45]
+        - navigation:
+          - list
+        - generic [ref=e48]:
+          - button "全局搜索" [ref=e49] [cursor=pointer]:
+            - img "search" [ref=e50]
+            - generic [ref=e53]: 搜索功能 / 作品 / 用户
+            - generic [ref=e54]: Ctrl K
+          - button "通知" [ref=e55] [cursor=pointer]:
+            - img "bell" [ref=e56]
+          - button "个人中心" [ref=e59] [cursor=pointer]:
+            - img "user" [ref=e61]
+            - generic [ref=e64]: 管理员
+      - tablist "页面标签" [ref=e65]:
+        - generic:
+          - tablist
+          - generic:
+            - generic:
+              - tabpanel
+      - main [ref=e66]:
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - navigation [ref=e72]:
+              - list [ref=e73]:
+                - listitem [ref=e74]:
+                  - generic [ref=e75]: 内容管理
+                - listitem [ref=e76]: /
+                - listitem [ref=e77]:
+                  - generic [ref=e78]: 作品管理
+                - listitem [ref=e80]: /
+                - listitem [ref=e81]:
+                  - generic [ref=e82]: 凡人修仙传
+                - listitem [ref=e84]: /
+                - listitem [ref=e85]:
+                  - generic [ref=e86]: 章节管理
+            - generic [ref=e87]:
+              - button "返回" [ref=e88] [cursor=pointer]:
+                - img "arrow-left" [ref=e90]
+              - heading "《凡人修仙传》章节管理" [level=2] [ref=e94]
+              - generic [ref=e96]:
+                - button "upload 导入章节" [active] [ref=e98] [cursor=pointer]:
+                  - img "upload" [ref=e100]
+                  - generic [ref=e103]: 导入章节
+                - button "plus 新建章节" [ref=e105] [cursor=pointer]:
+                  - img "plus" [ref=e107]
+                  - generic [ref=e111]: 新建章节
+          - generic [ref=e113]:
+            - generic [ref=e115]:
+              - text: 总字数：
+              - strong [ref=e116]: 10,920
+            - generic [ref=e118]:
+              - text: 章节数：
+              - strong [ref=e119]: "29"
+            - generic [ref=e121]:
+              - text: 连载状态：
+              - generic [ref=e122]: 已完结
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - img "search" [ref=e126]
+              - textbox "搜索" [ref=e129]:
+                - /placeholder: 搜索章节标题
+            - generic [ref=e131]:
+              - generic [ref=e132]: filter.status
+              - combobox [ref=e133]:
+                - option "全部" [selected]
+                - option "草稿"
+                - option "待审核"
+                - option "已发布"
+                - option "已下架"
+            - radiogroup "segmented control" [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e137] [cursor=pointer]:
+                  - radio "按序号" [checked]
+                  - generic "按序号" [ref=e138]
+                - generic [ref=e139] [cursor=pointer]:
+                  - radio "按更新时间"
+                  - generic "按更新时间" [ref=e140]
+          - generic [ref=e143]:
+            - generic [ref=e145]:
+              - table [ref=e147]:
+                - rowgroup [ref=e158]:
+                  - row [ref=e159]:
+                    - columnheader "Select all" [ref=e160]:
+                      - checkbox "Select all" [ref=e164] [cursor=pointer]
+                    - columnheader [ref=e166]
+                    - columnheader "序号" [ref=e167]
+                    - columnheader "章节标题" [ref=e168]
+                    - columnheader "字数" [ref=e169]
+                    - columnheader "状态" [ref=e170]
+                    - columnheader "VIP" [ref=e171]
+                    - columnheader "更新时间" [ref=e172]
+                    - columnheader "操作" [ref=e173]
+              - table [ref=e175]:
+                - rowgroup [ref=e186]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - checkbox
+                  - button "holder 1 第1章 凡人修仙传开篇 form 1,800 已发布 2026/8/6 13:01:44 eye 预览正文 more 更多" [ref=e187] [cursor=pointer]:
+                    - cell [ref=e188]:
+                      - checkbox [ref=e191]
+                    - cell [ref=e193]:
+                      - img "holder" [ref=e194]
+                    - cell "1" [ref=e197]
+                    - cell [ref=e198]:
+                      - generic [ref=e199]:
+                        - text: 第1章 凡人修仙传开篇
+                        - img "form" [ref=e200]
+                    - cell "1,800" [ref=e204]
+                    - cell "已发布" [ref=e205]
+                    - cell [ref=e207]
+                    - cell "2026/8/6 13:01:44" [ref=e208]
+                    - cell [ref=e209]:
+                      - generic [ref=e210]:
+                        - button "eye 预览正文" [ref=e212]:
+                          - img "eye" [ref=e214]
+                          - generic [ref=e217]: 预览正文
+                        - button "more 更多" [ref=e219]:
+                          - img "more" [ref=e221]
+                          - generic [ref=e224]: 更多
+                  - button "holder 2 第2章 凡人修仙传开篇 form 1,950 已发布 2026/8/6 13:01:44 eye 预览正文 more 更多" [ref=e225] [cursor=pointer]:
+                    - cell [ref=e226]:
+                      - checkbox [ref=e229]
+                    - cell [ref=e231]:
+                      - img "holder" [ref=e232]
+                    - cell "2" [ref=e235]
+                    - cell [ref=e236]:
+                      - generic [ref=e237]:
+                        - text: 第2章 凡人修仙传开篇
+                        - img "form" [ref=e238]
+                    - cell "1,950" [ref=e242]
+                    - cell "已发布" [ref=e243]
+                    - cell [ref=e245]
+                    - cell "2026/8/6 13:01:44" [ref=e246]
+                    - cell [ref=e247]:
+                      - generic [ref=e248]:
+                        - button "eye 预览正文" [ref=e250]:
+                          - img "eye" [ref=e252]
+                          - generic [ref=e255]: 预览正文
+                        - button "more 更多" [ref=e257]:
+                          - img "more" [ref=e259]
+                          - generic [ref=e262]: 更多
+                  - button "holder 3 第3章 凡人修仙传开篇 form 2,100 已发布 VIP 2026/8/6 13:01:44 eye 预览正文 more 更多" [ref=e263] [cursor=pointer]:
+                    - cell [ref=e264]:
+                      - checkbox [ref=e267]
+                    - cell [ref=e269]:
+                      - img "holder" [ref=e270]
+                    - cell "3" [ref=e273]
+                    - cell [ref=e274]:
+                      - generic [ref=e275]:
+                        - text: 第3章 凡人修仙传开篇
+                        - img "form" [ref=e276]
+                    - cell "2,100" [ref=e280]
+                    - cell "已发布" [ref=e281]
+                    - cell "VIP" [ref=e283]
+                    - cell "2026/8/6 13:01:44" [ref=e285]
+                    - cell [ref=e286]:
+                      - generic [ref=e287]:
+                        - button "eye 预览正文" [ref=e289]:
+                          - img "eye" [ref=e291]
+                          - generic [ref=e294]: 预览正文
+                        - button "more 更多" [ref=e296]:
+                          - img "more" [ref=e298]
+                          - generic [ref=e301]: 更多
+                  - button "holder 4 第4章 凡人修仙传开篇 form 2,250 已发布 VIP 2026/8/6 13:01:44 eye 预览正文 more 更多" [ref=e302] [cursor=pointer]:
+                    - cell [ref=e303]:
+                      - checkbox [ref=e306]
+                    - cell [ref=e308]:
+                      - img "holder" [ref=e309]
+                    - cell "4" [ref=e312]
+                    - cell [ref=e313]:
+                      - generic [ref=e314]:
+                        - text: 第4章 凡人修仙传开篇
+                        - img "form" [ref=e315]
+                    - cell "2,250" [ref=e319]
+                    - cell "已发布" [ref=e320]
+                    - cell "VIP" [ref=e322]
+                    - cell "2026/8/6 13:01:44" [ref=e324]
+                    - cell [ref=e325]:
+                      - generic [ref=e326]:
+                        - button "eye 预览正文" [ref=e328]:
+                          - img "eye" [ref=e330]
+                          - generic [ref=e333]: 预览正文
+                        - button "more 更多" [ref=e335]:
+                          - img "more" [ref=e337]
+                          - generic [ref=e340]: 更多
+                  - button "holder 5 第5章 凡人修仙传开篇 form 2,400 已发布 VIP 2026/8/6 13:01:44 eye 预览正文 more 更多" [ref=e341] [cursor=pointer]:
+                    - cell [ref=e342]:
+                      - checkbox [ref=e345]
+                    - cell [ref=e347]:
+                      - img "holder" [ref=e348]
+                    - cell "5" [ref=e351]
+                    - cell [ref=e352]:
+                      - generic [ref=e353]:
+                        - text: 第5章 凡人修仙传开篇
+                        - img "form" [ref=e354]
+                    - cell "2,400" [ref=e358]
+                    - cell "已发布" [ref=e359]
+                    - cell "VIP" [ref=e361]
+                    - cell "2026/8/6 13:01:44" [ref=e363]
+                    - cell [ref=e364]:
+                      - generic [ref=e365]:
+                        - button "eye 预览正文" [ref=e367]:
+                          - img "eye" [ref=e369]
+                          - generic [ref=e372]: 预览正文
+                        - button "more 更多" [ref=e374]:
+                          - img "more" [ref=e376]
+                          - generic [ref=e379]: 更多
+                  - button "holder 6 e2e导入第二章 form 29 草稿 2026/8/13 04:09:49 eye 预览正文 more 更多" [ref=e380] [cursor=pointer]:
+                    - cell [ref=e381]:
+                      - checkbox [ref=e384]
+                    - cell [ref=e386]:
+                      - img "holder" [ref=e387]
+                    - cell "6" [ref=e390]
+                    - cell [ref=e391]:
+                      - generic [ref=e392]:
+                        - text: e2e导入第二章
+                        - img "form" [ref=e393]
+                    - cell "29" [ref=e397]
+                    - cell "草稿" [ref=e398]
+                    - cell [ref=e400]
+                    - cell "2026/8/13 04:09:49" [ref=e401]
+                    - cell [ref=e402]:
+                      - generic [ref=e403]:
+                        - button "eye 预览正文" [ref=e405]:
+                          - img "eye" [ref=e407]
+                          - generic [ref=e410]: 预览正文
+                        - button "more 更多" [ref=e412]:
+                          - img "more" [ref=e414]
+                          - generic [ref=e417]: 更多
+                  - button "holder 7 e2e导入第一章 form 29 草稿 2026/8/13 04:09:49 eye 预览正文 more 更多" [ref=e418] [cursor=pointer]:
+                    - cell [ref=e419]:
+                      - checkbox [ref=e422]
+                    - cell [ref=e424]:
+                      - img "holder" [ref=e425]
+                    - cell "7" [ref=e428]
+                    - cell [ref=e429]:
+                      - generic [ref=e430]:
+                        - text: e2e导入第一章
+                        - img "form" [ref=e431]
+                    - cell "29" [ref=e435]
+                    - cell "草稿" [ref=e436]
+                    - cell [ref=e438]
+                    - cell "2026/8/13 04:09:49" [ref=e439]
+                    - cell [ref=e440]:
+                      - generic [ref=e441]:
+                        - button "eye 预览正文" [ref=e443]:
+                          - img "eye" [ref=e445]
+                          - generic [ref=e448]: 预览正文
+                        - button "more 更多" [ref=e450]:
+                          - img "more" [ref=e452]
+                          - generic [ref=e455]: 更多
+                  - button "holder 8 e2e导入第二章_1 form 29 草稿 2026/8/13 04:10:33 eye 预览正文 more 更多" [ref=e456] [cursor=pointer]:
+                    - cell [ref=e457]:
+                      - checkbox [ref=e460]
+                    - cell [ref=e462]:
+                      - img "holder" [ref=e463]
+                    - cell "8" [ref=e466]
+                    - cell [ref=e467]:
+                      - generic [ref=e468]:
+                        - text: e2e导入第二章_1
+                        - img "form" [ref=e469]
+                    - cell "29" [ref=e473]
+                    - cell "草稿" [ref=e474]
+                    - cell [ref=e476]
+                    - cell "2026/8/13 04:10:33" [ref=e477]
+                    - cell [ref=e478]:
+                      - generic [ref=e479]:
+                        - button "eye 预览正文" [ref=e481]:
+                          - img "eye" [ref=e483]
+                          - generic [ref=e486]: 预览正文
+                        - button "more 更多" [ref=e488]:
+                          - img "more" [ref=e490]
+                          - generic [ref=e493]: 更多
+                  - button "holder 9 e2e导入第一章_1 form 29 草稿 2026/8/13 04:10:33 eye 预览正文 more 更多" [ref=e494] [cursor=pointer]:
+                    - cell [ref=e495]:
+                      - checkbox [ref=e498]
+                    - cell [ref=e500]:
+                      - img "holder" [ref=e501]
+                    - cell "9" [ref=e504]
+                    - cell [ref=e505]:
+                      - generic [ref=e506]:
+                        - text: e2e导入第一章_1
+                        - img "form" [ref=e507]
+                    - cell "29" [ref=e511]
+                    - cell "草稿" [ref=e512]
+                    - cell [ref=e514]
+                    - cell "2026/8/13 04:10:33" [ref=e515]
+                    - cell [ref=e516]:
+                      - generic [ref=e517]:
+                        - button "eye 预览正文" [ref=e519]:
+                          - img "eye" [ref=e521]
+                          - generic [ref=e524]: 预览正文
+                        - button "more 更多" [ref=e526]:
+                          - img "more" [ref=e528]
+                          - generic [ref=e531]: 更多
+                  - button "holder 10 e2e导入第二章_2 form 29 草稿 2026/8/13 04:12:16 eye 预览正文 more 更多" [ref=e532] [cursor=pointer]:
+                    - cell [ref=e533]:
+                      - checkbox [ref=e536]
+                    - cell [ref=e538]:
+                      - img "holder" [ref=e539]
+                    - cell "10" [ref=e542]
+                    - cell [ref=e543]:
+                      - generic [ref=e544]:
+                        - text: e2e导入第二章_2
+                        - img "form" [ref=e545]
+                    - cell "29" [ref=e549]
+                    - cell "草稿" [ref=e550]
+                    - cell [ref=e552]
+                    - cell "2026/8/13 04:12:16" [ref=e553]
+                    - cell [ref=e554]:
+                      - generic [ref=e555]:
+                        - button "eye 预览正文" [ref=e557]:
+                          - img "eye" [ref=e559]
+                          - generic [ref=e562]: 预览正文
+                        - button "more 更多" [ref=e564]:
+                          - img "more" [ref=e566]
+                          - generic [ref=e569]: 更多
+                  - button "holder 11 e2e导入第一章_2 form 29 草稿 2026/8/13 04:12:16 eye 预览正文 more 更多" [ref=e570] [cursor=pointer]:
+                    - cell [ref=e571]:
+                      - checkbox [ref=e574]
+                    - cell [ref=e576]:
+                      - img "holder" [ref=e577]
+                    - cell "11" [ref=e580]
+                    - cell [ref=e581]:
+                      - generic [ref=e582]:
+                        - text: e2e导入第一章_2
+                        - img "form" [ref=e583]
+                    - cell "29" [ref=e587]
+                    - cell "草稿" [ref=e588]
+                    - cell [ref=e590]
+                    - cell "2026/8/13 04:12:16" [ref=e591]
+                    - cell [ref=e592]:
+                      - generic [ref=e593]:
+                        - button "eye 预览正文" [ref=e595]:
+                          - img "eye" [ref=e597]
+                          - generic [ref=e600]: 预览正文
+                        - button "more 更多" [ref=e602]:
+                          - img "more" [ref=e604]
+                          - generic [ref=e607]: 更多
+                  - button "holder 12 e2e导入第二章_3 form 29 草稿 2026/8/13 04:12:46 eye 预览正文 more 更多" [ref=e608] [cursor=pointer]:
+                    - cell [ref=e609]:
+                      - checkbox [ref=e612]
+                    - cell [ref=e614]:
+                      - img "holder" [ref=e615]
+                    - cell "12" [ref=e618]
+                    - cell [ref=e619]:
+                      - generic [ref=e620]:
+                        - text: e2e导入第二章_3
+                        - img "form" [ref=e621]
+                    - cell "29" [ref=e625]
+                    - cell "草稿" [ref=e626]
+                    - cell [ref=e628]
+                    - cell "2026/8/13 04:12:46" [ref=e629]
+                    - cell [ref=e630]:
+                      - generic [ref=e631]:
+                        - button "eye 预览正文" [ref=e633]:
+                          - img "eye" [ref=e635]
+                          - generic [ref=e638]: 预览正文
+                        - button "more 更多" [ref=e640]:
+                          - img "more" [ref=e642]
+                          - generic [ref=e645]: 更多
+                  - button "holder 13 e2e导入第一章_3 form 29 草稿 2026/8/13 04:12:46 eye 预览正文 more 更多" [ref=e646] [cursor=pointer]:
+                    - cell [ref=e647]:
+                      - checkbox [ref=e650]
+                    - cell [ref=e652]:
+                      - img "holder" [ref=e653]
+                    - cell "13" [ref=e656]
+                    - cell [ref=e657]:
+                      - generic [ref=e658]:
+                        - text: e2e导入第一章_3
+                        - img "form" [ref=e659]
+                    - cell "29" [ref=e663]
+                    - cell "草稿" [ref=e664]
+                    - cell [ref=e666]
+                    - cell "2026/8/13 04:12:46" [ref=e667]
+                    - cell [ref=e668]:
+                      - generic [ref=e669]:
+                        - button "eye 预览正文" [ref=e671]:
+                          - img "eye" [ref=e673]
+                          - generic [ref=e676]: 预览正文
+                        - button "more 更多" [ref=e678]:
+                          - img "more" [ref=e680]
+                          - generic [ref=e683]: 更多
+                  - button "holder 14 diag章A form 12 草稿 2026/8/13 04:16:18 eye 预览正文 more 更多" [ref=e684] [cursor=pointer]:
+                    - cell [ref=e685]:
+                      - checkbox [ref=e688]
+                    - cell [ref=e690]:
+                      - img "holder" [ref=e691]
+                    - cell "14" [ref=e694]
+                    - cell [ref=e695]:
+                      - generic [ref=e696]:
+                        - text: diag章A
+                        - img "form" [ref=e697]
+                    - cell "12" [ref=e701]
+                    - cell "草稿" [ref=e702]
+                    - cell [ref=e704]
+                    - cell "2026/8/13 04:16:18" [ref=e705]
+                    - cell [ref=e706]:
+                      - generic [ref=e707]:
+                        - button "eye 预览正文" [ref=e709]:
+                          - img "eye" [ref=e711]
+                          - generic [ref=e714]: 预览正文
+                        - button "more 更多" [ref=e716]:
+                          - img "more" [ref=e718]
+                          - generic [ref=e721]: 更多
+                  - button "holder 15 diag章A_1 form 12 草稿 2026/8/13 04:17:28 eye 预览正文 more 更多" [ref=e722] [cursor=pointer]:
+                    - cell [ref=e723]:
+                      - checkbox [ref=e726]
+                    - cell [ref=e728]:
+                      - img "holder" [ref=e729]
+                    - cell "15" [ref=e732]
+                    - cell [ref=e733]:
+                      - generic [ref=e734]:
+                        - text: diag章A_1
+                        - img "form" [ref=e735]
+                    - cell "12" [ref=e739]
+                    - cell "草稿" [ref=e740]
+                    - cell [ref=e742]
+                    - cell "2026/8/13 04:17:28" [ref=e743]
+                    - cell [ref=e744]:
+                      - generic [ref=e745]:
+                        - button "eye 预览正文" [ref=e747]:
+                          - img "eye" [ref=e749]
+                          - generic [ref=e752]: 预览正文
+                        - button "more 更多" [ref=e754]:
+                          - img "more" [ref=e756]
+                          - generic [ref=e759]: 更多
+                  - button "holder 16 diag章A_2 form 12 草稿 2026/8/13 04:19:19 eye 预览正文 more 更多" [ref=e760] [cursor=pointer]:
+                    - cell [ref=e761]:
+                      - checkbox [ref=e764]
+                    - cell [ref=e766]:
+                      - img "holder" [ref=e767]
+                    - cell "16" [ref=e770]
+                    - cell [ref=e771]:
+                      - generic [ref=e772]:
+                        - text: diag章A_2
+                        - img "form" [ref=e773]
+                    - cell "12" [ref=e777]
+                    - cell "草稿" [ref=e778]
+                    - cell [ref=e780]
+                    - cell "2026/8/13 04:19:19" [ref=e781]
+                    - cell [ref=e782]:
+                      - generic [ref=e783]:
+                        - button "eye 预览正文" [ref=e785]:
+                          - img "eye" [ref=e787]
+                          - generic [ref=e790]: 预览正文
+                        - button "more 更多" [ref=e792]:
+                          - img "more" [ref=e794]
+                          - generic [ref=e797]: 更多
+                  - button "holder 17 diag章A_3 form 12 草稿 2026/8/13 04:19:55 eye 预览正文 more 更多" [ref=e798] [cursor=pointer]:
+                    - cell [ref=e799]:
+                      - checkbox [ref=e802]
+                    - cell [ref=e804]:
+                      - img "holder" [ref=e805]
+                    - cell "17" [ref=e808]
+                    - cell [ref=e809]:
+                      - generic [ref=e810]:
+                        - text: diag章A_3
+                        - img "form" [ref=e811]
+                    - cell "12" [ref=e815]
+                    - cell "草稿" [ref=e816]
+                    - cell [ref=e818]
+                    - cell "2026/8/13 04:19:55" [ref=e819]
+                    - cell [ref=e820]:
+                      - generic [ref=e821]:
+                        - button "eye 预览正文" [ref=e823]:
+                          - img "eye" [ref=e825]
+                          - generic [ref=e828]: 预览正文
+                        - button "more 更多" [ref=e830]:
+                          - img "more" [ref=e832]
+                          - generic [ref=e835]: 更多
+                  - button "holder 18 diag章A_4 form 12 草稿 2026/8/13 04:21:15 eye 预览正文 more 更多" [ref=e836] [cursor=pointer]:
+                    - cell [ref=e837]:
+                      - checkbox [ref=e840]
+                    - cell [ref=e842]:
+                      - img "holder" [ref=e843]
+                    - cell "18" [ref=e846]
+                    - cell [ref=e847]:
+                      - generic [ref=e848]:
+                        - text: diag章A_4
+                        - img "form" [ref=e849]
+                    - cell "12" [ref=e853]
+                    - cell "草稿" [ref=e854]
+                    - cell [ref=e856]
+                    - cell "2026/8/13 04:21:15" [ref=e857]
+                    - cell [ref=e858]:
+                      - generic [ref=e859]:
+                        - button "eye 预览正文" [ref=e861]:
+                          - img "eye" [ref=e863]
+                          - generic [ref=e866]: 预览正文
+                        - button "more 更多" [ref=e868]:
+                          - img "more" [ref=e870]
+                          - generic [ref=e873]: 更多
+                  - button "holder 19 diag章A_5 form 12 草稿 2026/8/13 04:21:47 eye 预览正文 more 更多" [ref=e874] [cursor=pointer]:
+                    - cell [ref=e875]:
+                      - checkbox [ref=e878]
+                    - cell [ref=e880]:
+                      - img "holder" [ref=e881]
+                    - cell "19" [ref=e884]
+                    - cell [ref=e885]:
+                      - generic [ref=e886]:
+                        - text: diag章A_5
+                        - img "form" [ref=e887]
+                    - cell "12" [ref=e891]
+                    - cell "草稿" [ref=e892]
+                    - cell [ref=e894]
+                    - cell "2026/8/13 04:21:47" [ref=e895]
+                    - cell [ref=e896]:
+                      - generic [ref=e897]:
+                        - button "eye 预览正文" [ref=e899]:
+                          - img "eye" [ref=e901]
+                          - generic [ref=e904]: 预览正文
+                        - button "more 更多" [ref=e906]:
+                          - img "more" [ref=e908]
+                          - generic [ref=e911]: 更多
+                  - button "holder 20 diag章A_6 form 12 草稿 2026/8/13 04:22:51 eye 预览正文 more 更多" [ref=e912] [cursor=pointer]:
+                    - cell [ref=e913]:
+                      - checkbox [ref=e916]
+                    - cell [ref=e918]:
+                      - img "holder" [ref=e919]
+                    - cell "20" [ref=e922]
+                    - cell [ref=e923]:
+                      - generic [ref=e924]:
+                        - text: diag章A_6
+                        - img "form" [ref=e925]
+                    - cell "12" [ref=e929]
+                    - cell "草稿" [ref=e930]
+                    - cell [ref=e932]
+                    - cell "2026/8/13 04:22:51" [ref=e933]
+                    - cell [ref=e934]:
+                      - generic [ref=e935]:
+                        - button "eye 预览正文" [ref=e937]:
+                          - img "eye" [ref=e939]
+                          - generic [ref=e942]: 预览正文
+                        - button "more 更多" [ref=e944]:
+                          - img "more" [ref=e946]
+                          - generic [ref=e949]: 更多
+                  - button "holder 21 diag章A_7 form 12 草稿 2026/8/13 04:23:59 eye 预览正文 more 更多" [ref=e950] [cursor=pointer]:
+                    - cell [ref=e951]:
+                      - checkbox [ref=e954]
+                    - cell [ref=e956]:
+                      - img "holder" [ref=e957]
+                    - cell "21" [ref=e960]
+                    - cell [ref=e961]:
+                      - generic [ref=e962]:
+                        - text: diag章A_7
+                        - img "form" [ref=e963]
+                    - cell "12" [ref=e967]
+                    - cell "草稿" [ref=e968]
+                    - cell [ref=e970]
+                    - cell "2026/8/13 04:23:59" [ref=e971]
+                    - cell [ref=e972]:
+                      - generic [ref=e973]:
+                        - button "eye 预览正文" [ref=e975]:
+                          - img "eye" [ref=e977]
+                          - generic [ref=e980]: 预览正文
+                        - button "more 更多" [ref=e982]:
+                          - img "more" [ref=e984]
+                          - generic [ref=e987]: 更多
+                  - button "holder 22 diag章A_8 form 12 草稿 2026/8/13 04:25:27 eye 预览正文 more 更多" [ref=e988] [cursor=pointer]:
+                    - cell [ref=e989]:
+                      - checkbox [ref=e992]
+                    - cell [ref=e994]:
+                      - img "holder" [ref=e995]
+                    - cell "22" [ref=e998]
+                    - cell [ref=e999]:
+                      - generic [ref=e1000]:
+                        - text: diag章A_8
+                        - img "form" [ref=e1001]
+                    - cell "12" [ref=e1005]
+                    - cell "草稿" [ref=e1006]
+                    - cell [ref=e1008]
+                    - cell "2026/8/13 04:25:27" [ref=e1009]
+                    - cell [ref=e1010]:
+                      - generic [ref=e1011]:
+                        - button "eye 预览正文" [ref=e1013]:
+                          - img "eye" [ref=e1015]
+                          - generic [ref=e1018]: 预览正文
+                        - button "more 更多" [ref=e1020]:
+                          - img "more" [ref=e1022]
+                          - generic [ref=e1025]: 更多
+                  - button "holder 23 diag章A_9 form 12 草稿 2026/8/13 04:27:23 eye 预览正文 more 更多" [ref=e1026] [cursor=pointer]:
+                    - cell [ref=e1027]:
+                      - checkbox [ref=e1030]
+                    - cell [ref=e1032]:
+                      - img "holder" [ref=e1033]
+                    - cell "23" [ref=e1036]
+                    - cell [ref=e1037]:
+                      - generic [ref=e1038]:
+                        - text: diag章A_9
+                        - img "form" [ref=e1039]
+                    - cell "12" [ref=e1043]
+                    - cell "草稿" [ref=e1044]
+                    - cell [ref=e1046]
+                    - cell "2026/8/13 04:27:23" [ref=e1047]
+                    - cell [ref=e1048]:
+                      - generic [ref=e1049]:
+                        - button "eye 预览正文" [ref=e1051]:
+                          - img "eye" [ref=e1053]
+                          - generic [ref=e1056]: 预览正文
+                        - button "more 更多" [ref=e1058]:
+                          - img "more" [ref=e1060]
+                          - generic [ref=e1063]: 更多
+                  - button "holder 24 diag章A_10 form 12 草稿 2026/8/13 04:27:58 eye 预览正文 more 更多" [ref=e1064] [cursor=pointer]:
+                    - cell [ref=e1065]:
+                      - checkbox [ref=e1068]
+                    - cell [ref=e1070]:
+                      - img "holder" [ref=e1071]
+                    - cell "24" [ref=e1074]
+                    - cell [ref=e1075]:
+                      - generic [ref=e1076]:
+                        - text: diag章A_10
+                        - img "form" [ref=e1077]
+                    - cell "12" [ref=e1081]
+                    - cell "草稿" [ref=e1082]
+                    - cell [ref=e1084]
+                    - cell "2026/8/13 04:27:58" [ref=e1085]
+                    - cell [ref=e1086]:
+                      - generic [ref=e1087]:
+                        - button "eye 预览正文" [ref=e1089]:
+                          - img "eye" [ref=e1091]
+                          - generic [ref=e1094]: 预览正文
+                        - button "more 更多" [ref=e1096]:
+                          - img "more" [ref=e1098]
+                          - generic [ref=e1101]: 更多
+                  - button "holder 25 typetest form 8 草稿 2026/8/13 04:28:30 eye 预览正文 more 更多" [ref=e1102] [cursor=pointer]:
+                    - cell [ref=e1103]:
+                      - checkbox [ref=e1106]
+                    - cell [ref=e1108]:
+                      - img "holder" [ref=e1109]
+                    - cell "25" [ref=e1112]
+                    - cell [ref=e1113]:
+                      - generic [ref=e1114]:
+                        - text: typetest
+                        - img "form" [ref=e1115]
+                    - cell "8" [ref=e1119]
+                    - cell "草稿" [ref=e1120]
+                    - cell [ref=e1122]
+                    - cell "2026/8/13 04:28:30" [ref=e1123]
+                    - cell [ref=e1124]:
+                      - generic [ref=e1125]:
+                        - button "eye 预览正文" [ref=e1127]:
+                          - img "eye" [ref=e1129]
+                          - generic [ref=e1132]: 预览正文
+                        - button "more 更多" [ref=e1134]:
+                          - img "more" [ref=e1136]
+                          - generic [ref=e1139]: 更多
+                  - button "holder 26 diag章A_11 form 12 草稿 2026/8/13 04:29:53 eye 预览正文 more 更多" [ref=e1140] [cursor=pointer]:
+                    - cell [ref=e1141]:
+                      - checkbox [ref=e1144]
+                    - cell [ref=e1146]:
+                      - img "holder" [ref=e1147]
+                    - cell "26" [ref=e1150]
+                    - cell [ref=e1151]:
+                      - generic [ref=e1152]:
+                        - text: diag章A_11
+                        - img "form" [ref=e1153]
+                    - cell "12" [ref=e1157]
+                    - cell "草稿" [ref=e1158]
+                    - cell [ref=e1160]
+                    - cell "2026/8/13 04:29:53" [ref=e1161]
+                    - cell [ref=e1162]:
+                      - generic [ref=e1163]:
+                        - button "eye 预览正文" [ref=e1165]:
+                          - img "eye" [ref=e1167]
+                          - generic [ref=e1170]: 预览正文
+                        - button "more 更多" [ref=e1172]:
+                          - img "more" [ref=e1174]
+                          - generic [ref=e1177]: 更多
+                  - button "holder 27 diag章A_12 form 12 草稿 2026/8/13 04:30:19 eye 预览正文 more 更多" [ref=e1178] [cursor=pointer]:
+                    - cell [ref=e1179]:
+                      - checkbox [ref=e1182]
+                    - cell [ref=e1184]:
+                      - img "holder" [ref=e1185]
+                    - cell "27" [ref=e1188]
+                    - cell [ref=e1189]:
+                      - generic [ref=e1190]:
+                        - text: diag章A_12
+                        - img "form" [ref=e1191]
+                    - cell "12" [ref=e1195]
+                    - cell "草稿" [ref=e1196]
+                    - cell [ref=e1198]
+                    - cell "2026/8/13 04:30:19" [ref=e1199]
+                    - cell [ref=e1200]:
+                      - generic [ref=e1201]:
+                        - button "eye 预览正文" [ref=e1203]:
+                          - img "eye" [ref=e1205]
+                          - generic [ref=e1208]: 预览正文
+                        - button "more 更多" [ref=e1210]:
+                          - img "more" [ref=e1212]
+                          - generic [ref=e1215]: 更多
+                  - button "holder 28 diag章A_13 form 12 草稿 2026/8/13 04:31:39 eye 预览正文 more 更多" [ref=e1216] [cursor=pointer]:
+                    - cell [ref=e1217]:
+                      - checkbox [ref=e1220]
+                    - cell [ref=e1222]:
+                      - img "holder" [ref=e1223]
+                    - cell "28" [ref=e1226]
+                    - cell [ref=e1227]:
+                      - generic [ref=e1228]:
+                        - text: diag章A_13
+                        - img "form" [ref=e1229]
+                    - cell "12" [ref=e1233]
+                    - cell "草稿" [ref=e1234]
+                    - cell [ref=e1236]
+                    - cell "2026/8/13 04:31:39" [ref=e1237]
+                    - cell [ref=e1238]:
+                      - generic [ref=e1239]:
+                        - button "eye 预览正文" [ref=e1241]:
+                          - img "eye" [ref=e1243]
+                          - generic [ref=e1246]: 预览正文
+                        - button "more 更多" [ref=e1248]:
+                          - img "more" [ref=e1250]
+                          - generic [ref=e1253]: 更多
+                  - button "holder 29 diag章A_14 form 12 草稿 2026/8/13 04:36:12 eye 预览正文 more 更多" [ref=e1254] [cursor=pointer]:
+                    - cell [ref=e1255]:
+                      - checkbox [ref=e1258]
+                    - cell [ref=e1260]:
+                      - img "holder" [ref=e1261]
+                    - cell "29" [ref=e1264]
+                    - cell [ref=e1265]:
+                      - generic [ref=e1266]:
+                        - text: diag章A_14
+                        - img "form" [ref=e1267]
+                    - cell "12" [ref=e1271]
+                    - cell "草稿" [ref=e1272]
+                    - cell [ref=e1274]
+                    - cell "2026/8/13 04:36:12" [ref=e1275]
+                    - cell [ref=e1276]:
+                      - generic [ref=e1277]:
+                        - button "eye 预览正文" [ref=e1279]:
+                          - img "eye" [ref=e1281]
+                          - generic [ref=e1284]: 预览正文
+                        - button "more 更多" [ref=e1286]:
+                          - img "more" [ref=e1288]
+                          - generic [ref=e1291]: 更多
+            - list [ref=e1292]:
+              - listitem [ref=e1293]: 共 29 章
+              - listitem "上一页" [ref=e1294]:
+                - button [disabled] [ref=e1295]:
+                  - img "left" [ref=e1296]
+              - listitem "1" [ref=e1299] [cursor=pointer]
+              - listitem "下一页" [ref=e1301]:
+                - button [disabled] [ref=e1302]:
+                  - img "right" [ref=e1303]
+              - listitem [ref=e1306]:
+                - generic "页码" [ref=e1307] [cursor=pointer]:
+                  - generic [ref=e1309]:
+                    - combobox "页码" [ref=e1311]
+                    - generic "50 条/页" [ref=e1312]
+          - status [ref=e1313]
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '@playwright/test';
+  2  | const ADMIN = 'http://localhost:5174';
+  3  | test('diag highlight', async ({ page, request }) => {
+  4  |   const res = await request.post('http://localhost:8000/api/v1/b/auth/login', {
+  5  |     data: { username: 'admin', password: 'admin123' },
+  6  |   });
+  7  |   const token = (await res.json()).data?.token ?? '';
+  8  |   const logs: string[] = [];
+  9  |   page.on('console', (m) => { const tx = m.text(); if (tx.includes('import-done') || tx.includes('hl-')) logs.push(tx); });
+  10 |   page.on('console', (m) => { if (m.text().includes('hl-miss')) console.log('BROWSER:', m.text()); });
+  11 |   await page.addInitScript((t) => {
+  12 |     localStorage.setItem('atlas-admin-auth', JSON.stringify({
+  13 |       state: { token: t, refreshToken: t, expiresAt: Date.now() + 3600000,
+  14 |         user: { id: '1', username: 'admin', nickname: '管理员', roles: ['super-admin'], permissions: ['novel.list','chapter.list','chapter.create'] },
+  15 |         isAuthenticated: true }, version: 0 }));
+  16 |   }, token);
+  17 |   await page.goto(`${ADMIN}/chapter/2`, { waitUntil: 'domcontentloaded' });
+  18 |   await expect(page.locator('.b-chapter-list-page')).toBeAttached({ timeout: 30000 });
+  19 |   await page.getByRole('button', { name: /导入章节/ }).click();
+  20 |   await expect(page.locator('.ant-modal-title', { hasText: '批量导入章节' })).toBeVisible();
+  21 |   const input = page.locator('input[type=file]').last();
+  22 |   await input.setInputFiles([
+  23 |     { name: 'diag章A.txt', mimeType: 'text/plain', buffer: Buffer.from('诊断A正文内容测试内容。') },
+  24 |   ]);
+  25 |   await page.getByRole('button', { name: /开始导入/ }).click();
+  26 |   await expect(page.locator('.ci-item-status').first()).toContainText('成功', { timeout: 30000 });
+  27 |   await page.locator('.ant-modal-footer .ant-btn').first().click();
+  28 |   // 等新章节行出现在表格中（长等待）
+> 29 |   await page.waitForTimeout(8000);
+     |              ^ Error: page.waitForTimeout: Test timeout of 30000ms exceeded.
+  30 |   const rowData = await page.locator('tr').evaluateAll((trs) =>
+  31 |     trs.filter(t => t.textContent?.includes('diag章')).map(t => ({
+  32 |       cls: t.getAttribute('class'),
+  33 |       txt: t.textContent?.slice(0, 60)
+  34 |     })));
+  35 |   console.log('DIAG_ROWS:', JSON.stringify(rowData, null, 1));
+  36 |   const hl = await page.locator('.b-chapter-row-highlight').count();
+  37 |   console.log('HIGHLIGHT COUNT:', hl);
+  38 |   console.log('LOGTAIL:', JSON.stringify(logs.slice(-8)));
+  39 | });
+  40 | 
+```

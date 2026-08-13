@@ -263,6 +263,7 @@ export default function ChapterListPage() {
   );
   const [sortBy, setSortBy] = useState<"index" | "updatedAt">("index");
   const [dataSource, setDataSource] = useState<BChapterDetail[]>([]);
+  const highlightRef = useRef<Set<string>>(new Set());
   const [totalWords, setTotalWords] = useState(0);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -510,8 +511,15 @@ export default function ChapterListPage() {
     }
   };
 
-  const handleImportDone = (importedCount: number) => {
+  const handleImportDone = (
+    importedCount: number,
+    newIds: string[] = [],
+  ) => {
     message.success(t("chapter:message.importComplete", { count: importedCount }));
+    if (newIds.length > 0) {
+      highlightRef.current = new Set(newIds);
+      window.setTimeout(() => { highlightRef.current = new Set(); }, 6000);
+    }
     loadData();
   };
 
@@ -910,6 +918,10 @@ export default function ChapterListPage() {
               size="small"
               scroll={{ x: 1200, y: 600 }}
               components={{ body: { row: DraggableRow } } as any}
+              rowClassName={(record) => {
+                const rid = String(record.id ?? "");
+                return highlightRef.current.has(rid) ? "b-chapter-row-highlight" : "";
+              }}
               pagination={{
                 current: page,
                 pageSize,
