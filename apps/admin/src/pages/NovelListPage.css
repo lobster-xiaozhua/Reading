@@ -18,7 +18,7 @@
 /* 表格行 hover 增强 */
 .ant-table-row:hover {
   background: var(--color-brand-bg) !important;
-  box-shadow: 0 1px 4px var(--color-brand-bg);
+  box-shadow: inset 3px 0 0 var(--color-brand);
 }
 
 /* 表格单元格交互 */
