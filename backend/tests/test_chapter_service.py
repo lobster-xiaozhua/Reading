@@ -288,8 +288,8 @@ class TestChapterServiceImport:
         db_session.add(novel)
         await db_session.flush()
         files = [
-            _FakeUpload("第一章.txt", "这是第一章正文内容".encode("utf-8")),
-            _FakeUpload("第二章.txt", "这是第二章正文内容，稍长一些。".encode("utf-8")),
+            _FakeUpload("第一章.txt", "这是第一章正文内容".encode()),
+            _FakeUpload("第二章.txt", "这是第二章正文内容，稍长一些。".encode()),
         ]
         result = await svc.import_chapters(novel.id, files)
         assert len(result["list"]) == 2
@@ -318,7 +318,7 @@ class TestChapterServiceImport:
         novel = Novel(title="BOM作品", status="draft")
         db_session.add(novel)
         await db_session.flush()
-        content = b"\xef\xbb\xbf" + "带BOM的正文".encode("utf-8")
+        content = b"\xef\xbb\xbf" + "带BOM的正文".encode()
         result = await svc.import_chapters(novel.id, [_FakeUpload("bom章.txt", content)])
         assert len(result["list"]) == 1
         assert result["errors"] == []
@@ -339,7 +339,7 @@ class TestChapterServiceImport:
         db_session.add(novel)
         await db_session.flush()
         files = [
-            _FakeUpload("正常.txt", "正常正文".encode("utf-8")),
+            _FakeUpload("正常.txt", "正常正文".encode()),
             _FakeUpload("图片.png", b"not a txt"),
             _FakeUpload("空的.txt", b""),
             _FakeUpload("坏编码.txt", b"\xff\xfe\x00\x80"),
@@ -382,7 +382,7 @@ class TestChapterServiceImport:
         await db_session.flush()
         svc = ChapterService(db_session, redis_client)
         await redis_client.set(CacheKeys.chapters(novel.id), "[]")
-        await svc.import_chapters(novel.id, [_FakeUpload("缓存章.txt", "正文内容".encode("utf-8"))])
+        await svc.import_chapters(novel.id, [_FakeUpload("缓存章.txt", "正文内容".encode())])
         assert await redis_client.get(CacheKeys.chapters(novel.id)) is None
 
 
@@ -436,7 +436,7 @@ class TestChapterServiceImportWithSplit:
         novel = Novel(title="切分作品", status="draft")
         db_session.add(novel)
         await db_session.flush()
-        content = "第一章 开篇\n这是第一章正文。\n\n第2章 发展中\n第二章正文内容。\n".encode("utf-8")
+        content = "第一章 开篇\n这是第一章正文。\n\n第2章 发展中\n第二章正文内容。\n".encode()
         result = await svc.import_chapters(
             novel.id, [_FakeUpload("整卷.txt", content)], split=True,
         )
@@ -451,8 +451,8 @@ class TestChapterServiceImportWithSplit:
         novel = Novel(title="重名切分", status="draft")
         db_session.add(novel)
         await db_session.flush()
-        f1 = _FakeUpload("卷一.txt", "第一章 开篇\n正文一。\n".encode("utf-8"))
-        f2 = _FakeUpload("卷二.txt", "第一章 开篇\n正文二。\n".encode("utf-8"))
+        f1 = _FakeUpload("卷一.txt", "第一章 开篇\n正文一。\n".encode())
+        f2 = _FakeUpload("卷二.txt", "第一章 开篇\n正文二。\n".encode())
         result = await svc.import_chapters(novel.id, [f1, f2], split=True)
         titles = [item["title"] for item in result["list"]]
         assert titles == ["第一章 开篇", "第一章 开篇_1"]

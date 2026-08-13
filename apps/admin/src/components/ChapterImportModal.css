@@ -7,49 +7,49 @@
 .ci-modal-title {
   display: flex;
   align-items: center;
-  gap: var(--space-2, 10px);
+  gap: var(--space-2);
 }
 
 .ci-modal-title-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-md, 8px);
+  width: var(--space-8);
+  height: var(--space-8);
+  border-radius: var(--radius-md);
   font-size: 15px;
-  color: var(--color-brand, #1677ff);
-  background: var(--color-brand-bg, #e6f4ff);
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
 }
 
 /* ---------- 提示条 ---------- */
 .ci-tip {
-  margin-bottom: var(--space-3, 16px);
-  border-radius: var(--radius-md, 8px);
+  margin-bottom: var(--space-3);
+  border-radius: var(--radius-md);
 }
 
 .ci-tip .ant-alert-message {
   font-size: 13px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
 }
 
 /* ---------- 拖拽区 ---------- */
 .ci-dragger {
-  margin-bottom: var(--space-3, 16px);
+  margin-bottom: var(--space-3);
 }
 
 .ci-dragger .ant-upload-drag {
-  padding: 28px 0;
-  border-radius: var(--radius-lg, 12px);
-  border: 1.5px dashed var(--color-border-strong, #d0d0da);
-  background: var(--color-bg-subtle, #f9f9fc);
+  padding: var(--space-8) 0;
+  border-radius: var(--radius-lg);
+  border: 1.5px dashed var(--color-border-strong);
+  background: var(--color-bg-subtle);
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .ci-dragger .ant-upload-drag:hover,
 .ci-dragger .ant-upload-drag-hover {
-  border-color: var(--color-brand, #1677ff);
-  background: var(--color-brand-bg, #f0f7ff);
+  border-color: var(--color-brand);
+  background: var(--color-brand-bg);
 }
 
 .ci-dragger .ant-upload-drag:hover .ci-dragger-icon {
@@ -58,8 +58,8 @@
 
 .ci-dragger-icon {
   font-size: 42px;
-  color: var(--color-brand, #1677ff);
-  margin-bottom: 10px;
+  color: var(--color-brand);
+  margin-bottom: var(--space-3);
   transition: transform 0.2s var(--ease-decelerate, ease-out);
   display: inline-block;
 }
@@ -67,13 +67,13 @@
 .ci-dragger-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-primary, #1a1a2e);
+  color: var(--color-text-primary);
   margin-bottom: 4px;
 }
 
 .ci-dragger-desc {
   font-size: 13px;
-  color: var(--color-text-tertiary, #999);
+  color: var(--color-text-tertiary);
   margin-bottom: 12px;
 }
 
@@ -86,7 +86,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-2, 8px);
+  margin-bottom: var(--space-2);
   padding: 0 2px;
 }
 
@@ -98,8 +98,8 @@
 .ci-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2, 8px);
-  margin-bottom: var(--space-3, 12px);
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .ci-stat {
@@ -107,15 +107,15 @@
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 10px 8px;
-  background: var(--color-bg-subtle, #f9f9fc);
-  border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-border-subtle, #e2e2e7);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
   transition: border-color 0.2s ease;
 }
 
 .ci-stat:hover {
-  border-color: var(--color-border-strong, #d0d0da);
+  border-color: var(--color-border-strong);
 }
 
 .ci-stat-value {
@@ -125,39 +125,39 @@
   line-height: 1.2;
 }
 
-.ci-stat-success { color: var(--color-feedback-success, #52c41a); }
-.ci-stat-error { color: var(--color-feedback-error, #ff4d4f); }
-.ci-stat-pending { color: var(--color-brand, #1677ff); }
-.ci-stat-words { color: var(--color-text-secondary, #666); }
+.ci-stat-success { color: var(--color-feedback-success); }
+.ci-stat-error { color: var(--color-feedback-error); }
+.ci-stat-pending { color: var(--color-brand); }
+.ci-stat-words { color: var(--color-text-secondary); }
 
 .ci-stat-label {
   font-size: 12px;
-  color: var(--color-text-tertiary, #999);
+  color: var(--color-text-tertiary);
 }
 
 /* ---------- 文件列表 ---------- */
 .ci-list {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid var(--color-border-default, #d3d3da);
-  border-radius: var(--radius-md, 8px);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
   padding: 4px 0;
-  background: var(--color-bg-surface, #fff);
+  background: var(--color-bg-surface);
 }
 
 .ci-list::-webkit-scrollbar { width: 6px; }
 .ci-list::-webkit-scrollbar-thumb {
-  background: var(--color-border-default, #d3d3da);
+  background: var(--color-border-default);
   border-radius: 3px;
 }
 .ci-list::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-strong, #c8c8d4);
+  background: var(--color-border-strong);
 }
 
 .ci-item {
   display: flex;
   align-items: center;
-  gap: var(--space-2, 10px);
+  gap: var(--space-2);
   padding: 8px 12px;
   animation: ci-item-in 0.25s var(--ease-decelerate, ease-out) both;
   transition: background 0.15s ease;
@@ -165,12 +165,12 @@
 }
 
 .ci-item:hover {
-  background: var(--color-bg-subtle, #f5f5f9);
+  background: var(--color-bg-subtle);
 }
 
 .ci-item-dragging {
-  background: var(--color-bg-subtle, #f5f5f9);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: var(--color-bg-subtle);
+  box-shadow: 0 4px 16px var(--color-shadow-soft-10);
   z-index: 2;
   position: relative;
 }
@@ -191,27 +191,27 @@
   width: 34px;
   height: 34px;
   flex-shrink: 0;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   font-size: 16px;
-  color: var(--color-brand, #1677ff);
-  background: var(--color-brand-bg, #e6f4ff);
+  color: var(--color-brand);
+  background: var(--color-brand-bg);
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 /* 各状态下的图标徽章配色 */
 .ci-item-success .ci-item-icon {
-  color: var(--color-feedback-success, #52c41a);
-  background: var(--success-1, #f6ffed);
+  color: var(--color-feedback-success);
+  background: var(--success-1);
 }
 
 .ci-item-error .ci-item-icon {
-  color: var(--color-feedback-error, #ff4d4f);
-  background: var(--error-1, #fff1f0);
+  color: var(--color-feedback-error);
+  background: var(--error-1);
 }
 
 .ci-item-importing .ci-item-icon {
-  color: var(--color-info, #1890ff);
-  background: var(--info-1, #e6f7ff);
+  color: var(--color-info);
+  background: var(--info-1);
 }
 
 .ci-item-main {
@@ -222,26 +222,26 @@
 .ci-item-name {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-text-primary, #1a1a2e);
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .ci-item-error .ci-item-name {
-  color: var(--color-feedback-error, #ff4d4f);
+  color: var(--color-feedback-error);
 }
 
 .ci-item-meta {
   font-size: 12px;
-  color: var(--color-text-tertiary, #999);
+  color: var(--color-text-tertiary);
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
   margin-top: 2px;
 }
 
 .ci-item-dot {
-  color: var(--color-border-strong, #c8c8d4);
+  color: var(--color-border-strong);
 }
 
 .ci-item-status {
@@ -260,22 +260,22 @@
 }
 
 .ci-item-remove:hover {
-  color: var(--color-feedback-error, #ff4d4f) !important;
+  color: var(--color-feedback-error) !important;
 }
 
 /* ---------- 结果区 ---------- */
 .ci-result-alert {
-  margin-top: var(--space-3, 12px);
-  border-radius: var(--radius-md, 8px);
+  margin-top: var(--space-3);
+  border-radius: var(--radius-md);
 }
 
 .ci-progress {
-  margin-top: var(--space-3, 12px);
+  margin-top: var(--space-3);
 }
 
 .ci-progress-label {
   font-size: 13px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   margin-bottom: 4px;
 }
 
@@ -318,7 +318,7 @@
 }
 
 .ci-item-name-link:hover {
-  color: var(--color-brand, #1677ff);
+  color: var(--color-brand);
 }
 
 /* 预览按钮 */
@@ -333,7 +333,7 @@
 }
 
 .ci-item-preview:hover {
-  color: var(--color-brand, #1677ff) !important;
+  color: var(--color-brand) !important;
 }
 
 /* 预览 Drawer 正文 */
@@ -341,17 +341,17 @@
   padding: 0;
   font-size: 14px;
   line-height: 1.8;
-  color: var(--color-text-primary, #1a1a2e);
+  color: var(--color-text-primary);
 }
 
 .ci-preview-meta {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: 12px;
-  color: var(--color-text-tertiary, #999);
-  margin-bottom: var(--space-4, 16px);
-  padding-bottom: var(--space-3, 12px);
-  border-bottom: 1px solid var(--color-border-subtle, #e2e2e7);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .ci-preview-body {
@@ -360,13 +360,13 @@
   min-height: 200px;
   max-height: 480px;
   overflow-y: auto;
-  background: var(--color-bg-subtle, #f9f9fc);
-  border-radius: var(--radius-md, 8px);
-  padding: var(--space-4, 16px);
+  background: var(--color-bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
   font-family: var(--font-mono, ui-monospace, monospace);
   font-size: 13px;
   line-height: 1.7;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
 }
 
 /* ---------- 减弱动效适配 ---------- */

@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg);
   background:
     radial-gradient(
       circle at top right,
@@ -24,7 +24,7 @@
 
 .b-brand-result__halo {
   position: absolute;
-  inset: auto auto -120px -120px;
+  inset: auto auto calc(var(--space-32) * -1) calc(var(--space-32) * -1);
   width: 360px;
   height: 360px;
   border-radius: 50%;

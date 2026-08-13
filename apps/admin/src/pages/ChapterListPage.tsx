@@ -1147,7 +1147,7 @@ export default function ChapterListPage() {
             </span>
             <span className="b-create-count-req">
               {(contentValue ?? "").replace(/\s+/g, "").length < 100 && (
-                <span style={{ color: "var(--color-feedback-error, #ff4d4f)" }}>
+                <span style={{ color: "var(--color-feedback-error)" }}>
                   {t("chapter:newChapter.contentMin")}
                 </span>
               )}
