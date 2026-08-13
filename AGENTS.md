@@ -62,6 +62,29 @@ bash scripts/deploy-test.sh --no-monitor # 跳过巡检
 bash scripts/deploy-test.sh --quick      # 仅启动服务，跳过构建/测试/巡检
 bash scripts/deploy-test.sh --selfcheck  # 部署后启动真实流量自检服务并跑一次全量
 ```
+
+### Docker 部署
+
+```bash
+cp .env.example .env                   # 配置 JWT_SECRET（>=32 字符）
+openssl rand -hex 32                   # 生成强随机密钥
+
+docker compose up -d --build           # 构建并启动（前端 + 后端）
+docker compose logs -f backend         # 查看后端日志
+docker compose logs -f frontend        # 查看前端日志
+docker compose down                    # 停止（保留数据卷）
+```
+
+Docker 架构：
+- `backend/` — FastAPI (gunicorn 多 worker)，SQLite 持久化在 `atlas-data` 卷，上传文件在 `atlas-uploads` 卷
+- `frontend/` — Nginx 多阶段构建，80 端口 = C 端读者站，8080 端口 = B 端管理后台
+- 生产入口自动执行 `alembic upgrade head` 迁移（entrypoint 脚本）
+- 数据卷不挂载时容器重建不丢数据（SQLite + 封面图）
+
+```bash
+# 开发模式容器（自动建表 + 种子数据 + docs 开放）
+DEBUG=true docker compose up -d --build --env-file .env
+```
 ```
 
 ## 后端开发

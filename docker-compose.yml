@@ -1,100 +1,52 @@
-# Atlas Novel Reader 全栈容器编排
-# 用法: docker compose up -d --build
-# 说明: ES 服务通过 profile 隔离，默认不启动（可用 docker compose --profile es up 启用）
-name: novel-reader
+# ============================================================
+# docker compose — Atlas 小说阅读平台
+#   前端 (nginx):  80 = C 端, 8080 = B 端
+#   后端 (fastapi): 8000 (仅容器内)
+#   数据库: SQLite 持久化卷
+# 用法:
+#   docker compose up -d --build
+#   docker compose logs -f backend
+#   docker compose down
+# ============================================================
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: novel-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-novel_root_pw}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-novel}
-      MYSQL_USER: ${MYSQL_USER:-novel}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-novel_pw}
-    command: >
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --slow-query-log=1
-      --slow-query-log-file=/var/log/mysql/slow.log
-      --long-query-time=0.5
-      --log-queries-not-using-indexes=0
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./logs/mysql:/var/log/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD:-novel_root_pw}"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    restart: unless-stopped
-
-  redis:
-    image: redis:7-alpine
-    container_name: novel-redis
-    command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-    restart: unless-stopped
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
-    container_name: novel-es
-    profiles: ["es"]
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    volumes:
-      - es_data:/usr/share/elasticsearch/data
-    ports:
-      - "9200:9200"
-
   backend:
     build:
-      context: .
-      dockerfile: infra/backend.Dockerfile
-    container_name: novel-backend
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: atlas-backend
+    restart: unless-stopped
     environment:
-      DEBUG: "false"
-      DB_URL: mysql+asyncmy://${MYSQL_USER:-novel}:${MYSQL_PASSWORD:-novel_pw}@mysql:3306/${MYSQL_DATABASE:-novel}
-      REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ${JWT_SECRET:?请通过环境变量设置强随机 JWT_SECRET（>=32 字节）}
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    restart: unless-stopped
+      - DEBUG=${DEBUG:-false}
+      - JWT_SECRET=${JWT_SECRET:?set JWT_SECRET (>=32 chars) in .env}
+      - DB_URL=sqlite+aiosqlite:////data/novel.db
+      - CORS_ORIGINS=${CORS_ORIGINS:-["*"]}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    volumes:
+      - atlas-data:/data
+      - atlas-uploads:/app/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    expose:
+      - "8000"
 
-  web:
+  frontend:
     build:
       context: .
-      dockerfile: infra/web.Dockerfile
-    container_name: novel-web
-    ports:
-      - "8080:80"
-    depends_on:
-      - backend
+      dockerfile: Dockerfile
+    container_name: atlas-frontend
     restart: unless-stopped
-
-  admin:
-    build:
-      context: .
-      dockerfile: infra/admin.Dockerfile
-    container_name: novel-admin
-    ports:
-      - "8081:80"
     depends_on:
-      - backend
-    restart: unless-stopped
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "8080:8080"
 
 volumes:
-  mysql_data:
-  redis_data:
-  es_data:
+  atlas-data:
+  atlas-uploads:

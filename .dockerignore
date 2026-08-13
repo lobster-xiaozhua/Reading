@@ -1,16 +1,36 @@
-# 构建上下文排除（infra 各 Dockerfile 以仓库根为上下文）
+# ============================================================
+# .dockerignore — 排除构建缓存与本地运行时产物
+# ============================================================
+
+# 依赖
 **/node_modules
-**/dist
+**/.venv
 **/.pytest_cache
-**/.ruff_cache
-**/.coverage
+**/__pycache__
+**/*.pyc
+
+# 构建产物
+**/dist
+**/coverage
+
+# 数据与密钥
+**/*.db
+**/*.db-shm
+**/*.db-wal
+**/uploads
+**/.env
+**/.seed-initialized
+!**/.env.example
+
+# 运行日志与临时
+**/*.log
+**/.cache
+/tmp
+
+# Git
 .git
 .github
+.dockerignore
 .monkeycode
 monitoring
-test-results
-*.db
-*.log
-.venv
-__pycache__
-**/__pycache__
+selfcheck
