@@ -175,6 +175,7 @@ export default function SearchPage() {
     setInput(k);
     setCommittedQuery(k);
     setShowSuggestions(false);
+    setActiveSuggestionIndex(-1);
     addHistory(k);
     const next = new URLSearchParams(searchParams);
     next.set("q", k);
@@ -281,10 +282,10 @@ export default function SearchPage() {
             onFocus={handleFocus}
             onBlur={() => {
               if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
-              blurTimerRef.current = setTimeout(
-                () => setShowSuggestions(false),
-                150,
-              );
+              blurTimerRef.current = setTimeout(() => {
+                setShowSuggestions(false);
+                setActiveSuggestionIndex(-1);
+              }, 150);
             }}
             onKeyDown={handleKeyDown}
             autoComplete="off"

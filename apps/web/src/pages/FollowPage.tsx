@@ -47,6 +47,19 @@ export default function FollowPage() {
     if (followState.data) setItems(followState.data);
   }, [followState.data]);
 
+  // 前台回到页面时轮询刷新追更状态（连载更新提醒保鲜，避免切 Tab 回来数据过期）
+  const refreshFollows = followState.run;
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        refreshFollows();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibility);
+  }, [refreshFollows]);
+
   const loading = followState.loading && items.length === 0;
 
   const counts = useMemo(

@@ -11,6 +11,12 @@ interface CarouselProps {
   interval?: number;
 }
 
+/** 屏幕阅读器：只读一次不需要 announce title 细节，仅播报当前张数 */
+function carouselAriaLabel(count: number, active: number): string {
+  if (count === 0) return "";
+  return `当前是第 ${active + 1} 张，共 ${count} 张`;
+}
+
 /**
  * Banner 轮播（03 §5.1）
  * 5 张推荐，自动轮播 5s，可手动切换
@@ -35,8 +41,18 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
     timerRef.current = setInterval(() => {
       if (!pausedRef.current) next();
     }, interval);
+    // 后台返回前台时重置计时（避免切 Tab 回来瞬间跳一张）
+    const handleVisibility = () => {
+      if (document.visibilityState !== "visible") return;
+      if (timerRef.current) clearInterval(timerRef.current);
+      timerRef.current = setInterval(() => {
+        if (!pausedRef.current) next();
+      }, interval);
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [interval, banners.length, next]);
 
@@ -62,8 +78,8 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
             to={`/book/${b.bookId}`}
             className={`novel-carousel__slide ${i === active ? "is-active" : ""}`}
             aria-hidden={i !== active}
-            aria-label={`${b.title} - ${b.subtitle}`}
-          >
+      aria-label={`${b.title} - ${b.subtitle}`}
+    >
             <LazyImage
               src={b.cover}
               alt={b.title}
@@ -127,6 +143,11 @@ export function Carousel({ banners, interval = 5000 }: CarouselProps) {
             onClick={() => handleDotClick(i)}
           />
         ))}
+      </div>
+
+      {/* 屏幕阅读器播报当前轮播位置 */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {carouselAriaLabel(banners.length, active)}
       </div>
     </div>
   );

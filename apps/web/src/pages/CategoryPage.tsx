@@ -42,7 +42,22 @@ export default function CategoryPage() {
     (searchParams.get("status") as "" | "ongoing" | "completed") ?? "";
   const tagParam = searchParams.get("tag") ?? "";
   const selectedTags = tagParam ? tagParam.split(",").filter(Boolean) : [];
-  const page = Number(searchParams.get("page") ?? "1");
+  // 页码归一化：缺失/非法/负数 → 1，避免非法分页请求
+  const rawPage = Number(searchParams.get("page") ?? "1");
+  const page = Number.isFinite(rawPage) && rawPage >= 1 ? Math.floor(rawPage) : 1;
+  // 归一化结果与 URL 不同时回写，避免地址栏残留 ?page=0|abc
+  useEffect(() => {
+    const raw = searchParams.get("page");
+    // page=1 时缺省或显式 "1" 均视为合法；否则必须精确等于当前页码
+    const valid =
+      page === 1 ? raw === null || raw === "1" : raw === String(page);
+    if (!valid) {
+      const next = new URLSearchParams(searchParams);
+      if (page === 1) next.delete("page");
+      else next.set("page", String(page));
+      setSearchParams(next, { replace: true });
+    }
+  }, [page, searchParams, setSearchParams]);
 
   /* ---------- 分类 & 标签 ---------- */
   const categoriesState = useAsyncState<Category[]>(
