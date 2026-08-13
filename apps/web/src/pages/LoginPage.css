@@ -113,6 +113,30 @@
   pointer-events: none;
 }
 
+/* ---------- 表单卡片顶部光泽扫过 ---------- */
+.login-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-15) 50%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  transition: left 0.7s var(--ease-decelerate);
+  pointer-events: none;
+  z-index: 1;
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+}
+.login-card:hover::after {
+  left: 120%;
+}
+
 /* ---------- 左侧品牌区 ---------- */
 .login-brand-side {
   position: relative;
@@ -329,10 +353,34 @@
     background var(--dur-fast) var(--ease-standard),
     transform var(--dur-instant) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
+  box-shadow: 0 2px 8px var(--color-brand-glow-25);
+  position: relative;
+  overflow: hidden;
+}
+/* 按钮光泽扫过 */
+.login-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s var(--ease-decelerate);
+  pointer-events: none;
+}
+.login-submit:hover::before {
+  left: 120%;
 }
 .login-submit:hover:not(:disabled) {
   background: linear-gradient(to right, var(--color-brand-hover), var(--color-accent-hover));
-  box-shadow: 0 4px 16px var(--color-brand-glow-30);
+  box-shadow: 0 4px 16px var(--color-brand-glow-35);
   transform: translateY(-1px);
 }
 .login-submit:active:not(:disabled) {

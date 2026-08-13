@@ -228,7 +228,14 @@
   width: 11px;
   height: 11px;
   border-radius: var(--radius-sm);
-  transition: outline-color var(--dur-instant) var(--ease-standard);
+  transition:
+    transform var(--dur-fast) var(--ease-spring),
+    outline-color var(--dur-instant) var(--ease-standard);
+  cursor: pointer;
+}
+.reading-stats-page__heat-cell:hover {
+  transform: scale(1.4);
+  z-index: 1;
 }
 .reading-stats-page__heat-cell--l0 {
   background: var(--color-bg-subtle);

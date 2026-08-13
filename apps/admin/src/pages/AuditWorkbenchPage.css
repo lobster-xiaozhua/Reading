@@ -195,11 +195,20 @@
 
 /* Sensitive highlight */
 .awb-sensitive-highlight {
-  text-decoration: underline;
-  text-decoration-style: wavy;
   cursor: pointer;
   border-radius: var(--radius-xs, 2px);
   padding: 0 2px;
+  transition:
+    filter var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring);
+  display: inline;
+}
+.awb-sensitive-highlight:hover {
+  filter: brightness(0.92);
+  transform: scale(1.04);
+}
+.awb-sensitive-highlight:active {
+  transform: scale(0.97);
 }
 
 /* History */
