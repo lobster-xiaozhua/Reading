@@ -105,6 +105,7 @@
   border-radius: var(--radius-md);
   font-size: 14px;
   line-height: 1.7;
+  font-family: var(--font-serif, 'Noto Serif SC', serif);
   resize: vertical;
   background: var(--color-bg-surface);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -152,6 +153,7 @@
   border-radius: var(--radius-md);
   font-size: 14px;
   line-height: 1.7;
+  font-family: var(--font-serif, 'Noto Serif SC', serif);
   resize: vertical;
   min-height: 400px;
   background: var(--color-bg-surface);

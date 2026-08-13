@@ -197,6 +197,11 @@ export function Reader({
   /* ---------- 翻页：click 模式点击左/右半屏 ---------- */
   const handleContentClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
+      // 有文本选区时视为选词/复制意图，不触发翻页（避免跨半屏选词被翻页打断）
+      const sel = window.getSelection();
+      if (sel && !sel.isCollapsed && sel.toString().trim()) {
+        return;
+      }
       if (settings.pageMode !== "click") {
         // 非点击翻页模式：点击中央区域唤出控制栏
         const rect = e.currentTarget.getBoundingClientRect();
