@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  height: 56px;
+  height: var(--size-navbar-height);
 }
 
 .novel-navbar__logo {
@@ -28,8 +28,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--size-logo-mark);
+  height: var(--size-logo-mark);
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--color-brand), var(--color-accent));
   color: var(--color-text-inverse);
@@ -92,7 +92,7 @@
 }
 .novel-navbar__search-input {
   flex: 1;
-  height: 36px;
+  height: var(--size-control-height);
   padding: 0 var(--space-3);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-full);
@@ -111,7 +111,7 @@
   box-shadow: 0 0 0 3px var(--color-brand-bg);
 }
 .novel-navbar__search-btn {
-  height: 36px;
+  height: var(--size-control-height);
   padding: 0 var(--space-4);
   border: none;
   border-radius: var(--radius-full);

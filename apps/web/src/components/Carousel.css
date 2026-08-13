@@ -9,12 +9,13 @@
 .novel-carousel__viewport {
   display: flex;
   transition: transform var(--dur-slow) var(--ease-emphasized);
+  will-change: transform;
 }
 .novel-carousel__slide {
   position: relative;
   flex: 0 0 100%;
   min-width: 0;
-  height: 280px;
+  height: var(--size-carousel-height);
   display: flex;
   align-items: flex-end;
   padding: var(--space-6);
@@ -62,21 +63,24 @@
 .novel-carousel__arrow {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-50%) scale(0.9);
+  opacity: 0;
   width: 40px;
   height: 40px;
   border: none;
   border-radius: var(--radius-full);
   background: var(--color-overlay-medium);
   color: var(--color-text-inverse);
-  font-size: 24px;
+  font-size: var(--icon-size-xl);
   line-height: 1;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--dur-fast) var(--ease-standard);
-  opacity: 0;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-spring),
+    opacity var(--dur-fast) var(--ease-standard);
 }
 .novel-carousel:hover .novel-carousel__arrow {
   opacity: 1;
@@ -139,7 +143,7 @@
 
 .novel-carousel__placeholder {
   width: 100%;
-  height: 280px;
+  height: var(--size-carousel-height);
   border-radius: var(--radius-lg);
   background: var(--color-bg-subtle);
   animation: novel-carousel-shimmer 1.5s linear infinite;
@@ -155,7 +159,7 @@
 
 @media (max-width: 768px) {
   .novel-carousel__slide {
-    height: 200px;
+    height: var(--size-carousel-height-mobile);
     padding: var(--space-4);
   }
   .novel-carousel__title {
@@ -168,6 +172,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .novel-carousel__viewport {
+    transition: none;
+  }
+  .novel-carousel__arrow {
     transition: none;
   }
 }

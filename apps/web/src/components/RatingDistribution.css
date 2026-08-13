@@ -11,11 +11,11 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  min-width: 120px;
+  min-width: calc(var(--size-rating-score) + var(--space-4));
 }
 .novel-rating-dist__score {
   font-family: var(--font-mono);
-  font-size: 36px;
+  font-size: var(--size-rating-score);
   font-weight: var(--font-weight-semibold);
   color: var(--color-accent-orange);
   line-height: 1;
@@ -32,7 +32,7 @@
 }
 .novel-rating-dist__row {
   display: grid;
-  grid-template-columns: 32px 1fr 40px;
+  grid-template-columns: var(--space-8) 1fr var(--space-10);
   align-items: center;
   gap: var(--space-2);
   font-size: var(--font-size-xs);

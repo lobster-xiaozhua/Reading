@@ -227,8 +227,10 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-9: 36px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-14: 56px;
   --space-16: 64px;
   --space-20: 80px;
   --space-24: 96px;
@@ -295,6 +297,14 @@
   --icon-size-lg: 20px;
   --icon-size-xl: 24px;
   --icon-size-2xl: 32px;
+
+  /* ---------- 语义化尺寸令牌 ---------- */
+  --size-navbar-height: var(--space-14);
+  --size-logo-mark: var(--space-8);
+  --size-control-height: var(--space-9);
+  --size-carousel-height: 280px;
+  --size-carousel-height-mobile: 200px;
+  --size-rating-score: 36px;
 
   /* ---------- L2 Semantic · 图表色板（02 §4.1 / 04 §7.1） ---------- */
   --color-chart-1: var(--chart-1);

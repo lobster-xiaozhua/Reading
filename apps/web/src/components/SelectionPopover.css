@@ -8,7 +8,19 @@
   display: flex;
   gap: var(--space-1);
   font-size: var(--font-size-body);
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(0.9);
+  opacity: 0;
+  animation: selectionPopIn 200ms var(--ease-spring) both;
+}
+@keyframes selectionPopIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
 }
 
 .selection-popover__btn {
@@ -20,12 +32,14 @@
   cursor: pointer;
   font-size: var(--font-size-body);
   white-space: nowrap;
-  transition: background var(--dur-normal);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring);
 }
 
 .selection-popover__btn:hover {
-  background: var(--color-bg-elevated);
-  filter: brightness(1.1);
+  background: var(--color-bg-subtle);
+  transform: translateY(-1px);
 }
 
 .selection-popover__btn--primary {
@@ -57,7 +71,8 @@
 }
 
 .selection-popover__close:hover {
-  filter: brightness(1.1);
+  background: var(--color-bg-subtle);
+  transform: scale(1.1);
 }
 
 .selection-popover__note {

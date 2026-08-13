@@ -472,3 +472,49 @@ input[type='number'] {
     transform: scale(1);
   }
 }
+
+/* ============================================================
+ * 滚动条美化
+ * ============================================================ */
+.b-end-layout::-webkit-scrollbar,
+.admin-page-transition::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.b-end-layout::-webkit-scrollbar-track,
+.admin-page-transition::-webkit-scrollbar-track {
+  background: transparent;
+}
+.b-end-layout::-webkit-scrollbar-thumb,
+.admin-page-transition::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+.b-end-layout::-webkit-scrollbar-thumb:hover,
+.admin-page-transition::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Firefox */
+.b-end-layout,
+.admin-page-transition {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-default) transparent;
+}
+
+/* ============================================================
+ * 全局文本选中色
+ * ============================================================ */
+::selection {
+  background: var(--color-brand-bg);
+  color: var(--color-brand-active);
+}
+
+/* ============================================================
+ * 焦点可见性增强（无障碍）
+ * ============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
