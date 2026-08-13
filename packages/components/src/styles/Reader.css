@@ -497,7 +497,26 @@
     border-color: var(--novel-read-text);
     border-width: 2px;
   }
-  .novel-reader__chapter-end {
+.novel-reader__chapter-content {
+  /* 章节切换交叉淡入 */
+  animation: novelChapterEnter var(--dur-slow) var(--ease-decelerate) both;
+}
+@keyframes novelChapterEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .novel-reader__chapter-content {
+    animation: none;
+  }
+}
     border-top-color: var(--novel-read-text);
     border-top-width: 2px;
   }

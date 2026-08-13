@@ -218,6 +218,27 @@
   overflow: hidden;
   -webkit-tap-highlight-color: transparent;
 }
+/* 品牌渐变光泽扫过效果 */
+.book-detail__read-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-30) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s var(--ease-decelerate);
+  pointer-events: none;
+}
+.book-detail__read-btn:hover::before {
+  left: 120%;
+}
 .book-detail__read-btn:hover {
   box-shadow: 0 4px 16px var(--color-brand-glow-35);
   transform: translateY(-1px);

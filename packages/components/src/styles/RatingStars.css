@@ -1,7 +1,14 @@
 /* ============================================================
  * RatingStars · 03 §6.4
  * 半星图层裁剪；sm 12 / md 16 / lg 24；分布柱状图
+ * 星星 hover 弹性放大 + 点击填充弹跳
  * ============================================================ */
+
+@keyframes ratingPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
 
 .novel-rating__wrap {
   display: inline-flex;
@@ -41,6 +48,20 @@
 .novel-rating__star {
   display: inline-flex;
   flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-spring);
+  transform-origin: center center;
+}
+
+/* 交互态：hover 单星弹性放大 */
+.novel-rating.is-interactive .novel-rating__star {
+  cursor: pointer;
+}
+.novel-rating.is-interactive .novel-rating__star:hover {
+  transform: scale(1.25);
+}
+/* 交互态：点击弹跳 */
+.novel-rating.is-interactive:active .novel-rating__star {
+  animation: ratingPop 280ms var(--ease-spring) both;
 }
 
 /* ---------- 尺寸（sm 12 / md 16 / lg 24，03 §6.4 规格） ---------- */

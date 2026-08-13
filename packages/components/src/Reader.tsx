@@ -129,9 +129,12 @@ export function Reader({
   const [controlsVisible, setControlsVisible] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
+  /** 章节切换时触发的过渡帧计数，驱动 CSS 交叉淡入动画 */
+  const [chapterTransKey, setChapterTransKey] = useState(0);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const sessionStartRef = useRef<number>(Date.now());
+  const prevChapterIdRef = useRef<string | null>(null);
 
   /* ---------- 主题/字体/行距通过 inline style 注入 CSS 变量 ---------- */
   const themeVars = THEME_VARS[settings.theme];
@@ -401,10 +404,14 @@ export function Reader({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onPrev, onNext, controlsVisible, settingsVisible, showControls]);
 
-  /* ---------- 章节切换时重置滚动位置 ---------- */
+  /* ---------- 章节切换时触发淡入动画 + 重置滚动 ---------- */
   useEffect(() => {
-    if (contentRef.current && settings.pageMode === "scroll") {
-      contentRef.current.scrollTop = 0;
+    if (chapter?.id && chapter.id !== prevChapterIdRef.current) {
+      prevChapterIdRef.current = chapter.id;
+      setChapterTransKey((k) => k + 1);
+      if (contentRef.current && settings.pageMode === "scroll") {
+        contentRef.current.scrollTop = 0;
+      }
     }
   }, [chapter?.id, settings.pageMode]);
 
@@ -494,7 +501,14 @@ export function Reader({
               </button>
             </div>
           ) : chapter ? (
-            <article>
+            <article
+              className={[
+                "novel-reader__chapter-content",
+                chapterTransKey > 0 ? "is-entering" : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+            >
               <h1 className="novel-reader__chapter-title">{chapter.title}</h1>
               <div
                 className="novel-reader__article-body"

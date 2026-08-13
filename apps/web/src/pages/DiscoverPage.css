@@ -49,6 +49,53 @@
   animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 
+/* ---------- 交错入场 ---------- */
+@keyframes staggerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.discover-page__picks-grid > * {
+  animation: staggerEnter var(--dur-normal) var(--ease-decelerate) both;
+}
+.discover-page__picks-grid > *:nth-child(1) { animation-delay: 0ms; }
+.discover-page__picks-grid > *:nth-child(2) { animation-delay: 60ms; }
+.discover-page__picks-grid > *:nth-child(3) { animation-delay: 120ms; }
+.discover-page__picks-grid > *:nth-child(4) { animation-delay: 180ms; }
+.discover-page__picks-grid > *:nth-child(5) { animation-delay: 240ms; }
+.discover-page__picks-grid > *:nth-child(n+6) { animation-delay: 300ms; }
+
+.discover-page__hot-grid > *,
+.discover-page__free-grid > * {
+  animation: staggerEnter var(--dur-normal) var(--ease-decelerate) both;
+}
+.discover-page__hot-grid > *:nth-child(1),
+.discover-page__free-grid > *:nth-child(1) { animation-delay: 0ms; }
+.discover-page__hot-grid > *:nth-child(2),
+.discover-page__free-grid > *:nth-child(2) { animation-delay: 60ms; }
+.discover-page__hot-grid > *:nth-child(3),
+.discover-page__free-grid > *:nth-child(3) { animation-delay: 120ms; }
+.discover-page__hot-grid > *:nth-child(4),
+.discover-page__free-grid > *:nth-child(4) { animation-delay: 180ms; }
+.discover-page__hot-grid > *:nth-child(n+5),
+.discover-page__free-grid > *:nth-child(n+5) { animation-delay: 240ms; }
+
+.discover-page__category-item {
+  animation: staggerEnter var(--dur-normal) var(--ease-decelerate) both;
+}
+.discover-page__category-item:nth-child(1) { animation-delay: 0ms; }
+.discover-page__category-item:nth-child(2) { animation-delay: 50ms; }
+.discover-page__category-item:nth-child(3) { animation-delay: 100ms; }
+.discover-page__category-item:nth-child(4) { animation-delay: 150ms; }
+.discover-page__category-item:nth-child(5) { animation-delay: 200ms; }
+.discover-page__category-item:nth-child(6) { animation-delay: 250ms; }
+.discover-page__category-item:nth-child(n+7) { animation-delay: 300ms; }
+
 /* ============================================
  * 编辑精选 - Bento 网格布局
  * ============================================ */
