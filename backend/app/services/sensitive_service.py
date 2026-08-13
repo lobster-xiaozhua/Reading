@@ -12,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import BizError, ErrorCode
+from app.models.audit import SensitiveWord
 from app.repositories.audit_repo import SensitiveWordRepository
 from app.schemas.b_end import (
     AddSensitiveWordBody,
@@ -91,6 +92,50 @@ class SensitiveService:
             await self.session.commit()
             await self._refresh_trie()
         return removed
+
+    # ── 批量导入 ─────────────────────────────────────────
+    async def import_words(
+        self, text: str, level: int = 3, suggestion: str = "",
+    ) -> dict:
+        """按行批量导入敏感词。
+
+        每行一个词，自动去重（跳过头尾空白、空行、超过 64 字符的词，
+        以及已存在的 text+level 组合）。返回新增/跳过数量。
+        """
+        version = date.today().isoformat()
+        parsed: list[str] = []
+        seen: set[str] = set()
+        for raw_line in text.splitlines():
+            word = raw_line.strip()
+            if not word or word in seen:
+                continue
+            if len(word) > 64:
+                continue
+            seen.add(word)
+            parsed.append(word)
+
+        if not parsed:
+            raise BizError(ErrorCode.PARAM_INVALID, "未解析到有效敏感词")
+
+        existing = await self.repo.find_existing(parsed)
+        new_words = [w for w in parsed if (w, level) not in existing]
+        if not new_words:
+            return {"added": 0, "skipped": len(parsed), "errors": []}
+
+        await self.repo.add_all(
+            [
+                SensitiveWord(
+                    text=w,
+                    level=level,
+                    suggestion=(suggestion or "")[:255],
+                    lib_version=version,
+                )
+                for w in new_words
+            ]
+        )
+        await self.session.commit()
+        await self._refresh_trie()
+        return {"added": len(new_words), "skipped": len(parsed) - len(new_words)}
 
     # ── 扫描文本 ─────────────────────────────────────────
     async def scan(self, text: str) -> list[SensitiveHit]:

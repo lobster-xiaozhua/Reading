@@ -27,6 +27,15 @@
   animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
 }
 
+/* 批量导入文本域 */
+.sc-import-textarea {
+  border-radius: var(--radius-md, 8px);
+  font-size: 13px;
+  line-height: 1.7;
+  resize: vertical;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
 /* 减弱动效适配 */
 @media (prefers-reduced-motion: reduce) {
   .system-config-page,

@@ -120,6 +120,24 @@ class SensitiveWordRepository(BaseRepository[SensitiveWord]):
         await self.session.flush()
         return word
 
+    async def find_existing(self, texts: list[str]) -> set[tuple[str, int]]:
+        """按 (text, level) 查询已存在的词，用于批量导入去重。"""
+        if not texts:
+            return set()
+        result = await self.session.execute(
+            select(SensitiveWord.text, SensitiveWord.level).where(
+                SensitiveWord.text.in_(texts)
+            )
+        )
+        return {(t, level) for t, level in result.all()}
+
+    async def add_all(self, words: list["SensitiveWord"]) -> None:
+        """批量插入敏感词。"""
+        if not words:
+            return
+        self.session.add_all(words)
+        await self.session.flush()
+
     async def remove(self, text: str, level: int | None = None) -> bool:
         """删除敏感词，返回是否成功删除。"""
         stmt = select(SensitiveWord).where(SensitiveWord.text == text)

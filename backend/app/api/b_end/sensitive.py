@@ -38,6 +38,19 @@ async def add_sensitive_word(
     return ok(request, await svc.add_word(body))
 
 
+@router.post("/import")
+async def import_sensitive_words(
+    request: Request,
+    body: AddSensitiveWordBody,
+    _admin=Depends(require_permission("system.config")),
+    db: AsyncSession = Depends(get_db),
+    redis = Depends(get_redis_client),
+):
+    """按行批量导入敏感词（每行一个词）。"""
+    svc = SensitiveService(db, redis)
+    return ok(request, await svc.import_words(body.text, body.level, body.suggestion))
+
+
 @router.post("/check")
 async def check_sensitive_words(
     request: Request,

@@ -96,3 +96,16 @@ export async function removeSensitiveWord(
   if (result.success) return { success: true };
   return { success: false };
 }
+
+/** 批量导入敏感词（每行一词），返回 { added, skipped } */
+export async function importSensitiveWords(
+  text: string,
+  level: 1 | 2 | 3,
+  suggestion?: string,
+): Promise<{ added: number; skipped: number }> {
+  const data = await http.post<{ added: number; skipped: number }>(
+    "/sensitive-words/import",
+    { text, level, suggestion: suggestion ?? "" },
+  );
+  return { added: data.added ?? 0, skipped: data.skipped ?? 0 };
+}

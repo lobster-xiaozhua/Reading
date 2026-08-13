@@ -25,6 +25,7 @@ import {
   fetchSensitiveWordLib,
   addSensitiveWord,
   removeSensitiveWord,
+  importSensitiveWords,
 } from "@/api/sensitive-api";
 import type { SensitiveWordLibMeta } from "@/api/sensitive-api";
 import { BPageHeader } from "@novel/b-end";
@@ -53,6 +54,10 @@ export default function SystemConfigPage() {
   const [savingConfig, setSavingConfig] = useState(false);
   const [addingWord, setAddingWord] = useState(false);
   const [addError, setAddError] = useState("");
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [importText, setImportText] = useState("");
+  const [importLevel, setImportLevel] = useState<1 | 2 | 3>(3);
+  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -114,6 +119,33 @@ export default function SystemConfigPage() {
       msg.error(t("system:message.addFailed"));
     } finally {
       setAddingWord(false);
+    }
+  };
+
+  const handleImportWords = async () => {
+    if (!importText.trim() || importing) return;
+    setImporting(true);
+    try {
+      const result = await importSensitiveWords(importText, importLevel);
+      if (result.added > 0) {
+        msg.success(
+          t("system:message.imported", {
+            added: result.added,
+            skipped: result.skipped,
+          }),
+        );
+        setImportModalOpen(false);
+        setImportText("");
+        const lib = await fetchSensitiveWordLib();
+        setWords(lib.words);
+        setMeta(lib.meta as SensitiveWordLibMeta | null);
+      } else {
+        msg.info(t("system:message.importNoNew"));
+      }
+    } catch {
+      msg.error(t("system:message.importFailed"));
+    } finally {
+      setImporting(false);
     }
   };
 
@@ -227,6 +259,9 @@ export default function SystemConfigPage() {
               >
                 {t("system:add")}
               </Button>
+              <Button onClick={() => setImportModalOpen(true)}>
+                {t("system:batchImport")}
+              </Button>
             </Space>
           }
         >
@@ -294,6 +329,45 @@ export default function SystemConfigPage() {
               onChange={(e) => setNewSuggestion(e.target.value)}
               placeholder={t("system:addModal.suggestionPlaceholder")}
             />
+          </div>
+        </Space>
+      </Modal>
+
+      <Modal
+        title={t("system:importModal.title")}
+        open={importModalOpen}
+        onOk={handleImportWords}
+        onCancel={() => {
+          setImportModalOpen(false);
+          setImportText("");
+        }}
+        okText={t("system:importModal.import")}
+        cancelText={t("system:importModal.cancel")}
+        okButtonProps={{ loading: importing, disabled: !importText.trim() }}
+        width={600}
+      >
+        <Space direction="vertical" style={{ width: "100%" }}>
+          <div>
+            <Text>{t("system:importModal.hint")}</Text>
+            <Input.TextArea
+              rows={8}
+              value={importText}
+              onChange={(e) => setImportText(e.target.value)}
+              placeholder={t("system:importModal.placeholder")}
+              className="sc-import-textarea"
+            />
+          </div>
+          <div>
+            <Text>{t("system:addModal.level")}</Text>
+            <Radio.Group
+              value={importLevel}
+              onChange={(e) => setImportLevel(e.target.value as 1 | 2 | 3)}
+              className="filter-checkbox-group is-vertical"
+            >
+              <Radio value={1}>{t("system:level.strict")}</Radio>
+              <Radio value={2}>{t("system:level.warning")}</Radio>
+              <Radio value={3}>{t("system:level.hint")}</Radio>
+            </Radio.Group>
           </div>
         </Space>
       </Modal>

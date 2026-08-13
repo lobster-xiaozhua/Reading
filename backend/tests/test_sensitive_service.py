@@ -87,6 +87,44 @@ class TestAddWord:
         assert len(words) >= 1
 
 
+class TestImportWords:
+    async def test_import_multiple_words(self, svc, db_session):
+        result = await svc.import_words("词一\n词二\n词三\n", level=2, suggestion="需删")
+        assert result["added"] == 3
+        assert result["skipped"] == 0
+        hits = await svc.scan("包含词一的内容")
+        assert len(hits) == 1
+
+    async def test_import_dedup_within_batch(self, svc, db_session):
+        result = await svc.import_words("词A\n词A\n 词B \n\n", level=1)
+        assert result["added"] == 2
+        assert result["skipped"] == 0
+
+    async def test_import_skips_existing(self, svc, db_session):
+        await _create_word(db_session, text="已存在")
+        result = await svc.import_words("已存在\n新词\n", level=1)
+        assert result["added"] == 1
+        assert result["skipped"] == 1
+
+    async def test_import_different_level_keeps_both(self, svc, db_session):
+        await _create_word(db_session, text="同词", level=1)
+        result = await svc.import_words("同词\n", level=2)
+        # text+level 组合不同：level=2 的应新增
+        assert result["added"] == 1
+        assert result["skipped"] == 0
+
+    async def test_import_empty_or_invalid_raises(self, svc):
+        from app.core.exceptions import BizError
+
+        with pytest.raises(BizError):
+            await svc.import_words("   \n\n")
+        with pytest.raises(BizError):
+            await svc.import_words("")
+        # 超长词被忽略导致无有效词
+        with pytest.raises(BizError):
+            await svc.import_words("很" * 65)
+
+
 class TestRemoveWord:
     async def test_remove_word_success(self, svc, db_session):
         await _create_word(db_session, text="待删除")

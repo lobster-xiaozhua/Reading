@@ -648,6 +648,7 @@ export default {
     sensitiveWord: "敏感词库",
     version: "版本: {version} | 共 {count} 条",
     add: "新增",
+    batchImport: "批量导入",
     table: {
       word: "敏感词",
       level: "级别",
@@ -670,6 +671,13 @@ export default {
       suggestionPlaceholder: "建议替换的词语",
       required: "请输入敏感词",
     },
+    importModal: {
+      title: "批量导入敏感词",
+      import: "导入",
+      cancel: "取消",
+      hint: "每行一个敏感词（支持 UTF-8），自动去重",
+      placeholder: "示例：\n违禁词A\n违禁词B\n违规词C",
+    },
     confirmDelete: {
       title: "确认删除",
       content: "确定要删除敏感词「{text}」吗？",
@@ -681,6 +689,9 @@ export default {
       addFailed: "添加失败",
       deleted: "已删除",
       deleteFailed: "删除失败",
+      imported: "导入成功：新增 {added} 条，跳过 {skipped} 条",
+      importNoNew: "没有新增词条（可能全部已存在）",
+      importFailed: "批量导入失败",
     },
   },
   login: {
