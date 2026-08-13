@@ -15,6 +15,19 @@ export interface ApiResponse<T = unknown> {
 let cachedToken: string | null = null;
 let cachedTokenRaw: string | null = null;
 
+/** 生成本次提交意图的幂等键（网络重试时复用同一键，配合后端 idempotent_run 防重复入库） */
+function newIdempotencyKey(): string {
+  try {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // fall through
+  }
+  const rand = Math.random().toString(36).slice(2, 12);
+  return `${Date.now().toString(36)}-${rand}-${performance.now().toString(36)}`;
+}
+
 function getToken(): string | null {
   try {
     const raw = localStorage.getItem(AUTH_KEY);
@@ -136,6 +149,13 @@ async function request<T>(
   };
   if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
   const method = options.method ?? "GET";
+
+  // 写操作附加幂等键：每次调用生成一次，fetchWithRetry 重试时复用同一键，
+  // 与后端 idempotent_run 配合，避免网络超时重试导致评论/打赏等重复入库。
+  const isWrite = method !== "GET" && method !== "HEAD";
+  if (isWrite) {
+    headers["Idempotency-Key"] = newIdempotencyKey();
+  }
 
   // 请求去重：相同 key 并发只发一次
   if (pending.has(cacheKey)) {
