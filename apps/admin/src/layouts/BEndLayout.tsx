@@ -12,9 +12,28 @@ import "./bend-layout.css";
 
 const { Content } = Layout;
 
+const SIDER_COLLAPSE_KEY = "atlas-sider-collapsed";
+
+/** 读取持久化的侧边栏折叠状态（刷新后保持） */
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(SIDER_COLLAPSE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function persistCollapsed(v: boolean): void {
+  try {
+    localStorage.setItem(SIDER_COLLAPSE_KEY, v ? "1" : "0");
+  } catch {
+    // localStorage 不可用时静默降级
+  }
+}
+
 export function BEndLayout() {
   const { t } = useTranslation();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(readCollapsed);
   const openPalette = useCmdStore((s) => s.openPalette);
 
   useHotkeys("/", (e) => {
@@ -52,7 +71,12 @@ export function BEndLayout() {
         <Layout className="bend-layout__main">
           <HeaderBar
             collapsed={collapsed}
-            onToggle={() => setCollapsed((v) => !v)}
+            onToggle={() =>
+              setCollapsed((v) => {
+                persistCollapsed(!v);
+                return !v;
+              })
+            }
           />
           <MultiTabs />
           <Content

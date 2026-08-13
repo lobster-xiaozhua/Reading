@@ -269,6 +269,10 @@ export default function AuditWorkbenchPage() {
         }
       />
 
+      <div className="awb-shortcut-hint" role="note">
+        {t("audit:shortcutHint")}
+      </div>
+
       {status === "error" ? (
         <Result
           status="error"
