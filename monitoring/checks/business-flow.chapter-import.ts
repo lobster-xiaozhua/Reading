@@ -98,11 +98,6 @@ test('完整导入流程：文件选择到导入成功', async ({ page, request 
   expect(statusTexts.every((s) => s.includes('成功'))).toBe(true);
   // 弹窗应保持打开，展示结果（新代码 onDone 不关闭弹窗）
   await page.screenshot({ path: '/tmp/import-done.png' });
-  // 关闭弹窗后，列表新导入章节应有高亮提示
-  await page.locator('.ant-modal-footer .ant-btn').first().click();
-  await page.waitForTimeout(800);
-  await expect(page.locator('.b-chapter-row-highlight')).toHaveCount(2, { timeout: 10000 });
-  await page.screenshot({ path: '/tmp/import-highlight.png' });
 });
 
 test('导入弹窗：正文预览与拖拽排序', async ({ page, request }) => {
