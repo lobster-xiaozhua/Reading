@@ -22,7 +22,6 @@ import {
   Form,
   Switch,
   Result,
-  Skeleton,
   Segmented,
   Tooltip,
 } from "antd";
@@ -862,9 +861,7 @@ export default function ChapterListPage() {
         }
       />
 
-      {status === "loading" ? (
-        <Skeleton active paragraph={{ rows: 8 }} />
-      ) : status === "error" ? (
+      {status === "error" ? (
         <Result
           status="error"
           title={t("chapter:loadError")}
@@ -916,6 +913,7 @@ export default function ChapterListPage() {
               dataSource={dataSource as any}
               rowKey="id"
               size="small"
+              loading={status === "loading"}
               scroll={{ x: 1200, y: 600 }}
               components={{ body: { row: DraggableRow } } as any}
               rowClassName={(record) => {

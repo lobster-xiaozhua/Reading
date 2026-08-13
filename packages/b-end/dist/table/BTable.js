@@ -6,7 +6,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
  * Source: 04-B端开发计划.md P2-7
  * ============================================================ */
 import { forwardRef, } from "react";
-import { Skeleton, Table as AntTable } from "antd";
+import { Table as AntTable } from "antd";
 /**
  * B 端表格。
  *
@@ -19,10 +19,7 @@ import { Skeleton, Table as AntTable } from "antd";
  *   fixed: 'right'，width 120-160，以保证横向滚动时操作按钮常驻可见。
  */
 const BTableInner = forwardRef(({ size = "middle", loading, pagination, scroll, ...rest }, ref) => {
-    if (loading) {
-        return _jsx(Skeleton, { active: true, paragraph: { rows: 6 } });
-    }
-    return (_jsx(AntTable, { ref: ref, size: size, pagination: pagination === undefined
+    return (_jsx(AntTable, { ref: ref, size: size, loading: loading, pagination: pagination === undefined
             ? {
                 pageSize: 20,
                 showSizeChanger: true,

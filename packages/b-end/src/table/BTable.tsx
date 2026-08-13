@@ -11,7 +11,7 @@ import {
   type ReactElement,
   type Ref,
 } from "react";
-import { Skeleton, Table as AntTable } from "antd";
+import { Table as AntTable } from "antd";
 import type { TableProps } from "antd";
 
 /** B 端表格 props（泛型，T 为行数据类型） */
@@ -30,13 +30,11 @@ export type BTableProps<T = Record<string, unknown>> = TableProps<T>;
  */
 const BTableInner = forwardRef<ComponentRef<typeof AntTable>, BTableProps>(
   ({ size = "middle", loading, pagination, scroll, ...rest }, ref) => {
-    if (loading) {
-      return <Skeleton active paragraph={{ rows: 6 }} />;
-    }
     return (
       <AntTable
         ref={ref}
         size={size}
+        loading={loading}
         pagination={
           pagination === undefined
             ? {

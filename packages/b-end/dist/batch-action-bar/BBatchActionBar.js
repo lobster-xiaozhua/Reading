@@ -18,11 +18,11 @@ export const BBatchActionBar = forwardRef(function BBatchActionBar({ selectedCou
     if (!visible || selectedCount === 0)
         return null;
     const handleAction = (action) => {
-        if (action.danger && action.confirmTitle) {
+        if (action.confirmTitle) {
             Modal.confirm({
                 title: action.confirmTitle,
                 content: action.confirmContent,
-                okType: "danger",
+                okType: action.danger ? "danger" : "primary",
                 okText: "确认",
                 cancelText: "取消",
                 onOk: action.onClick,
