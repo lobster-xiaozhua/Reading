@@ -150,6 +150,42 @@ test.describe('B 端 API 补充巡检', () => {
     expect(res.ok()).toBeTruthy();
   });
 
+  test('批量导入章节接口', async ({ request }) => {
+    const res = await request.post(`${BACKEND}/api/v1/b/chapters/import`, {
+      multipart: {
+        novel_id: '1',
+        files: {
+          name: '测试章.txt',
+          mimeType: 'text/plain',
+          buffer: Buffer.from('测试正文内容，用于验证导入接口是否正常。'),
+        },
+      },
+    });
+    expect(res.status()).toBeLessThan(500);
+    const body = await res.json();
+    expect(body.code).toBe(0);
+  });
+
+  test('封面上传接口', async ({ request }) => {
+    const png = Buffer.from([
+      137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
+      0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0, 0, 0, 144, 119, 83, 222,
+    ]);
+    const res = await request.post(`${BACKEND}/api/v1/b/uploads/image`, {
+      multipart: {
+        file: {
+          name: 'cover.png',
+          mimeType: 'image/png',
+          buffer: png,
+        },
+      },
+    });
+    expect(res.status()).toBeLessThan(500);
+    const body = await res.json();
+    expect(body.code).toBe(0);
+    expect(body.data?.url).toContain('/uploads/covers/');
+  });
+
   test('读者列表接口', async ({ request }) => {
     const res = await request.get(`${BACKEND}/api/v1/b/users`, {
       params: { page: 1, page_size: 5 },

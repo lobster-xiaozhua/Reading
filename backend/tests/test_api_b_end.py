@@ -131,6 +131,74 @@ class TestBEndChapters:
         assert body["data"]["title"] == "第一章"
         assert body["data"]["wordCount"] > 0
 
+    async def test_import_chapters(self, client, db_session):
+        """批量导入章节（multipart）。"""
+        from app.models.novel import Novel
+
+        novel = Novel(title="导入测试", status="draft", word_count=0)
+        db_session.add(novel)
+        await db_session.commit()
+
+        content = "第一章 开篇\n这是第一章正文。\n\n第2章 发展中\n第二章正文内容。\n"
+        resp = await client.post(
+            "/api/v1/b/chapters/import",
+            data={
+                "novel_id": str(novel.id),
+                "is_vip": "false",
+                "split": "true",
+            },
+            files={
+                "files": ("整卷.txt", content.encode("utf-8"), "text/plain"),
+            },
+        )
+        body = resp.json()
+        assert body["code"] == 0
+        assert len(body["data"]["list"]) == 2
+        assert body["data"]["list"][0]["title"] == "第一章 开篇"
+        assert body["data"]["list"][1]["title"] == "第2章 发展中"
+        assert body["data"]["errors"] == []
+
+    async def test_import_chapters_reject_non_txt(self, client, db_session):
+        from app.models.novel import Novel
+
+        novel = Novel(title="拒绝非txt", status="draft", word_count=0)
+        db_session.add(novel)
+        await db_session.commit()
+
+        resp = await client.post(
+            "/api/v1/b/chapters/import",
+            data={"novel_id": str(novel.id)},
+            files={"files": ("图片.png", b"not a text", "image/png")},
+        )
+        body = resp.json()
+        assert body["code"] == 0
+        assert body["data"]["list"] == []
+        assert "仅支持" in body["data"]["errors"][0]["reason"]
+
+
+class TestBEndUpload:
+    async def test_upload_image(self, client):
+        """上传 PNG 图片。"""
+        png = b"\x89PNG\r\n\x1a\n" + b"\x00" * 128
+        resp = await client.post(
+            "/api/v1/b/uploads/image",
+            files={"file": ("cover.png", png, "image/png")},
+        )
+        body = resp.json()
+        assert body["code"] == 0
+        assert body["data"]["url"].startswith("/uploads/covers/")
+        assert body["data"]["url"].endswith(".png")
+
+    async def test_upload_image_reject_non_image(self, client):
+        """非图片文件应被拒绝。"""
+        resp = await client.post(
+            "/api/v1/b/uploads/image",
+            files={"file": ("fake.jpg", b"not an image", "image/jpeg")},
+        )
+        body = resp.json()
+        assert body["code"] != 0
+        assert "仅支持" in body["message"]
+
 
 class TestBEndAudit:
     async def test_get_audit_queue_empty(self, client):
