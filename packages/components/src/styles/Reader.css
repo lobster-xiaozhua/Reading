@@ -227,7 +227,8 @@
   opacity: 0;
   transform: translateY(-100%);
   transition: opacity var(--dur-normal) var(--ease-standard),
-    transform var(--dur-normal) var(--ease-standard);
+    transform var(--dur-normal) var(--ease-standard),
+    box-shadow var(--dur-normal) var(--ease-standard);
   pointer-events: none;
   /* 毛玻璃背景 */
   backdrop-filter: saturate(180%) blur(12px);
@@ -237,6 +238,7 @@
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  box-shadow: 0 1px 0 0 var(--color-brand-bg), 0 4px 16px var(--color-shadow-soft-15);
 }
 .novel-reader__topbar-chapter-num {
   font-size: var(--font-size-overline);
@@ -314,13 +316,15 @@
   opacity: 0;
   transform: translateY(100%);
   transition: opacity var(--dur-normal) var(--ease-standard),
-    transform var(--dur-normal) var(--ease-standard);
+    transform var(--dur-normal) var(--ease-standard),
+    box-shadow var(--dur-normal) var(--ease-standard);
   pointer-events: none;
 }
 .novel-reader.is-controls-visible .novel-reader__bottombar {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  box-shadow: 0 -1px 0 0 var(--color-brand-bg), 0 -4px 16px var(--color-shadow-soft-15);
 }
 
 /* 控制栏按钮 */
@@ -422,6 +426,12 @@
   box-shadow: var(--sh-3);
   position: relative;
   overflow: hidden;
+  transition: transform var(--dur-normal) var(--ease-spring),
+    box-shadow var(--dur-normal) var(--ease-standard);
+}
+.novel-reader__next-chapter-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-4), 0 0 0 2px var(--color-brand-bg);
 }
 .novel-reader__next-chapter-preview::before {
   content: "";
@@ -432,6 +442,28 @@
   height: 3px;
   background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: 0 2px 8px var(--color-brand-bg);
+}
+/* 品牌渐变光泽扫过 */
+.novel-reader__next-chapter-preview::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-20) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.6s var(--ease-decelerate);
+  pointer-events: none;
+}
+.novel-reader__next-chapter-preview:hover::after {
+  left: 120%;
 }
 .novel-reader__next-chapter-preview-label {
   display: flex;

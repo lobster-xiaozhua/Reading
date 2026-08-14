@@ -26,7 +26,7 @@
   border-radius: var(--radius-sm);
 }
 
-/* 填充 */
+/* 填充 + 光泽扫过 */
 .novel-reading-progress__fill {
   position: absolute;
   top: 0;
@@ -34,6 +34,31 @@
   height: 100%;
   background: var(--color-brand);
   border-radius: var(--radius-full);
+  animation: progressShimmer 3s var(--ease-standard) infinite;
+}
+.novel-reading-progress__fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  animation: progressShimmerSweep 2.5s var(--ease-standard) infinite;
+  border-radius: var(--radius-full);
+}
+@keyframes progressShimmer {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+@keyframes progressShimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
 /* ---------- 拖拽手柄（仅 seekable 时显示） ---------- */

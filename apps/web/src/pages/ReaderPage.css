@@ -52,6 +52,14 @@
   background: var(--read-bg-day, var(--color-bg-page));
   animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
 }
+/* 加载态脉冲呼吸 */
+@keyframes readerLoadingPulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.reader-page__loading .ant-skeleton-paragraph > li {
+  animation: readerLoadingPulse 1.5s var(--ease-standard) infinite;
+}
 
 /* 空状态 */
 .reader-page__empty {

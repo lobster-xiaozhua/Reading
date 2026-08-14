@@ -32,7 +32,7 @@
 
 @keyframes heroGlowPulse {
   0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.22; }
+  50% { opacity: 0.25; }
 }
 
 .book-detail {
@@ -427,16 +427,59 @@
   animation: pageFadeIn var(--dur-fast) var(--ease-decelerate);
 }
 
-/* 章节列表项交互 */
+/* 书籍详情页章节条目入场：staggered slide-in */
+@keyframes bookChapterEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 .book-detail__chapter-item {
-  transition: background var(--dur-fast) var(--ease-standard);
-  border-radius: var(--radius-sm);
+  animation: bookChapterEnter var(--dur-fast) var(--ease-decelerate) both;
+  transition: background var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-spring);
 }
 .book-detail__chapter-item:hover {
   background: var(--color-bg-subtle);
+  transform: translateX(2px);
 }
 .book-detail__chapter-item:active {
   background: var(--color-border-subtle);
+  transform: translateX(0) scale(0.99);
+}
+/* stagger */
+.book-detail__chapter-item:nth-child(1)  { animation-delay: 0ms; }
+.book-detail__chapter-item:nth-child(2)  { animation-delay: 30ms; }
+.book-detail__chapter-item:nth-child(3)  { animation-delay: 60ms; }
+.book-detail__chapter-item:nth-child(4)  { animation-delay: 90ms; }
+.book-detail__chapter-item:nth-child(5)  { animation-delay: 120ms; }
+.book-detail__chapter-item:nth-child(6)  { animation-delay: 150ms; }
+.book-detail__chapter-item:nth-child(7)  { animation-delay: 180ms; }
+.book-detail__chapter-item:nth-child(8)  { animation-delay: 210ms; }
+.book-detail__chapter-item:nth-child(9)  { animation-delay: 240ms; }
+.book-detail__chapter-item:nth-child(n+10) { animation-delay: 270ms; }
+
+/* 章节链接 hover 时左侧品牌色指示线呼吸 */
+.book-detail__chapter-item-link {
+  position: relative;
+}
+.book-detail__chapter-item-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-brand);
+  border-radius: var(--radius-full);
+  transform: scaleY(0);
+  transition: transform var(--dur-fast) var(--ease-spring);
+}
+.book-detail__chapter-item-link:hover::before {
+  transform: scaleY(1);
 }
 
 /* ---------- 写评论 ---------- */

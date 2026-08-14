@@ -31,16 +31,24 @@
 .novel-drawer--right {
   right: 0;
   transform: translateX(100%);
+  box-shadow: -4px 0 24px var(--color-shadow-soft-15);
 }
 .novel-drawer--right.is-ready {
   transform: translateX(0);
+  box-shadow: -8px 0 32px var(--color-shadow-soft-15);
+  transition: transform var(--dur-normal) var(--ease-decelerate),
+    box-shadow var(--dur-normal) var(--ease-standard);
 }
 .novel-drawer--left {
   left: 0;
   transform: translateX(-100%);
+  box-shadow: 4px 0 24px var(--color-shadow-soft-15);
 }
 .novel-drawer--left.is-ready {
   transform: translateX(0);
+  box-shadow: 8px 0 32px var(--color-shadow-soft-15);
+  transition: transform var(--dur-normal) var(--ease-decelerate),
+    box-shadow var(--dur-normal) var(--ease-standard);
 }
 
 /* ---------- 头部 ---------- */

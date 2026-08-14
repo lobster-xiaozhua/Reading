@@ -232,6 +232,11 @@
   outline: none;
   box-shadow: 0 0 0 3px var(--color-brand-bg);
 }
+/* 未选中主题色块 hover 品牌色外发光 */
+.novel-reader-settings__theme-swatch:not(.is-active):hover {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  border-color: var(--color-brand-border);
+}
 .novel-reader-settings__theme-label {
   font-family: var(--font-sans);
   font-size: var(--font-size-overline);
