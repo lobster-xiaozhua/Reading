@@ -189,7 +189,7 @@
 .book-detail__stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .book-detail__actions {
   display: flex;
@@ -655,7 +655,7 @@
 .book-detail__comment-like {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
   border: none;
   background: transparent;

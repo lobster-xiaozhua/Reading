@@ -119,14 +119,6 @@
   animation: shimmerSweep 3s infinite;
 }
 
-@keyframes shimmerSweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
 /* 搜索框增强 */
 .novel-search-input {

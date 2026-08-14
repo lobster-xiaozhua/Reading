@@ -22,7 +22,7 @@
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--color-border-strong);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-bg-surface);
   flex-shrink: 0;
   transition:
@@ -32,7 +32,7 @@
 .novel-radio__dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-text-inverse);
   opacity: 0;
   transform: scale(0.4);

@@ -17,7 +17,7 @@
   left: 50%;
   width: 0;
   height: 0;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-overlay-white-30);
   transform: translate(-50%, -50%);
   transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;

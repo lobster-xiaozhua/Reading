@@ -129,7 +129,7 @@
   display: inline-block;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-feedback-error);
   animation: pulse 2s var(--ease-standard) infinite;
 }

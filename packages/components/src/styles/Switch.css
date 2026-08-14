@@ -21,7 +21,7 @@
   left: 2px;
   transform: translateY(-50%);
   background: var(--color-bg-surface);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   box-shadow: var(--sh-1);
   transition: left var(--dur-fast) var(--ease-standard);
 }

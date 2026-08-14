@@ -128,7 +128,7 @@
   height: 14px;
   border: 1.5px solid var(--color-text-tertiary);
   border-right-color: transparent;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: novel-select-spin 0.6s linear infinite;
 }
 @keyframes novel-select-spin {

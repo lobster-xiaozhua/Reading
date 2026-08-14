@@ -5,14 +5,6 @@
 /* ---------- 页面级淡入 ---------- */
 
 /* 光泽扫过动画 */
-@keyframes shimmerSweep {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
 
 /* 脉冲呼吸动画 */
 @keyframes pulseGlow {

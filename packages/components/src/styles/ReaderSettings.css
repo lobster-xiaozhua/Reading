@@ -121,7 +121,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-brand);
   border: 3px solid var(--color-bg-surface);
   box-shadow: 0 2px 8px var(--color-shadow-soft-15);
@@ -139,7 +139,7 @@
 .novel-reader-settings__slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-brand);
   border: 3px solid var(--color-bg-surface);
   box-shadow: 0 2px 8px var(--color-shadow-soft-15);

@@ -27,7 +27,7 @@
   inset: auto auto calc(var(--space-32) * -1) calc(var(--space-32) * -1);
   width: 360px;
   height: 360px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--gradient-brand-strong);
   filter: blur(80px);
   opacity: 0.18;
