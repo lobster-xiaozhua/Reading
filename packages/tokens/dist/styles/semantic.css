@@ -101,6 +101,10 @@
   --color-shadow-soft-10: rgba(0, 0, 0, 0.1);
   --color-shadow-soft-15: rgba(0, 0, 0, 0.15);
 
+  /* ---------- L2 Semantic · 暖橙阴影（用于 accent-orange 按钮/卡片） ---------- */
+  --color-shadow-orange-soft: rgba(227, 115, 24, 0.3);
+  --color-shadow-orange-strong: rgba(227, 115, 24, 0.4);
+
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
   --color-feedback-success-bg: var(--success-1);
@@ -126,6 +130,7 @@
   --font-size-xs: 12px;
   --font-size-overline: 11px;
   --font-size-tiny: 10px;
+  --font-size-tinyer: 9px;
   --font-size-button: 14px;
   --font-size-body-lg: 17px;
   --font-size-h4: 18px;
@@ -223,8 +228,10 @@
   --space-5: 20px;
   --space-6: 24px;
   --space-8: 32px;
+  --space-9: 36px;
   --space-10: 40px;
   --space-12: 48px;
+  --space-14: 56px;
   --space-16: 64px;
   --space-20: 80px;
   --space-24: 96px;
@@ -291,6 +298,14 @@
   --icon-size-lg: 20px;
   --icon-size-xl: 24px;
   --icon-size-2xl: 32px;
+
+  /* ---------- 语义化尺寸令牌 ---------- */
+  --size-navbar-height: var(--space-14);
+  --size-logo-mark: var(--space-8);
+  --size-control-height: var(--space-9);
+  --size-carousel-height: 280px;
+  --size-carousel-height-mobile: 200px;
+  --size-rating-score: 36px;
 
   /* ---------- L2 Semantic · 图表色板（02 §4.1 / 04 §7.1） ---------- */
   --color-chart-1: var(--chart-1);

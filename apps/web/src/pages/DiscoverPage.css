@@ -2,46 +2,7 @@
  * DiscoverPage · 发现页样式
  * ============================================================ */
 
-/* ---------- 页面级淡入 ---------- */
-
-/* 光泽扫过动画 */
-
-/* 脉冲呼吸动画 */
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 var(--color-brand-glow-30);
-  }
-  50% {
-    box-shadow: 0 0 0 8px var(--color-brand-glow-0);
-  }
-}
-
-.discover-page {
-  padding-top: var(--space-6);
-  padding-bottom: var(--space-16);
-  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
-}
-
-.discover-page__banner {
-  margin-bottom: var(--space-10);
-}
-
-.discover-page__section {
-  margin-bottom: var(--space-10);
-  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 100ms both;
-}
-
-/* ---------- 交错入场 ---------- */
-@keyframes staggerEnter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ---------- 交错入场已全局化至 global.css，此处补充首页专属延迟序列 ---------- */
 .discover-page__picks-grid > * {
   animation: staggerEnter var(--dur-normal) var(--ease-decelerate) both;
 }
@@ -139,6 +100,17 @@
   grid-column: 1 / -1;
   flex-direction: row;
   padding: var(--space-6);
+}
+/* 精选卡顶部品牌渐变装饰条 */
+.discover-page__pick-card--featured::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .discover-page__pick-card--featured .discover-page__pick-cover-wrap {
   width: 140px;
@@ -353,6 +325,21 @@
 .discover-page__free-item:hover {
   transform: translateY(-4px);
 }
+/* 限免卡片专属橙色光晕边框效果 */
+.discover-page__free-item::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--color-accent-orange), var(--color-accent-orange-hover));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+  filter: blur(4px);
+}
+.discover-page__free-item:hover::before {
+  opacity: 0.4;
+}
 .discover-page__free-item:hover :is(.novel-book-card) {
   box-shadow: var(--sh-3);
   border-color: var(--color-accent-orange);
@@ -446,7 +433,7 @@
 }
 .discover-page__category-item:hover {
   transform: translateY(-4px) scale(1.03);
-  box-shadow: var(--sh-3);
+  box-shadow: var(--sh-3), 0 0 20px 4px var(--color-brand-glow-10);
   border-color: var(--color-brand);
 }
 .discover-page__category-item:active {
@@ -463,12 +450,14 @@
   color: var(--color-text-primary);
   box-shadow: var(--sh-1);
   transition:
-    transform var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+    transform var(--dur-fast) var(--ease-spring),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 .discover-page__category-item:hover .discover-page__category-icon {
   transform: scale(1.1);
   color: var(--color-brand);
+  box-shadow: 0 0 0 4px var(--color-brand-glow-10);
 }
 .discover-page__category-name {
   font-size: var(--font-size-small);
@@ -534,8 +523,21 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-brand);
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   border-radius: var(--radius-full);
+  box-shadow: 0 0 8px var(--color-brand-glow-30);
+  animation: rankTabGlow 2s var(--ease-standard) infinite;
+}
+
+@keyframes rankTabGlow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 12px var(--color-brand-glow-40);
+  }
 }
 .discover-page__rank-more {
   font-size: var(--font-size-caption);

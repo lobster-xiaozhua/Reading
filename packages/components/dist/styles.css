@@ -180,7 +180,7 @@
   height: 1em;
   border: 1.5px solid currentColor;
   border-right-color: transparent;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: novel-btn-spin 0.6s linear infinite;
   flex-shrink: 0;
 }
@@ -476,7 +476,7 @@
   background: var(--color-feedback-error);
   color: var(--color-text-inverse);
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-semibold);
   line-height: 16px;
   text-align: center;
@@ -489,7 +489,7 @@
   right: 2px;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-feedback-error);
   box-shadow: 0 0 0 1.5px var(--color-bg-surface);
   z-index: 1;
@@ -602,7 +602,7 @@
   left: 2px;
   transform: translateY(-50%);
   background: var(--color-bg-surface);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   box-shadow: var(--sh-1);
   transition: left var(--dur-fast) var(--ease-standard);
 }
@@ -774,7 +774,7 @@
   width: 16px;
   height: 16px;
   border: 1.5px solid var(--color-border-strong);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-bg-surface);
   flex-shrink: 0;
   transition:
@@ -784,7 +784,7 @@
 .novel-radio__dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-text-inverse);
   opacity: 0;
   transform: scale(0.4);
@@ -1284,7 +1284,7 @@
   width: 40px;
   height: 40px;
   background: var(--color-bg-subtle);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
@@ -1894,7 +1894,7 @@
   height: 14px;
   border: 1.5px solid var(--color-text-tertiary);
   border-right-color: transparent;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: novel-select-spin 0.6s linear infinite;
 }
 @keyframes novel-select-spin {
@@ -2127,7 +2127,7 @@
 .novel-content-status__dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: currentColor;
   flex-shrink: 0;
 }
@@ -2159,7 +2159,14 @@
 /* ============================================================
  * RatingStars · 03 §6.4
  * 半星图层裁剪；sm 12 / md 16 / lg 24；分布柱状图
+ * 星星 hover 弹性放大 + 点击填充弹跳
  * ============================================================ */
+
+@keyframes ratingPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
 
 .novel-rating__wrap {
   display: inline-flex;
@@ -2199,6 +2206,20 @@
 .novel-rating__star {
   display: inline-flex;
   flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-spring);
+  transform-origin: center center;
+}
+
+/* 交互态：hover 单星弹性放大 */
+.novel-rating.is-interactive .novel-rating__star {
+  cursor: pointer;
+}
+.novel-rating.is-interactive .novel-rating__star:hover {
+  transform: scale(1.25);
+}
+/* 交互态：点击弹跳 */
+.novel-rating.is-interactive:active .novel-rating__star {
+  animation: ratingPop 280ms var(--ease-spring) both;
 }
 
 /* ---------- 尺寸（sm 12 / md 16 / lg 24，03 §6.4 规格） ---------- */
@@ -2209,7 +2230,7 @@
   font-size: var(--font-size-body);
 }
 .novel-rating--lg {
-  font-size: 24px;
+  font-size: var(--font-size-h3);
 }
 
 /* ---------- 交互态 ---------- */
@@ -2380,7 +2401,7 @@
   right: var(--space-1);
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-rose);
   box-shadow: 0 0 0 1.5px var(--color-bg-surface);
 }
@@ -2589,7 +2610,7 @@
   flex-shrink: 0;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-rose);
 }
 
@@ -3303,7 +3324,7 @@
   top: 50%;
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-brand);
   border: 2px solid var(--color-bg-surface);
   transform: translate(-50%, -50%);
@@ -3498,7 +3519,7 @@
   appearance: none;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-brand);
   border: 3px solid var(--color-bg-surface);
   box-shadow: 0 2px 8px var(--color-shadow-soft-15);
@@ -3516,7 +3537,7 @@
 .novel-reader-settings__slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-brand);
   border: 3px solid var(--color-bg-surface);
   box-shadow: 0 2px 8px var(--color-shadow-soft-15);
@@ -4146,6 +4167,44 @@
   }
 }
 
+/* 章节切换交叉淡入 */
+.novel-reader__chapter-content {
+  animation: novelChapterEnter var(--dur-slow) var(--ease-decelerate) both;
+}
+@keyframes novelChapterEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* 减弱动效适配 */
+@media (prefers-reduced-motion: reduce) {
+  .novel-reader__chapter-content {
+    animation: none;
+  }
+}
+
+/* ---------- P8-A5 高对比模式：阅读器描边增强 ---------- */
+@media (prefers-contrast: more) {
+  .novel-reader__topbar,
+  .novel-reader__bottombar {
+    border-color: var(--novel-read-text);
+    border-width: 2px;
+  }
+  .novel-reader__chapter-end {
+    border-top-color: var(--novel-read-text);
+    border-top-width: 2px;
+  }
+  .novel-reader__nav-btn {
+    border-width: 2px;
+    border-color: var(--novel-read-text);
+  }
+}
+
 /* ---------- P8-A4 字号最大档（24px）响应式收窄行宽 ---------- */
 @media (max-width: 480px) {
   /* 小屏 + 大字号时收紧正文内边距，避免溢出 */
@@ -4354,7 +4413,7 @@
 /* P8-A6 色觉障碍友好：升/降文字标签，颜色之外的双重表达 */
 .novel-ranking__trend-label {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
 }

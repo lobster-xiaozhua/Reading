@@ -30,6 +30,17 @@
   border-radius: var(--radius-full);
   background: linear-gradient(180deg, var(--color-brand), var(--color-accent));
   box-shadow: var(--sh-glow-brand);
+  animation: sectionAccentPulse 3s var(--ease-standard) infinite;
+}
+
+@keyframes sectionAccentPulse {
+  0%,
+  100% {
+    box-shadow: var(--sh-glow-brand);
+  }
+  50% {
+    box-shadow: 0 0 8px 2px var(--color-brand-glow-30);
+  }
 }
 .novel-section-title__sub {
   font-size: var(--font-size-xs);

@@ -120,9 +120,10 @@
 }
 .novel-carousel__progress-fill {
   height: 100%;
-  background: var(--color-text-inverse);
+  background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   transition: width 0.1s linear;
   border-radius: 0 var(--radius-full) 0 0;
+  box-shadow: 0 0 8px var(--color-brand-glow-30);
 }
 .novel-carousel__dot {
   width: var(--space-2);
@@ -138,7 +139,8 @@
 }
 .novel-carousel__dot.is-active {
   width: var(--icon-size-md);
-  background: var(--color-text-inverse);
+  background: var(--color-brand);
+  box-shadow: 0 0 8px var(--color-brand-glow-40);
 }
 
 .novel-carousel__placeholder {

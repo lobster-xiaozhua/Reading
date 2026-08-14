@@ -435,6 +435,9 @@ img {
   .stagger-enter,
   .spring-press,
   .shine-sweep,
+  .pulse-glow,
+  .novel-section-title__text::before,
+  .discover-page__rank-tab.is-active::after,
   *,
   *::before,
   *::after {
@@ -666,4 +669,21 @@ img {
 /* ---------- 隐藏滚动条的横向滚动容器 ---------- */
 .scroll-x {
   scrollbar-width: none;
+}
+
+/* ============================================
+ * 呼吸光晕（徽章/标签脉冲效果）
+ * ============================================ */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--color-brand-glow-30);
+  }
+  50% {
+    box-shadow: 0 0 0 8px var(--color-brand-glow-0);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 3s var(--ease-standard) infinite;
 }
