@@ -72,7 +72,7 @@
   font-size: var(--font-size-body);
 }
 .novel-rating--lg {
-  font-size: 24px;
+  font-size: var(--font-size-h3);
 }
 
 /* ---------- 交互态 ---------- */

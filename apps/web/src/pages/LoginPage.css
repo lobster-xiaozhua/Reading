@@ -5,27 +5,7 @@
  * ============================================================ */
 
 /* 页面级动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 @keyframes floatSlow {
   0%, 100% {
@@ -147,7 +127,7 @@
   align-items: flex-start;
   gap: var(--space-3);
   color: var(--color-text-primary);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
 }
 .login-brand-mark {
   display: inline-flex;
@@ -230,7 +210,7 @@
   margin: 0 0 var(--space-6);
   color: var(--color-text-primary);
   text-wrap: balance;
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 .login-title-sub {
   font-family: var(--font-sans);
@@ -248,7 +228,7 @@
   padding: var(--space-1);
   background: var(--color-bg-subtle);
   border-radius: var(--radius-md);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 200ms both;
 }
 
 .login-tab {
@@ -282,7 +262,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 300ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 300ms both;
 }
 
 .login-field {
@@ -330,7 +310,7 @@
   letter-spacing: var(--letter-spacing-body);
   line-height: var(--line-height-snug);
   margin: 0;
-  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-fast) var(--ease-decelerate);
 }
 
 .login-submit {
@@ -409,7 +389,7 @@
   letter-spacing: var(--letter-spacing-body);
   line-height: var(--line-height-relaxed);
   margin: var(--space-5) 0 0;
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 500ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 500ms both;
 }
 
 /* ---------- 演示账号（一键填充） ---------- */
@@ -419,7 +399,7 @@
   justify-content: center;
   gap: var(--space-3);
   margin-top: var(--space-4);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 600ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 600ms both;
 }
 
 .login-demo-label {

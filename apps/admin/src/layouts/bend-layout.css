@@ -58,13 +58,13 @@
 }
 
 .bend-sider__logo-mark {
-  font-size: 24px;
+  font-size: var(--font-size-h3);
   font-weight: 700;
   color: var(--color-brand);
 }
 
 .bend-sider__logo-text {
-  font-size: 16px;
+  font-size: var(--font-size-body);
   font-weight: 600;
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -151,7 +151,7 @@
   color: var(--color-text-secondary);
   border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--font-size-h4);
   transition:
     background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard),
@@ -233,7 +233,7 @@
 
 .bend-header__palette-kbd {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-size-overline);
   color: var(--color-text-tertiary);
   border: 1px solid var(--color-border-default);
   border-bottom-width: 2px;
@@ -253,7 +253,7 @@
   color: var(--color-text-secondary);
   border-radius: var(--radius-md);
   cursor: pointer;
-  font-size: 18px;
+  font-size: var(--font-size-h4);
   transition:
     background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard),
@@ -352,7 +352,7 @@
   min-width: 120px;
   max-width: 200px;
   border-radius: var(--radius-md) var(--radius-md) 0 0 !important;
-  font-size: 13px;
+  font-size: var(--font-size-caption);
   transition:
     background var(--dur-fast) var(--ease-standard),
     color var(--dur-fast) var(--ease-standard),

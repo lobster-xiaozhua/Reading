@@ -197,7 +197,7 @@
 /* P8-A6 色觉障碍友好：升/降文字标签，颜色之外的双重表达 */
 .novel-ranking__trend-label {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: var(--font-size-tiny);
   font-weight: var(--font-weight-semibold);
   line-height: 1;
 }

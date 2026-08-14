@@ -3,16 +3,6 @@
  * ============================================================ */
 
 /* ---------- 页面级淡入 ---------- */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* 光泽扫过动画 */
 @keyframes shimmerSweep {
@@ -37,7 +27,7 @@
 .discover-page {
   padding-top: var(--space-6);
   padding-bottom: var(--space-16);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
 }
 
 .discover-page__banner {
@@ -46,7 +36,7 @@
 
 .discover-page__section {
   margin-bottom: var(--space-10);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 
 /* ---------- 交错入场 ---------- */

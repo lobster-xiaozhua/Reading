@@ -1,21 +1,7 @@
 /* ============================================================
  * 页面级淡入动画
  * ============================================================ */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
 
 /* 按钮涟漪效果 */
 @keyframes ripple {
@@ -52,7 +38,7 @@
 .book-detail {
   padding-top: var(--space-4);
   padding-bottom: var(--space-10);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
 }
 
 /* ---------- 面包屑 ---------- */
@@ -90,7 +76,7 @@
   margin-bottom: var(--space-8);
   position: relative;
   overflow: hidden;
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 100ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 100ms both;
 }
 
 /* 封面背景氛围光：模糊 + 光晕 */
@@ -277,7 +263,7 @@
   width: 100px;
   height: 100px;
   background: var(--color-brand-bg);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   opacity: 0.4;
 }
 .book-detail__last-read::after {
@@ -288,7 +274,7 @@
   width: 60px;
   height: 60px;
   background: var(--color-brand-bg);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   opacity: 0.3;
 }
 .book-detail__last-read-info {
@@ -407,7 +393,7 @@
 /* ---------- 简介 ---------- */
 .book-detail__intro {
   margin-bottom: var(--space-8);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 150ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 150ms both;
 }
 .book-detail__intro-text {
   margin: 0;
@@ -424,7 +410,7 @@
 /* ---------- 评分 ---------- */
 .book-detail__rating {
   margin-bottom: var(--space-8);
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 250ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 250ms both;
 }
 
 /* ---------- Tab 区 ---------- */
@@ -433,12 +419,12 @@
 }
 .book-detail__chapters {
   max-height: 600px;
-  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-fast) var(--ease-decelerate);
 }
 
 /* Tab 切换过渡 */
 .book-detail__tabs [role="tabpanel"] {
-  animation: fadeInUp var(--dur-fast) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-fast) var(--ease-decelerate);
 }
 
 /* 章节列表项交互 */
@@ -582,7 +568,7 @@
 .book-detail__comment {
   padding: var(--space-4) 0;
   border-bottom: 1px solid var(--color-border-subtle);
-  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+  animation: pageFadeIn var(--dur-fast) var(--ease-decelerate) both;
   transition: background var(--dur-fast) var(--ease-standard);
   border-radius: var(--radius-sm);
   padding-left: var(--space-2);
@@ -639,7 +625,7 @@
   background: var(--color-accent-orange);
   color: var(--color-text-inverse);
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: var(--font-size-overline);
   font-weight: var(--font-weight-semibold);
 }
 .book-detail__comment-time {
@@ -718,7 +704,7 @@
   gap: var(--space-2);
   padding: var(--space-8) var(--space-4);
   text-align: center;
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate) 200ms both;
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate) 200ms both;
 }
 .book-detail__reward-text {
   margin: 0;
@@ -775,7 +761,7 @@
     box-shadow: var(--sh-5);
   }
   .book-detail__stat-value {
-    font-size: 28px;
+    font-size: var(--font-size-h2);
   }
   .book-detail__stats {
     gap: var(--space-10);

@@ -4,16 +4,6 @@
  * ============================================================ */
 
 /* 页面级动画 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 .follow-page {
   width: 100%;
@@ -21,12 +11,12 @@
   margin: 0 auto;
   padding: var(--space-4) var(--space-4) var(--space-8);
   min-height: 100vh;
-  animation: fadeInUp var(--dur-normal) var(--ease-decelerate);
+  animation: pageFadeIn var(--dur-normal) var(--ease-decelerate);
 }
 
 /* 列表项 staggered 进入 */
 .follow-page__list > li {
-  animation: fadeInUp var(--dur-fast) var(--ease-decelerate) both;
+  animation: pageFadeIn var(--dur-fast) var(--ease-decelerate) both;
 }
 
 /* ---------- 顶部栏 ---------- */
