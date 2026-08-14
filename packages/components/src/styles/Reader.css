@@ -497,8 +497,18 @@
     border-color: var(--novel-read-text);
     border-width: 2px;
   }
+  .novel-reader__chapter-end {
+    border-top-color: var(--novel-read-text);
+    border-top-width: 2px;
+  }
+  .novel-reader__nav-btn {
+    border-width: 2px;
+    border-color: var(--novel-read-text);
+  }
+}
+
+/* 章节切换交叉淡入 */
 .novel-reader__chapter-content {
-  /* 章节切换交叉淡入 */
   animation: novelChapterEnter var(--dur-slow) var(--ease-decelerate) both;
 }
 @keyframes novelChapterEnter {
@@ -517,6 +527,15 @@
     animation: none;
   }
 }
+
+/* ---------- P8-A5 高对比模式：阅读器描边增强 ---------- */
+@media (prefers-contrast: more) {
+  .novel-reader__topbar,
+  .novel-reader__bottombar {
+    border-color: var(--novel-read-text);
+    border-width: 2px;
+  }
+  .novel-reader__chapter-end {
     border-top-color: var(--novel-read-text);
     border-top-width: 2px;
   }
