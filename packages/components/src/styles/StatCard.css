@@ -35,10 +35,17 @@
 
 /* 数值渐变过渡：数据刷新时平滑，避免数字跳变生硬 */
 .stat-card__value {
-  transition: opacity var(--dur-normal) var(--ease-standard);
+  transition: opacity var(--dur-normal) var(--ease-standard), color var(--dur-normal) var(--ease-standard);
 }
 .stat-card__value.is-updating {
   opacity: 0.4;
+}
+.stat-card__value.is-updated {
+  animation: statValueFlash 300ms var(--ease-decelerate);
+}
+@keyframes statValueFlash {
+  0% { color: var(--color-brand); }
+  100% { color: var(--color-accent-orange); }
 }
 
 /* 长数值：收紧字距保持一行可读 */

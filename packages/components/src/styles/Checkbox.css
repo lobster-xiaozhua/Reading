@@ -51,10 +51,20 @@
 .novel-checkbox.is-checked .novel-checkbox__box {
   background: var(--color-brand);
   border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
 }
 .novel-checkbox.is-checked .novel-checkbox__check {
   opacity: 1;
   transform: scale(1);
+  transition:
+    opacity var(--dur-fast) var(--ease-decelerate),
+    transform var(--dur-fast) var(--ease-spring);
+}
+.novel-checkbox:active .novel-checkbox__box {
+  transform: scale(0.92);
+}
+.novel-checkbox.is-checked:active .novel-checkbox__box {
+  transform: scale(0.92);
 }
 
 .novel-checkbox.is-indeterminate .novel-checkbox__box {

@@ -26,6 +26,19 @@
   line-height: 16px;
   text-align: center;
   z-index: 1;
+  box-shadow: 0 1px 4px var(--color-shadow-rose-soft);
+  animation: badgeCountPulse 2.5s var(--ease-standard) infinite;
+}
+
+@keyframes badgeCountPulse {
+  0%,
+  100% {
+    box-shadow: 0 1px 4px var(--color-shadow-rose-soft);
+  }
+  50% {
+    box-shadow: 0 1px 8px 2px var(--color-shadow-rose-soft);
+    opacity: 0.85;
+  }
 }
 
 .novel-badge__dot {
@@ -36,6 +49,17 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-feedback-error);
-  box-shadow: 0 0 0 1.5px var(--color-bg-surface);
+  box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 0 var(--color-shadow-rose-soft);
   z-index: 1;
+  animation: badgeDotPulse 2s var(--ease-standard) infinite;
+}
+
+@keyframes badgeDotPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 0 var(--color-shadow-rose-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 4px var(--color-shadow-rose-soft);
+  }
 }

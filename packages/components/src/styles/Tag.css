@@ -19,22 +19,19 @@
 .novel-tag--default {
   background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
-.novel-tag--success {
-  background: var(--color-feedback-success-bg);
-  color: var(--color-feedback-success);
-}
-.novel-tag--warning {
-  background: var(--color-feedback-warning-bg);
-  color: var(--color-feedback-warning);
-}
-.novel-tag--error {
-  background: var(--color-feedback-error-bg);
-  color: var(--color-feedback-error);
+.novel-tag--default:hover {
+  background: var(--color-bg-elevated);
+  box-shadow: var(--sh-1);
 }
 .novel-tag--primary {
   background: var(--color-brand-bg);
   color: var(--color-brand);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-tag--primary:hover {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
 }
 
 .novel-tag__close {

@@ -21,6 +21,7 @@
   top: 0;
   bottom: 0;
   width: 4px;
+  box-shadow: 2px 0 8px var(--color-overlay-subtle);
 }
 
 .novel-alert--info {

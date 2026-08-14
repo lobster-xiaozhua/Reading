@@ -20,11 +20,12 @@
 
 .novel-input:hover {
   border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 1px var(--color-border-subtle);
 }
 
 .novel-input:focus-within {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--sh-1);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg), var(--sh-1);
 }
 
 .novel-input__input {

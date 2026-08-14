@@ -108,6 +108,10 @@
   --color-shadow-orange-soft: rgba(227, 115, 24, 0.3);
   --color-shadow-orange-strong: rgba(227, 115, 24, 0.4);
 
+  /* ---------- L2 Semantic · 反馈色阴影（玫瑰红 / 错误） ---------- */
+  --color-shadow-rose-soft: rgba(245, 34, 45, 0.3);
+  --color-shadow-rose-strong: rgba(245, 34, 45, 0.5);
+
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
   --color-feedback-success-bg: var(--success-1);
