@@ -36,7 +36,18 @@
   background: var(--color-text-inverse);
   opacity: 0;
   transform: scale(0.4);
-  transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+  transition:
+    opacity var(--dur-fast) var(--ease-decelerate),
+    transform var(--dur-fast) var(--ease-spring);
+}
+
+.novel-radio.is-checked .novel-radio__dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.novel-radio.is-checked:hover .novel-radio__dot {
+  transform: scale(1.1);
 }
 
 .novel-radio.is-checked .novel-radio__box {

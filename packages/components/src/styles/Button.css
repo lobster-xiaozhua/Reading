@@ -55,26 +55,62 @@
 .novel-btn--primary {
   background: var(--color-brand);
   color: var(--color-text-inverse);
+  box-shadow: 0 1px 4px var(--color-brand-glow-20);
+  position: relative;
+  overflow: hidden;
+}
+.novel-btn--primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s var(--ease-decelerate);
+  pointer-events: none;
+}
+.novel-btn--primary:hover::before {
+  left: 120%;
 }
 .novel-btn--primary:hover {
   background: var(--color-brand-hover);
+  box-shadow: 0 2px 8px var(--color-brand-glow-30);
+  transform: translateY(-1px);
 }
 .novel-btn--primary:active {
   background: var(--color-brand-active);
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
 }
 
 .novel-btn--secondary {
   background: var(--color-bg-surface);
   color: var(--color-brand);
   border-color: var(--color-border-default);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 .novel-btn--secondary:hover {
   border-color: var(--color-brand);
   background: var(--color-brand-bg);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  transform: translateY(-1px);
 }
 .novel-btn--secondary:active {
   background: var(--color-brand-bg);
   border-color: var(--color-brand-active);
+  transform: translateY(0) scale(0.98);
 }
 
 .novel-btn--ghost {
@@ -83,9 +119,11 @@
 }
 .novel-btn--ghost:hover {
   background: var(--color-bg-subtle);
+  transform: translateY(-1px);
 }
 .novel-btn--ghost:active {
   background: var(--color-bg-subtle);
+  transform: scale(0.98);
 }
 
 .novel-btn--danger {
@@ -95,9 +133,12 @@
 .novel-btn--danger:hover {
   background: var(--color-feedback-error);
   filter: brightness(1.08);
+  box-shadow: 0 2px 8px var(--color-shadow-orange-soft);
+  transform: translateY(-1px);
 }
 .novel-btn--danger:active {
   filter: brightness(0.92);
+  transform: translateY(0) scale(0.98);
 }
 
 .novel-btn--link {

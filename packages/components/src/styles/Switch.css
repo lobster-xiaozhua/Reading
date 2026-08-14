@@ -54,6 +54,36 @@
 
 .novel-switch.is-checked {
   background: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg), var(--sh-1);
+}
+
+.novel-switch__thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%) scale(1);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--sh-1);
+  transition:
+    left var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring);
+}
+
+.novel-switch:hover:not(:disabled) .novel-switch__thumb {
+  box-shadow: var(--sh-2);
+}
+
+.novel-switch.is-checked:hover:not(:disabled) .novel-switch__thumb {
+  box-shadow: 0 0 0 3px var(--color-brand-bg), var(--sh-1);
+}
+
+.novel-switch:active .novel-switch__thumb {
+  transform: translateY(-50%) scale(0.88);
+}
+.novel-switch.is-checked:active .novel-switch__thumb {
+  transform: translateY(-50%) scale(0.88);
 }
 
 .novel-switch:focus-visible {
