@@ -101,6 +101,30 @@
   height: 3px;
   background: linear-gradient(90deg, var(--color-accent-orange), var(--color-accent), var(--color-accent-orange));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 2px 12px var(--color-shadow-orange-soft);
+  animation: benefitBarPulse 3s var(--ease-standard) infinite;
+}
+@keyframes benefitBarPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+/* 权益卡光泽扫过 */
+.vip-page__benefit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    var(--color-overlay-white-08) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+  transition: transform 0.8s ease;
+}
+.vip-page__benefit:hover::after {
+  transform: translateX(100%);
 }
 .vip-page__benefit-title {
   display: flex;
@@ -498,7 +522,8 @@
 /* ---------- 减弱动效适配 ---------- */
 @media (prefers-reduced-motion: reduce) {
   .vip-page,
-  .vip-page__plan {
+  .vip-page__plan,
+  .vip-page__benefit::before {
     animation: none;
     transition: none;
   }

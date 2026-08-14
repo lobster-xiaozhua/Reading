@@ -100,6 +100,12 @@
   grid-column: 1 / -1;
   flex-direction: row;
   padding: var(--space-6);
+  border-color: var(--color-border-default);
+  box-shadow: var(--sh-2);
+}
+.discover-page__pick-card--featured:hover {
+  box-shadow: var(--sh-4), 0 0 32px var(--color-brand-glow-20);
+  border-color: var(--color-brand-border);
 }
 /* 精选卡顶部品牌渐变装饰条 */
 .discover-page__pick-card--featured::before {
@@ -111,10 +117,38 @@
   height: 3px;
   background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 2px 8px var(--color-brand-glow-30);
+}
+/* 精选卡持续光泽扫过 */
+.discover-page__pick-card--featured::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    var(--color-overlay-white-08) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  pointer-events: none;
+  animation: featuredShimmer 4s var(--ease-smooth) infinite;
+}
+@keyframes featuredShimmer {
+  0% { transform: translateX(-100%); }
+  40%, 100% { transform: translateX(100%); }
 }
 .discover-page__pick-card--featured .discover-page__pick-cover-wrap {
   width: 140px;
   height: 200px;
+  box-shadow: var(--sh-3);
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+.discover-page__pick-card--featured:hover .discover-page__pick-cover-wrap {
+  box-shadow: var(--sh-4), 0 0 0 3px var(--color-brand-border);
 }
 .discover-page__pick-card--featured .discover-page__pick-title {
   font-size: var(--font-size-h3);
@@ -686,11 +720,15 @@
   .discover-page__category-item,
   .discover-page__rank-item,
   .discover-page__rank-num,
-  .discover-page__free-badge {
+  .discover-page__free-badge,
+  .discover-page__pick-card--featured::after {
     animation: none;
     transition: none;
   }
   .discover-page__pick-card:hover .discover-page__pick-cover {
     transform: none;
+  }
+  .discover-page__pick-card--featured:hover .discover-page__pick-cover-wrap {
+    box-shadow: var(--sh-3);
   }
 }
