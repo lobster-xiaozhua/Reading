@@ -32,15 +32,27 @@
   box-shadow: var(--sh-1);
   position: relative;
   overflow: hidden;
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
 }
-.profile-page__user-card::before {
-  content: "";
+.profile-page__user-card::after {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(to right, var(--color-brand), var(--color-accent), var(--color-rose));
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    var(--color-overlay-white-05) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s ease;
+  pointer-events: none;
+}
+.profile-page__user-card:hover::after {
+  transform: translateX(100%);
+}
+.profile-page__user-card:hover {
+  box-shadow: var(--sh-2), 0 0 24px var(--color-brand-glow-10);
 }
 .profile-page__user-info {
   display: flex;
@@ -124,6 +136,10 @@
   font-size: var(--font-size-h4);
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+.profile-page__user-card:hover .profile-page__stat-value {
+  color: var(--color-brand);
 }
 .profile-page__stat-label {
   font-size: var(--font-size-xs);
@@ -191,6 +207,7 @@
   margin-bottom: var(--space-3);
   padding-left: var(--space-3);
   border-left: 3px solid var(--color-brand);
+  box-shadow: inset 4px 0 8px -4px var(--color-brand-glow-20);
 }
 .profile-page__timeline-items {
   list-style: none;

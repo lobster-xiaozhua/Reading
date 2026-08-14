@@ -7,6 +7,13 @@
   box-shadow: var(--sh-1);
   backdrop-filter: saturate(180%) blur(12px);
   -webkit-backdrop-filter: saturate(180%) blur(12px);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-navbar.is-scrolled {
+  background: var(--color-bg-elevated);
+  box-shadow: var(--sh-2), 0 1px 0 var(--color-border-subtle);
 }
 
 .novel-navbar__inner {

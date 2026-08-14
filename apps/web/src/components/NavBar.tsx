@@ -15,6 +15,7 @@ export function NavBar() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.profile);
   const [keyword, setKeyword] = useState("");
+  const [scrolled, setScrolled] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const categoriesRef = useRef<Category[]>([]);
   const hasLoadedRef = useRef(false);
@@ -28,6 +29,9 @@ export function NavBar() {
         setCategories(cats);
       });
     }
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const onSearch = (e: React.FormEvent) => {
@@ -48,7 +52,7 @@ export function NavBar() {
   }, [categories]);
 
   return (
-    <header className="novel-navbar" role="banner">
+    <header className={`novel-navbar${scrolled ? " is-scrolled" : ""}`} role="banner">
       <div className="novel-navbar__inner container-page">
         <Link
           to="/"

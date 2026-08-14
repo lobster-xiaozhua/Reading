@@ -103,6 +103,24 @@
     transform var(--dur-fast) var(--ease-standard),
     box-shadow var(--dur-fast) var(--ease-standard);
 }
+/* 统计卡片光泽扫过 */
+.reading-stats-page__stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    var(--color-overlay-white-08) 50%,
+    transparent 60%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.reading-stats-page__stat-card:hover::after {
+  transform: translateX(100%);
+}
 .reading-stats-page__stat-card:hover {
   transform: translateY(-2px);
   box-shadow: var(--sh-3);
@@ -421,6 +439,11 @@
 }
 .reading-stats-page__badge-card.is-unlocked {
   border-color: var(--color-accent-orange);
+  box-shadow: 0 0 0 1px var(--color-accent-orange-bg), var(--sh-1);
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+.reading-stats-page__badge-card.is-unlocked:hover {
+  box-shadow: 0 0 12px 2px var(--color-accent-orange-bg), var(--sh-2);
 }
 .reading-stats-page__badge-card.is-locked {
   background: var(--color-bg-subtle);
