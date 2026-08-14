@@ -33,9 +33,12 @@ export function Reader({ chapter, loading = false, error = null, currentIndex, t
     const [controlsVisible, setControlsVisible] = useState(false);
     const [settingsVisible, setSettingsVisible] = useState(false);
     const [elapsedMs, setElapsedMs] = useState(0);
+    /** 章节切换时触发的过渡帧计数，驱动 CSS 交叉淡入动画 */
+    const [chapterTransKey, setChapterTransKey] = useState(0);
     const idleTimerRef = useRef(null);
     const contentRef = useRef(null);
     const sessionStartRef = useRef(Date.now());
+    const prevChapterIdRef = useRef(null);
     /* ---------- 主题/字体/行距通过 inline style 注入 CSS 变量 ---------- */
     const themeVars = THEME_VARS[settings.theme];
     const fontFamilyVar = FONT_FAMILY_VAR[settings.fontFamily];
@@ -97,6 +100,11 @@ export function Reader({ chapter, loading = false, error = null, currentIndex, t
     }, [settings.pageMode, onProgress]);
     /* ---------- 翻页：click 模式点击左/右半屏 ---------- */
     const handleContentClick = useCallback((e) => {
+        // 有文本选区时视为选词/复制意图，不触发翻页（避免跨半屏选词被翻页打断）
+        const sel = window.getSelection();
+        if (sel && !sel.isCollapsed && sel.toString().trim()) {
+            return;
+        }
         if (settings.pageMode !== "click") {
             // 非点击翻页模式：点击中央区域唤出控制栏
             const rect = e.currentTarget.getBoundingClientRect();
@@ -288,10 +296,14 @@ export function Reader({ chapter, loading = false, error = null, currentIndex, t
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [onPrev, onNext, controlsVisible, settingsVisible, showControls]);
-    /* ---------- 章节切换时重置滚动位置 ---------- */
+    /* ---------- 章节切换时触发淡入动画 + 重置滚动 ---------- */
     useEffect(() => {
-        if (contentRef.current && settings.pageMode === "scroll") {
-            contentRef.current.scrollTop = 0;
+        if (chapter?.id && chapter.id !== prevChapterIdRef.current) {
+            prevChapterIdRef.current = chapter.id;
+            setChapterTransKey((k) => k + 1);
+            if (contentRef.current && settings.pageMode === "scroll") {
+                contentRef.current.scrollTop = 0;
+            }
         }
     }, [chapter?.id, settings.pageMode]);
     /* ---------- 渲染 ---------- */
@@ -315,7 +327,12 @@ export function Reader({ chapter, loading = false, error = null, currentIndex, t
                         : "" }), hasProgress ? (_jsx(ReadingProgress, { current: currentIndex, total: totalChapters, percent: chapterPercent, onSeek: onSeek, disableSeek: disableSeek })) : null, loading ? (_jsx("div", { className: "novel-reader__loading-bar", role: "status", "aria-label": "\u7AE0\u8282\u52A0\u8F7D\u4E2D", children: _jsx("div", { className: "novel-reader__loading-bar-fill" }) })) : null, _jsx("div", { ref: contentRef, className: "novel-reader__content", style: contentStyle, onClick: handleContentClick, onTouchStart: handleTouchStart, onTouchMove: handleTouchMove, onTouchEnd: handleTouchEnd, onScroll: handleScroll, "aria-label": "\u7AE0\u8282\u6B63\u6587", children: _jsx("div", { className: "novel-reader__inner", children: error ? (_jsxs("div", { className: "novel-reader__error", role: "alert", children: [_jsx("p", { children: "\u7AE0\u8282\u52A0\u8F7D\u5931\u8D25" }), _jsx("p", { className: "novel-reader__error-detail", children: error.message }), _jsx("button", { type: "button", className: "novel-reader__nav-btn novel-reader__nav-btn--primary", onClick: () => {
                                     // 触发重新加载
                                     window.location.reload();
-                                }, children: "\u91CD\u8BD5" })] })) : chapter ? (_jsxs("article", { children: [_jsx("h1", { className: "novel-reader__chapter-title", children: chapter.title }), _jsx("div", { className: "novel-reader__article-body", 
+                                }, children: "\u91CD\u8BD5" })] })) : chapter ? (_jsxs("article", { className: [
+                            "novel-reader__chapter-content",
+                            chapterTransKey > 0 ? "is-entering" : "",
+                        ]
+                            .filter(Boolean)
+                            .join(" "), children: [_jsx("h1", { className: "novel-reader__chapter-title", children: chapter.title }), _jsx("div", { className: "novel-reader__article-body", 
                                 // content 由调用方控制 HTML，已是受信任的章节正文
                                 dangerouslySetInnerHTML: { __html: chapter.content } }), _jsxs("div", { className: "novel-reader__chapter-end", children: [_jsx("button", { type: "button", className: "novel-reader__nav-btn novel-reader__nav-btn--primary", onClick: onNext, disabled: !onNext, children: "\u4E0B\u4E00\u7AE0" }), _jsx("button", { type: "button", className: "novel-reader__nav-btn", onClick: onPrev, disabled: !onPrev, children: "\u4E0A\u4E00\u7AE0" })] }), nextChapterTitle ? (_jsxs("div", { className: "novel-reader__next-chapter-preview", children: [_jsxs("div", { className: "novel-reader__next-chapter-preview-label", children: [_jsx("span", { className: "novel-reader__next-chapter-preview-badge", children: "\u4E0B\u4E00\u7AE0" }), _jsx("span", { className: "novel-reader__next-chapter-preview-title", children: nextChapterTitle })] }), nextChapterPreview ? (_jsx("p", { className: "novel-reader__next-chapter-preview-text", children: nextChapterPreview })) : null, _jsx("button", { type: "button", className: "novel-reader__nav-btn novel-reader__nav-btn--primary", onClick: onNext, disabled: !onNext, children: "\u7ACB\u5373\u9605\u8BFB" })] })) : null] })) : loading ? (_jsx("div", { className: "novel-reader__placeholder", "aria-hidden": true })) : null }) }), settings.pageMode === "click" && chapter ? (_jsxs(_Fragment, { children: [_jsx("div", { className: "novel-reader__tap-zone novel-reader__tap-zone--left", "aria-hidden": true }), _jsx("div", { className: "novel-reader__tap-zone novel-reader__tap-zone--right", "aria-hidden": true })] })) : null, _jsxs("div", { className: "novel-reader__topbar", "aria-hidden": !controlsVisible, children: [_jsx("button", { type: "button", className: "novel-reader__icon-btn", "aria-label": "\u8FD4\u56DE", onClick: onBack, children: _jsx(NavigationChevronLeft, { size: "lg", "aria-hidden": "true" }) }), _jsxs("div", { className: "novel-reader__topbar-title-wrap", children: [_jsx("div", { className: "novel-reader__topbar-chapter-num", children: currentIndex != null && totalChapters != null
                                     ? `${currentIndex} / ${totalChapters}`

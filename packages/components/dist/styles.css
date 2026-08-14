@@ -95,26 +95,62 @@
 .novel-btn--primary {
   background: var(--color-brand);
   color: var(--color-text-inverse);
+  box-shadow: 0 1px 4px var(--color-brand-glow-20);
+  position: relative;
+  overflow: hidden;
+}
+.novel-btn--primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.5s var(--ease-decelerate);
+  pointer-events: none;
+}
+.novel-btn--primary:hover::before {
+  left: 120%;
 }
 .novel-btn--primary:hover {
   background: var(--color-brand-hover);
+  box-shadow: 0 2px 8px var(--color-brand-glow-30);
+  transform: translateY(-1px);
 }
 .novel-btn--primary:active {
   background: var(--color-brand-active);
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
 }
 
 .novel-btn--secondary {
   background: var(--color-bg-surface);
   color: var(--color-brand);
   border-color: var(--color-border-default);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
 }
 .novel-btn--secondary:hover {
   border-color: var(--color-brand);
   background: var(--color-brand-bg);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  transform: translateY(-1px);
 }
 .novel-btn--secondary:active {
   background: var(--color-brand-bg);
   border-color: var(--color-brand-active);
+  transform: translateY(0) scale(0.98);
 }
 
 .novel-btn--ghost {
@@ -123,9 +159,11 @@
 }
 .novel-btn--ghost:hover {
   background: var(--color-bg-subtle);
+  transform: translateY(-1px);
 }
 .novel-btn--ghost:active {
   background: var(--color-bg-subtle);
+  transform: scale(0.98);
 }
 
 .novel-btn--danger {
@@ -135,9 +173,12 @@
 .novel-btn--danger:hover {
   background: var(--color-feedback-error);
   filter: brightness(1.08);
+  box-shadow: 0 2px 8px var(--color-shadow-orange-soft);
+  transform: translateY(-1px);
 }
 .novel-btn--danger:active {
   filter: brightness(0.92);
+  transform: translateY(0) scale(0.98);
 }
 
 .novel-btn--link {
@@ -247,11 +288,12 @@
 
 .novel-input:hover {
   border-color: var(--color-border-strong);
+  box-shadow: 0 0 0 1px var(--color-border-subtle);
 }
 
 .novel-input:focus-within {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--sh-1);
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px var(--color-brand-bg), var(--sh-1);
 }
 
 .novel-input__input {
@@ -410,22 +452,19 @@
 .novel-tag--default {
   background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
 }
-.novel-tag--success {
-  background: var(--color-feedback-success-bg);
-  color: var(--color-feedback-success);
-}
-.novel-tag--warning {
-  background: var(--color-feedback-warning-bg);
-  color: var(--color-feedback-warning);
-}
-.novel-tag--error {
-  background: var(--color-feedback-error-bg);
-  color: var(--color-feedback-error);
+.novel-tag--default:hover {
+  background: var(--color-bg-elevated);
+  box-shadow: var(--sh-1);
 }
 .novel-tag--primary {
   background: var(--color-brand-bg);
   color: var(--color-brand);
+  transition: background var(--dur-fast) var(--ease-standard), color var(--dur-fast) var(--ease-standard), box-shadow var(--dur-fast) var(--ease-standard);
+}
+.novel-tag--primary:hover {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
 }
 
 .novel-tag__close {
@@ -481,6 +520,19 @@
   line-height: 16px;
   text-align: center;
   z-index: 1;
+  box-shadow: 0 1px 4px var(--color-shadow-rose-soft);
+  animation: badgeCountPulse 2.5s var(--ease-standard) infinite;
+}
+
+@keyframes badgeCountPulse {
+  0%,
+  100% {
+    box-shadow: 0 1px 4px var(--color-shadow-rose-soft);
+  }
+  50% {
+    box-shadow: 0 1px 8px 2px var(--color-shadow-rose-soft);
+    opacity: 0.85;
+  }
 }
 
 .novel-badge__dot {
@@ -491,8 +543,19 @@
   height: 8px;
   border-radius: var(--radius-full);
   background: var(--color-feedback-error);
-  box-shadow: 0 0 0 1.5px var(--color-bg-surface);
+  box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 0 var(--color-shadow-rose-soft);
   z-index: 1;
+  animation: badgeDotPulse 2s var(--ease-standard) infinite;
+}
+
+@keyframes badgeDotPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 0 var(--color-shadow-rose-soft);
+  }
+  50% {
+    box-shadow: 0 0 0 1.5px var(--color-bg-surface), 0 0 0 4px var(--color-shadow-rose-soft);
+  }
 }
 
 /* ============================================================
@@ -635,6 +698,36 @@
 
 .novel-switch.is-checked {
   background: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg), var(--sh-1);
+}
+
+.novel-switch__thumb {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%) scale(1);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--sh-1);
+  transition:
+    left var(--dur-fast) var(--ease-spring),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-instant) var(--ease-spring);
+}
+
+.novel-switch:hover:not(:disabled) .novel-switch__thumb {
+  box-shadow: var(--sh-2);
+}
+
+.novel-switch.is-checked:hover:not(:disabled) .novel-switch__thumb {
+  box-shadow: 0 0 0 3px var(--color-brand-bg), var(--sh-1);
+}
+
+.novel-switch:active .novel-switch__thumb {
+  transform: translateY(-50%) scale(0.88);
+}
+.novel-switch.is-checked:active .novel-switch__thumb {
+  transform: translateY(-50%) scale(0.88);
 }
 
 .novel-switch:focus-visible {
@@ -706,10 +799,20 @@
 .novel-checkbox.is-checked .novel-checkbox__box {
   background: var(--color-brand);
   border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
 }
 .novel-checkbox.is-checked .novel-checkbox__check {
   opacity: 1;
   transform: scale(1);
+  transition:
+    opacity var(--dur-fast) var(--ease-decelerate),
+    transform var(--dur-fast) var(--ease-spring);
+}
+.novel-checkbox:active .novel-checkbox__box {
+  transform: scale(0.92);
+}
+.novel-checkbox.is-checked:active .novel-checkbox__box {
+  transform: scale(0.92);
 }
 
 .novel-checkbox.is-indeterminate .novel-checkbox__box {
@@ -788,7 +891,18 @@
   background: var(--color-text-inverse);
   opacity: 0;
   transform: scale(0.4);
-  transition: opacity var(--dur-fast) var(--ease-standard), transform var(--dur-fast) var(--ease-standard);
+  transition:
+    opacity var(--dur-fast) var(--ease-decelerate),
+    transform var(--dur-fast) var(--ease-spring);
+}
+
+.novel-radio.is-checked .novel-radio__dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.novel-radio.is-checked:hover .novel-radio__dot {
+  transform: scale(1.1);
 }
 
 .novel-radio.is-checked .novel-radio__box {
@@ -1013,6 +1127,7 @@
   top: 0;
   bottom: 0;
   width: 4px;
+  box-shadow: 2px 0 8px var(--color-overlay-subtle);
 }
 
 .novel-alert--info {
@@ -1451,16 +1566,24 @@
 .novel-drawer--right {
   right: 0;
   transform: translateX(100%);
+  box-shadow: -4px 0 24px var(--color-shadow-soft-15);
 }
 .novel-drawer--right.is-ready {
   transform: translateX(0);
+  box-shadow: -8px 0 32px var(--color-shadow-soft-15);
+  transition: transform var(--dur-normal) var(--ease-decelerate),
+    box-shadow var(--dur-normal) var(--ease-standard);
 }
 .novel-drawer--left {
   left: 0;
   transform: translateX(-100%);
+  box-shadow: 4px 0 24px var(--color-shadow-soft-15);
 }
 .novel-drawer--left.is-ready {
   transform: translateX(0);
+  box-shadow: 8px 0 32px var(--color-shadow-soft-15);
+  transition: transform var(--dur-normal) var(--ease-decelerate),
+    box-shadow var(--dur-normal) var(--ease-standard);
 }
 
 /* ---------- 头部 ---------- */
@@ -2767,6 +2890,16 @@
 }
 
 /* ---------- 列表项（固定 48px） ---------- */
+@keyframes chapterListItemEnter {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 .novel-chapter-list__item {
   display: flex;
   align-items: center;
@@ -2782,11 +2915,21 @@
   text-align: left;
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-standard),
-    color var(--dur-fast) var(--ease-standard);
+    color var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-spring);
   box-sizing: border-box;
+  animation: chapterListItemEnter var(--dur-fast) var(--ease-decelerate) both;
 }
+/* stagger */
+.novel-chapter-list__item:nth-child(1)  { animation-delay: 0ms; }
+.novel-chapter-list__item:nth-child(2)  { animation-delay: 30ms; }
+.novel-chapter-list__item:nth-child(3)  { animation-delay: 60ms; }
+.novel-chapter-list__item:nth-child(4)  { animation-delay: 90ms; }
+.novel-chapter-list__item:nth-child(5)  { animation-delay: 120ms; }
+.novel-chapter-list__item:nth-child(n+6) { animation-delay: 150ms; }
 .novel-chapter-list__item:hover {
   background: var(--color-bg-subtle);
+  transform: translateX(2px);
 }
 .novel-chapter-list__item:focus-visible {
   outline: none;
@@ -3308,7 +3451,7 @@
   border-radius: var(--radius-sm);
 }
 
-/* 填充 */
+/* 填充 + 光泽扫过 */
 .novel-reading-progress__fill {
   position: absolute;
   top: 0;
@@ -3316,6 +3459,31 @@
   height: 100%;
   background: var(--color-brand);
   border-radius: var(--radius-full);
+  animation: progressShimmer 3s var(--ease-standard) infinite;
+}
+.novel-reading-progress__fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-25) 50%,
+    transparent 100%
+  );
+  animation: progressShimmerSweep 2.5s var(--ease-standard) infinite;
+  border-radius: var(--radius-full);
+}
+@keyframes progressShimmer {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+@keyframes progressShimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
 /* ---------- 拖拽手柄（仅 seekable 时显示） ---------- */
@@ -3630,6 +3798,11 @@
   outline: none;
   box-shadow: 0 0 0 3px var(--color-brand-bg);
 }
+/* 未选中主题色块 hover 品牌色外发光 */
+.novel-reader-settings__theme-swatch:not(.is-active):hover {
+  box-shadow: 0 0 0 2px var(--color-brand-bg);
+  border-color: var(--color-brand-border);
+}
 .novel-reader-settings__theme-label {
   font-family: var(--font-sans);
   font-size: var(--font-size-overline);
@@ -3887,7 +4060,8 @@
   opacity: 0;
   transform: translateY(-100%);
   transition: opacity var(--dur-normal) var(--ease-standard),
-    transform var(--dur-normal) var(--ease-standard);
+    transform var(--dur-normal) var(--ease-standard),
+    box-shadow var(--dur-normal) var(--ease-standard);
   pointer-events: none;
   /* 毛玻璃背景 */
   backdrop-filter: saturate(180%) blur(12px);
@@ -3897,6 +4071,7 @@
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  box-shadow: 0 1px 0 0 var(--color-brand-bg), 0 4px 16px var(--color-shadow-soft-15);
 }
 .novel-reader__topbar-chapter-num {
   font-size: var(--font-size-overline);
@@ -3974,13 +4149,15 @@
   opacity: 0;
   transform: translateY(100%);
   transition: opacity var(--dur-normal) var(--ease-standard),
-    transform var(--dur-normal) var(--ease-standard);
+    transform var(--dur-normal) var(--ease-standard),
+    box-shadow var(--dur-normal) var(--ease-standard);
   pointer-events: none;
 }
 .novel-reader.is-controls-visible .novel-reader__bottombar {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
+  box-shadow: 0 -1px 0 0 var(--color-brand-bg), 0 -4px 16px var(--color-shadow-soft-15);
 }
 
 /* 控制栏按钮 */
@@ -4082,6 +4259,12 @@
   box-shadow: var(--sh-3);
   position: relative;
   overflow: hidden;
+  transition: transform var(--dur-normal) var(--ease-spring),
+    box-shadow var(--dur-normal) var(--ease-standard);
+}
+.novel-reader__next-chapter-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--sh-4), 0 0 0 2px var(--color-brand-bg);
 }
 .novel-reader__next-chapter-preview::before {
   content: "";
@@ -4092,6 +4275,28 @@
   height: 3px;
   background: linear-gradient(90deg, var(--color-brand), var(--color-accent));
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: 0 2px 8px var(--color-brand-bg);
+}
+/* 品牌渐变光泽扫过 */
+.novel-reader__next-chapter-preview::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-overlay-white-20) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.6s var(--ease-decelerate);
+  pointer-events: none;
+}
+.novel-reader__next-chapter-preview:hover::after {
+  left: 120%;
 }
 .novel-reader__next-chapter-preview-label {
   display: flex;
@@ -5171,10 +5376,17 @@
 
 /* 数值渐变过渡：数据刷新时平滑，避免数字跳变生硬 */
 .stat-card__value {
-  transition: opacity var(--dur-normal) var(--ease-standard);
+  transition: opacity var(--dur-normal) var(--ease-standard), color var(--dur-normal) var(--ease-standard);
 }
 .stat-card__value.is-updating {
   opacity: 0.4;
+}
+.stat-card__value.is-updated {
+  animation: statValueFlash 300ms var(--ease-decelerate);
+}
+@keyframes statValueFlash {
+  0% { color: var(--color-brand); }
+  100% { color: var(--color-accent-orange); }
 }
 
 /* 长数值：收紧字距保持一行可读 */

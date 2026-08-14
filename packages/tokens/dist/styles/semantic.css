@@ -90,6 +90,7 @@
   --color-overlay-medium: rgba(0, 0, 0, 0.4);
   --color-overlay-strong: rgba(0, 0, 0, 0.6);
   --color-overlay-dot: rgba(255, 255, 255, 0.5);
+  --color-overlay-subtle: rgba(0, 0, 0, 0.15);
 
   /* ---------- L2 Semantic · 装饰光泽 / 阴影（按钮涟漪、卡片光泽、轻阴影） ---------- */
   --color-overlay-white-10: rgba(255, 255, 255, 0.1);
@@ -98,12 +99,18 @@
   --color-overlay-white-20: rgba(255, 255, 255, 0.2);
   --color-overlay-white-25: rgba(255, 255, 255, 0.25);
   --color-overlay-white-30: rgba(255, 255, 255, 0.3);
+  --color-overlay-white-05: rgba(255, 255, 255, 0.05);
+  --color-overlay-white-08: rgba(255, 255, 255, 0.08);
   --color-shadow-soft-10: rgba(0, 0, 0, 0.1);
   --color-shadow-soft-15: rgba(0, 0, 0, 0.15);
 
   /* ---------- L2 Semantic · 暖橙阴影（用于 accent-orange 按钮/卡片） ---------- */
   --color-shadow-orange-soft: rgba(227, 115, 24, 0.3);
   --color-shadow-orange-strong: rgba(227, 115, 24, 0.4);
+
+  /* ---------- L2 Semantic · 反馈色阴影（玫瑰红 / 错误） ---------- */
+  --color-shadow-rose-soft: rgba(245, 34, 45, 0.3);
+  --color-shadow-rose-strong: rgba(245, 34, 45, 0.5);
 
   /* ---------- L2 Semantic · 反馈 ---------- */
   --color-feedback-success: var(--success-3);
