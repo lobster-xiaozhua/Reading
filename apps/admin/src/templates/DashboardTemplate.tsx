@@ -130,6 +130,7 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
     >
       {/* 欢迎条 */}
       <div
+        className="b-dashboard__welcome"
         style={{
           paddingBottom: "var(--space-4)",
           borderBottom: "1px solid var(--color-border-subtle)",
@@ -201,10 +202,17 @@ export function DashboardTemplate(props: DashboardTemplateProps) {
             </button>
           )}
         </div>
+        <div className="b-dashboard__command-status" aria-label="System status">
+          <span className="b-dashboard__command-status-item">
+            <i aria-hidden />SYSTEM ONLINE
+          </span>
+          <span className="b-dashboard__command-status-item">LIVE OPS / 24H</span>
+        </div>
       </div>
 
       {/* KPI 网格 4 列 */}
       <div
+        className="b-dashboard__kpi-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",

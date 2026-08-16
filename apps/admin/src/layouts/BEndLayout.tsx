@@ -61,7 +61,7 @@ export function BEndLayout() {
   });
 
   return (
-    <div className="bend-shell">
+    <div className="bend-shell bend-shell--command">
       <a href="#main-content" className="skip-link">
         {t("layout:skipToContent")}
       </a>

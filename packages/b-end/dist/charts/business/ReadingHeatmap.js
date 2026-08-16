@@ -21,7 +21,7 @@ export function ReadingHeatmap({ data, height = CHART_DEFAULT_HEIGHT, emptyDescr
         colorField: "duration",
         height,
         theme: dark ? "classicDark" : "classic",
-        type: "intensity",
+        // Use the Heatmap component's built-in mark; visual intensity comes from colorField.
         // 5 档离散色阶
         color: {
             type: "quantize",

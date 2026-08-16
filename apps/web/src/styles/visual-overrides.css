@@ -1,0 +1,98 @@
+/* Atlas web visual foundation: editorial surfaces, quiet depth, and focus clarity. */
+
+:root {
+  --web-content-max: 1240px;
+  --web-page-decoration:
+    radial-gradient(circle at 6% -8%, var(--color-brand-wash-strong), transparent 30%),
+    radial-gradient(circle at 96% 8%, var(--color-warm-wash), transparent 26%),
+    linear-gradient(180deg, var(--color-surface-wash), transparent 42%);
+  --web-surface-shadow: var(--sh-3);
+  --web-surface-shadow-hover: var(--sh-4);
+}
+
+[data-theme='dark'] {
+  --web-page-decoration:
+    radial-gradient(circle at 6% -8%, var(--color-brand-wash-strong), transparent 28%),
+    radial-gradient(circle at 96% 8%, var(--color-warm-wash), transparent 24%),
+    linear-gradient(180deg, var(--color-surface-wash), transparent 42%);
+}
+
+[data-theme='dark'] .app-layout::before {
+  background: linear-gradient(90deg, transparent 0, var(--color-overlay-white-025) 50%, transparent 100%);
+  opacity: 0.5;
+}
+
+html {
+  background: var(--color-bg-page);
+}
+
+body {
+  background: var(--web-page-decoration), var(--color-bg-page);
+}
+
+.app-layout {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-layout::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0, var(--color-overlay-white-22) 50%, transparent 100%);
+  opacity: 0.7;
+}
+
+.app-layout__main {
+  position: relative;
+  z-index: 1;
+}
+
+.container-page {
+  max-width: var(--web-content-max);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--color-focus-ring);
+}
+
+/* Shared content cards inherit the same quiet depth across all reader pages. */
+.novel-book-card {
+  border-radius: 16px;
+  border-color: var(--color-brand-line);
+  box-shadow: var(--sh-2);
+}
+
+.novel-book-card.is-clickable:hover {
+  border-color: var(--color-brand-border);
+  box-shadow: var(--web-surface-shadow-hover);
+}
+
+.novel-book-card__title {
+  letter-spacing: -0.01em;
+}
+
+.novel-book-card__cover {
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .app-layout::before {
+    background: radial-gradient(circle at 50% -10%, var(--color-brand-wash), transparent 40%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout::before {
+    display: none;
+  }
+}

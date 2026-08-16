@@ -70,6 +70,30 @@ export default function DiscoverPage() {
         />
       ) : (
         <>
+          <section
+            className="discover-page__prologue container-page"
+            aria-labelledby="discover-prologue-title"
+          >
+            <div className="discover-page__prologue-copy">
+              <span className="discover-page__prologue-kicker">ATLAS / AFTER DARK</span>
+              <h1 id="discover-prologue-title">
+                {"\u4eca\u665a\uff0c\u8bfb\u8fdb\u53e6\u4e00\u4e2a\u5b87\u5b99\u3002"}
+              </h1>
+              <p>
+                {"\u4ece\u4e00\u672c\u4e66\u5f00\u59cb\uff0c\u4e3a\u4f60\u7684\u591c\u665a\u70b9\u4eae\u4e00\u6761\u6545\u4e8b\u7684\u822a\u7ebf\u3002"}
+              </p>
+              <Link to="/category" className="discover-page__prologue-cta">
+                {"\u5f00\u59cb\u6f2b\u6e38"}
+                <span aria-hidden>{"\u2197"}</span>
+              </Link>
+            </div>
+            <div className="discover-page__prologue-signal" aria-hidden>
+              <span>LIVE LIBRARY</span>
+              <strong>01:37</strong>
+              <small>STORIES IN ORBIT</small>
+            </div>
+          </section>
+
           <section className="discover-page__banner container-page">
             <DiscoverModule loading={pageLoading} skeletonRows={8}>
               {home.banners.length === 0 ? (

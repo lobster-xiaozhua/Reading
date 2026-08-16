@@ -13,7 +13,7 @@ import { BottomTabBar } from "@/components/BottomTabBar";
 export function AppLayout() {
   const location = useLocation();
   return (
-    <div className="app-layout">
+    <div className="app-layout app-layout--nocturne">
       <a href="#main-content" className="skip-link">
         跳到主内容
       </a>

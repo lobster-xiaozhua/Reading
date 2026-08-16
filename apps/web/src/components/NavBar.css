@@ -186,3 +186,196 @@
     padding: 0 var(--space-3);
   }
 }
+
+
+/* Visual refinement: a quieter editorial masthead with a clear search anchor. */
+.novel-navbar {
+  background: var(--color-bg-glass);
+  border-bottom-color: var(--color-brand-line-strong);
+  box-shadow: var(--sh-2);
+}
+
+.novel-navbar::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-brand-border), transparent);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.novel-navbar__inner {
+  min-height: 68px;
+  gap: var(--space-5);
+}
+
+.novel-navbar__logo {
+  gap: var(--space-3);
+}
+
+.novel-navbar__logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 13px;
+  font-size: 17px;
+  box-shadow: 0 8px 18px var(--color-brand-glow-25);
+}
+
+.novel-navbar__logo-text {
+  font-size: 20px;
+  letter-spacing: -0.035em;
+}
+
+.novel-navbar__nav {
+  gap: 4px;
+}
+
+.novel-navbar__nav-link {
+  position: relative;
+  min-height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: 10px;
+  font-weight: var(--font-weight-medium);
+}
+
+.novel-navbar__nav-link::after {
+  content: '';
+  position: absolute;
+  right: var(--space-3);
+  bottom: 4px;
+  left: var(--space-3);
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-brand), var(--color-brand-accent));
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur-fast) var(--ease-decelerate);
+}
+
+.novel-navbar__nav-link.is-active::after,
+.novel-navbar__nav-link[aria-current='page']::after {
+  transform: scaleX(1);
+}
+
+.novel-navbar__search {
+  max-width: 440px;
+  gap: var(--space-2);
+  padding: 4px;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 14px;
+  background: var(--color-bg-sunken);
+  box-shadow: var(--sh-inner);
+}
+
+.novel-navbar__search-input {
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+}
+
+.novel-navbar__search-input:focus {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.novel-navbar__search-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 78px;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-accent));
+  box-shadow: 0 6px 14px var(--color-brand-glow-20);
+  font-weight: var(--font-weight-semibold);
+}
+
+.novel-navbar__search-btn:hover {
+  background: linear-gradient(135deg, var(--color-brand-hover), var(--color-brand-accent-hover));
+  box-shadow: 0 8px 18px var(--color-brand-glow-30);
+}
+
+.novel-navbar__search-btn-label {
+  line-height: 1;
+}
+
+.novel-navbar__login-btn {
+  min-height: 38px;
+  padding-inline: var(--space-4);
+  border-color: var(--color-brand-border);
+  background: var(--color-bg-surface);
+  color: var(--color-brand);
+  font-weight: var(--font-weight-semibold);
+}
+
+.novel-navbar__login-btn:hover {
+  background: var(--color-brand-bg);
+  border-color: var(--color-brand);
+}
+
+.novel-navbar__avatar-link {
+  min-height: 38px;
+  padding: 3px 8px 3px 4px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  transition: background var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard);
+}
+
+.novel-navbar__avatar-link:hover {
+  background: var(--color-brand-bg);
+  border-color: var(--color-brand-border);
+}
+
+@media (max-width: 900px) {
+  .novel-navbar__nav {
+    display: none;
+  }
+
+  .novel-navbar__search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .novel-navbar__inner {
+    min-height: 60px;
+    gap: var(--space-2);
+  }
+
+  .novel-navbar__logo-mark {
+    width: 34px;
+    height: 34px;
+  }
+
+  .novel-navbar__search {
+    padding: 3px;
+  }
+
+  .novel-navbar__search-input {
+    min-width: 0;
+    height: 34px;
+    padding-inline: var(--space-2);
+  }
+
+  .novel-navbar__search-btn {
+    min-width: 40px;
+    width: 40px;
+    height: 34px;
+    padding: 0;
+  }
+
+  .novel-navbar__search-btn-label {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-navbar__nav-link::after {
+    transition: none;
+  }
+}

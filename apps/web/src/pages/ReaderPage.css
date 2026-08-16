@@ -155,3 +155,87 @@
     animation: none;
   }
 }
+
+
+/* Visual pass: give the reader a quieter, book-like stage. */
+.reader-page .novel-reader {
+  background:
+    radial-gradient(circle at 50% 0, var(--color-brand-wash), transparent 34%),
+    var(--novel-read-bg);
+}
+
+.reader-page .novel-reader__inner {
+  max-width: 780px;
+  padding-top: clamp(var(--space-16), 10vh, var(--space-24));
+  padding-bottom: clamp(var(--space-20), 12vh, var(--space-24));
+}
+
+.reader-page .novel-reader__chapter-title {
+  margin-bottom: clamp(var(--space-10), 7vh, var(--space-16));
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.02em;
+}
+
+.reader-page .novel-reader__article-body {
+  max-width: 42em;
+  margin: 0 auto;
+}
+
+.reader-page .novel-reader__article-body p {
+  margin-bottom: 1.4em;
+  line-height: 1.95;
+  letter-spacing: 0.018em;
+}
+
+.reader-page .novel-reader__topbar,
+.reader-page .novel-reader__bottombar {
+  background: var(--novel-read-bg);
+  background: color-mix(in srgb, var(--novel-read-bg) 86%, transparent);
+  backdrop-filter: blur(var(--blur-glass)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-glass)) saturate(150%);
+}
+
+.reader-page .novel-reader__topbar::after {
+  width: 56px;
+  background: linear-gradient(90deg, transparent, var(--color-brand), var(--color-brand-warm), transparent);
+}
+
+.reader-page .novel-reader__icon-btn,
+.reader-page .novel-reader__bar-btn {
+  border-radius: 10px;
+}
+
+.reader-page .novel-reader__chapter-end {
+  margin-top: clamp(var(--space-16), 10vh, var(--space-24));
+  padding-top: var(--space-12);
+}
+
+.reader-page .novel-reader__chapter-end::before {
+  width: 72px;
+  background: linear-gradient(90deg, transparent, var(--color-brand), var(--color-brand-warm), transparent);
+}
+
+.reader-page .novel-reader__nav-btn--primary {
+  background: linear-gradient(135deg, var(--color-brand), var(--color-brand-accent));
+  box-shadow: 0 10px 22px var(--color-brand-glow-25);
+}
+
+@media (max-width: 767px) {
+  .reader-page .novel-reader__inner {
+    padding-top: var(--space-16);
+    padding-bottom: var(--space-20);
+  }
+
+  .reader-page .novel-reader__article-body p {
+    line-height: 1.88;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-page .novel-reader__topbar,
+  .reader-page .novel-reader__bottombar {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

@@ -60,3 +60,66 @@
 .novel-section-title__more:hover {
   color: var(--color-brand);
 }
+
+
+/* Editorial section header: stronger hierarchy, less visual noise. */
+.novel-section-title {
+  min-height: 42px;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.novel-section-title__head {
+  gap: var(--space-3);
+}
+
+.novel-section-title__text {
+  padding-left: var(--space-4);
+  font-size: clamp(20px, 1.5vw, 24px);
+  letter-spacing: -0.025em;
+}
+
+.novel-section-title__text::before {
+  width: 3px;
+  background: linear-gradient(180deg, var(--color-brand), var(--color-brand-warm));
+  box-shadow: 0 0 0 4px var(--color-brand-bg);
+  animation: none;
+}
+
+.novel-section-title__sub {
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.14em;
+}
+
+.novel-section-title__more {
+  min-height: 30px;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-surface);
+  transition: color var(--dur-fast) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard), background var(--dur-fast) var(--ease-standard);
+}
+
+.novel-section-title__more:hover {
+  border-color: var(--color-brand-border);
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
+}
+
+@media (max-width: 480px) {
+  .novel-section-title {
+    align-items: flex-start;
+  }
+
+  .novel-section-title__head {
+    gap: var(--space-2);
+  }
+
+  .novel-section-title__sub {
+    display: none;
+  }
+}

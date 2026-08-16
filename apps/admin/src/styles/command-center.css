@@ -1,0 +1,471 @@
+/* Atlas Command Center: high-signal operations interface. */
+
+.bend-shell--command {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--gradient-atlas-night-canvas);
+}
+
+.bend-shell--command::before,
+.bend-shell--command::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.bend-shell--command::before {
+  background: var(--gradient-atlas-night-grid);
+  background-size: var(--space-8) var(--space-8);
+  mask-image: linear-gradient(180deg, var(--color-atlas-night-text), transparent 76%);
+  opacity: 0.56;
+}
+
+.bend-shell--command::after {
+  background:
+    radial-gradient(circle at 84% 8%, var(--color-atlas-night-violet-soft), transparent 28%),
+    radial-gradient(circle at 20% 76%, var(--color-atlas-night-signal-soft), transparent 26%);
+}
+
+.bend-shell--command .bend-layout,
+.bend-shell--command .bend-layout__main,
+.bend-shell--command .bend-layout__content {
+  background: transparent !important;
+}
+
+.bend-shell--command .bend-layout {
+  position: relative;
+  z-index: 1;
+}
+
+/* Navigation rail */
+.bend-shell--command .bend-sider {
+  border-right-color: var(--color-atlas-night-line-strong);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 88%, transparent) !important;
+  box-shadow: var(--shadow-atlas-night-strong);
+  backdrop-filter: blur(var(--blur-ambient)) saturate(126%);
+  -webkit-backdrop-filter: blur(var(--blur-ambient)) saturate(126%);
+}
+
+.bend-shell--command .bend-sider::after {
+  content: '';
+  position: absolute;
+  top: var(--space-6);
+  bottom: var(--space-6);
+  right: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--color-atlas-night-signal-line), transparent);
+}
+
+.bend-shell--command .bend-sider__logo {
+  justify-content: flex-start;
+  padding-inline: var(--space-5);
+  border-bottom-color: var(--color-atlas-night-line);
+  background: linear-gradient(135deg, var(--color-atlas-night-signal-soft), transparent 72%);
+}
+
+.bend-shell--command .bend-sider__logo-icon {
+  color: var(--color-atlas-night-warm);
+  filter: drop-shadow(0 0 var(--space-3) var(--color-atlas-night-warm-glow));
+}
+
+.bend-shell--command .bend-sider__logo-text {
+  color: var(--color-atlas-night-text);
+  font-family: var(--font-serif);
+  letter-spacing: var(--letter-spacing-wide);
+}
+
+.bend-shell--command .bend-sider__menu.ant-menu,
+.bend-shell--command .bend-sider__menu.ant-menu-dark,
+.bend-shell--command .bend-sider__menu.ant-menu-dark .ant-menu-sub {
+  background: transparent;
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-item,
+.bend-shell--command .bend-sider__menu .ant-menu-submenu-title {
+  margin-block: var(--space-1);
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-item::before,
+.bend-shell--command .bend-sider__menu .ant-menu-submenu-title::before {
+  content: '';
+  position: absolute;
+  top: var(--space-2);
+  bottom: var(--space-2);
+  left: 0;
+  width: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-atlas-night-warm);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-standard);
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-item:hover,
+.bend-shell--command .bend-sider__menu .ant-menu-submenu-title:hover {
+  color: var(--color-atlas-night-text) !important;
+  background: var(--color-atlas-night-signal-soft) !important;
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-item:hover::before,
+.bend-shell--command .bend-sider__menu .ant-menu-item-selected::before {
+  opacity: 1;
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-item-selected {
+  color: var(--color-atlas-night-text) !important;
+  background: linear-gradient(90deg, var(--color-atlas-night-signal-soft), var(--color-atlas-night-violet-soft)) !important;
+  box-shadow: inset 0 0 0 1px var(--color-atlas-night-signal-line), 0 0 var(--space-4) var(--color-atlas-night-signal-soft);
+}
+
+.bend-shell--command .bend-sider__menu .ant-menu-submenu-arrow,
+.bend-shell--command .bend-sider__menu .ant-menu-item .anticon {
+  color: var(--color-atlas-night-text-dim);
+}
+
+/* Command header and tabs */
+.bend-shell--command .bend-header {
+  border-bottom-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 80%, transparent) !important;
+  box-shadow: 0 1px 0 var(--color-atlas-night-line), var(--shadow-atlas-night-soft);
+  backdrop-filter: blur(var(--blur-ambient)) saturate(126%);
+  -webkit-backdrop-filter: blur(var(--blur-ambient)) saturate(126%);
+}
+
+.bend-shell--command .bend-header__collapse,
+.bend-shell--command .bend-header__icon-btn {
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-header__collapse:hover,
+.bend-shell--command .bend-header__icon-btn:hover {
+  background: var(--color-atlas-night-signal-soft);
+  color: var(--color-atlas-night-warm);
+}
+
+.bend-shell--command .bend-header__breadcrumb,
+.bend-shell--command .bend-header__breadcrumb a {
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-header__palette {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-deep) 74%, transparent);
+  color: var(--color-atlas-night-text-dim);
+  box-shadow: inset 0 1px 0 var(--color-overlay-white-10);
+}
+
+.bend-shell--command .bend-header__palette:hover {
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--color-atlas-night-signal-soft);
+  color: var(--color-atlas-night-text);
+}
+
+.bend-shell--command .bend-header__palette-kbd {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-raised);
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-header__user:hover {
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--color-atlas-night-signal-soft);
+}
+
+.bend-shell--command .bend-tabs {
+  border-bottom-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 68%, transparent);
+}
+
+.bend-shell--command .bend-tabs .ant-tabs-tab {
+  color: var(--color-atlas-night-text-dim);
+}
+
+.bend-shell--command .bend-tabs .ant-tabs-tab-active {
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--color-atlas-night-signal-soft);
+  box-shadow: inset 0 -2px 0 var(--color-atlas-night-warm);
+}
+
+.bend-shell--command .bend-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--color-atlas-night-text) !important;
+}
+
+/* Dense operational surfaces */
+.bend-shell--command .bend-layout__content {
+  padding: var(--space-6) clamp(var(--space-4), 3vw, var(--space-9)) !important;
+}
+
+.bend-shell--command .bend-layout__inner {
+  max-width: 1540px;
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-card) {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-surface) 88%, transparent);
+  box-shadow: var(--shadow-atlas-night-soft);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-card:hover) {
+  border-color: var(--color-atlas-night-signal-line);
+  box-shadow: var(--shadow-atlas-night-strong), 0 0 var(--space-5) var(--color-atlas-night-signal-soft);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-card-head) {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-card-head-title) {
+  color: var(--color-atlas-night-text);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.bend-shell--command .b-page-header {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+.bend-shell--command .b-page-header__main .ant-typography {
+  color: var(--color-atlas-night-text);
+}
+
+.bend-shell--command .b-filter-bar,
+.bend-shell--command .b-batch-action-bar {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-surface) 78%, transparent) !important;
+  box-shadow: var(--shadow-atlas-night-soft);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-input, .ant-input-affix-wrapper, .ant-select-selector, .ant-picker) {
+  border-color: var(--color-atlas-night-line) !important;
+  background: var(--color-atlas-night-deep) !important;
+  color: var(--color-atlas-night-text) !important;
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-input::placeholder, .ant-select-selection-placeholder) {
+  color: var(--color-atlas-night-text-dim);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-input:focus, .ant-input-affix-wrapper-focused, .ant-select-focused .ant-select-selector, .ant-picker-focused) {
+  border-color: var(--color-atlas-night-signal) !important;
+  box-shadow: 0 0 0 var(--space-1) var(--color-atlas-night-signal-soft) !important;
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-btn) {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-raised);
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-btn:hover) {
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--color-atlas-night-signal-soft);
+  color: var(--color-atlas-night-text);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-btn-primary) {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+  box-shadow: 0 var(--space-2) var(--space-5) var(--color-atlas-night-glow);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-btn-primary:hover) {
+  border-color: var(--color-atlas-night-warm-hover);
+  background: linear-gradient(135deg, var(--color-atlas-night-signal-hover), var(--color-atlas-night-warm));
+  color: var(--color-atlas-night-ink);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-table-wrapper) {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-deep);
+  box-shadow: var(--shadow-atlas-night-soft);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-table) {
+  background: transparent;
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-table-thead > tr > th) {
+  border-bottom-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-raised) !important;
+  color: var(--color-atlas-night-text-dim);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-table-tbody > tr > td) {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+.bend-shell--command .bend-layout__inner :where(.ant-table-tbody > tr:hover > td) {
+  background: var(--color-atlas-night-signal-soft) !important;
+}
+
+/* Dashboard takes the role of a live control board. */
+.bend-shell--command .b-dashboard {
+  gap: var(--space-6) !important;
+}
+
+.bend-shell--command .b-dashboard__welcome {
+  padding: var(--space-6) clamp(var(--space-5), 4vw, var(--space-9)) !important;
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--gradient-atlas-night-hero);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.bend-shell--command .b-dashboard__welcome::before {
+  content: 'ATLAS // COMMAND CENTER';
+  display: block;
+  margin-bottom: var(--space-3);
+  color: var(--color-atlas-night-warm);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
+}
+
+.bend-shell--command .b-dashboard__welcome::after {
+  width: 240px;
+  height: 240px;
+  top: calc(var(--space-12) * -1);
+  right: 8%;
+  border: 1px solid var(--color-atlas-night-line-strong);
+  background: radial-gradient(circle, var(--color-atlas-night-violet-soft), transparent 68%);
+  box-shadow: 0 0 var(--space-12) var(--color-atlas-night-violet-soft);
+}
+
+.bend-shell--command .b-dashboard__welcome h2 {
+  color: var(--color-atlas-night-text) !important;
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 2.2vw, 36px) !important;
+}
+
+.bend-shell--command .b-dashboard__welcome p {
+  color: var(--color-atlas-night-text-secondary) !important;
+}
+
+.bend-shell--command .b-dashboard__todo {
+  border-color: var(--color-atlas-night-warm) !important;
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 64%, transparent) !important;
+  color: var(--color-atlas-night-text) !important;
+  box-shadow: inset 0 0 0 1px var(--color-atlas-night-line-strong), 0 var(--space-2) var(--space-5) var(--color-atlas-night-mask);
+}
+
+.bend-shell--command .b-dashboard__todo > div:first-child {
+  color: var(--color-atlas-night-warm) !important;
+}
+
+.bend-shell--command .b-dashboard__command-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-atlas-night-line);
+}
+
+.bend-shell--command .b-dashboard__command-status-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-atlas-night-text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-overline);
+  letter-spacing: var(--letter-spacing-eyebrow);
+}
+
+.bend-shell--command .b-dashboard__command-status-item i {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-feedback-success);
+  box-shadow: 0 0 var(--space-3) var(--color-feedback-success);
+}
+
+.bend-shell--command .b-dashboard__kpi-grid .ant-card,
+.bend-shell--command .b-dashboard__kpi-grid .b-statistic-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 156px;
+  background: linear-gradient(145deg, var(--color-atlas-night-raised), var(--color-atlas-night-surface));
+}
+
+.bend-shell--command .b-dashboard__kpi-grid .ant-card::before,
+.bend-shell--command .b-dashboard__kpi-grid .b-statistic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--space-5);
+  right: var(--space-5);
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-atlas-night-signal), var(--color-atlas-night-violet), var(--color-atlas-night-warm));
+}
+
+.bend-shell--command .b-statistic-card__value {
+  color: var(--color-atlas-night-text) !important;
+  font-family: var(--font-mono);
+  font-size: clamp(28px, 2.4vw, 38px) !important;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+.bend-shell--command .b-dashboard .is-focus-card {
+  border-color: var(--color-atlas-night-signal-line);
+  background: linear-gradient(145deg, var(--color-atlas-night-surface), var(--color-atlas-night-deep));
+}
+
+.bend-shell--command .b-dashboard__range {
+  padding: var(--space-1);
+  border: 1px solid var(--color-atlas-night-line);
+  border-radius: var(--radius-full);
+  background: var(--color-atlas-night-deep);
+}
+
+.bend-shell--command .b-dashboard__range-pill {
+  color: var(--color-atlas-night-text-dim);
+}
+
+.bend-shell--command .b-dashboard__range-pill.is-active {
+  background: var(--color-atlas-night-signal-soft);
+  color: var(--color-atlas-night-text);
+  box-shadow: inset 0 0 0 1px var(--color-atlas-night-signal-line);
+}
+
+/* Login is a deliberate handoff into the command center. */
+.login-page {
+  background: var(--gradient-atlas-night-canvas);
+}
+
+.login-page .login-card {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-surface) 90%, transparent);
+  box-shadow: var(--shadow-atlas-night-strong) !important;
+}
+
+.login-page .login-card::before {
+  background: var(--gradient-atlas-night-button);
+}
+
+.login-page .login-brand__badge,
+.login-page .login-card .ant-btn-primary {
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+}
+
+.login-page .login-card .ant-input-affix-wrapper {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-deep);
+}
+
+@media (max-width: 1100px) {
+  .bend-shell--command .bend-layout__content {
+    padding: var(--space-4) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bend-shell--command .bend-sider__menu .ant-menu-item::before {
+    transition: none;
+  }
+}

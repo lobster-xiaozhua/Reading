@@ -144,7 +144,7 @@ export function SiderMenu({ collapsed }: SiderMenuProps) {
       </div>
       <Menu
         mode="inline"
-        theme="light"
+        theme="dark"
         selectedKeys={selected}
         openKeys={currentOpened}
         onOpenChange={handleOpenChange}

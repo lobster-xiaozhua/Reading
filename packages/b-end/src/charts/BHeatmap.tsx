@@ -61,7 +61,9 @@ export function BHeatmap({
     colorField,
     height,
     theme: dark ? "classicDark" : "classic",
-    type,
+    // Heatmap uses its built-in point mark. Passing the legacy visual mode as
+    // `type` makes G2 resolve a non-existent component such as `composition.intensity`.
+    ...(type === "size" ? { sizeField: colorField } : {}),
     color: colors,
     legend: showLegend ? commonLegendStyle.legend : false,
     tooltip: commonTooltipStyle.tooltip,

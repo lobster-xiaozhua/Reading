@@ -1,0 +1,918 @@
+/* Atlas Nocturne: immersive reader-facing visual system. */
+
+:root {
+  color-scheme: dark;
+  --color-text-primary: var(--color-atlas-night-text);
+  --color-text-secondary: var(--color-atlas-night-text-secondary);
+  --color-text-tertiary: var(--color-atlas-night-text-dim);
+  --color-text-disabled: var(--color-atlas-night-text-dim);
+  --color-text-inverse: var(--color-atlas-night-ink);
+  --color-text-link: var(--color-atlas-night-signal);
+  --color-text-link-hover: var(--color-atlas-night-signal-hover);
+  --color-bg-page: var(--color-atlas-night-ink);
+  --color-bg-surface: var(--color-atlas-night-surface);
+  --color-bg-subtle: var(--color-atlas-night-deep);
+  --color-bg-elevated: var(--color-atlas-night-raised);
+  --color-bg-raised: var(--color-atlas-night-raised);
+  --color-bg-overlay: var(--color-atlas-night-glass-strong);
+  --color-bg-glass: var(--color-atlas-night-glass);
+  --color-bg-sunken: var(--color-atlas-night-deep);
+  --color-bg-tooltip: var(--color-atlas-night-raised);
+  --color-bg-mask: var(--color-atlas-night-mask);
+  --color-border-default: var(--color-atlas-night-line-strong);
+  --color-border-subtle: var(--color-atlas-night-line);
+  --color-border-focus: var(--color-atlas-night-signal);
+  --color-border-strong: var(--color-atlas-night-signal-line);
+  --color-focus-ring: var(--color-atlas-night-signal-soft);
+  --color-brand: var(--color-atlas-night-signal);
+  --color-brand-hover: var(--color-atlas-night-signal-hover);
+  --color-brand-active: var(--color-atlas-night-signal-active);
+  --color-brand-bg: var(--color-atlas-night-signal-soft);
+  --color-brand-border: var(--color-atlas-night-signal-line);
+  --color-brand-accent: var(--color-atlas-night-violet);
+  --color-brand-accent-hover: var(--color-atlas-night-violet-hover);
+  --color-brand-accent-soft: var(--color-atlas-night-violet-soft);
+  --color-brand-warm: var(--color-atlas-night-warm);
+  --color-brand-warm-hover: var(--color-atlas-night-warm-hover);
+  --color-brand-warm-soft: var(--color-atlas-night-warm-soft);
+  --color-brand-rose: var(--color-atlas-night-rose);
+  --color-brand-rose-soft: var(--color-atlas-night-rose-soft);
+  --color-brand-gold: var(--color-atlas-night-warm);
+  --color-brand-gold-soft: var(--color-atlas-night-warm-soft);
+  --color-accent: var(--color-atlas-night-violet);
+  --color-accent-hover: var(--color-atlas-night-violet-hover);
+  --color-accent-active: var(--color-atlas-night-violet);
+  --color-accent-orange: var(--color-atlas-night-warm);
+  --color-accent-orange-hover: var(--color-atlas-night-warm-hover);
+  --color-accent-orange-active: var(--color-atlas-night-warm);
+  --color-accent-orange-bg: var(--color-atlas-night-warm-soft);
+  --color-rose: var(--color-atlas-night-rose);
+  --color-rose-light: var(--color-atlas-night-rose);
+  --color-rose-bg: var(--color-atlas-night-rose-soft);
+  --color-brand-wash: var(--color-atlas-night-wash);
+  --color-brand-wash-strong: var(--color-atlas-night-wash-strong);
+  --color-brand-line: var(--color-atlas-night-line);
+  --color-brand-line-medium: var(--color-atlas-night-line);
+  --color-brand-line-strong: var(--color-atlas-night-line-strong);
+  --color-warm-wash: var(--color-atlas-night-warm-wash);
+  --color-surface-wash: var(--color-atlas-night-wash);
+  --color-surface-card: var(--color-atlas-night-glass);
+  --color-surface-card-dark: var(--color-atlas-night-glass);
+  --color-surface-elevated-dark: var(--color-atlas-night-glass-strong);
+  --color-surface-dark-wash: var(--color-atlas-night-wash);
+  --color-brand-glow-0: transparent;
+  --color-brand-glow-20: var(--color-atlas-night-signal-soft);
+  --color-brand-glow-25: var(--color-atlas-night-signal-soft);
+  --color-brand-glow-30: var(--color-atlas-night-glow);
+  --color-brand-glow-35: var(--color-atlas-night-glow);
+  --color-brand-glow-40: var(--color-atlas-night-glow);
+  --gradient-editorial: var(--gradient-atlas-night-card);
+  --gradient-hero: var(--gradient-atlas-night-hero);
+  --gradient-surface: var(--gradient-atlas-night-card);
+  --sh-1: var(--shadow-atlas-night-soft);
+  --sh-2: var(--shadow-atlas-night-soft);
+  --sh-3: var(--shadow-atlas-night-soft);
+  --sh-4: var(--shadow-atlas-night-strong);
+  --sh-5: var(--shadow-atlas-night-strong);
+  --sh-glow-brand: 0 0 var(--space-4) var(--color-atlas-night-glow);
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  background: var(--gradient-atlas-night-canvas);
+}
+
+body {
+  color: var(--color-text-primary);
+}
+
+::selection {
+  background: var(--color-atlas-night-signal);
+  color: var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--color-text-primary);
+  background: var(--gradient-atlas-night-canvas);
+}
+
+.app-layout--nocturne::before,
+.app-layout--nocturne::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.app-layout--nocturne::before {
+  background: var(--gradient-atlas-night-grid);
+  background-size: var(--space-8) var(--space-8);
+  mask-image: linear-gradient(180deg, var(--color-text-primary), transparent 72%);
+  opacity: 0.58;
+}
+
+.app-layout--nocturne::after {
+  background:
+    radial-gradient(circle at 76% 22%, var(--color-atlas-night-violet-soft), transparent 24%),
+    radial-gradient(circle at 18% 48%, var(--color-atlas-night-warm-soft), transparent 20%);
+  opacity: 0.78;
+}
+
+.app-layout--nocturne .app-layout__main {
+  position: relative;
+  z-index: 1;
+}
+
+.app-layout--nocturne :focus-visible {
+  outline: 2px solid var(--color-atlas-night-warm);
+  outline-offset: var(--space-1);
+  box-shadow: 0 0 0 var(--space-1) var(--color-focus-ring);
+}
+
+/* Navigation becomes the observation deck for the experience. */
+.app-layout--nocturne .novel-navbar {
+  border-bottom-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 76%, transparent);
+  box-shadow: 0 1px 0 var(--color-atlas-night-line), var(--shadow-atlas-night-soft);
+  backdrop-filter: blur(var(--blur-ambient)) saturate(135%);
+  -webkit-backdrop-filter: blur(var(--blur-ambient)) saturate(135%);
+}
+
+.app-layout--nocturne .novel-navbar.is-scrolled {
+  background: color-mix(in srgb, var(--color-atlas-night-deep) 90%, transparent);
+  box-shadow: 0 1px 0 var(--color-atlas-night-line-strong), var(--shadow-atlas-night-soft);
+}
+
+.app-layout--nocturne .novel-navbar__inner {
+  max-width: 1360px;
+}
+
+.app-layout--nocturne .novel-navbar__logo-mark {
+  border: 1px solid var(--color-atlas-night-signal-line);
+  border-radius: var(--radius-lg);
+  background: var(--gradient-atlas-night-button);
+  box-shadow: 0 0 var(--space-5) var(--color-atlas-night-glow);
+}
+
+.app-layout--nocturne .novel-navbar__logo-text {
+  background: linear-gradient(100deg, var(--color-atlas-night-text), var(--color-atlas-night-warm));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.app-layout--nocturne .novel-navbar__nav-link {
+  position: relative;
+  border-radius: var(--radius-full);
+}
+
+.app-layout--nocturne .novel-navbar__nav-link:hover,
+.app-layout--nocturne .novel-navbar__nav-link.is-active,
+.app-layout--nocturne .novel-navbar__nav-link[aria-current='page'] {
+  color: var(--color-atlas-night-text);
+  background: var(--color-atlas-night-signal-soft);
+}
+
+.app-layout--nocturne .novel-navbar__nav-link.is-active::after,
+.app-layout--nocturne .novel-navbar__nav-link[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-1);
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .novel-navbar__search {
+  max-width: 480px;
+}
+
+.app-layout--nocturne .novel-navbar__search-input {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-deep) 78%, transparent);
+}
+
+.app-layout--nocturne .novel-navbar__search-input:focus {
+  border-color: var(--color-atlas-night-signal);
+  background: var(--color-atlas-night-surface);
+  box-shadow: 0 0 0 var(--space-1) var(--color-atlas-night-signal-soft);
+}
+
+.app-layout--nocturne .novel-navbar__search-btn,
+.app-layout--nocturne .novel-navbar__login-btn {
+  border-color: var(--color-atlas-night-signal-line);
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+  box-shadow: 0 var(--space-2) var(--space-5) var(--color-atlas-night-glow);
+}
+
+.app-layout--nocturne .novel-navbar__search-btn:hover,
+.app-layout--nocturne .novel-navbar__login-btn:hover {
+  border-color: var(--color-atlas-night-warm);
+  background: linear-gradient(135deg, var(--color-atlas-night-signal-hover), var(--color-atlas-night-warm));
+  color: var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne .novel-navbar__avatar-link:hover {
+  border-color: var(--color-atlas-night-line-strong);
+  background: var(--color-atlas-night-signal-soft);
+}
+
+/* Discovery is rebuilt as an opening sequence, then a modular book hall. */
+.app-layout--nocturne .discover-page {
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-24);
+}
+
+.app-layout--nocturne .discover-page__prologue {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-8);
+  min-height: 230px;
+  margin-bottom: var(--space-6);
+  padding: clamp(var(--space-6), 6vw, var(--space-12));
+  border: 1px solid var(--color-atlas-night-line);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--gradient-atlas-night-hero);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.app-layout--nocturne .discover-page__prologue::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 84% 14%, var(--color-atlas-night-warm-soft), transparent 26%),
+    linear-gradient(90deg, var(--color-atlas-night-mask), transparent 72%);
+  pointer-events: none;
+}
+
+.app-layout--nocturne .discover-page__prologue-copy,
+.app-layout--nocturne .discover-page__prologue-signal {
+  position: relative;
+  z-index: 1;
+}
+
+.app-layout--nocturne .discover-page__prologue-copy {
+  max-width: 680px;
+}
+
+.app-layout--nocturne .discover-page__prologue-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--color-atlas-night-warm);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-uppercase);
+}
+
+.app-layout--nocturne .discover-page__prologue-kicker::before {
+  content: '';
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .discover-page__prologue h1 {
+  max-width: 9ch;
+  margin: 0;
+  color: var(--color-atlas-night-text);
+  font-family: var(--font-serif);
+  font-size: clamp(38px, 5vw, 68px);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+  text-wrap: balance;
+}
+
+.app-layout--nocturne .discover-page__prologue p {
+  max-width: 42ch;
+  margin: var(--space-4) 0 0;
+  color: var(--color-atlas-night-text-secondary);
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.app-layout--nocturne .discover-page__prologue-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid var(--color-atlas-night-warm);
+  border-radius: var(--radius-full);
+  background: var(--color-atlas-night-warm);
+  color: var(--color-atlas-night-ink);
+  font-weight: var(--font-weight-semibold);
+  text-decoration: none;
+  box-shadow: 0 var(--space-2) var(--space-5) var(--color-atlas-night-warm-glow);
+  transition: transform var(--dur-fast) var(--ease-spring), box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.app-layout--nocturne .discover-page__prologue-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 var(--space-3) var(--space-6) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .discover-page__prologue-signal {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  min-width: 160px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-atlas-night-line-strong);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 58%, transparent);
+  box-shadow: inset 0 1px 0 var(--color-overlay-white-15);
+}
+
+.app-layout--nocturne .discover-page__prologue-signal span,
+.app-layout--nocturne .discover-page__prologue-signal small {
+  color: var(--color-atlas-night-text-dim);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-eyebrow);
+}
+
+.app-layout--nocturne .discover-page__prologue-signal strong {
+  color: var(--color-atlas-night-text);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+}
+
+.app-layout--nocturne .discover-page__banner {
+  margin-bottom: var(--space-8);
+}
+
+.app-layout--nocturne .novel-carousel {
+  border: 1px solid var(--color-atlas-night-line-strong);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--gradient-atlas-night-card);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.app-layout--nocturne .novel-carousel__slide {
+  min-height: 360px;
+  padding: clamp(var(--space-6), 6vw, var(--space-12));
+}
+
+.app-layout--nocturne .novel-carousel__slide-img {
+  opacity: 0.68;
+  filter: saturate(0.86) contrast(1.08);
+  transform: scale(1.03);
+  transition: transform var(--dur-deliberate) var(--ease-smooth), opacity var(--dur-normal) var(--ease-standard);
+}
+
+.app-layout--nocturne .novel-carousel__slide.is-active .novel-carousel__slide-img {
+  opacity: 0.84;
+  transform: scale(1);
+}
+
+.app-layout--nocturne .novel-carousel__overlay {
+  background:
+    linear-gradient(90deg, var(--color-atlas-night-mask) 0%, color-mix(in srgb, var(--color-atlas-night-mask) 54%, transparent) 48%, transparent 78%),
+    linear-gradient(180deg, transparent 42%, var(--color-atlas-night-mask) 100%);
+}
+
+.app-layout--nocturne .novel-carousel__caption {
+  max-width: 640px;
+}
+
+.app-layout--nocturne .novel-carousel__title {
+  color: var(--color-atlas-night-text);
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+  text-shadow: 0 var(--space-2) var(--space-6) var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne .novel-carousel__subtitle {
+  max-width: 46ch;
+  color: var(--color-atlas-night-text-secondary);
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.app-layout--nocturne .novel-carousel__arrow {
+  border: 1px solid var(--color-atlas-night-line-strong);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 70%, transparent);
+  color: var(--color-atlas-night-text);
+  backdrop-filter: blur(var(--blur-glass));
+  -webkit-backdrop-filter: blur(var(--blur-glass));
+}
+
+.app-layout--nocturne .novel-carousel__arrow:hover {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--color-atlas-night-warm);
+  color: var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne .novel-carousel__dot {
+  background: var(--color-atlas-night-text-dim);
+}
+
+.app-layout--nocturne .novel-carousel__dot.is-active,
+.app-layout--nocturne .novel-carousel__progress-fill {
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+
+.app-layout--nocturne .discover-page__section {
+  position: relative;
+  margin-bottom: var(--space-8);
+  padding: clamp(var(--space-5), 4vw, var(--space-8));
+  border: 1px solid var(--color-atlas-night-line);
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  background: var(--gradient-atlas-night-card);
+  box-shadow: var(--shadow-atlas-night-soft);
+}
+
+.app-layout--nocturne .discover-page__section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--space-6);
+  right: var(--space-6);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-atlas-night-line-strong), transparent);
+}
+
+.app-layout--nocturne .discover-page__section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.app-layout--nocturne .novel-section-title {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .novel-section-title__text {
+  color: var(--color-atlas-night-text);
+}
+
+.app-layout--nocturne .novel-section-title__text::before {
+  background: linear-gradient(180deg, var(--color-atlas-night-warm), var(--color-atlas-night-violet));
+  box-shadow: 0 0 0 var(--space-1) var(--color-atlas-night-warm-soft);
+}
+
+.app-layout--nocturne .novel-section-title__more {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-deep) 72%, transparent);
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.app-layout--nocturne .novel-section-title__more:hover {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--color-atlas-night-warm-soft);
+  color: var(--color-atlas-night-warm);
+}
+
+.app-layout--nocturne .novel-book-card,
+.app-layout--nocturne .discover-page__pick-card {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-surface) 86%, transparent);
+  box-shadow: 0 var(--space-2) var(--space-5) var(--color-atlas-night-mask);
+}
+
+.app-layout--nocturne .novel-book-card.is-clickable:hover,
+.app-layout--nocturne .discover-page__pick-card:hover {
+  border-color: var(--color-atlas-night-signal-line);
+  box-shadow: 0 var(--space-4) var(--space-8) var(--color-atlas-night-mask), 0 0 var(--space-5) var(--color-atlas-night-wash-strong);
+}
+
+.app-layout--nocturne .novel-book-card__cover,
+.app-layout--nocturne .discover-page__pick-cover {
+  border: 1px solid var(--color-atlas-night-line-strong);
+  background: var(--color-atlas-night-deep);
+  box-shadow: 0 var(--space-2) var(--space-4) var(--color-atlas-night-mask);
+}
+
+.app-layout--nocturne .novel-book-card__title,
+.app-layout--nocturne .discover-page__pick-title,
+.app-layout--nocturne .discover-page__rank-title,
+.app-layout--nocturne .book-meta__title {
+  color: var(--color-atlas-night-text);
+}
+
+.app-layout--nocturne .novel-book-card__author,
+.app-layout--nocturne .novel-book-card__intro,
+.app-layout--nocturne .discover-page__pick-intro,
+.app-layout--nocturne .discover-page__pick-author,
+.app-layout--nocturne .discover-page__rank-author,
+.app-layout--nocturne .book-meta__author,
+.app-layout--nocturne .book-meta__stat {
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.app-layout--nocturne .discover-page__pick-card--featured {
+  border-color: var(--color-atlas-night-signal-line);
+  background: linear-gradient(135deg, var(--color-atlas-night-raised), var(--color-atlas-night-deep));
+  box-shadow: 0 var(--space-4) var(--space-10) var(--color-atlas-night-mask), inset 0 1px 0 var(--color-overlay-white-15);
+}
+
+.app-layout--nocturne .discover-page__pick-card--featured::before {
+  color: var(--color-atlas-night-warm);
+}
+
+.app-layout--nocturne .discover-page__pick-overlay {
+  background: linear-gradient(180deg, transparent, var(--color-atlas-night-mask));
+}
+
+.app-layout--nocturne .discover-page__pick-read {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--color-atlas-night-warm);
+  color: var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne .discover-page__hot-rank,
+.app-layout--nocturne .discover-page__free-badge {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--color-atlas-night-warm);
+  color: var(--color-atlas-night-ink);
+  box-shadow: 0 var(--space-2) var(--space-4) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .discover-page__category-item {
+  border-color: var(--color-atlas-night-line);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--category-bg) 18%, var(--color-atlas-night-surface)), var(--color-atlas-night-deep));
+}
+
+.app-layout--nocturne .discover-page__category-item:hover {
+  border-color: var(--color-atlas-night-signal-line);
+  box-shadow: 0 var(--space-3) var(--space-6) var(--color-atlas-night-mask);
+}
+
+.app-layout--nocturne .discover-page__category-icon {
+  background: var(--color-atlas-night-glass-strong);
+  color: var(--color-atlas-night-warm);
+  box-shadow: inset 0 0 0 1px var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .discover-page__category-name {
+  color: var(--color-atlas-night-text);
+}
+
+.app-layout--nocturne .discover-page__rank-tab {
+  border-color: transparent;
+  color: var(--color-atlas-night-text-dim);
+}
+
+.app-layout--nocturne .discover-page__rank-tab:hover,
+.app-layout--nocturne .discover-page__rank-tab.is-active {
+  color: var(--color-atlas-night-text);
+  background: var(--color-atlas-night-signal-soft);
+}
+
+.app-layout--nocturne .discover-page__rank-tab.is-active::after {
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .discover-page__rank-item {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .discover-page__rank-item:hover {
+  background: var(--color-atlas-night-wash);
+}
+
+.app-layout--nocturne .discover-page__rank-score,
+.app-layout--nocturne .discover-page__pick-rating {
+  color: var(--color-atlas-night-warm);
+}
+
+/* The book detail page takes on a collectible jacket treatment. */
+.app-layout--nocturne .book-detail {
+  padding-top: var(--space-8);
+}
+
+.app-layout--nocturne .book-detail__breadcrumb a,
+.app-layout--nocturne .book-detail__breadcrumb [aria-current='page'] {
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.app-layout--nocturne .book-detail__hero {
+  border-color: var(--color-atlas-night-line-strong);
+  background: var(--gradient-atlas-night-hero);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.app-layout--nocturne .book-detail__hero::after {
+  background:
+    radial-gradient(circle at 88% 20%, var(--color-atlas-night-warm-soft), transparent 28%),
+    linear-gradient(90deg, var(--color-atlas-night-mask), transparent 68%);
+  opacity: 0.84;
+}
+
+.app-layout--nocturne .book-detail__hero-bg,
+.app-layout--nocturne .book-detail__hero-blur {
+  opacity: 0.4;
+  filter: blur(var(--blur-ambient)) saturate(0.72);
+}
+
+.app-layout--nocturne .book-detail__cover {
+  border-color: var(--color-atlas-night-line-strong);
+  box-shadow: 0 var(--space-4) var(--space-10) var(--color-atlas-night-mask), 0 0 0 1px var(--color-atlas-night-warm-soft);
+}
+
+.app-layout--nocturne .book-detail__cover:hover {
+  box-shadow: 0 var(--space-6) var(--space-12) var(--color-atlas-night-mask), 0 0 var(--space-5) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .book-detail__stats {
+  border-color: var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .book-detail__stat .stat-card__value {
+  color: var(--color-atlas-night-warm);
+}
+
+.app-layout--nocturne .book-detail__read-btn,
+.app-layout--nocturne .book-detail__write-comment-submit {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+  box-shadow: 0 var(--space-3) var(--space-6) var(--color-atlas-night-glow);
+}
+
+.app-layout--nocturne .book-detail__last-read,
+.app-layout--nocturne .book-detail__intro,
+.app-layout--nocturne .book-detail__rating,
+.app-layout--nocturne .book-detail__tabs,
+.app-layout--nocturne .book-detail__related,
+.app-layout--nocturne .book-detail__comment,
+.app-layout--nocturne .book-detail__write-comment-form {
+  border-color: var(--color-atlas-night-line);
+  background: var(--gradient-atlas-night-card);
+  box-shadow: var(--shadow-atlas-night-soft);
+}
+
+.app-layout--nocturne .book-detail__last-read::before,
+.app-layout--nocturne .book-detail__section-title::before {
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+.app-layout--nocturne .book-detail__section-title,
+.app-layout--nocturne .book-detail__comment-name,
+.app-layout--nocturne .book-detail__reward-text {
+  color: var(--color-atlas-night-text);
+}
+
+.app-layout--nocturne .book-detail__intro-text,
+.app-layout--nocturne .book-detail__comment-content,
+.app-layout--nocturne .book-detail__reward-hint,
+.app-layout--nocturne .book-detail__chapter-item-link {
+  color: var(--color-atlas-night-text-secondary);
+}
+
+.app-layout--nocturne .book-detail__chapter-item,
+.app-layout--nocturne .book-detail__comment {
+  border-color: var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .book-detail__chapter-item:hover,
+.app-layout--nocturne .book-detail__comment:hover {
+  background: var(--color-atlas-night-wash);
+}
+
+.app-layout--nocturne .book-detail__write-comment-input {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-deep);
+  color: var(--color-atlas-night-text);
+}
+
+.app-layout--nocturne .book-detail__write-comment-input:focus {
+  border-color: var(--color-atlas-night-signal);
+  box-shadow: 0 0 0 var(--space-1) var(--color-atlas-night-signal-soft);
+}
+
+
+/* Reading stays personal: a themed paper sheet floats over the night canvas. */
+.reader-layout--nocturne {
+  min-height: 100vh;
+  background: var(--gradient-atlas-night-canvas);
+}
+
+.reader-layout--nocturne .novel-reader.reader-page {
+  min-height: 100vh;
+  /* Reader passes the selected paper color through an inline background.
+     Keep that color on the inner sheet and reserve the outer frame for night. */
+  background: var(--gradient-atlas-night-canvas) !important;
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__inner {
+  max-width: 860px;
+  margin: var(--space-8) auto;
+  padding: clamp(var(--space-8), 7vw, var(--space-16));
+  border: 1px solid var(--color-atlas-night-line-strong);
+  border-radius: var(--radius-2xl);
+  background: var(--novel-read-bg);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__chapter-title {
+  color: var(--novel-read-text);
+  font-family: var(--font-serif);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__article-body,
+.reader-layout--nocturne .reader-page .novel-reader__article-body p {
+  color: var(--novel-read-text);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__article-body p::first-letter {
+  color: var(--color-atlas-night-warm);
+  font-size: 1.24em;
+  font-weight: var(--font-weight-semibold);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__topbar,
+.reader-layout--nocturne .reader-page .novel-reader__bottombar {
+  border-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 82%, transparent);
+  color: var(--color-atlas-night-text);
+  backdrop-filter: blur(var(--blur-ambient)) saturate(130%);
+  -webkit-backdrop-filter: blur(var(--blur-ambient)) saturate(130%);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__topbar::after,
+.reader-layout--nocturne .reader-page .novel-reader__chapter-end::before {
+  background: linear-gradient(90deg, transparent, var(--color-atlas-night-warm), var(--color-atlas-night-violet), transparent);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__icon-btn,
+.reader-layout--nocturne .reader-page .novel-reader__bar-btn {
+  border-color: var(--color-atlas-night-line);
+  background: var(--color-atlas-night-glass);
+  color: var(--color-atlas-night-text);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__icon-btn:hover,
+.reader-layout--nocturne .reader-page .novel-reader__bar-btn:hover {
+  border-color: var(--color-atlas-night-warm);
+  background: var(--color-atlas-night-warm-soft);
+  color: var(--color-atlas-night-warm);
+}
+
+.reader-layout--nocturne .reader-page .reader-progress {
+  background: var(--color-atlas-night-deep);
+  box-shadow: 0 1px 0 var(--color-atlas-night-line);
+}
+
+.reader-layout--nocturne .reader-page .reader-progress__fill {
+  background: var(--gradient-atlas-night-button);
+}
+
+.reader-layout--nocturne .reader-page .novel-reader__nav-btn--primary {
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+}
+
+.reader-layout--nocturne .ant-drawer-content {
+  background: var(--color-atlas-night-raised);
+  color: var(--color-atlas-night-text);
+}
+
+.reader-layout--nocturne .chapter-list-item {
+  border-bottom-color: var(--color-atlas-night-line);
+}
+
+/* Support screens inherit a premium dark surface without changing their behavior. */
+.login-page {
+  background: var(--gradient-atlas-night-canvas);
+}
+
+.login-page .login-card,
+.login-page .login-brand-side {
+  border-color: var(--color-atlas-night-line);
+  background: var(--gradient-atlas-night-card);
+  box-shadow: var(--shadow-atlas-night-strong);
+}
+
+.login-page .login-submit,
+.login-page .login-tabs__tab.is-active {
+  background: var(--gradient-atlas-night-button);
+  color: var(--color-atlas-night-ink);
+}
+
+.app-layout--nocturne .novel-footer {
+  position: relative;
+  border-top-color: var(--color-atlas-night-line);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 88%, transparent);
+}
+
+.app-layout--nocturne .novel-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-atlas-night-warm), transparent);
+  opacity: 0.66;
+}
+
+.app-layout--nocturne .novel-footer__meta {
+  border-top-color: var(--color-atlas-night-line);
+}
+
+.app-layout--nocturne .novel-footer__col a:hover {
+  color: var(--color-atlas-night-warm);
+}
+
+.app-layout--nocturne .bottom-tab-bar {
+  border-top-color: var(--color-atlas-night-line-strong);
+  background: color-mix(in srgb, var(--color-atlas-night-ink) 90%, transparent);
+  box-shadow: 0 -1px 0 var(--color-atlas-night-line), var(--shadow-atlas-night-soft);
+  backdrop-filter: blur(var(--blur-ambient));
+  -webkit-backdrop-filter: blur(var(--blur-ambient));
+}
+
+.app-layout--nocturne .bottom-tab-bar__link.is-active {
+  color: var(--color-atlas-night-warm);
+}
+
+.app-layout--nocturne .bottom-tab-bar__link.is-active::before {
+  background: var(--color-atlas-night-warm);
+  box-shadow: 0 0 var(--space-3) var(--color-atlas-night-warm-glow);
+}
+
+@media (max-width: 767px) {
+  .app-layout--nocturne .discover-page {
+    padding-top: var(--space-4);
+    padding-bottom: calc(var(--space-24) + var(--space-12));
+  }
+
+  .app-layout--nocturne .discover-page__prologue {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    border-radius: var(--radius-xl);
+  }
+
+  .app-layout--nocturne .discover-page__prologue h1 {
+    font-size: clamp(36px, 11vw, 52px);
+  }
+
+  .app-layout--nocturne .discover-page__prologue-signal {
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .app-layout--nocturne .novel-carousel,
+  .app-layout--nocturne .discover-page__section,
+  .app-layout--nocturne .book-detail__hero,
+  .app-layout--nocturne .book-detail__intro,
+  .app-layout--nocturne .book-detail__rating,
+  .app-layout--nocturne .book-detail__tabs,
+  .app-layout--nocturne .book-detail__related {
+    border-radius: var(--radius-xl);
+  }
+
+  .app-layout--nocturne .novel-carousel__slide {
+    min-height: 280px;
+    padding: var(--space-6);
+  }
+
+  .reader-layout--nocturne .reader-page .novel-reader__inner {
+    margin: 0;
+    min-height: 100vh;
+    padding: var(--space-16) var(--space-5) var(--space-20);
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-layout--nocturne .discover-page__prologue-cta,
+  .app-layout--nocturne .novel-carousel__slide-img {
+    transition: none;
+  }
+}

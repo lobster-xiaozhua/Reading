@@ -1,6 +1,6 @@
 #!/bin/bash
 # 智能巡检运行脚本
-# 用法: ./monitoring/run.sh [--only global|api|page|flow|health] [--report json|html]
+# 用法: ./monitoring/run.sh [--only global|api|page|flow|health|perf] [--report json|html]
 
 set -euo pipefail
 
@@ -76,6 +76,7 @@ case "$ONLY" in
   api)    PROJECT_FILTER="--project=api-b-end --project=api-c-end --project=api-global" ;;
   page)   PROJECT_FILTER="--project=pages-b-end --project=pages-c-end" ;;
   flow)   PROJECT_FILTER="--project=business-flow" ;;
+  perf)   PROJECT_FILTER="--project=performance" ;;
 esac
 
 cd "$PROJECT_ROOT"

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Dropdown, Avatar } from "@novel/components";
+import { ActionSearch } from "@novel/icons";
 import { useUserStore } from "@/stores/userStore";
 import { fetcher } from "@/api/fetcher";
 import { hoverPrefetch } from "@/utils/routePrefetchRegistry";
@@ -116,7 +117,8 @@ export function NavBar() {
             className="novel-navbar__search-btn"
             aria-label="搜索"
           >
-            搜索
+            <ActionSearch size="sm" aria-hidden="true" />
+            <span className="novel-navbar__search-btn-label">搜索</span>
           </button>
         </form>
 

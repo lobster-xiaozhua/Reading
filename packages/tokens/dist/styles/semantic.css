@@ -37,10 +37,56 @@
   --color-brand-bg: var(--brand-2);
   --color-brand-border: var(--brand-3);
 
+  /* Brand role aliases */
+  --color-brand-accent: var(--accent-7);
+  --color-brand-accent-hover: var(--accent-8);
+  --color-brand-accent-soft: var(--accent-2);
+  --color-brand-warm: var(--orange-3);
+  --color-brand-warm-hover: var(--orange-4);
+  --color-brand-warm-soft: var(--orange-1);
+  --color-brand-rose: var(--error-3);
+  --color-brand-rose-soft: var(--error-1);
+  --color-brand-gold: #B7791F;
+  --color-brand-gold-soft: #FFF8E1;
+
   /* ---------- L2 Semantic · 表面层级（新增 raised / overlay / tooltip） ---------- */
   --color-bg-raised: #FFFFFF;
   --color-bg-overlay: #FFFFFF;
   --color-bg-tooltip: var(--gray-14);
+  --color-bg-glass: rgba(255, 255, 255, 0.82);
+  --color-bg-sunken: #F1F2F6;
+  --color-focus-ring: rgba(24, 144, 255, 0.22);
+
+  /* Cross-app visual utility tokens */
+  --color-brand-wash: rgba(69, 102, 255, 0.08);
+  --color-brand-wash-strong: rgba(69, 102, 255, 0.12);
+  --color-brand-line: rgba(69, 102, 255, 0.1);
+  --color-brand-line-strong: rgba(69, 102, 255, 0.18);
+  --color-brand-line-medium: rgba(69, 102, 255, 0.14);
+  --color-warm-wash: rgba(227, 115, 24, 0.08);
+  --color-surface-wash: rgba(255, 255, 255, 0.6);
+  --color-surface-card: rgba(255, 255, 255, 0.52);
+  --color-surface-card-dark: rgba(31, 31, 37, 0.62);
+  --color-surface-elevated-dark: rgba(31, 31, 37, 0.74);
+  --color-surface-dark-wash: rgba(21, 21, 27, 0.08);
+  --color-overlay-white-68: rgba(255, 255, 255, 0.68);
+  --color-overlay-white-52: rgba(255, 255, 255, 0.52);
+  --color-overlay-white-58: rgba(255, 255, 255, 0.58);
+  --color-overlay-white-14: rgba(255, 255, 255, 0.14);
+  --color-overlay-white-42: rgba(255, 255, 255, 0.42);
+  --color-overlay-white-22: rgba(255, 255, 255, 0.22);
+  --color-overlay-white-025: rgba(255, 255, 255, 0.025);
+  --color-ink-shadow-soft: rgba(31, 42, 68, 0.04);
+  --color-ink-shadow: rgba(31, 42, 68, 0.07);
+  --color-ink-shadow-strong: rgba(31, 42, 68, 0.12);
+  --color-ink-shadow-faint: rgba(31, 42, 68, 0.035);
+  --color-ink-shadow-heavy: rgba(31, 42, 68, 0.2);
+  --color-dark-shadow-soft: rgba(0, 0, 0, 0.22);
+  --color-dark-shadow: rgba(0, 0, 0, 0.28);
+  --color-dark-shadow-strong: rgba(0, 0, 0, 0.42);
+  --blur-glass: 16px;
+  --blur-ambient: 24px;
+  --size-card-min: 140px;
 
   /* ---------- L2 Semantic · 渐变（引用 L1 Gradient） ---------- */
   --gradient-brand-subtle: linear-gradient(135deg, #E6F7FF 0%, #F0F9FF 100%);
@@ -49,6 +95,8 @@
   --gradient-rose: linear-gradient(135deg, #FF6B6B 0%, #F5222D 100%);
   --gradient-gold: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   --gradient-surface: linear-gradient(180deg, #FFFFFF 0%, #F7F7F8 100%);
+  --gradient-editorial: linear-gradient(135deg, #F8FAFF 0%, #F7F3EC 100%);
+  --gradient-hero: linear-gradient(135deg, rgba(36, 91, 255, 0.98) 0%, rgba(69, 130, 255, 0.88) 54%, rgba(227, 115, 24, 0.78) 100%);
 
   /* ---------- L2 Semantic · 品牌发光（光晕/按钮辉光等视觉装饰，随主题切换） ---------- */
   --color-brand-glow-0: rgba(24, 144, 255, 0);
@@ -161,6 +209,7 @@
   --font-weight-body: var(--font-weight-regular);
   --font-weight-emphasis: var(--font-weight-medium);
   --font-weight-caption: var(--font-weight-medium);
+  --font-weight-label: var(--font-weight-medium);
 
   /* ---------- 行高（5 级，按内容类型） ---------- */
   --line-height-tighter: 1.1;   /* display / hero title */
@@ -354,6 +403,16 @@
   --color-brand-active: var(--brand-8);
   --color-brand-bg: rgba(24, 144, 255, 0.16);
   --color-brand-border: rgba(24, 144, 255, 0.32);
+  --color-brand-accent: var(--accent-6);
+  --color-brand-accent-hover: var(--accent-7);
+  --color-brand-accent-soft: rgba(69, 102, 255, 0.18);
+  --color-brand-warm: var(--orange-4);
+  --color-brand-warm-hover: var(--orange-3);
+  --color-brand-warm-soft: rgba(240, 133, 40, 0.16);
+  --color-brand-rose: var(--error-2);
+  --color-brand-rose-soft: rgba(245, 34, 45, 0.16);
+  --color-brand-gold: #F2C66D;
+  --color-brand-gold-soft: rgba(242, 198, 109, 0.16);
 
   /* 品牌发光暗色重定义：跟随暗色主品牌色 #40A9FF（brand-6） */
   --color-brand-glow-0: rgba(64, 169, 255, 0);
@@ -379,8 +438,40 @@
   --color-bg-raised: var(--gray-11);
   --color-bg-overlay: var(--gray-11);
   --color-bg-tooltip: var(--gray-2);
+  --color-bg-glass: rgba(21, 21, 27, 0.84);
+  --color-bg-sunken: var(--gray-13);
+  --color-focus-ring: rgba(64, 169, 255, 0.28);
+
+  --color-brand-wash: rgba(69, 102, 255, 0.12);
+  --color-brand-wash-strong: rgba(69, 102, 255, 0.18);
+  --color-brand-line: rgba(69, 102, 255, 0.14);
+  --color-brand-line-strong: rgba(69, 102, 255, 0.28);
+  --color-brand-line-medium: rgba(69, 102, 255, 0.2);
+  --color-warm-wash: rgba(227, 115, 24, 0.1);
+  --color-surface-wash: rgba(31, 31, 37, 0.72);
+  --color-surface-card: rgba(31, 31, 37, 0.62);
+  --color-surface-card-dark: rgba(31, 31, 37, 0.74);
+  --color-surface-elevated-dark: rgba(31, 31, 37, 0.82);
+  --color-surface-dark-wash: rgba(21, 21, 27, 0.08);
+  --color-overlay-white-68: rgba(255, 255, 255, 0.14);
+  --color-overlay-white-52: rgba(255, 255, 255, 0.1);
+  --color-overlay-white-58: rgba(255, 255, 255, 0.12);
+  --color-overlay-white-14: rgba(255, 255, 255, 0.14);
+  --color-overlay-white-42: rgba(255, 255, 255, 0.08);
+  --color-overlay-white-22: rgba(255, 255, 255, 0.06);
+  --color-overlay-white-025: rgba(255, 255, 255, 0.025);
+  --color-ink-shadow-soft: rgba(0, 0, 0, 0.22);
+  --color-ink-shadow: rgba(0, 0, 0, 0.28);
+  --color-ink-shadow-strong: rgba(0, 0, 0, 0.42);
+  --color-ink-shadow-faint: rgba(0, 0, 0, 0.2);
+  --color-ink-shadow-heavy: rgba(0, 0, 0, 0.48);
+  --color-dark-shadow-soft: rgba(0, 0, 0, 0.28);
+  --color-dark-shadow: rgba(0, 0, 0, 0.42);
+  --color-dark-shadow-strong: rgba(0, 0, 0, 0.56);
 
   --gradient-surface: var(--gradient-surface-dark);
+  --gradient-editorial: linear-gradient(135deg, rgba(36, 91, 255, 0.16) 0%, rgba(227, 115, 24, 0.08) 100%);
+  --gradient-hero: linear-gradient(135deg, rgba(26, 71, 217, 0.96) 0%, rgba(69, 102, 255, 0.88) 54%, rgba(198, 100, 15, 0.78) 100%);
 
   --color-feedback-success: var(--success-2);
   --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
@@ -439,6 +530,16 @@
     --color-brand-active: var(--brand-8);
     --color-brand-bg: rgba(24, 144, 255, 0.16);
     --color-brand-border: rgba(24, 144, 255, 0.32);
+    --color-brand-accent: var(--accent-6);
+    --color-brand-accent-hover: var(--accent-7);
+    --color-brand-accent-soft: rgba(69, 102, 255, 0.18);
+    --color-brand-warm: var(--orange-4);
+    --color-brand-warm-hover: var(--orange-3);
+    --color-brand-warm-soft: rgba(240, 133, 40, 0.16);
+    --color-brand-rose: var(--error-2);
+    --color-brand-rose-soft: rgba(245, 34, 45, 0.16);
+    --color-brand-gold: #F2C66D;
+    --color-brand-gold-soft: rgba(242, 198, 109, 0.16);
 
     --color-brand-glow-0: rgba(64, 169, 255, 0);
     --color-brand-glow-20: rgba(64, 169, 255, 0.2);
@@ -461,8 +562,40 @@
   --color-bg-raised: var(--gray-11);
   --color-bg-overlay: var(--gray-11);
   --color-bg-tooltip: var(--gray-2);
+  --color-bg-glass: rgba(21, 21, 27, 0.84);
+  --color-bg-sunken: var(--gray-13);
+  --color-focus-ring: rgba(64, 169, 255, 0.28);
+
+  --color-brand-wash: rgba(69, 102, 255, 0.12);
+  --color-brand-wash-strong: rgba(69, 102, 255, 0.18);
+  --color-brand-line: rgba(69, 102, 255, 0.14);
+  --color-brand-line-strong: rgba(69, 102, 255, 0.28);
+    --color-brand-line-medium: rgba(69, 102, 255, 0.2);
+    --color-warm-wash: rgba(227, 115, 24, 0.1);
+  --color-surface-wash: rgba(31, 31, 37, 0.72);
+  --color-surface-card: rgba(31, 31, 37, 0.62);
+  --color-surface-card-dark: rgba(31, 31, 37, 0.74);
+    --color-surface-elevated-dark: rgba(31, 31, 37, 0.82);
+    --color-surface-dark-wash: rgba(21, 21, 27, 0.08);
+  --color-overlay-white-68: rgba(255, 255, 255, 0.14);
+  --color-overlay-white-52: rgba(255, 255, 255, 0.1);
+    --color-overlay-white-58: rgba(255, 255, 255, 0.12);
+    --color-overlay-white-14: rgba(255, 255, 255, 0.14);
+  --color-overlay-white-42: rgba(255, 255, 255, 0.08);
+  --color-overlay-white-22: rgba(255, 255, 255, 0.06);
+  --color-overlay-white-025: rgba(255, 255, 255, 0.025);
+  --color-ink-shadow-soft: rgba(0, 0, 0, 0.22);
+  --color-ink-shadow: rgba(0, 0, 0, 0.28);
+  --color-ink-shadow-strong: rgba(0, 0, 0, 0.42);
+    --color-ink-shadow-faint: rgba(0, 0, 0, 0.2);
+    --color-ink-shadow-heavy: rgba(0, 0, 0, 0.48);
+  --color-dark-shadow-soft: rgba(0, 0, 0, 0.28);
+  --color-dark-shadow: rgba(0, 0, 0, 0.42);
+  --color-dark-shadow-strong: rgba(0, 0, 0, 0.56);
 
   --gradient-surface: var(--gradient-surface-dark);
+  --gradient-editorial: linear-gradient(135deg, rgba(36, 91, 255, 0.16) 0%, rgba(227, 115, 24, 0.08) 100%);
+  --gradient-hero: linear-gradient(135deg, rgba(26, 71, 217, 0.96) 0%, rgba(69, 102, 255, 0.88) 54%, rgba(198, 100, 15, 0.78) 100%);
 
     --color-feedback-success: var(--success-2);
     --color-feedback-success-bg: rgba(82, 196, 26, 0.16);
@@ -516,4 +649,56 @@
     --dur-slow: 0ms;
     --dur-deliberate: 0ms;
   }
+}
+
+
+/* ---------- Atlas Nocturne ? cross-app experiential palette ---------- */
+:root {
+  --color-atlas-night-ink: #070D1D;
+  --color-atlas-night-deep: #0C1733;
+  --color-atlas-night-surface: #122143;
+  --color-atlas-night-raised: #1A2D55;
+  --color-atlas-night-paper: #F5F0E6;
+  --color-atlas-night-paper-ink: #24283A;
+  --color-atlas-night-text: #F5F7FF;
+  --color-atlas-night-text-secondary: #B8C4DF;
+  --color-atlas-night-text-dim: #7D8BAA;
+  --color-atlas-night-signal: #6EA8FF;
+  --color-atlas-night-signal-hover: #94BEFF;
+  --color-atlas-night-signal-active: #4C83DF;
+  --color-atlas-night-signal-soft: rgba(110, 168, 255, 0.16);
+  --color-atlas-night-signal-line: rgba(110, 168, 255, 0.38);
+  --color-atlas-night-violet: #AC99FF;
+  --color-atlas-night-violet-hover: #C7BAFF;
+  --color-atlas-night-violet-soft: rgba(172, 153, 255, 0.16);
+  --color-atlas-night-warm: #FFC16D;
+  --color-atlas-night-warm-hover: #FFD49B;
+  --color-atlas-night-warm-soft: rgba(255, 193, 109, 0.16);
+  --color-atlas-night-rose: #FF94AE;
+  --color-atlas-night-rose-soft: rgba(255, 148, 174, 0.16);
+  --color-atlas-night-line: rgba(190, 207, 255, 0.14);
+  --color-atlas-night-line-strong: rgba(190, 207, 255, 0.3);
+  --color-atlas-night-glass: rgba(18, 33, 67, 0.78);
+  --color-atlas-night-glass-strong: rgba(18, 33, 67, 0.92);
+  --color-atlas-night-mask: rgba(3, 7, 18, 0.78);
+  --color-atlas-night-wash: rgba(110, 168, 255, 0.1);
+  --color-atlas-night-wash-strong: rgba(110, 168, 255, 0.18);
+  --color-atlas-night-warm-wash: rgba(255, 193, 109, 0.1);
+  --color-atlas-night-glow: rgba(110, 168, 255, 0.42);
+  --color-atlas-night-warm-glow: rgba(255, 193, 109, 0.32);
+  --gradient-atlas-night-canvas:
+    radial-gradient(circle at 12% -8%, rgba(110, 168, 255, 0.24), transparent 32%),
+    radial-gradient(circle at 92% 8%, rgba(172, 153, 255, 0.18), transparent 26%),
+    linear-gradient(160deg, #070D1D 0%, #0C1733 52%, #101E40 100%);
+  --gradient-atlas-night-card:
+    linear-gradient(145deg, rgba(29, 48, 91, 0.92) 0%, rgba(14, 27, 58, 0.94) 100%);
+  --gradient-atlas-night-hero:
+    linear-gradient(118deg, rgba(10, 22, 54, 0.96) 0%, rgba(24, 49, 105, 0.9) 58%, rgba(87, 65, 152, 0.82) 100%);
+  --gradient-atlas-night-button:
+    linear-gradient(135deg, #6EA8FF 0%, #AC99FF 58%, #FFC16D 140%);
+  --gradient-atlas-night-grid:
+    linear-gradient(90deg, rgba(190, 207, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(rgba(190, 207, 255, 0.06) 1px, transparent 1px);
+  --shadow-atlas-night-soft: 0 12px 36px rgba(2, 7, 22, 0.28);
+  --shadow-atlas-night-strong: 0 22px 64px rgba(2, 7, 22, 0.5);
 }

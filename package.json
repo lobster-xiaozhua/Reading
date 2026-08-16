@@ -36,6 +36,7 @@
     "monitor:api": "bash monitoring/run.sh --only api",
     "monitor:page": "bash monitoring/run.sh --only page",
     "monitor:flow": "bash monitoring/run.sh --only flow",
+    "monitor:perf": "bash monitoring/run.sh --only perf",
     "monitor:global": "bash monitoring/run.sh --only global",
     "global-check": "bash scripts/global-check/run.sh",
     "global-check:api": "bash scripts/global-check/run.sh --tag api",

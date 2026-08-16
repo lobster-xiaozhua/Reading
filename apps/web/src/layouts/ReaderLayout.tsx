@@ -6,7 +6,7 @@ import { Outlet } from "react-router-dom";
  */
 export function ReaderLayout() {
   return (
-    <div className="reader-layout" style={{ minHeight: "100vh" }}>
+    <div className="reader-layout reader-layout--nocturne" style={{ minHeight: "100vh" }}>
       <Outlet />
     </div>
   );

@@ -9,6 +9,8 @@ import { initErrorMonitor } from "@novel/components";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { UpdatePrompt } from "./components/UpdatePrompt";
 import "./styles/global.css";
+import "./styles/visual-overrides.css";
+import "./styles/nocturne.css";
 
 // P7-6 离线阅读：注册 Service Worker（生产环境）
 registerServiceWorker();

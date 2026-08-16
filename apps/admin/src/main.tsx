@@ -22,6 +22,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { initErrorMonitor } from "./utils/error-monitor";
 import "./i18n";
 import "./styles/global.css";
+import "./styles/visual-overrides.css";
+import "./styles/command-center.css";
 
 // P0-16 dayjs 中文 locale
 dayjs.locale("zh-cn");
@@ -32,7 +34,7 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AtlasAdminProvider>
+        <AtlasAdminProvider defaultUITheme="dark">
           <RouterProvider router={router} />
         </AtlasAdminProvider>
       </QueryClientProvider>
