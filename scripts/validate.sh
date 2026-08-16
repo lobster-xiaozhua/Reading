@@ -232,8 +232,8 @@ backend_tests() {
     info "跳过慢速测试（hypothesis/benchmark）"
   fi
 
-  run_step "Pytest (475 个，-n auto)" "/tmp/validate-pytest.log" \
-    python3 -m pytest backend/tests/ -q --tb=short $extra_opts
+  run_step "后端完整测试" "/tmp/validate-pytest.log" \
+    python3 backend/scripts/test-platform/run.py --full --no-xdist $extra_opts
 }
 
 # ── 全局真实请求检查 ─────────────────────────────────────
@@ -249,7 +249,7 @@ global_check() {
   fi
 
   run_step "全端点真实请求检查 (api + pages)" "/tmp/validate-global.log" \
-    python3 scripts/global-check/global_check.py --report /tmp/validate-global-report.json || true
+    python3 scripts/global-check/global_check.py --report /tmp/validate-global-report.json
 }
 
 # ── 安全审计 ──────────────────────────────────────────────

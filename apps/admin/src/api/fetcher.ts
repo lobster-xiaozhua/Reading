@@ -67,6 +67,46 @@ export interface SystemMetricsSnapshot {
   slowQueryTop: SlowItem[];
 }
 
+export type OperationTag = "health" | "api" | "pages" | "flow" | "performance" | "all";
+
+export interface OperationCheckResult {
+  name: string;
+  status: "pass" | "fail" | "warn" | "skip";
+  tags: string[];
+  durationMs: number;
+  detail: string;
+}
+
+export interface OperationsSnapshot {
+  serviceStatus: "ready" | "degraded" | "unavailable";
+  ready: boolean;
+  failedDependencies: number;
+  hasReport: boolean;
+  jobId: string;
+  jobStatus: string;
+  tag: string;
+  timestamp: string;
+  summary: {
+    total: number;
+    passed: number;
+    failed: number;
+    warned: number;
+    skipped: number;
+    passRate: number;
+    elapsedMs: number;
+  };
+  results: OperationCheckResult[];
+}
+
+export interface OperationsJob {
+  jobId: string;
+  tag: OperationTag;
+  status: "pending" | "running" | "done" | "failed";
+  startedAt: number;
+  finishedAt: number;
+  error: string;
+}
+
 /** 统一请求封装：GET 请求通过 React Query 缓存去重 */
 async function cachedGet<T>(url: string, params?: Record<string, unknown>): Promise<T> {
   const cacheKey = [url, params ?? {}];
@@ -114,6 +154,15 @@ export const fetcher = {
     },
     async getSystemMetrics(): Promise<SystemMetricsSnapshot> {
       return cachedGet<SystemMetricsSnapshot>("/workbench/system-metrics");
+    },
+    async getOperations(): Promise<OperationsSnapshot> {
+      return http.get<OperationsSnapshot>("/workbench/operations", { _ts: Date.now() });
+    },
+    async runOperationsCheck(tag: OperationTag, timeoutMs = 15_000): Promise<OperationsJob> {
+      return http.post<OperationsJob>("/workbench/operations/run", { tag, timeoutMs });
+    },
+    async getOperationsJob(jobId: string): Promise<OperationsJob> {
+      return http.get<OperationsJob>(`/workbench/operations/jobs/${jobId}`, { _ts: Date.now() });
     },
   },
 

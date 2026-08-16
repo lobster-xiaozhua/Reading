@@ -30,6 +30,12 @@ logger = structlog.get_logger(__name__)
 
 _LOGIN_FAIL_LIMIT = 5
 _LOGIN_LOCK_TTL = 15 * 60  # 15 分钟
+_DEMO_ADMINS = [
+    ("admin", "admin123", "演示管理员", "super-admin"),
+    ("content", "content123", "内容管理员", "content-admin"),
+    ("auditor", "auditor123", "审核员", "auditor"),
+    ("operation", "operation123", "运营管理员", "operation-admin"),
+]
 
 
 class AuthService:
@@ -64,6 +70,14 @@ class AuthService:
         distinct = int(await self.redis.scard(fail_key) or 0)
         if distinct >= _LOGIN_FAIL_LIMIT:
             raise BizError(ErrorCode.ACCOUNT_LOCKED, "账号已被锁定，请 15 分钟后重试")
+
+        is_demo_login = settings.debug and any(
+            username == demo_username and password == demo_password
+            for demo_username, demo_password, _, _ in _DEMO_ADMINS
+        )
+        if is_demo_login:
+            # 开发库可能保留过期的演示密码；使用预置凭据时恢复统一演示账号。
+            await self._ensure_demo_admin()
 
         admin = await self._find_admin(username)
         if not admin or not verify_password(password, admin.password_hash):
@@ -234,13 +248,7 @@ class AuthService:
 
         与 B 端登录页演示账号及 seed.DEMO_ADMINS 保持一致。
         """
-        demo_admins = [
-            ("admin", "admin123", "演示管理员", "super-admin"),
-            ("content", "content123", "内容管理员", "content-admin"),
-            ("auditor", "auditor123", "审核员", "auditor"),
-            ("operation", "operation123", "运营管理员", "operation-admin"),
-        ]
-        for username, password, nickname, role_key in demo_admins:
+        for username, password, nickname, role_key in _DEMO_ADMINS:
             admin = await self._find_admin(username)
             if not admin:
                 admin = Admin(
@@ -251,4 +259,8 @@ class AuthService:
                     enabled=1,
                 )
                 self.session.add(admin)
-                await self.session.commit()
+            else:
+                admin.password_hash = hash_password(password)
+                admin.nickname = nickname
+                admin.role_key = role_key
+        await self.session.commit()

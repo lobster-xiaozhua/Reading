@@ -7,7 +7,6 @@ import {
   Card,
   App,
   Typography,
-  Tag,
 } from "antd";
 import {
   LockOutlined,
@@ -74,8 +73,14 @@ export default function LoginPage() {
     }
   };
 
-  const fillDemoAccount = (username: string, password: string) => {
-    form.setFieldsValue({ username, password });
+  const loginWithDemoAccount = (username: string, password: string) => {
+    const values = {
+      username,
+      password,
+      remember: form.getFieldValue("remember") ?? true,
+    };
+    form.setFieldsValue(values);
+    void onFinish(values);
   };
 
   return (
@@ -128,7 +133,7 @@ export default function LoginPage() {
             layout="vertical"
             initialValues={{ remember: true }}
             onFinish={onFinish}
-            autoComplete="off"
+            autoComplete="on"
             requiredMark={false}
           >
             <Form.Item
@@ -196,21 +201,15 @@ export default function LoginPage() {
                   <span className="login-card__demo-info">
                     {acc.label}: {acc.username} / {acc.password}
                   </span>
-                  <Tag
-                    color="blue"
+                  <Button
+                    type="text"
+                    size="small"
                     className="login-card__demo-fill"
-                    tabIndex={0}
-                    role="button"
-                    onClick={() => fillDemoAccount(acc.username, acc.password)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        fillDemoAccount(acc.username, acc.password);
-                      }
-                    }}
+                    loading={loading}
+                    onClick={() => loginWithDemoAccount(acc.username, acc.password)}
                   >
                     {t("login:fill")}
-                  </Tag>
+                  </Button>
                 </div>
               ))}
             </div>

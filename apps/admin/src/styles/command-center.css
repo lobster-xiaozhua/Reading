@@ -458,6 +458,30 @@
   background: var(--color-atlas-night-deep);
 }
 
+.login-page .login-card :where(.ant-input, .ant-input-password, .ant-input-affix-wrapper) {
+  color: var(--color-atlas-night-text) !important;
+}
+
+.login-page .login-card .ant-input::placeholder {
+  color: var(--color-atlas-night-text-secondary) !important;
+  opacity: 0.78;
+}
+
+.login-page .login-card .ant-input-affix-wrapper .anticon,
+.login-page .login-card .ant-input-password-icon {
+  color: var(--color-atlas-night-text-secondary) !important;
+}
+
+.login-page .login-card .ant-form-item-label > label {
+  color: var(--color-atlas-night-text) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+.login-page .login-card .ant-typography-secondary,
+.login-page .login-card .ant-checkbox-wrapper {
+  color: var(--color-atlas-night-text-secondary) !important;
+}
+
 @media (max-width: 1100px) {
   .bend-shell--command .bend-layout__content {
     padding: var(--space-4) !important;

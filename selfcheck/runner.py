@@ -13,6 +13,8 @@ from __future__ import annotations
 import sys
 import threading
 import time
+import json
+import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -31,6 +33,7 @@ from global_check import (
 )
 
 REPORTS_DIR = Path(__file__).resolve().parent / "reports"
+CHECK_TAGS = {"health", "api", "pages", "flow", "performance", "all"}
 
 # 依赖探测端点（health tag）
 HEALTH_PROBES = [
@@ -61,6 +64,7 @@ class SelfCheckJob:
     finished_at: float = 0.0
     report: dict[str, Any] = field(default_factory=dict)
     error: str = ""
+    timeout_ms: int = DEFAULT_TIMEOUT
 
 
 class SelfCheckRunner:
@@ -79,11 +83,15 @@ class SelfCheckRunner:
         self.timeout_ms = timeout_ms
         self._lock = threading.Lock()
         self.jobs: dict[str, SelfCheckJob] = {}
+        self._latest_job_id = ""
+        self._restore_latest()
 
     # ── Job 管理 ────────────────────────────────────────
-    def submit(self, tag: str = "all") -> str:
+    def submit(self, tag: str = "all", timeout_ms: int | None = None) -> str:
+        if tag not in CHECK_TAGS:
+            raise ValueError(f"未知检查模块: {tag}")
         job_id = f"sc-{int(time.time() * 1000)}-{len(self.jobs) + 1}"
-        job = SelfCheckJob(job_id=job_id, tag=tag)
+        job = SelfCheckJob(job_id=job_id, tag=tag, timeout_ms=timeout_ms or self.timeout_ms)
         with self._lock:
             self.jobs[job_id] = job
         return job_id
@@ -94,9 +102,30 @@ class SelfCheckRunner:
 
     def latest(self) -> SelfCheckJob | None:
         with self._lock:
-            if not self.jobs:
-                return None
-            return self.jobs[max(self.jobs)]
+            return self.jobs.get(self._latest_job_id)
+
+    def _restore_latest(self) -> None:
+        """从归档恢复最近完成报告，使服务重启后看板仍可读取结果。"""
+        if not REPORTS_DIR.exists():
+            return
+        for path in sorted(REPORTS_DIR.glob("*.json"), reverse=True):
+            try:
+                report = json.loads(path.read_text(encoding="utf-8"))
+                if "summary" not in report:
+                    continue
+                job_id = str(report.get("jobId", f"restored-{path.stem}"))
+                job = SelfCheckJob(
+                    job_id=job_id,
+                    tag=str(report.get("tag", "health")),
+                    status=str(report.get("status", "done")),
+                    finished_at=path.stat().st_mtime,
+                    report=report,
+                )
+                self.jobs[job_id] = job
+                self._latest_job_id = job_id
+                return
+            except (OSError, ValueError, TypeError):
+                continue
 
     def _set_status(self, job_id: str, status: str, **kwargs: Any) -> None:
         with self._lock:
@@ -112,26 +141,35 @@ class SelfCheckRunner:
         job.started_at = time.time()
         job.status = "running"
         try:
-            report = self._run_checks(tag)
+            report = self._run_checks(tag, job.timeout_ms)
+            report["jobId"] = job_id
+            report["status"] = "done"
             job.report = report
             job.status = "done"
+            self._latest_job_id = job_id
+            self._archive(report)
         except Exception as exc:  # noqa: BLE001
             job.error = str(exc)
             job.status = "failed"
         finally:
             job.finished_at = time.time()
 
-    def run_sync(self, tag: str = "all") -> dict[str, Any]:
+    def run_sync(self, tag: str = "all", timeout_ms: int | None = None) -> dict[str, Any]:
         """同步执行（供 CLI 使用）。"""
-        return self._run_checks(tag)
+        report = self._run_checks(tag, timeout_ms or self.timeout_ms)
+        report["status"] = "done"
+        self._archive(report)
+        return report
 
-    def _run_checks(self, tag: str) -> dict[str, Any]:
+    def _run_checks(self, tag: str, timeout_ms: int) -> dict[str, Any]:
         tag = tag or "all"
+        if tag not in CHECK_TAGS:
+            raise ValueError(f"未知检查模块: {tag}")
         results: list[dict[str, Any]] = []
         start = time.monotonic()
 
-        # 1. health 依赖探测（任意 tag 都先探测后端可达性）
-        if tag in ("all", "health"):
+        # 所有检查先验证依赖可达性，避免产生误导性的后续失败。
+        if tag in CHECK_TAGS:
             for name, method, url_tpl in HEALTH_PROBES:
                 results.append(self._probe(name, method, url_tpl, ["health"]))
 
@@ -142,7 +180,7 @@ class SelfCheckRunner:
         elif tag in ("all", "api", "pages"):
             # 3. 全量真实 HTTP 检查（复用 GlobalChecker）
             checker = GlobalChecker(
-                self.backend, self.web, self.admin, self.timeout_ms
+                self.backend, self.web, self.admin, timeout_ms
             )
             checker.load_openapi()
             if tag in ("api", "all"):
@@ -151,6 +189,11 @@ class SelfCheckRunner:
                 checker.run_page_checks()
             for r in checker.results:
                 results.append(r.to_dict())
+
+        if tag in ("flow", "all"):
+            results.append(self._run_playwright_check("flow"))
+        if tag in ("performance", "all"):
+            results.append(self._run_playwright_check("perf"))
 
         passed = sum(1 for r in results if r["status"] == "pass")
         failed = sum(1 for r in results if r["status"] == "fail")
@@ -177,13 +220,33 @@ class SelfCheckRunner:
             "results": results,
         }
 
-        # 归档报告
+        return report
+
+    def _archive(self, report: dict[str, Any]) -> None:
+        """写入完整报告后归档，确保恢复的数据与看板数据一致。"""
         REPORTS_DIR.mkdir(parents=True, exist_ok=True)
         (REPORTS_DIR / f"{report['timestamp'].replace(':', '')}.json").write_text(
-            __import__("json").dumps(report, ensure_ascii=False, indent=2),
+            json.dumps(report, ensure_ascii=False, indent=2),
             encoding="utf-8",
         )
-        return report
+
+    def _run_playwright_check(self, target: str) -> dict[str, Any]:
+        """运行固定的 Playwright 检查模块，页面输入无法影响执行命令。"""
+        started = time.monotonic()
+        command = ["bash", str(ROOT / "monitoring" / "run.sh"), "--only", target]
+        completed = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
+        detail = (completed.stdout + completed.stderr).strip()
+        return {
+            "name": "业务流巡检" if target == "flow" else "性能巡检",
+            "method": "PLAYWRIGHT",
+            "url": "",
+            "status": "pass" if completed.returncode == 0 else "fail",
+            "httpCode": None,
+            "bodyCode": None,
+            "durationMs": int((time.monotonic() - started) * 1000),
+            "detail": detail[-2000:],
+            "tags": ["flow" if target == "flow" else "performance"],
+        }
 
     def _probe(self, name: str, method: str, url_tpl: str, tags: list[str]) -> dict[str, Any]:
         url = url_tpl.format(backend=self.backend, web=self.web, admin=self.admin)

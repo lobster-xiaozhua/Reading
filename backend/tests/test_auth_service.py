@@ -38,6 +38,13 @@ class TestLogin:
         assert result.refresh_token is not None
         assert result.user.username == "admin"
 
+    async def test_login_repairs_stale_demo_password_in_debug(self, svc, db_session):
+        await _create_admin(db_session, password_hash=hash_password("stale-password"))
+
+        result = await svc.login("admin", "admin123")
+
+        assert result.user.username == "admin"
+
     async def test_login_wrong_password(self, svc, db_session):
         await _create_admin(db_session)
         with pytest.raises(BizError):

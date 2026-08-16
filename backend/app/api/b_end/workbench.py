@@ -3,12 +3,15 @@
 对应前端 workbench：getKpiCards / getWordCountTrend。
 """
 
-from fastapi import APIRouter, Depends, Query, Request
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_admin, ok
+from app.api.deps import get_current_admin, ok, require_permission
 from app.core.database import get_db
 from app.core.redis import get_redis_client
+from app.schemas.b_end import OperationsRunBody
+from app.services.operations_service import OperationsService
 from app.services.workbench_service import WorkbenchService
 
 router = APIRouter(prefix="/workbench")
@@ -71,3 +74,43 @@ async def get_system_metrics(
     """统一控制面板系统可观测性聚合接口（HTTP / Redis / DB 指标快照）。"""
     svc = WorkbenchService(db, redis)
     return ok(request, await svc.get_system_metrics())
+
+
+@router.get("/operations")
+async def get_operations(
+    request: Request,
+    _admin=Depends(require_permission("system.config")),
+):
+    return ok(request, await OperationsService().get_snapshot())
+
+
+@router.post("/operations/run")
+async def run_operations_check(
+    body: OperationsRunBody,
+    request: Request,
+    _admin=Depends(require_permission("system.config")),
+):
+    if body.tag not in {"health", "api", "pages", "flow", "performance", "all"}:
+        raise HTTPException(status_code=422, detail="不支持的检查模块")
+    try:
+        result = await OperationsService().run(body.tag, body.timeout_ms)
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=503, detail="自检服务不可用") from exc
+    return ok(request, result)
+
+
+@router.get("/operations/jobs/{job_id}")
+async def get_operations_job(
+    job_id: str,
+    request: Request,
+    _admin=Depends(require_permission("system.config")),
+):
+    try:
+        result = await OperationsService().get_job(job_id)
+    except httpx.HTTPStatusError as exc:
+        if exc.response.status_code == 404:
+            raise HTTPException(status_code=404, detail="检查任务不存在") from exc
+        raise HTTPException(status_code=503, detail="自检服务不可用") from exc
+    except httpx.HTTPError as exc:
+        raise HTTPException(status_code=503, detail="自检服务不可用") from exc
+    return ok(request, result)

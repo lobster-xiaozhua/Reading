@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -48,45 +49,45 @@ ROOT = Path(__file__).resolve().parents[2]
 TESTS = ROOT / "tests"
 PY = sys.executable
 
-# ── 分层定义 ────────────────────────────────────────────────
-UNIT_FILES = [
-    "test_imports.py",
-    "test_cache_utils.py",
-    "test_sensitive_trie.py",
-    "test_state_machine.py",
-    "test_batch_utils.py",
-    "test_property_algorithms.py",
-]
-API_FILES = ["test_api_b_end.py", "test_api_c_end.py", "test_rum.py"]
-SECURITY_FILES = ["test_production_security.py"]
-BENCHMARK_FILES = ["test_benchmarks.py"]
-
-
-def service_files() -> list[str]:
-    """service 层 = 所有 test_*_service.py + 非命名规则的 DB 测试。"""
-    files = sorted(p.name for p in TESTS.glob("test_*_service.py"))
-    files += ["test_discovery_cache.py"]
-    return files
-
-
-LAYERS: dict[str, list[str]] = {
-    "unit": UNIT_FILES,
-    "api": API_FILES,
-    "security": SECURITY_FILES,
-    "benchmark": BENCHMARK_FILES,
-}
-LAYERS["service"] = service_files()
+def resolve_layer_files() -> dict[str, list[str]]:
+    """从测试命名约定推导唯一分层，避免静态清单遗漏新增用例。"""
+    layers: dict[str, list[str]] = {
+        "unit": [],
+        "service": [],
+        "api": [],
+        "security": [],
+        "benchmark": [],
+    }
+    for path in sorted(TESTS.glob("test_*.py")):
+        name = path.name
+        if "benchmark" in name:
+            layers["benchmark"].append(name)
+        elif "security" in name:
+            layers["security"].append(name)
+        elif name.startswith("test_api_") or name in {
+            "test_rum.py",
+            "test_metrics_endpoint.py",
+            "test_system_metrics.py",
+            "test_idempotency.py",
+        }:
+            layers["api"].append(name)
+        elif name.endswith("_service.py") or name == "test_discovery_cache.py":
+            layers["service"].append(name)
+        else:
+            layers["unit"].append(name)
+    return layers
 
 
 def resolve_paths(layer_names: str) -> list[str]:
     """按层解析为具体测试文件路径。"""
     requested = [n.strip() for n in layer_names.split(",") if n.strip()]
-    unknown = [n for n in requested if n not in LAYERS]
+    layers = resolve_layer_files()
+    unknown = [n for n in requested if n not in layers]
     if unknown:
-        raise SystemExit(f"未知层: {', '.join(unknown)}；可选: {', '.join(LAYERS)}")
+        raise SystemExit(f"未知层: {', '.join(unknown)}；可选: {', '.join(layers)}")
     paths = []
     for name in requested:
-        for f in LAYERS[name]:
+        for f in layers[name]:
             p = TESTS / f
             if p.exists():
                 paths.append(str(p))
@@ -98,7 +99,7 @@ def build_cmd(args: argparse.Namespace, paths: list[str]) -> list[str]:
     cmd = [PY, "-m", "pytest"]
     cmd += ["--tb=short", "-q"]
 
-    if args.no_xdist:
+    if args.no_xdist or args.jobs == "0":
         cmd += ["-n", "0"]
     elif args.jobs != "0":
         cmd += ["-n", args.jobs]
@@ -127,11 +128,48 @@ def build_cmd(args: argparse.Namespace, paths: list[str]) -> list[str]:
     if args.tests:
         for t in args.tests:
             p = Path(t)
-            cmd.append(str(p if p.is_absolute() else (TESTS / p)))
+            if p.is_absolute():
+                cmd.append(str(p))
+            elif p.parts and p.parts[0] == "tests":
+                cmd.append(str(ROOT / p))
+            else:
+                cmd.append(str(TESTS / p))
     else:
         cmd += paths
 
     return cmd
+
+
+def build_report(target: str, rc: int, elapsed: float, output: str, cmd: list[str]) -> dict:
+    """将 pytest 终端摘要映射为统一运行报告。"""
+    counts = {key: 0 for key in ("passed", "failed", "warned", "skipped")}
+    for key in counts:
+        match = re.search(rf"(\d+)\s+{key}", output)
+        if match:
+            counts[key] = int(match.group(1))
+    total = sum(counts.values())
+    return {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        "target": target,
+        "status": "passed" if rc == 0 else "failed",
+        "summary": {
+            "total": total,
+            **counts,
+            "passRate": round(counts["passed"] / total * 100, 1) if total else 0.0,
+            "elapsedMs": int(elapsed * 1000),
+        },
+        "results": [
+            {
+                "name": "backend-pytest",
+                "status": "pass" if rc == 0 else "fail",
+                "tags": [target],
+                "durationMs": int(elapsed * 1000),
+                "detail": output[-4000:] if rc else "",
+                "reportPath": "",
+            }
+        ],
+        "command": " ".join(cmd),
+    }
 
 
 def collect_names(cmd: list[str]) -> list[str]:
@@ -198,34 +236,23 @@ def main() -> int:
     start = time.monotonic()
     print(f"[test-platform] cwd={ROOT}")
     print(f"[test-platform] cmd={' '.join(cmd)}")
-    rc = subprocess.run(cmd, cwd=ROOT).returncode
+    completed = subprocess.run(cmd, cwd=ROOT, text=True, capture_output=True)
+    if completed.stdout:
+        print(completed.stdout, end="")
+    if completed.stderr:
+        print(completed.stderr, end="", file=sys.stderr)
+    rc = completed.returncode
     elapsed = time.monotonic() - start
+    target = args.layer or ("quick" if args.quick else ("full" if args.full else "custom"))
+    report = build_report(target, rc, elapsed, completed.stdout + completed.stderr, cmd)
 
     if args.report:
-        layer = args.layer or ("quick" if args.quick else ("full" if args.full else "custom"))
-        report = {
-            "layer": layer,
-            "jobs": args.jobs,
-            "exit_code": rc,
-            "elapsed_sec": round(elapsed, 2),
-            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-            "cmd": " ".join(cmd),
-        }
         out = Path(args.report)
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, ensure_ascii=False, indent=2))
         print(f"[test-platform] 报告: {out}")
 
     if args.report_dir:
-        layer = args.layer or ("quick" if args.quick else ("full" if args.full else "custom"))
-        report = {
-            "layer": layer,
-            "jobs": args.jobs,
-            "exit_code": rc,
-            "elapsed_sec": round(elapsed, 2),
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
-            "cmd": " ".join(cmd),
-        }
         out = Path(args.report_dir) / f"run-{time.strftime('%Y%m%d_%H%M%S')}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps(report, ensure_ascii=False, indent=2))

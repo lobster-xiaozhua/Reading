@@ -63,6 +63,10 @@ class Settings(BaseSettings):
     # 单个 Redis 命令超过该毫秒数记为慢命令（计入 /metrics）
     redis_slow_command_threshold_ms: float = 20.0
 
+    # ── 运行观测 ───────────────────────────────────────────
+    selfcheck_url: str = "http://127.0.0.1:8090"
+    selfcheck_timeout_seconds: float = 5.0
+
     # ── CORS ─────────────────────────────────────────────
     cors_origins: list[str] = Field(default_factory=lambda: ["*"])
 

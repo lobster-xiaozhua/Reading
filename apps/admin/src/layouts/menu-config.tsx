@@ -9,6 +9,7 @@ import {
   SettingOutlined,
   BarChartOutlined,
   DollarOutlined,
+  MonitorOutlined,
 } from "@ant-design/icons";
 import type { Permission } from "@/api/types";
 
@@ -102,6 +103,14 @@ export const menuConfig: MenuItem[] = [
     labelKey: "menu:system",
     path: "/system",
     icon: <SettingOutlined />,
+    permissions: ["system.config"],
+  },
+  {
+    key: "operations",
+    label: "运行看板",
+    labelKey: "menu:operations",
+    path: "/operations",
+    icon: <MonitorOutlined />,
     permissions: ["system.config"],
   },
   {

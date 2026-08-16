@@ -57,6 +57,7 @@ export default {
     author: "作者管理",
     permission: "角色权限",
     system: "系统设置",
+    operations: "运行看板",
     royalty: "稿费管理",
   },
   layout: {

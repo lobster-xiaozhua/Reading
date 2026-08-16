@@ -35,6 +35,13 @@ app = FastAPI(title="真实流量自检服务", version="1.0.0")
 _runner = SelfCheckRunner()
 
 
+@app.on_event("startup")
+async def run_startup_health_check() -> None:
+    """服务就绪前执行轻量依赖检查，并使结果可供看板读取。"""
+    job_id = _runner.submit("health")
+    _runner.run(job_id, "health")
+
+
 class RunRequest(BaseModel):
     tag: str = Field("all", description="all|health|fast|api|pages")
     timeout_ms: int = Field(15000, ge=500, le=60000)
@@ -69,7 +76,7 @@ async def readyz() -> JSONResponse:
 @app.post("/selfcheck/run")
 async def selfcheck_run(req: RunRequest) -> dict[str, Any]:
     """后台触发一次全量自检，返回 job_id。"""
-    job_id = _runner.submit(req.tag)
+    job_id = _runner.submit(req.tag, req.timeout_ms)
     threading.Thread(target=_runner.run, args=(job_id, req.tag), daemon=True).start()
     return {"jobId": job_id, "tag": req.tag, "status": "pending"}
 

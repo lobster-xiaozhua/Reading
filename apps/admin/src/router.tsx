@@ -27,6 +27,7 @@ const RoyaltyPage = lazy(() => import("./pages/RoyaltyPage"));
 const PermissionPage = lazy(() => import("./pages/PermissionPage"));
 const UserListPage = lazy(() => import("./pages/UserListPage"));
 const SystemConfigPage = lazy(() => import("./pages/SystemConfigPage"));
+const OperationsPage = lazy(() => import("./pages/OperationsPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 const withSuspense = (node: React.ReactNode) => (
@@ -94,6 +95,14 @@ export const router: ReturnType<typeof createBrowserRouter> =
         },
         // 系统设置模块
         { path: "system", element: withSuspense(<SystemConfigPage />) },
+        {
+          path: "operations",
+          element: withSuspense(
+            <RequirePermission permissions={["system.config"]}>
+              <OperationsPage />
+            </RequirePermission>,
+          ),
+        },
       ],
     },
     { path: "/404", element: withSuspense(<NotFoundPage />) },

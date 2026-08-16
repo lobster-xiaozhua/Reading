@@ -328,6 +328,42 @@ class SystemMetricsSnapshot(CamelModel):
     slow_query_top: list[SlowItem] = []
 
 
+class OperationCheckResult(CamelModel):
+    name: str
+    status: str
+    tags: list[str] = []
+    duration_ms: int = 0
+    detail: str = ""
+
+
+class OperationSummary(CamelModel):
+    total: int = 0
+    passed: int = 0
+    failed: int = 0
+    warned: int = 0
+    skipped: int = 0
+    pass_rate: float = 0.0
+    elapsed_ms: int = 0
+
+
+class OperationsSnapshot(CamelModel):
+    service_status: str = "unavailable"
+    ready: bool = False
+    failed_dependencies: int = 0
+    has_report: bool = False
+    job_id: str = ""
+    job_status: str = ""
+    tag: str = ""
+    timestamp: str = ""
+    summary: OperationSummary = OperationSummary()
+    results: list[OperationCheckResult] = []
+
+
+class OperationsRunBody(CamelModel):
+    tag: str = "health"
+    timeout_ms: int = 15000
+
+
 # ── 用户管理 ────────────────────────────────────────────
 class UserListItem(CamelModel):
     id: str
@@ -362,6 +398,10 @@ __all__ = [
     "NovelListParams",
     "NovelListResponse",
     "NovelSubmitBody",
+    "OperationCheckResult",
+    "OperationSummary",
+    "OperationsRunBody",
+    "OperationsSnapshot",
     "PermissionItem",
     "RedisCommandMetric",
     "RedisPatternMetric",

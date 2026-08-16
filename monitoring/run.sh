@@ -45,13 +45,16 @@ check_service "B 端 Admin" "http://localhost:5174" || true
 check_service "C 端 Web" "http://localhost:5173" || true
 
 # 全局真实请求检查（覆盖 OpenAPI 全部端点，无需浏览器）
+GLOBAL_OK=0
 if [ "$ONLY" = "global" ] || [ "$ONLY" = "" ]; then
   echo ""
   echo "--- 全局真实请求检查 ---"
   GLOBAL_REPORT="$REPORT_DIR/global-$TIMESTAMP.json"
+  set +e
   python3 "$PROJECT_ROOT/scripts/global-check/global_check.py" \
-    --report "$GLOBAL_REPORT" 2>&1 || true
+    --report "$GLOBAL_REPORT" 2>&1
   GLOBAL_OK=$?
+  set -e
   if [ $GLOBAL_OK -ne 0 ]; then
     echo "  [WARN] 全局检查存在失败项（详见报告: $GLOBAL_REPORT）"
   else
@@ -64,7 +67,7 @@ if [ "$ONLY" = "global" ]; then
   echo "========================================="
   echo "  全局检查报告: $GLOBAL_REPORT"
   echo "========================================="
-  exit 0
+  exit $GLOBAL_OK
 fi
 
 echo ""
@@ -80,12 +83,14 @@ case "$ONLY" in
 esac
 
 cd "$PROJECT_ROOT"
+set +e
 npx playwright test --config="$MONITOR_DIR/playwright.config.ts" \
   $PROJECT_FILTER \
   --reporter="$REPORT_MODE" \
   --output="$REPORT_DIR/report-$TIMESTAMP" 2>&1 | tee "$REPORT_DIR/output-$TIMESTAMP.log"
 
-EXIT_CODE=$?
+EXIT_CODE=${PIPESTATUS[0]}
+set -e
 
 REPORT_FILE="$REPORT_DIR/report-$TIMESTAMP.json"
 if [ -f "$MONITOR_DIR/results.json" ]; then
@@ -103,4 +108,7 @@ echo "  报告: $REPORT_FILE"
 echo "  日志: $REPORT_DIR/output-$TIMESTAMP.log"
 echo "========================================="
 
-exit $EXIT_CODE
+if [ $EXIT_CODE -ne 0 ]; then
+  exit $EXIT_CODE
+fi
+exit $GLOBAL_OK
