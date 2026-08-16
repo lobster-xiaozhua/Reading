@@ -26,9 +26,6 @@ const { Title, Text } = Typography;
 
 const DEMO_ACCOUNTS = [
   { label: "管理员", username: "admin", password: "admin123" },
-  { label: "内容管理员", username: "content", password: "content123" },
-  { label: "审核员", username: "auditor", password: "auditor123" },
-  { label: "运营", username: "operation", password: "operation123" },
 ];
 
 export default function LoginPage() {

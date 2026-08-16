@@ -32,9 +32,6 @@ _LOGIN_FAIL_LIMIT = 5
 _LOGIN_LOCK_TTL = 15 * 60  # 15 分钟
 _DEMO_ADMINS = [
     ("admin", "admin123", "演示管理员", "super-admin"),
-    ("content", "content123", "内容管理员", "content-admin"),
-    ("auditor", "auditor123", "审核员", "auditor"),
-    ("operation", "operation123", "运营管理员", "operation-admin"),
 ]
 
 
@@ -246,21 +243,39 @@ class AuthService:
     async def _ensure_demo_admin(self) -> None:
         """确保 demo 管理员存在（开发/测试环境）。
 
-        与 B 端登录页演示账号及 seed.DEMO_ADMINS 保持一致。
+        统一为单一超级管理员账号，其他演示账号保持禁用状态。
         """
-        for username, password, nickname, role_key in _DEMO_ADMINS:
-            admin = await self._find_admin(username)
-            if not admin:
-                admin = Admin(
-                    username=username,
-                    nickname=nickname,
-                    password_hash=hash_password(password),
-                    role_key=role_key,
-                    enabled=1,
-                )
-                self.session.add(admin)
+        # 确保 admin 账号存在并启用
+        admin = await self._find_admin("admin")
+        if not admin:
+            admin = Admin(
+                username="admin",
+                nickname="演示管理员",
+                password_hash=hash_password("admin123"),
+                role_key="super-admin",
+                enabled=1,
+            )
+            self.session.add(admin)
+        else:
+            admin.password_hash = hash_password("admin123")
+            admin.nickname = "演示管理员"
+            admin.role_key = "super-admin"
+            admin.enabled = 1
+
+        # 禁用其他三个演示账号
+        for username in ("content", "auditor", "operation"):
+            other = await self._find_admin(username)
+            if other:
+                other.enabled = 0
             else:
-                admin.password_hash = hash_password(password)
-                admin.nickname = nickname
-                admin.role_key = role_key
+                # 若不存在则创建并禁用
+                other = Admin(
+                    username=username,
+                    nickname=f"{username}演示账号",
+                    password_hash=hash_password(f"{username}123"),
+                    role_key=f"{username}-role",
+                    enabled=0,
+                )
+                self.session.add(other)
+
         await self.session.commit()

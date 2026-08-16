@@ -708,11 +708,8 @@ export default {
     passwordPlaceholder: "请输入密码",
     rememberMe: "记住我（7 天免登录）",
     login: "登录",
-    demoAccount: "演示账号（P6 多角色）：",
+    demoAccount: "演示账号：",
     demoAdmin: "admin / admin123（超级管理员）",
-    demoContent: "content / content123（内容管理员）",
-    demoAuditor: "auditor / auditor123（审核员）",
-    demoOperation: "operation / operation123（运营管理员）",
     message: {
       success: "登录成功",
       failed: "登录失败，请检查用户名和密码",

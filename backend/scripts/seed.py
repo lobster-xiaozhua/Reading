@@ -98,12 +98,9 @@ NOVELS: list[tuple[str, str, str, str, int]] = [
     ("大奉打更人", "卖报小郎君", "xuanhuan", "buyout", 45),
 ]
 
-# 演示管理员：(username, password, nickname, role_key) —— 与 B 端登录页演示账号一一对应
+# 演示管理员：仅保留 super-admin 统一账号
 DEMO_ADMINS: list[tuple[str, str, str, str]] = [
     ("admin", "admin123", "演示管理员", "super-admin"),
-    ("content", "content123", "内容管理员", "content-admin"),
-    ("auditor", "auditor123", "审核员", "auditor"),
-    ("operation", "operation123", "运营管理员", "operation-admin"),
 ]
 
 
@@ -128,7 +125,7 @@ async def seed() -> None:
                 if p not in existing:
                     db.add(RolePermission(role_key=key, perm_key=p))
 
-        # ── 演示管理员（B 端登录页 4 个账号）─────────
+        # ── 演示管理员（统一超级管理员账号）─────────
         for username, password, nickname, role_key in DEMO_ADMINS:
             admin = (
                 await db.execute(select(Admin).where(Admin.username == username))
@@ -144,6 +141,17 @@ async def seed() -> None:
                         enabled=1,
                     )
                 )
+            else:
+                admin.password_hash = hash_password(password)
+                admin.enabled = 1
+
+        # 禁用其他三个演示账号
+        for username in ("content", "auditor", "operation"):
+            other = (
+                await db.execute(select(Admin).where(Admin.username == username))
+            ).scalars().first()
+            if other:
+                other.enabled = 0
 
         # ── 读者账号 reader / reader123 ────────────
         reader = (

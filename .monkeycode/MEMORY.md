@@ -69,3 +69,12 @@ Entries discovered by the Agent during task execution should follow this format:
   - 细致分类选项尽量横向排列（flex-wrap 换行）；若是子页面（弹窗/抽屉/内嵌面板）则纵向排列
   - 多选字段用 Checkbox.Group，单选字段用平铺的 Radio.Group 保持单选语义
   - 筛选多选以逗号分隔传参，后端 repo 层用 split_csv 拆为 in_ 查询
+
+[User Instruction Summary]
+- Date: 2026-08-16
+- Context: 用户要求将四个演示账号合并为单一的超级管理员账号
+- Instructions:
+  - B 端控制台只有一个管理员账号 `admin / admin123`，拥有全部权限
+  - 其他三个账号（content、auditor、operation）保持存在但禁用
+  - 登录页仅展示 `admin` 演示账号，移除多角色提示文案
+  - README 和 seed.py 同步更新，确保新环境默认只有单一超级管理员

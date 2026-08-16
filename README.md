@@ -73,9 +73,6 @@ cd apps/web && pnpm dev
 | 端 | 账号 | 密码 | 说明 |
 |----|------|------|------|
 | B 端后台 | `admin` | `admin123` | 超级管理员（全部权限） |
-| B 端后台 | `content` | `content123` | 内容管理员 |
-| B 端后台 | `auditor` | `auditor123` | 审核员 |
-| B 端后台 | `operation` | `operation123` | 运营管理员 |
 | C 端读者 | `reader` | `reader123` | 普通读者 |
 
 > 登录页提供「演示账号」一键填充，无需手输。生产环境请更换密码并关闭 DEBUG。

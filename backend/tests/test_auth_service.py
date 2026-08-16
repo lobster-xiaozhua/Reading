@@ -54,9 +54,14 @@ class TestLogin:
         with pytest.raises(BizError):
             await svc.login("nonexistent", "password")
 
-    async def test_login_disabled_admin(self, svc, db_session):
+    async def test_login_disabled_admin(self, svc, db_session, monkeypatch):
+        """禁用账号无法登录（绕过 demo 自动修复逻辑）。"""
         await _create_admin(db_session, enabled=0)
-        with pytest.raises(BizError):
+        # monkeypatch 阻止 _ensure_demo_admin 被调用
+        async def noop():
+            pass
+        monkeypatch.setattr(svc, '_ensure_demo_admin', noop)
+        with pytest.raises(BizError, match="已被禁用"):
             await svc.login("admin", "admin123")
 
     async def test_login_locked_account(self, svc, db_session, redis_client):
@@ -157,7 +162,7 @@ class TestEnsureDemoAdmin:
         await _create_admin(db_session)
         await svc._ensure_demo_admin()
         admins = (await db_session.execute(select(Admin))).scalars().all()
-        # 已有 admin 保留不重复，并补齐其余 3 个演示账号
+        # 已有 admin 保留不重复，并补齐其余 3 个演示账号为禁用状态
         assert len(admins) == 4
         assert {a.username for a in admins} == {
             "admin",
@@ -165,6 +170,12 @@ class TestEnsureDemoAdmin:
             "auditor",
             "operation",
         }
+        # admin 启用，其他三个禁用
+        admin = next(a for a in admins if a.username == "admin")
+        assert admin.enabled == 1
+        for username in ("content", "auditor", "operation"):
+            other = next(a for a in admins if a.username == username)
+            assert other.enabled == 0
 
 
 class TestLogout:
@@ -193,3 +204,10 @@ class TestGetCurrentUser:
         result = await svc.get_current_user(ctx)
         assert result is not None
         assert result.username == "ghost"
+
+
+class TestDisabledAccounts:
+    async def test_disabled_account_cannot_login(self, svc, db_session):
+        await _create_admin(db_session, username="content", password_hash=hash_password("content123"), enabled=0)
+        with pytest.raises(BizError, match="已被禁用"):
+            await svc.login("content", "content123")
