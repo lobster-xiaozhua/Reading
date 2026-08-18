@@ -19,7 +19,7 @@ import {
   Skeleton,
   useAsyncState,
 } from "@novel/components";
-import { NovelBookOpen, SystemUser, ContentTag } from "@novel/icons";
+import { NovelBookOpen, SystemUser, ContentTag, ActionSearch } from "@novel/icons";
 import { fetcher } from "@/api/fetcher";
 import { toBook } from "@/utils/convert";
 import type { BookSummary, SearchSuggestion } from "@/api/types";
@@ -474,22 +474,12 @@ export default function SearchPage() {
           ) : results.length === 0 ? (
             <EmptyState
               title={`没有找到与「${committedQuery}」相关的书籍`}
-              description="试试更换关键词或减少筛选条件"
-              illustration={
-                <svg
-                  viewBox="0 0 120 120"
-                  width="120"
-                  height="120"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  aria-hidden
-                >
-                  <circle cx="50" cy="50" r="28" />
-                  <path d="M72 72l16 16" />
-                  <path d="M40 50h20M50 40v20" opacity="0.4" />
-                </svg>
+              description="试试更换关键词或浏览热门推荐"
+              illustration={<ActionSearch size="xl" />}
+              action={
+                <Link to="/category" className="search-page__empty-cta">
+                  浏览分类
+                </Link>
               }
             />
           ) : (

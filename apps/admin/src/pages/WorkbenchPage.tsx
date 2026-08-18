@@ -299,6 +299,7 @@ export default function WorkbenchPage() {
   );
 
   /* 业务图表区（统一控制面板） */
+  const hasBusinessData = wordCountData.length > 0 || funnelData.length > 0;
   const businessCharts = (
     <Card title={t("workbench:businessCharts")}>
       {businessLoading ? (
@@ -314,6 +315,16 @@ export default function WorkbenchPage() {
             {t("common:retry")}
           </Button>
         </Empty>
+      ) : !hasBusinessData ? (
+        <div className="wp-empty-hint">
+          <svg className="wp-empty-hint__icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+            <rect x="8" y="16" width="48" height="32" rx="4" />
+            <path d="M16 28h8M16 36h16M16 44h12" />
+            <circle cx="48" cy="24" r="6" strokeDasharray="3 3" />
+          </svg>
+          <div className="wp-empty-hint__title">暂无业务数据</div>
+          <div className="wp-empty-hint__desc">请先在作品管理中添加作品，数据将在这里展示</div>
+        </div>
       ) : (
         <Row gutter={[16, 16]}>
           <Col span={24}>

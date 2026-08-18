@@ -12,6 +12,8 @@ export interface EmptyStateProps {
   action?: ReactNode;
   /** 自定义插画，默认使用内置线框插画 */
   illustration?: ReactNode;
+  /** 大小变体：compact | default */
+  size?: "compact" | "default";
 }
 
 const DefaultIllustration = () => (
@@ -37,9 +39,13 @@ export function EmptyState({
   description,
   action,
   illustration,
+  size = "default",
 }: EmptyStateProps) {
   return (
-    <div className="novel-empty" role="status">
+    <div
+      className={`novel-empty ${size === "compact" ? "is-compact" : ""}`}
+      role="status"
+    >
       <div className="novel-empty__illustration">
         {illustration ?? <DefaultIllustration />}
       </div>

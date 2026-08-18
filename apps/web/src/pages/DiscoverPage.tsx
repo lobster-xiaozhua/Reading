@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import {
   BookCard,
   EmptyState,
+  Skeleton,
   useAsyncState,
 } from "@novel/components";
 import { Carousel } from "@/components/Carousel";
@@ -21,6 +22,7 @@ import {
   NovelMedal,
   NovelReward,
   NovelBookClosed,
+  NovelBookOpen,
   ContentBook,
   NovelMoon,
   NovelReadingGlasses,
@@ -97,7 +99,20 @@ export default function DiscoverPage() {
           <section className="discover-page__banner container-page">
             <DiscoverModule loading={pageLoading} skeletonRows={8}>
               {home.banners.length === 0 ? (
-                <EmptyState title="暂无轮播内容" />
+                pageLoading ? (
+                  <Skeleton rows={3} active />
+                ) : (
+                  <EmptyState
+                    title="探索精彩世界"
+                    description="发现海量精品小说，开启你的阅读之旅"
+                    illustration={<NovelBookOpen size="xl" />}
+                    action={
+                      <Link to="/category" className="discover-page__empty-cta">
+                        浏览分类
+                      </Link>
+                    }
+                  />
+                )
               ) : (
                 <Carousel banners={home.banners} />
               )}
@@ -169,7 +184,20 @@ export default function DiscoverPage() {
             />
             <DiscoverModule loading={pageLoading} skeletonRows={5}>
               {home.hotBooks.length === 0 ? (
-                <EmptyState title="暂无热门推荐" />
+                pageLoading ? (
+                  <Skeleton rows={3} active />
+                ) : (
+                  <EmptyState
+                    title="暂无热门推荐"
+                    description="精彩作品正在入库中，敬请期待"
+                    illustration={<NovelBookOpen size="xl" />}
+                    action={
+                      <Link to="/category" className="discover-page__empty-cta">
+                        浏览分类
+                      </Link>
+                    }
+                  />
+                )
               ) : (
                 <div className="discover-page__hot-grid">
                   {home.hotBooks.filter(Boolean).slice(0, 6).map((b, idx) => (
@@ -209,7 +237,9 @@ export default function DiscoverPage() {
             />
             <DiscoverModule loading={pageLoading} skeletonRows={3}>
               {home.freeBooks.length === 0 ? (
-                <EmptyState title="暂无限免书籍" />
+                pageLoading ? (
+                  <Skeleton rows={2} active />
+                ) : null
               ) : (
                 <div className="discover-page__free-grid">
                   {home.freeBooks.filter(Boolean).slice(0, 4).map((b) => (
@@ -280,7 +310,9 @@ export default function DiscoverPage() {
                 </Link>
               </div>
               {(home.rankings[rankType] ?? []).length === 0 ? (
-                <EmptyState title="暂无榜单数据" />
+                pageLoading ? (
+                  <Skeleton rows={5} active />
+                ) : null
               ) : (
                 <ol className="discover-page__rank-list">
                   {(home.rankings[rankType] ?? []).slice(0, 10).map((b, i) => (

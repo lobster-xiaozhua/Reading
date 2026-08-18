@@ -10,7 +10,7 @@ import {
   type MouseEvent as ReactMouseEvent,
 } from "react";
 import { Link } from "react-router-dom";
-import { NovelChapterLock, NavigationBack } from "@novel/icons";
+import { NovelChapterLock, NavigationBack, NovelReadingGlasses } from "@novel/icons";
 import {
   EmptyState,
   useAsyncState,
@@ -597,9 +597,10 @@ export default function ReadingStatsPage() {
       ) : isEmpty ? (
         <EmptyState
           title="还没有阅读数据"
-          description="去读一本书吧"
+          description="去读一本书，开启你的阅读之旅"
+          illustration={<NovelReadingGlasses size="xl" />}
           action={
-            <Link to="/" className="reading-stats-page__retry">
+            <Link to="/" className="reading-stats-page__cta">
               去发现好书
             </Link>
           }
